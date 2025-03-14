@@ -87,7 +87,7 @@
                         </td>
                         <td>
                             <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->rt->name }}
+                                {{ $item->rt->name ?? '-' }}
                             </a>
                         </td>
                         <td>

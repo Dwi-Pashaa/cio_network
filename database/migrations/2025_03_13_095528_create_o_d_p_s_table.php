@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('code');
             $table->foreignId('hometowns_id')->references('id')->on('home_towns')->onDelete('CASCADE');
-            $table->foreignId('rts_id')->references('id')->on('home_towns')->onDelete('CASCADE');
-            $table->foreignId('rws_id')->references('id')->on('home_towns')->onDelete('CASCADE');
+            $table->foreignId('rts_id')->references('id')->on('rts')->onDelete('CASCADE');
+            $table->foreignId('rws_id')->references('id')->on('rws')->onDelete('CASCADE');
             $table->string('home_odc');
             $table->timestamps();
         });
