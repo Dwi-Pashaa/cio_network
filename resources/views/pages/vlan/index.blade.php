@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Desa
+    Data Vlan
 @endsection
 
 @push('css')
@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="card">
-    @can('buat desa')
+    @can('buat vlan')
         <div class="card-header">
             <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -51,26 +51,20 @@
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>Kode</th>
-                    <th>Nama Desa</th>
+                    <th>Nama Vlan</th>
                     <th>Created</th>
-                    @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                    @if(auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
             <tbody>
-                @forelse ($villages as $item)
+                @forelse ($vlans as $item)
                     <tr>
                         <td>
                             <span class="text-secondary">
                                 {{ $loop->iteration }}
                             </span>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->code }}
-                            </a>
                         </td>
                         <td>
                             <a href="#" class="text-reset" tabindex="-1">
@@ -80,15 +74,15 @@
                         <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                         </td>
-                        @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                        @if(auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan'))
                             <td>
-                                @can('ubah desa')
+                                @can('ubah vlan')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                         Edit
                                     </a>
                                 @endcan
-                                @can('hapus desa')
+                                @can('hapus vlan')
                                     <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                         Hapus
@@ -99,7 +93,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">Tidak Ada Data</td>
+                        <td colspan="4" class="text-center">Tidak Ada Data</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -107,12 +101,12 @@
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
-            Showing <span>{{ $villages->firstItem() }}</span> 
-            to <span>{{ $villages->lastItem() }}</span> of
-            <span>{{ $villages->total() }}</span> entries
+            Showing <span>{{ $vlans->firstItem() }}</span> 
+            to <span>{{ $vlans->lastItem() }}</span> of
+            <span>{{ $vlans->total() }}</span> entries
         </p>
         <ul class="pagination m-0 ms-auto">
-            {{ $villages->links() }}
+            {{ $vlans->links() }}
         </ul>
     </div>
 </div>
@@ -123,7 +117,7 @@
     <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Desa</h5>
+                <h5 class="modal-title">Tambah Vlan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close">
                 </button>
@@ -132,7 +126,7 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama Desa</label>
+                    <label for="name" class="mb-2">Nama Vlan</label>
                     <input type="text" name="name" id="name" class="form-control">
                     <span class="invalid-feedback error_name"></span>
                 </div>
@@ -148,7 +142,7 @@
 
 @push('js')
 <script>
-    const BASE = "{{ route('desa.index') }}";
+    const BASE = "{{ route('vlan.index') }}";
 
     let params = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
@@ -169,7 +163,7 @@
     });
 
     $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Desa");
+        $(".modal-title").html("Tambah Vlan");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
@@ -190,7 +184,6 @@
             url = BASE + `/${id}/update`
             method = "PUT";
         }
-        console.log(id);
         
         $.ajax({
             url: url,
@@ -232,7 +225,7 @@
             method: "GET",
             dataType: "json"
         }).done(function(response){
-            $(".modal-title").html("Edit Desa");
+            $(".modal-title").html("Edit Vlan");
             let data = response.data;
             $("#modal-simple").modal('show')
 

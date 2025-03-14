@@ -15,107 +15,161 @@
                                     </span>
                                 </a>
                             </li>
-                            <li class="nav-item {{ Route::is('user*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('user.index') }}">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Data User
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{ Route::is('type*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('type.index') }}">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-left-middle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 15h-2" /><path d="M13 12h-6" /><path d="M11 9h-4" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Data Type Pelanggan
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="./">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-group"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" /><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M17 10h2a2 2 0 0 1 2 2v1" /><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Data Pelanggan
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Master Jaringan
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="https://tabler.io/docs" target="_blank" rel="noopener">
-                                        Data Router
+                            @role('Admin')
+                                <li class="nav-item {{ Route::is('role*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('role.index') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M13.823 15.176a2 2 0 1 0 -2.638 2.651" /><path d="M12 4v10" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v5" /><path d="M15 19l2 2l4 -4" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Data Level
+                                        </span>
                                     </a>
-                                    <a class="dropdown-item" href="https://tabler.io/docs" target="_blank" rel="noopener">
-                                        Data Vlan
+                                </li>
+                                <li class="nav-item {{ Route::is('user*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('user.index') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Data User
+                                        </span>
                                     </a>
-                                    <a class="dropdown-item" href="./changelog.html">
-                                        Data ODC
+                                </li>
+                                <li class="nav-item {{ Route::is('type*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('type.index') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-left-middle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 15h-2" /><path d="M13 12h-6" /><path d="M11 9h-4" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Data Type Pelanggan
+                                        </span>
                                     </a>
-                                    <a class="dropdown-item" href="https://github.com/tabler/tabler"
-                                        target="_blank" rel="noopener">
-                                        Data ODP
+                                </li>
+                            @endrole
+                            @can('lihat pelanggan')
+                                <li class="nav-item {{ Route::is("customer*") ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('customer.index') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-group"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" /><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M17 10h2a2 2 0 0 1 2 2v1" /><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Data Pelanggan
+                                        </span>
                                     </a>
-                                    <a class="dropdown-item" href="https://github.com/tabler/tabler"
-                                        target="_blank" rel="noopener">
-                                        Data OLT
+                                </li>
+                            @endcan
+                            @if(
+                                auth()->user()->can('lihat router') || 
+                                auth()->user()->can('lihat vlan') || 
+                                auth()->user()->can('lihat odc') ||
+                                auth()->user()->can('lihat odp') ||
+                                auth()->user()->can('lihat olt')
+                            )
+                                <li class="nav-item dropdown {{ request()->is('master-network*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Jaringan
+                                        </span>
                                     </a>
-                                </div>
-                            </li>
-                            <li class="nav-item dropdown {{ request()->is('master-region*') ? 'active' : '' }}">
-                                <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Master Wilayah
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item {{ Route::is("kabupaten*") ? 'active' : '' }}" href="{{ route('kabupaten.index') }}" rel="noopener">
-                                        Data Kabupaten
+                                    <div class="dropdown-menu">
+                                        @can('lihat router')
+                                            <a class="dropdown-item {{ Route::is("router*") ? 'active' : '' }}" href="{{ route('router.index') }}" rel="noopener">
+                                                Data Router
+                                            </a>
+                                        @endcan
+                                        @can('lihat vlan')
+                                            <a class="dropdown-item {{ Route::is("vlan*") ? 'active' : '' }}" href="{{ route('vlan.index') }}" rel="noopener">
+                                                Data Vlan
+                                            </a>
+                                        @endcan
+                                        @can('lihat odc')
+                                            <a class="dropdown-item {{ Route::is("odc*") ? 'active' : '' }}" href="{{ route('odc.index') }}">
+                                                Data ODC
+                                            </a>
+                                        @endcan
+                                        @can('lihat odp')
+                                            <a class="dropdown-item {{ Route::is("odp*") ? 'active' : '' }}" href="{{ route('odp.index') }}" rel="noopener">
+                                                Data ODP
+                                            </a>
+                                        @endcan
+                                        @can('lihat olt')
+                                            <a class="dropdown-item {{ Route::is("olt*") ? 'active' : '' }}" href="{{ route('olt.index') }}" rel="noopener">
+                                                Data OLT
+                                            </a>
+                                        @endcan
+                                    </div>
+                                </li>
+                            @endif
+                            @if(
+                                auth()->user()->can('lihat kabupaten') || 
+                                auth()->user()->can('lihat kecamatan')
+                            )
+                                <li class="nav-item dropdown {{ request()->is('master-region*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Wilayah
+                                        </span>
                                     </a>
-                                    <a class="dropdown-item {{ Route::is("kecamatan*") ? 'active' : '' }}" href="{{ route('kecamatan.index') }}" rel="noopener">
-                                        Data Kecamatan
+                                    <div class="dropdown-menu">
+                                        @can('lihat kabupaten')
+                                            <a class="dropdown-item {{ Route::is("kabupaten*") ? 'active' : '' }}" href="{{ route('kabupaten.index') }}" rel="noopener">
+                                                Data Kabupaten
+                                            </a>
+                                        @endcan
+                                        @can('lihat kecamatan')
+                                            <a class="dropdown-item {{ Route::is("kecamatan*") ? 'active' : '' }}" href="{{ route('kecamatan.index') }}" rel="noopener">
+                                                Data Kecamatan
+                                            </a>
+                                        @endcan
+                                    </div>
+                                </li>
+                            @endif
+                            @if(
+                                auth()->user()->can('lihat kampung') || 
+                                auth()->user()->can('lihat desa') || 
+                                auth()->user()->can('lihat rt') || 
+                                auth()->user()->can('lihat rw')
+                            )
+                                <li class="nav-item dropdown {{ request()->is('master-settlement*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Pemukiman
+                                        </span>
                                     </a>
-                                </div>
-                            </li>
-                            <li class="nav-item dropdown {{ request()->is('master-settlement*') ? 'active' : '' }}">
-                                <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Master Pemukiman
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item {{ Route::is("kampung*") ? 'active' : '' }}" href="{{ route('kampung.index') }}" rel="noopener">
-                                        Data Kampung
-                                    </a>
-                                    <a class="dropdown-item {{ Route::is("desa*") ? 'active' : '' }}" href="{{ route('desa.index') }}" rel="noopener">
-                                        Data Desa
-                                    </a>
-                                    <a class="dropdown-item {{ Route::is("rt*") ? 'active' : '' }}" href="{{ route('rt.index') }}" rel="noopener">
-                                        Data RT
-                                    </a>
-                                    <a class="dropdown-item {{ Route::is("rw*") ? 'active' : '' }}" href="{{ route('rw.index') }}" rel="noopener">
-                                        Data RW
-                                    </a>
-                                </div>
-                            </li>
+                                    <div class="dropdown-menu">
+                                        @can('lihat kampung')
+                                            <a class="dropdown-item {{ Route::is("kampung*") ? 'active' : '' }}" href="{{ route('kampung.index') }}" rel="noopener">
+                                                Data Kampung
+                                            </a>
+                                        @endcan
+                                        @can('lihat desa')
+                                            <a class="dropdown-item {{ Route::is("desa*") ? 'active' : '' }}" href="{{ route('desa.index') }}" rel="noopener">
+                                                Data Desa
+                                            </a>
+                                        @endcan
+                                        @can('lihat rt')
+                                            <a class="dropdown-item {{ Route::is("rt*") ? 'active' : '' }}" href="{{ route('rt.index') }}" rel="noopener">
+                                                Data RT
+                                            </a>
+                                        @endcan
+                                        @can('lihat rw')
+                                            <a class="dropdown-item {{ Route::is("rw*") ? 'active' : '' }}" href="{{ route('rw.index') }}" rel="noopener">
+                                                Data RW
+                                            </a>
+                                        @endcan
+                                    </div>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </div>

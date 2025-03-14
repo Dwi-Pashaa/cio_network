@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Desa
+    Data ODP
 @endsection
 
 @push('css')
@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="card">
-    @can('buat desa')
+    @can('buat odp')
         <div class="card-header">
             <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -51,16 +51,19 @@
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>Kode</th>
-                    <th>Nama Desa</th>
+                    <th>Code</th>
+                    <th>Nama Pemilik</th>
+                    <th>Kampung</th>
+                    <th>RT</th>
+                    <th>RW</th>
                     <th>Created</th>
-                    @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                    @if(auth()->user()->can('ubah odp') || auth()->user()->can('hapus odp'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
             <tbody>
-                @forelse ($villages as $item)
+                @forelse ($odps as $item)
                     <tr>
                         <td>
                             <span class="text-secondary">
@@ -74,21 +77,36 @@
                         </td>
                         <td>
                             <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->name }}
+                                {{ $item->home_odc }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="text-reset" tabindex="-1">
+                                {{ $item->hometown->name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="text-reset" tabindex="-1">
+                                {{ $item->rt->name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="text-reset" tabindex="-1">
+                                {{ $item->rw->name }}
                             </a>
                         </td>
                         <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                         </td>
-                        @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                        @if(auth()->user()->can('ubah odp') || auth()->user()->can('hapus odp'))
                             <td>
-                                @can('ubah desa')
+                                @can('ubah odp')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                         Edit
                                     </a>
                                 @endcan
-                                @can('hapus desa')
+                                @can('hapus odp')
                                     <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                         Hapus
@@ -99,7 +117,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">Tidak Ada Data</td>
+                        <td colspan="8" class="text-center">Tidak Ada Data</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -107,12 +125,12 @@
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
-            Showing <span>{{ $villages->firstItem() }}</span> 
-            to <span>{{ $villages->lastItem() }}</span> of
-            <span>{{ $villages->total() }}</span> entries
+            Showing <span>{{ $odps->firstItem() }}</span> 
+            to <span>{{ $odps->lastItem() }}</span> of
+            <span>{{ $odps->total() }}</span> entries
         </p>
         <ul class="pagination m-0 ms-auto">
-            {{ $villages->links() }}
+            {{ $odps->links() }}
         </ul>
     </div>
 </div>
@@ -123,7 +141,7 @@
     <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Desa</h5>
+                <h5 class="modal-title">Tambah ODP</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close">
                 </button>
@@ -132,9 +150,44 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama Desa</label>
-                    <input type="text" name="name" id="name" class="form-control">
-                    <span class="invalid-feedback error_name"></span>
+                    <label for="code" class="mb-2">Kode ODP</label>
+                    <input type="text" name="code" id="code" class="form-control">
+                    <span class="invalid-feedback error_code"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="home_odc" class="mb-2">Nama Pemilik</label>
+                    <input type="text" name="home_odc" id="home_odc" class="form-control">
+                    <span class="invalid-feedback error_home_odc"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="hometowns_id" class="mb-2">Kampung</label>
+                    <select name="hometowns_id" id="hometowns_id" class="form-control">
+                        <option value="">Pilih</option>
+                        @foreach ($hometown as $hmt)
+                            <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_hometowns_id"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="rts_id" class="mb-2">RT</label>
+                    <select name="rts_id" id="rts_id" class="form-control">
+                        <option value="">Pilih</option>
+                        @foreach ($rts as $rt)
+                            <option value="{{ $rt->id }}">{{ $rt->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_rts_id"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="rws_id" class="mb-2">RW</label>
+                    <select name="rws_id" id="rws_id" class="form-control">
+                        <option value="">Pilih</option>
+                        @foreach ($rws as $rw)
+                            <option value="{{ $rw->id }}">{{ $rw->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_rws_id"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -148,7 +201,7 @@
 
 @push('js')
 <script>
-    const BASE = "{{ route('desa.index') }}";
+    const BASE = "{{ route('odp.index') }}";
 
     let params = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
@@ -169,7 +222,7 @@
     });
 
     $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Desa");
+        $(".modal-title").html("Tambah ODP");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
@@ -177,8 +230,12 @@
 
     $("#storeBtn").click(function() {
         let id = $("#id").val();
-        let type = $("#type").val()
-        let name = $("#name").val();
+        let type = $("#type").val();
+        let code = $("#code").val();
+        let home_odc = $("#home_odc").val();
+        let hometowns_id = $("#hometowns_id").val();
+        let rts_id = $("#rts_id").val();
+        let rws_id = $("#rws_id").val();
 
         let url;
         let method;
@@ -190,22 +247,26 @@
             url = BASE + `/${id}/update`
             method = "PUT";
         }
-        console.log(id);
         
         $.ajax({
             url: url,
             method: method,
             data: {
-                name: name
+                code: code,
+                home_odc: home_odc,
+                hometowns_id: hometowns_id,
+                rts_id: rts_id,
+                rws_id: rws_id
             },
         }).done(function(response) {
             if (response.errors) {
                 $.each(response.errors, function(index, value) {
-                    $("#name").addClass('is-invalid');
+                    
+                    $("#" + index).addClass('is-invalid');
                     $(".error_" + index).html(value);
 
                     setTimeout(() => {
-                        $("#name").removeClass('is-invalid');
+                        $("#" + index).removeClass('is-invalid');
                         $(".error_" + index).html('');
                     }, 3000);
                 })                
@@ -232,12 +293,16 @@
             method: "GET",
             dataType: "json"
         }).done(function(response){
-            $(".modal-title").html("Edit Desa");
+            $(".modal-title").html("Edit ODP");
             let data = response.data;
             $("#modal-simple").modal('show')
 
             $("#id").val(data.id);
-            $("#name").val(data.name);
+            $("#code").val(data.code);
+            $("#home_odc").val(data.home_odc);
+            $("#hometowns_id").val(data.hometowns_id);
+            $("#rts_id").val(data.rts_id);
+            $("#rws_id").val(data.rws_id);
             $("#type").val("update");
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);
