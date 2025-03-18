@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             'buat desa', 'lihat desa', 'ubah desa', 'hapus desa',
             'buat rt', 'lihat rt', 'ubah rt', 'hapus rt',
             'buat rw', 'lihat rw', 'ubah rw', 'hapus rw',
+            'download excel'
         ];
         
 
