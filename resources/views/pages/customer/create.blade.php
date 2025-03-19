@@ -20,7 +20,7 @@
                             <select name="types_id" id="types_id" class="form-control @error('types_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($type as $tp)
-                                    <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                                    <option value="{{ $tp->id }}" {{ old('types_id') == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
                                 @endforeach
                             </select>
                             @error('types_id')
@@ -33,7 +33,7 @@
                     <div class="col-lg-6">
                         <div class="form-group mb-3">
                             <label for="name" class="mb-2">Nama Pelanggan</label>
-                            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror">
+                            <input value="{{ old('name') }}" type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror">
                             @error('name')
                                 <span class="invalid-feedback">
                                     {{ $message }}
@@ -44,7 +44,7 @@
                     <div class="col-lg-6">
                         <div class="form-group mb-3">
                             <label for="email" class="mb-2">Email Pelanggan</label>
-                            <input type="text" name="email" id="email" class="form-control @error('email') is-invalid @enderror">
+                            <input value="{{ old('email') }}" type="text" name="email" id="email" class="form-control @error('email') is-invalid @enderror">
                             @error('email')
                                 <span class="invalid-feedback">
                                     {{ $message }}
@@ -55,7 +55,7 @@
                     <div class="col-lg-6">
                         <div class="form-group mb-3">
                             <label for="telp" class="mb-2">No Telephone</label>
-                            <input type="text" name="telp" id="telp" class="form-control @error('telp') is-invalid @enderror">
+                            <input value="{{ old('telp') }}" type="text" name="telp" id="telp" class="form-control @error('telp') is-invalid @enderror">
                             @error('telp')
                                 <span class="invalid-feedback">
                                     {{ $message }}
@@ -66,7 +66,7 @@
                     <div class="col-lg-6">
                         <div class="form-group mb-3">
                             <label for="mac_address" class="mb-2">Mac Address</label>
-                            <input type="text" name="mac_address" id="mac_address" class="form-control @error('mac_address') is-invalid @enderror">
+                            <input value="{{ old('mac_address') }}" type="text" name="mac_address" id="mac_address" class="form-control @error('mac_address') is-invalid @enderror">
                             @error('mac_address')
                                 <span class="invalid-feedback">
                                     {{ $message }}
@@ -80,7 +80,7 @@
                             <select name="routers_id" id="routers_id" class="form-control @error('routers_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($router as $rtr)
-                                    <option value="{{ $rtr->id }}">{{ $rtr->name }}</option>
+                                    <option value="{{ $rtr->id }}" {{ old('routers_id') == $rtr->id ? 'selected' : '' }}>{{ $rtr->name }}</option>
                                 @endforeach
                             </select>
                             @error('routers_id')
@@ -96,7 +96,7 @@
                             <select name="hometowns_id" id="hometowns_id" class="form-control @error('hometowns_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($hometown as $hmt)
-                                    <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
+                                    <option value="{{ $hmt->id }}" {{ old('hometowns_id') == $hmt->id ? 'selected' : '' }}>{{ $hmt->name }}</option>
                                 @endforeach
                             </select>
                             @error('hometowns_id')
@@ -112,7 +112,7 @@
                             <select name="villages_id" id="villages_id" class="form-control @error('villages_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($village as $vlg)
-                                    <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
+                                    <option value="{{ $vlg->id }}" {{ old('villages_id') == $vlg->id ? 'selected' : '' }}>{{ $vlg->name }}</option>
                                 @endforeach
                             </select>
                             @error('villages_id')
@@ -128,7 +128,7 @@
                             <select name="rts_id" id="rts_id" class="form-control @error('rts_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($rt as $rts)
-                                    <option value="{{ $rts->id }}">{{ $rts->name }}</option>
+                                    <option value="{{ $rts->id }}" {{ old('rts_id') == $rts->id ? 'selected' : '' }}>{{ $rts->name }}</option>
                                 @endforeach
                             </select>
                             @error('rts_id')
@@ -144,7 +144,7 @@
                             <select name="rws_id" id="rws_id" class="form-control @error('rws_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($rw as $rws)
-                                    <option value="{{ $rws->id }}">{{ $rws->name }}</option>
+                                    <option value="{{ $rws->id }}" {{ old('rws_id') == $rws->id ? 'selected' : '' }}>{{ $rws->name }}</option>
                                 @endforeach
                             </select>
                             @error('rws_id')
@@ -160,7 +160,7 @@
                             <select name="districts_id" id="districts_id" class="form-control @error('districts_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($district as $dsc)
-                                    <option value="{{ $dsc->id }}">{{ $dsc->name }}</option>
+                                    <option value="{{ $dsc->id }}" {{ old('districts_id') == $dsc->id ? 'selected' : '' }}>{{ $dsc->name }}</option>
                                 @endforeach
                             </select>
                             @error('districts_id')
@@ -176,7 +176,7 @@
                             <select name="regencies_id" id="regencies_id" class="form-control @error('regencies_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($regencie as $rgc)
-                                    <option value="{{ $rgc->id }}">{{ $rgc->name }}</option>
+                                    <option value="{{ $rgc->id }}" {{ old('regencies_id') == $rgc->id ? 'selected' : '' }}>{{ $rgc->name }}</option>
                                 @endforeach
                             </select>
                             @error('regencies_id')
@@ -192,7 +192,7 @@
                             <select name="vlans_id" id="vlans_id" class="form-control @error('vlans_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($vlan as $vln)
-                                    <option value="{{ $vln->id }}">{{ $vln->name }}</option>
+                                    <option value="{{ $vln->id }}" {{ old('vlans_id') == $vln->id ? 'selected' : '' }}>{{ $vln->name }}</option>
                                 @endforeach
                             </select>
                             @error('vlans_id')
@@ -208,7 +208,7 @@
                             <select name="odcs_id" id="odcs_id" class="form-control @error('odcs_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($odc as $odcs)
-                                    <option value="{{ $odcs->id }}">
+                                    <option value="{{ $odcs->id }}" {{ old('odcs_id') == $odcs->id ? 'selected' : '' }}>
                                         {{ $odcs->code }} | {{ $odcs->hometown->name }} 
                                         | {{ $odcs->rt->name }} | {{ $odcs->rw->name }} |
                                         {{ $odcs->home_odc }}
@@ -228,7 +228,7 @@
                             <select name="odps_id" id="odps_id" class="form-control @error('odps_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($odp as $odps)
-                                    <option value="{{ $odps->id }}">
+                                    <option value="{{ $odps->id }}" {{ old('odps_id') == $odps->id ? 'selected' : '' }}>
                                         {{ $odps->code }} | {{ $odps->hometown->name }} 
                                         | {{ $odps->rt->name }} | {{ $odps->rw->name }} |
                                         {{ $odps->home_odc }}
@@ -248,7 +248,7 @@
                             <select name="olts_id" id="olts_id" class="form-control @error('olts_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($olt as $olts)
-                                    <option value="{{ $olts->id }}">
+                                    <option value="{{ $olts->id }}" {{ old('olts_id') == $olts->id ? 'selected' : '' }}>
                                         {{ $olts->hometown->name }} | {{ $olts->name }}
                                     </option>
                                 @endforeach
