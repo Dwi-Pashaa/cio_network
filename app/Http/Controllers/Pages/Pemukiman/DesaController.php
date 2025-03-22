@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pages\Pemukiman;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pages;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;

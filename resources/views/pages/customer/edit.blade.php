@@ -14,6 +14,7 @@
             <form action="{{ route('customer.update', ['id' => $customer->id]) }}" method="POST">
                 @csrf
                 @method("PUT")
+                <input type="hidden" name="status" id="status" value="active">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="form-group mb-3">

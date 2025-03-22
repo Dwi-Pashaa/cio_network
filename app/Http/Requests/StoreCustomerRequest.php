@@ -36,6 +36,7 @@ class StoreCustomerRequest extends FormRequest
             'odcs_id'      => 'required',
             'odps_id'      => 'required',
             'olts_id'      => 'required',
+            'status'       => "required"
         ];
     }
 

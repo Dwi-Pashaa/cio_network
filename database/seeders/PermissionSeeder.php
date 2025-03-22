@@ -14,7 +14,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'download excel',
+            'lihat halaman', 'buat halaman', 'edit halaman', 'hapus halaman',
         ];
 
         foreach ($permissions as $permission) {

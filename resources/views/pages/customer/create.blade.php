@@ -13,6 +13,7 @@
         <div class="card-body">
             <form action="{{ route('customer.store') }}" method="POST">
                 @csrf
+                <input type="hidden" name="status" id="status" value="active">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="form-group mb-3">

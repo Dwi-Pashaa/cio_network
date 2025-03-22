@@ -190,7 +190,6 @@
             url = BASE + `/${id}/update`
             method = "PUT";
         }
-        console.log(id);
         
         $.ajax({
             url: url,
