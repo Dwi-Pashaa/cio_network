@@ -8,11 +8,13 @@ use App\Http\Controllers\Pages\Jaringan\ODPController;
 use App\Http\Controllers\Pages\Jaringan\OLTController;
 use App\Http\Controllers\Pages\Jaringan\RouterController;
 use App\Http\Controllers\Pages\Jaringan\VlanController;
+use App\Http\Controllers\Pages\PagesController;
 use App\Http\Controllers\Pages\Pemukiman\DesaController;
 use App\Http\Controllers\Pages\Pemukiman\KampungController;
 use App\Http\Controllers\Pages\Pemukiman\RTController;
 use App\Http\Controllers\Pages\Pemukiman\RWController;
 use App\Http\Controllers\Pages\RoleController;
+use App\Http\Controllers\Pages\SpamController;
 use App\Http\Controllers\Pages\TypeController;
 use App\Http\Controllers\Pages\UserController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
@@ -189,4 +191,27 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [KecamatanController::class, 'destroy'])->name('kecamatan.destroy');
         });
     });
+
+    // master hlaman
+    Route::prefix('master-pages')->group(function() {
+        // kabupaten
+        Route::prefix('listing')->group(function() {
+            Route::get('/', [PagesController::class, 'index'])->name('halaman.index');
+            Route::post('/store', [PagesController::class, 'store'])->name('halaman.store');
+            Route::get('/{id}/show', [PagesController::class, 'show'])->name('halaman.show');
+            Route::put('/{id}/update', [PagesController::class, 'update'])->name('halaman.update');
+            Route::delete('/{id}/destroy', [PagesController::class, 'destroy'])->name('halaman.destroy');
+        });
+
+        Route::prefix('spam')->group(function() {
+            Route::get('/', [SpamController::class, 'index'])->name('spam.index');
+            Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
+        });
+    });
+});
+
+Route::prefix('input-datas')->group(function() {
+    Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
+    Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
+    Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
 });

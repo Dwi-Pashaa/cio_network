@@ -16,49 +16,47 @@
                                 </a>
                             </li>
                             @role('Admin')
-                                <li class="nav-item {{ Route::is('role*') ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ route('role.index') }}">
+                                <li class="nav-item dropdown {{ request()->is('role*') || request()->is('user*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M13.823 15.176a2 2 0 1 0 -2.638 2.651" /><path d="M12 4v10" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v5" /><path d="M15 19l2 2l4 -4" /></svg>
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
                                         </span>
                                         <span class="nav-link-title">
+                                            Master Data
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item {{ Route::is("role*") ? 'active' : '' }}" href="{{ route('role.index') }}" rel="noopener">
                                             Data Level
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{ Route::is('user*') ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ route('user.index') }}">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Data User
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{ Route::is('type*') ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ route('type.index') }}">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-left-middle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 15h-2" /><path d="M13 12h-6" /><path d="M11 9h-4" /></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Data Type Pelanggan
-                                        </span>
-                                    </a>
+                                        </a>
+                                        <a class="dropdown-item {{ Route::is("user*") ? 'active' : '' }}" href="{{ route('user.index') }}" rel="noopener">
+                                            Data Users
+                                        </a>
+                                    </div>
                                 </li>
                             @endrole
-                            @can('lihat pelanggan')
-                                <li class="nav-item {{ Route::is("customer*") ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ route('customer.index') }}">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-group"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" /><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M17 10h2a2 2 0 0 1 2 2v1" /><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg>
-                                        </span>
-                                        <span class="nav-link-title">
+                            <li class="nav-item dropdown {{ request()->is('type*') || request()->is('customer*') ? 'active' : '' }}">
+                                <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Master Pelanggan
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu">
+                                    @role('Admin')
+                                        <a class="dropdown-item {{ Route::is('type*') ? 'active' : '' }}" href="{{ route('type.index') }}" rel="noopener">
+                                            Data Type Pelanggan
+                                        </a>
+                                    @endrole
+                                    @can('lihat pelanggan')
+                                        <a class="dropdown-item {{ Route::is("customer*") ? 'active' : '' }}" href="{{ route('customer.index') }}" rel="noopener">
                                             Data Pelanggan
-                                        </span>
-                                    </a>
-                                </li>
-                            @endcan
+                                        </a>
+                                    @endcan
+                                </div>
+                            </li>
                             @if(
                                 auth()->user()->can('lihat router') || 
                                 auth()->user()->can('lihat vlan') || 
@@ -167,6 +165,30 @@
                                                 Data RW
                                             </a>
                                         @endcan
+                                    </div>
+                                </li>
+                            @endif
+                            @if(auth()->user()->can('lihat halaman'))
+                                <li class="nav-item dropdown {{ request()->is('master-pages*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Halaman
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        @can('lihat halaman')
+                                            <a class="dropdown-item {{ Route::is("halaman*") ? 'active' : '' }}" href="{{ route('halaman.index') }}" rel="noopener">
+                                                Data Halaman
+                                            </a>
+                                        @endcan
+                                        @can('lihat halaman')
+                                        <a class="dropdown-item {{ Route::is("spam*") ? 'active' : '' }}" href="{{ route('spam.index') }}" rel="noopener">
+                                            Data Spam
+                                        </a>
+                                    @endcan
                                     </div>
                                 </li>
                             @endif

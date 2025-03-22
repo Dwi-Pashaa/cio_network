@@ -75,6 +75,7 @@ class CustomerController extends Controller
                         $q->where('name', 'like', "%$search%");
                     });
             })
+            ->where('status', 'active')
             ->paginate($sort);
 
 
