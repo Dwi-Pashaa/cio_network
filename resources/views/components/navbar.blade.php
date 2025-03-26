@@ -185,6 +185,11 @@
                                             </a>
                                         @endcan
                                         @can('lihat halaman')
+                                            <a class="dropdown-item {{ Route::is("complain*") ? 'active' : '' }}" href="{{ route('complain.index') }}" rel="noopener">
+                                                Data Halaman Complain
+                                            </a>
+                                        @endcan
+                                        @can('lihat halaman')
                                         <a class="dropdown-item {{ Route::is("spam*") ? 'active' : '' }}" href="{{ route('spam.index') }}" rel="noopener">
                                             Data Spam
                                         </a>

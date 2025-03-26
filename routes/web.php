@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\CustomerController;
 use App\Http\Controllers\Pages\DashboardController;
 use App\Http\Controllers\Pages\Jaringan\ODCController;
@@ -203,6 +204,14 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [PagesController::class, 'destroy'])->name('halaman.destroy');
         });
 
+        Route::prefix('complain')->group(function() {
+            Route::get('/', [ComplainController::class, 'index'])->name('complain.index');
+            Route::post('/store', [ComplainController::class, 'store'])->name('complain.store');
+            Route::get('/{id}/show', [ComplainController::class, 'show'])->name('complain.show');
+            Route::put('/{id}/update', [ComplainController::class, 'update'])->name('complain.update');
+            Route::delete('/{id}/destroy', [ComplainController::class, 'destroy'])->name('complain.destroy');
+        });
+
         Route::prefix('spam')->group(function() {
             Route::get('/', [SpamController::class, 'index'])->name('spam.index');
             Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
@@ -214,4 +223,9 @@ Route::prefix('input-datas')->group(function() {
     Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
     Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
     Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
+});
+
+Route::prefix('complain')->group(function() {
+    Route::get('/{slug}', [ComplainController::class, 'getPagesBySlug'])->name('complain.show.form');
+    Route::post('/send-to-wa', [ComplainController::class, 'sendToWa'])->name('compalin.sendToWa');
 });
