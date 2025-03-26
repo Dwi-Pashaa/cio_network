@@ -42,6 +42,7 @@ class PagesController extends Controller
                                 $q->where('name', 'like', "%$search%");
                             });
                         })
+                        ->where('type', 'pages')
                         ->orderBy('id', 'DESC')
                         ->paginate($sort);
 
@@ -371,10 +372,9 @@ class PagesController extends Controller
                     . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
                     . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
                     . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
-                    . "*NO HP / WA*: " . preg_replace('/^08/', '62', $customer->wa_phone) . " \n"
+                    . "*NO HP / WA*: {$customer->telp} \n"
                     . "*Email*: {$customer->email} \n"
                     . "*LANGSUNG KIRIM*";
-
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
