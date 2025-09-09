@@ -36,15 +36,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('post.login');
 
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth'])->group(function () {
     // logout
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/get-detail-count/{id}/{text}', [DashboardController::class, 'getDetailCount'])->name('dashboard.getDetailCount');
 
     // data role
-    Route::prefix('role')->group(function() {
+    Route::prefix('role')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('role.index');
         Route::post('/store', [RoleController::class, 'store'])->name('role.store');
         Route::get('/{id}/permission', [RoleController::class, 'permission'])->name('role.permission');
@@ -53,9 +54,9 @@ Route::middleware(['auth'])->group(function() {
         Route::put('/{id}/update', [RoleController::class, 'update'])->name('role.update');
         Route::delete('/{id}/destroy', [RoleController::class, 'destroy'])->name('role.destroy');
     });
-    
+
     // data users
-    Route::prefix('users')->group(function() {
+    Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::get('/create', [UserController::class, 'create'])->name('user.create');
         Route::post('/store', [UserController::class, 'store'])->name('user.store');
@@ -63,9 +64,9 @@ Route::middleware(['auth'])->group(function() {
         Route::put('/{id}/update', [UserController::class, 'update'])->name('user.update');
         Route::delete('/{id}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
     });
-    
+
     // data type pelanggan
-    Route::prefix('types')->group(function() {
+    Route::prefix('types')->group(function () {
         Route::get('/', [TypeController::class, 'index'])->name('type.index');
         Route::post('/store', [TypeController::class, 'store'])->name('type.store');
         Route::get('/{id}/show', [TypeController::class, 'show'])->name('type.show');
@@ -74,7 +75,7 @@ Route::middleware(['auth'])->group(function() {
     });
 
     // data pelanggan
-    Route::prefix('customer')->group(function() {
+    Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
         Route::get('/create', [CustomerController::class, 'create'])->name('customer.create')->can('buat pelanggan');
         Route::post('/store', [CustomerController::class, 'store'])->name('customer.store')->can('buat pelanggan');
@@ -86,9 +87,9 @@ Route::middleware(['auth'])->group(function() {
     });
 
     // master jaringan
-    Route::prefix('master-network')->group(function() {
+    Route::prefix('master-network')->group(function () {
         // router
-        Route::prefix('router')->group(function() {
+        Route::prefix('router')->group(function () {
             Route::get('/', [RouterController::class, 'index'])->name('router.index');
             Route::post('/store', [RouterController::class, 'store'])->name('router.store');
             Route::get('/{id}/show', [RouterController::class, 'show'])->name('router.show');
@@ -97,7 +98,7 @@ Route::middleware(['auth'])->group(function() {
         });
 
         // vlan
-        Route::prefix('vlan')->group(function() {
+        Route::prefix('vlan')->group(function () {
             Route::get('/', [VlanController::class, 'index'])->name('vlan.index');
             Route::post('/store', [VlanController::class, 'store'])->name('vlan.store');
             Route::get('/{id}/show', [VlanController::class, 'show'])->name('vlan.show');
@@ -106,7 +107,7 @@ Route::middleware(['auth'])->group(function() {
         });
 
         // odc
-        Route::prefix('odc')->group(function() {
+        Route::prefix('odc')->group(function () {
             Route::get('/', [ODCController::class, 'index'])->name('odc.index');
             Route::post('/store', [ODCController::class, 'store'])->name('odc.store');
             Route::get('/{id}/show', [ODCController::class, 'show'])->name('odc.show');
@@ -115,7 +116,7 @@ Route::middleware(['auth'])->group(function() {
         });
 
         // odc
-        Route::prefix('odp')->group(function() {
+        Route::prefix('odp')->group(function () {
             Route::get('/', [ODPController::class, 'index'])->name('odp.index');
             Route::post('/store', [ODPController::class, 'store'])->name('odp.store');
             Route::get('/{id}/show', [ODPController::class, 'show'])->name('odp.show');
@@ -124,7 +125,7 @@ Route::middleware(['auth'])->group(function() {
         });
 
         // olt
-        Route::prefix('olt')->group(function() {
+        Route::prefix('olt')->group(function () {
             Route::get('/', [OLTController::class, 'index'])->name('olt.index');
             Route::post('/store', [OLTController::class, 'store'])->name('olt.store');
             Route::get('/{id}/show', [OLTController::class, 'show'])->name('olt.show');
@@ -132,38 +133,38 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [OLTController::class, 'destroy'])->name('olt.destroy');
         });
     });
-    
+
     // master pemukiman
-    Route::prefix('master-settlement')->group(function() {
+    Route::prefix('master-settlement')->group(function () {
         // kampung
-        Route::prefix('settlement')->group(function() {
+        Route::prefix('settlement')->group(function () {
             Route::get('/', [KampungController::class, 'index'])->name('kampung.index');
             Route::post('/store', [KampungController::class, 'store'])->name('kampung.store');
             Route::get('/{id}/show', [KampungController::class, 'show'])->name('kampung.show');
             Route::put('/{id}/update', [KampungController::class, 'update'])->name('kampung.update');
             Route::delete('/{id}/destroy', [KampungController::class, 'destroy'])->name('kampung.destroy');
         });
-    
+
         // desa
-        Route::prefix('village')->group(function() {
+        Route::prefix('village')->group(function () {
             Route::get('/', [DesaController::class, 'index'])->name('desa.index');
             Route::post('/store', [DesaController::class, 'store'])->name('desa.store');
             Route::get('/{id}/show', [DesaController::class, 'show'])->name('desa.show');
             Route::put('/{id}/update', [DesaController::class, 'update'])->name('desa.update');
             Route::delete('/{id}/destroy', [DesaController::class, 'destroy'])->name('desa.destroy');
         });
-    
+
         // rt
-        Route::prefix('rt')->group(function() {
+        Route::prefix('rt')->group(function () {
             Route::get('/', [RTController::class, 'index'])->name('rt.index');
             Route::post('/store', [RTController::class, 'store'])->name('rt.store');
             Route::get('/{id}/show', [RTController::class, 'show'])->name('rt.show');
             Route::put('/{id}/update', [RTController::class, 'update'])->name('rt.update');
             Route::delete('/{id}/destroy', [RTController::class, 'destroy'])->name('rt.destroy');
         });
-    
+
         // rw
-        Route::prefix('rw')->group(function() {
+        Route::prefix('rw')->group(function () {
             Route::get('/', [RWController::class, 'index'])->name('rw.index');
             Route::post('/store', [RWController::class, 'store'])->name('rw.store');
             Route::get('/{id}/show', [RWController::class, 'show'])->name('rw.show');
@@ -171,20 +172,20 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [RWController::class, 'destroy'])->name('rw.destroy');
         });
     });
-    
+
     // master wilayah
-    Route::prefix('master-region')->group(function() {
+    Route::prefix('master-region')->group(function () {
         // kabupaten
-        Route::prefix('regencies')->group(function() {
+        Route::prefix('regencies')->group(function () {
             Route::get('/', [KabupatenController::class, 'index'])->name('kabupaten.index');
             Route::post('/store', [KabupatenController::class, 'store'])->name('kabupaten.store');
             Route::get('/{id}/show', [KabupatenController::class, 'show'])->name('kabupaten.show');
             Route::put('/{id}/update', [KabupatenController::class, 'update'])->name('kabupaten.update');
             Route::delete('/{id}/destroy', [KabupatenController::class, 'destroy'])->name('kabupaten.destroy');
         });
-        
+
         // kecamatan
-        Route::prefix('district')->group(function() {
+        Route::prefix('district')->group(function () {
             Route::get('/', [KecamatanController::class, 'index'])->name('kecamatan.index');
             Route::post('/store', [KecamatanController::class, 'store'])->name('kecamatan.store');
             Route::get('/{id}/show', [KecamatanController::class, 'show'])->name('kecamatan.show');
@@ -194,9 +195,9 @@ Route::middleware(['auth'])->group(function() {
     });
 
     // master hlaman
-    Route::prefix('master-pages')->group(function() {
+    Route::prefix('master-pages')->group(function () {
         // kabupaten
-        Route::prefix('listing')->group(function() {
+        Route::prefix('listing')->group(function () {
             Route::get('/', [PagesController::class, 'index'])->name('halaman.index');
             Route::post('/store', [PagesController::class, 'store'])->name('halaman.store');
             Route::get('/{id}/show', [PagesController::class, 'show'])->name('halaman.show');
@@ -204,7 +205,7 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [PagesController::class, 'destroy'])->name('halaman.destroy');
         });
 
-        Route::prefix('complain')->group(function() {
+        Route::prefix('complain')->group(function () {
             Route::get('/', [ComplainController::class, 'index'])->name('complain.index');
             Route::post('/store', [ComplainController::class, 'store'])->name('complain.store');
             Route::get('/{id}/show', [ComplainController::class, 'show'])->name('complain.show');
@@ -212,20 +213,20 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/{id}/destroy', [ComplainController::class, 'destroy'])->name('complain.destroy');
         });
 
-        Route::prefix('spam')->group(function() {
+        Route::prefix('spam')->group(function () {
             Route::get('/', [SpamController::class, 'index'])->name('spam.index');
             Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
         });
     });
 });
 
-Route::prefix('input-datas')->group(function() {
+Route::prefix('input-datas')->group(function () {
     Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
     Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
     Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
 });
 
-Route::prefix('complain')->group(function() {
+Route::prefix('complain')->group(function () {
     Route::get('/{slug}', [ComplainController::class, 'getPagesBySlug'])->name('complain.show.form');
     Route::post('/send-to-wa', [ComplainController::class, 'sendToWa'])->name('compalin.sendToWa');
 });

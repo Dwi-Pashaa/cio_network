@@ -11,6 +11,11 @@ class Vlan extends Model
     protected $table = 'vlan_networks';
     protected $fillable = ['code', 'name'];
 
+    public function customer()
+    {
+        return $this->hasMany(Customer::class, 'vlans_id', 'id');
+    }
+
     protected static function boot()
     {
         parent::boot();

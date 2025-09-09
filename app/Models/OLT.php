@@ -11,9 +11,14 @@ class OLT extends Model
     protected $table = 'olt_networks';
     protected $fillable = ['code', 'hometowns_id', 'name'];
 
-    public function hometown() 
+    public function customer()
     {
-        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');     
+        return $this->hasMany(Customer::class, 'olts_id', 'id');
+    }
+
+    public function hometown()
+    {
+        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
     }
 
     protected static function boot()

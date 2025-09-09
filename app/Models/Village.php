@@ -11,6 +11,11 @@ class Village extends Model
     protected $table = 'villages';
     protected $fillable = ['code', 'name'];
 
+    public function customer()
+    {
+        return $this->hasMany(Customer::class, 'villages_id', 'id');
+    }
+
     protected static function boot()
     {
         parent::boot();

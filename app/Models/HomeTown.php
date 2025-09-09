@@ -11,6 +11,11 @@ class HomeTown extends Model
     protected $table = 'home_towns';
     protected $fillable = ['code', 'name'];
 
+    public function customer()
+    {
+        return $this->hasMany(Customer::class, 'hometowns_id', 'id');
+    }
+
     protected static function boot()
     {
         parent::boot();
