@@ -74,6 +74,7 @@
                         <th>Alamat ODC</th>
                         <th>Alamat ODP</th>
                         <th>Alamat OLT</th>
+                        <th>Lokasi</th>
                         <th>Created</th>
                         @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                             <th>Action</th>
@@ -111,6 +112,9 @@
                             <td>
                                 {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                             </td>
+                            <td>
+                                <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                            </td>
                             @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                                 <td>
                                     @can('ubah pelanggan')
@@ -130,7 +134,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="18" class="text-center">Tidak Ada Data</td>
+                            <td colspan="19" class="text-center">Tidak Ada Data</td>
                         </tr>
                     @endforelse
                 </tbody>

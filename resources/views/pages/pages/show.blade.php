@@ -33,7 +33,7 @@
 						@csrf
 						<input type="hidden" name="status" id="status" value="spam">
 						<input type="hidden" name="wa_phone" id="wa_phone" value="{{ $pages->telp }}">
-
+						
 						@include('components.alert.success')
 
 						<div class="card">
@@ -285,6 +285,28 @@
 											@enderror
 										</div>
 									</div>
+									<div class="col-lg-6 col-md-6 col-sm-12">
+										<div class="form-group mb-3">
+											<label for="" class="mb-2">Latitude Lokasi</label>
+											<input type="text" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror">
+											@error('latitude')
+												<span class="invalid-feedback">
+													{{ $message }}
+												</span>
+											@enderror
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-12">
+										<div class="form-group mb-3">
+											<label for="" class="mb-2">Longitude Lokasi</label>
+											<input type="text" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
+											@error('longitude')
+												<span class="invalid-feedback">
+													{{ $message }}
+												</span>
+											@enderror
+										</div>
+									</div>
 								</div>
 							</div>
 							<div class="card-footer">
@@ -338,6 +360,28 @@
             });
         </script>
     @endif
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					function(position) {
+						let latitude = position.coords.latitude;
+						let longitude = position.coords.longitude;
+
+						document.getElementById("latitude").value = latitude;
+						document.getElementById("longitude").value = longitude;
+					},
+					function(error) {
+						console.error("Error mendapatkan lokasi:", error.message);
+					}
+				);
+			} else {
+				console.error("Browser tidak mendukung geolocation.");
+			}
+		});
+	</script>
+
 </body>
 
 </html>

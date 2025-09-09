@@ -36,15 +36,15 @@ class PagesController extends Controller
         $search = $request->search ?? null;
 
         $pages = Pages::with(['hometown'])
-                        ->when($search, function ($query, $search) {
-                            $query->where('name', 'like', "%$search%")
-                            ->orWhereHas('hometown', function($q) use ($search) {
-                                $q->where('name', 'like', "%$search%");
-                            });
-                        })
-                        ->where('type', 'pages')
-                        ->orderBy('id', 'DESC')
-                        ->paginate($sort);
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%$search%")
+                    ->orWhereHas('hometown', function ($q) use ($search) {
+                        $q->where('name', 'like', "%$search%");
+                    });
+            })
+            ->where('type', 'pages')
+            ->orderBy('id', 'DESC')
+            ->paginate($sort);
 
         $regencies = Regency::all();
         $districts = District::all();
@@ -57,17 +57,17 @@ class PagesController extends Controller
         $olts = OLT::all();
 
         return view("pages.pages.index", compact(
-                    "pages", 
-                    "hometown", 
-                    "regencies", 
-                    "districts", 
-                    "villages",
-                    "vlans",
-                    "routers",
-                    "odps",
-                    "odcs",
-                    "olts"
-                ));
+            "pages",
+            "hometown",
+            "regencies",
+            "districts",
+            "villages",
+            "vlans",
+            "routers",
+            "odps",
+            "odcs",
+            "olts"
+        ));
     }
 
     /**
@@ -241,16 +241,16 @@ class PagesController extends Controller
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $pages->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }
 
-    public function getPagesBySlug(Request $request, $slug) 
+    public function getPagesBySlug(Request $request, $slug)
     {
         $pages = Pages::with(['hometown', 'village', 'regencie', 'district'])->where('slug', $slug)->first();
-        
+
         if (!$pages) {
             return back()->with('warning', 'Data halaman tidak ditemukan.');
         }
@@ -261,84 +261,84 @@ class PagesController extends Controller
         $rws = RW::select(['id', 'name'])->get();
         $types = Type::select(['id', 'name'])->get();
         $routers = DB::table('pages_routers')
-                    ->join('router_networks', 'pages_routers.routers_id', '=', 'router_networks.id')
-                    ->where('pages_routers.pages_id', $pages->id)
-                    ->select('pages_routers.*', 'router_networks.*')
-                    ->get();
+            ->join('router_networks', 'pages_routers.routers_id', '=', 'router_networks.id')
+            ->where('pages_routers.pages_id', $pages->id)
+            ->select('pages_routers.*', 'router_networks.*')
+            ->get();
         $vlans = DB::table('pages_vlans')
-                    ->join('vlan_networks', 'pages_vlans.vlans_id', '=', 'vlan_networks.id')
-                    ->where('pages_vlans.pages_id', $pages->id)
-                    ->select('pages_vlans.*', 'vlan_networks.*')
-                    ->get();
+            ->join('vlan_networks', 'pages_vlans.vlans_id', '=', 'vlan_networks.id')
+            ->where('pages_vlans.pages_id', $pages->id)
+            ->select('pages_vlans.*', 'vlan_networks.*')
+            ->get();
 
         $odcs = DB::table('pages_odcs')
-                    ->join('odc_networks', 'pages_odcs.odcs_id', '=', 'odc_networks.id')
-                    ->join('home_towns', 'odc_networks.hometowns_id', '=', 'home_towns.id')
-                    ->join('rts', 'odc_networks.rts_id', '=', 'rts.id')
-                    ->join('rws', 'odc_networks.rws_id', '=', 'rws.id')
-                    ->where('pages_odcs.pages_id', $pages->id)
-                    ->select(
-                        'pages_odcs.*',
-                        'odc_networks.id as id', 
-                        'odc_networks.code as code', 
-                        'odc_networks.home_odc as odc_name', 
-                        'home_towns.name as hometown_name',
-                        'rts.name as rt_number',
-                        'rws.name as rw_number'
-                    )
-                    ->get();
-                
+            ->join('odc_networks', 'pages_odcs.odcs_id', '=', 'odc_networks.id')
+            ->join('home_towns', 'odc_networks.hometowns_id', '=', 'home_towns.id')
+            ->join('rts', 'odc_networks.rts_id', '=', 'rts.id')
+            ->join('rws', 'odc_networks.rws_id', '=', 'rws.id')
+            ->where('pages_odcs.pages_id', $pages->id)
+            ->select(
+                'pages_odcs.*',
+                'odc_networks.id as id',
+                'odc_networks.code as code',
+                'odc_networks.home_odc as odc_name',
+                'home_towns.name as hometown_name',
+                'rts.name as rt_number',
+                'rws.name as rw_number'
+            )
+            ->get();
+
 
         $odps = DB::table('pages_odps')
-                    ->join('odp_networks', 'pages_odps.odps_id', '=', 'odp_networks.id')
-                    ->join('home_towns', 'odp_networks.hometowns_id', '=', 'home_towns.id')
-                    ->join('rts', 'odp_networks.rts_id', '=', 'rts.id')
-                    ->join('rws', 'odp_networks.rws_id', '=', 'rws.id')
-                    ->where('pages_odps.pages_id', $pages->id)
-                    ->select(
-                        'pages_odps.*',
-                        'odp_networks.id as id',
-                        'odp_networks.code as code',
-                        'odp_networks.home_odc as odp_name',
-                        'home_towns.name as hometown_name',
-                        'rts.name as rt_number',
-                        'rws.name as rw_number'
-                    )
-                    ->get();
+            ->join('odp_networks', 'pages_odps.odps_id', '=', 'odp_networks.id')
+            ->join('home_towns', 'odp_networks.hometowns_id', '=', 'home_towns.id')
+            ->join('rts', 'odp_networks.rts_id', '=', 'rts.id')
+            ->join('rws', 'odp_networks.rws_id', '=', 'rws.id')
+            ->where('pages_odps.pages_id', $pages->id)
+            ->select(
+                'pages_odps.*',
+                'odp_networks.id as id',
+                'odp_networks.code as code',
+                'odp_networks.home_odc as odp_name',
+                'home_towns.name as hometown_name',
+                'rts.name as rt_number',
+                'rws.name as rw_number'
+            )
+            ->get();
 
         $olts = DB::table('pages_olts')
-                    ->join('olt_networks', 'pages_olts.olts_id', '=', 'olt_networks.id')
-                    ->join('home_towns', 'olt_networks.hometowns_id', '=', 'home_towns.id')
-                    ->where('pages_olts.pages_id', $pages->id)
-                    ->select(
-                        'pages_olts.*',
-                        'olt_networks.id as id',
-                        'olt_networks.code as code',
-                        'olt_networks.name as olt_name',
-                        'home_towns.name as hometown_name',
-                    )
-                    ->get();
+            ->join('olt_networks', 'pages_olts.olts_id', '=', 'olt_networks.id')
+            ->join('home_towns', 'olt_networks.hometowns_id', '=', 'home_towns.id')
+            ->where('pages_olts.pages_id', $pages->id)
+            ->select(
+                'pages_olts.*',
+                'olt_networks.id as id',
+                'olt_networks.code as code',
+                'olt_networks.name as olt_name',
+                'home_towns.name as hometown_name',
+            )
+            ->get();
 
         return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts"));
     }
 
-    public function confirmPagesPassword(Request $request) 
+    public function confirmPagesPassword(Request $request)
     {
         $request->validate([
-            "password" => "required|string" 
-        ]);  
+            "password" => "required|string"
+        ]);
 
         $pages = Pages::where('slug', $request->slug)->first();
 
         if (Hash::check($request->password, $pages->password)) {
             return redirect()->route('input.data.index', ['slug' => $pages->slug])
-            ->withCookie(cookie('page_access_' . $pages->id, true, 5));
+                ->withCookie(cookie('page_access_' . $pages->id, true, 5));
         }
 
         return back()->with('error', 'Password salah.');
     }
 
-    public function saveCustomerToSpan(StoreCustomerRequest $request) 
+    public function saveCustomerToSpan(StoreCustomerRequest $request)
     {
         $customer = Customer::create($request->validated());
 
@@ -358,23 +358,25 @@ class PagesController extends Controller
         $olt = OLT::with(['hometown'])->where('id', $request->olts_id)->first();
 
         $message = "*SALINKAN DATA INI KE Link , . data.cionetworksolution.com . MASUKAN DENGAN TELITI*\n"
-                    . "*Nama Pelanggan*: {$customer->name} \n"
-                    . "*Mac Address*: {$customer->mac_address} \n"
-                    . "*Jenis Router*: {$router->name} \n"
-                    . "*Type Pelanggan*: {$type->name} \n"
-                    . "*Kampung*: {$hometown->name} \n"
-                    . "*Rt*: {$rt->name} \n"
-                    . "*Rw*: {$rw->name} \n"
-                    . "*Desa*: {$village->name} \n"
-                    . "*Kecamatan*: {$district->name} \n"
-                    . "*Kabupaten*: {$regency->name} \n"
-                    . "*Vlan*: {$vlan->name} \n"
-                    . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
-                    . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
-                    . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
-                    . "*NO HP / WA*: {$customer->telp} \n"
-                    . "*Email*: {$customer->email} \n"
-                    . "*LANGSUNG KIRIM*";
+            . "*Nama Pelanggan*: {$customer->name} \n"
+            . "*Mac Address*: {$customer->mac_address} \n"
+            . "*Jenis Router*: {$router->name} \n"
+            . "*Type Pelanggan*: {$type->name} \n"
+            . "*Kampung*: {$hometown->name} \n"
+            . "*Rt*: {$rt->name} \n"
+            . "*Rw*: {$rw->name} \n"
+            . "*Desa*: {$village->name} \n"
+            . "*Kecamatan*: {$district->name} \n"
+            . "*Kabupaten*: {$regency->name} \n"
+            . "*Vlan*: {$vlan->name} \n"
+            . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
+            . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
+            . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
+            . "*NO HP / WA*: {$customer->telp} \n"
+            . "*Email*: {$customer->email} \n"
+            . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n"
+            . "*LANGSUNG KIRIM*";
+
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 

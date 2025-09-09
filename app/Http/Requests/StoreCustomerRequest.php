@@ -36,7 +36,9 @@ class StoreCustomerRequest extends FormRequest
             'odcs_id'      => 'required',
             'odps_id'      => 'required',
             'olts_id'      => 'required',
-            'status'       => "required"
+            'status'       => "required",
+            'latitude'       => "required",
+            'longitude'       => "required",
         ];
     }
 
@@ -61,6 +63,8 @@ class StoreCustomerRequest extends FormRequest
             'rws_id.required'       => 'RW wajib dipilih.',
             'districts_id.required' => 'Kecamatan wajib dipilih.',
             'regencies_id.required' => 'Kabupaten/Kota wajib dipilih.',
+            'latitude.required' => 'Latitude Lokasi Harus Di Isi.',
+            'longitude.required' => 'Longitude Lokasi Harus Di Isi.',
         ];
     }
 }

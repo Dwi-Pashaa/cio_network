@@ -18,6 +18,7 @@
             <th>Alamat ODC</th>
             <th>Alamat ODP</th>
             <th>Alamat OLT</th>
+            <th>Lokasi</th>
             <th>Created</th>
         </tr>
     </thead>
@@ -49,6 +50,9 @@
                     {{ $item->odp->home_odc }}
                 </td>
                 <td>{{ $item->olt->hometown->name }} | {{ $item->olt->name }}</td>
+                <td>
+                    https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}
+                </td>
                 <td>
                     {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                 </td>
