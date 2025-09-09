@@ -285,30 +285,22 @@
 											@enderror
 										</div>
 									</div>
-									<div class="col-lg-6 col-md-6 col-sm-12">
-										<div class="form-group mb-3">
-											<label for="" class="mb-2">Latitude Lokasi</label>
-											<input type="text" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror">
-											@error('latitude')
-												<span class="invalid-feedback">
-													{{ $message }}
-												</span>
-											@enderror
-										</div>
-									</div>
-									<div class="col-lg-6 col-md-6 col-sm-12">
-										<div class="form-group mb-3">
-											<label for="" class="mb-2">Longitude Lokasi</label>
-											<input type="text" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
-											@error('longitude')
-												<span class="invalid-feedback">
-													{{ $message }}
-												</span>
-											@enderror
+									<div class="col-lg-12 col-sm-12 col-md-12">
+										<div class="mt-3" id="map-container" style="display:none;">
+											<iframe id="map-frame"
+												width="100%" 
+												height="300" 
+												style="border:0; border-radius: 10px;"
+												loading="lazy" 
+												allowfullscreen 
+												referrerpolicy="no-referrer-when-downgrade">
+											</iframe>
 										</div>
 									</div>
 								</div>
 							</div>
+							<input type="hidden" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror">
+							<input type="hidden" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
 							<div class="card-footer">
 								<button type="reset" class="btn btn-secondary float-start">Reset</button>
 								<button type="submit" class="btn btn-primary float-end">Kirim</button>
@@ -371,13 +363,20 @@
 
 						document.getElementById("latitude").value = latitude;
 						document.getElementById("longitude").value = longitude;
+
+						document.getElementById("map-container").style.display = "block";
+						document.getElementById("map-frame").src =
+							`https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`;
+
 					},
 					function(error) {
+						alert("Error mendapatkan lokasi");
 						console.error("Error mendapatkan lokasi:", error.message);
 					}
 				);
 			} else {
 				console.error("Browser tidak mendukung geolocation.");
+				alert("Error mendapatkan lokasi");
 			}
 		});
 	</script>
