@@ -56,6 +56,7 @@
                     <th>Kampung</th>
                     <th>RT</th>
                     <th>RW</th>
+                    <th>Lokasi</th>
                     <th>Created</th>
                     @if(auth()->user()->can('ubah odc') || auth()->user()->can('hapus odc'))
                         <th>Action</th>
@@ -96,6 +97,9 @@
                             </a>
                         </td>
                         <td>
+                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                        </td>
+                        <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                         </td>
                         @if(auth()->user()->can('ubah odc') || auth()->user()->can('hapus odc'))
@@ -117,7 +121,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center">Tidak Ada Data</td>
+                        <td colspan="9" class="text-center">Tidak Ada Data</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -189,6 +193,18 @@
                     </select>
                     <span class="invalid-feedback error_rws_id"></span>
                 </div>
+                <div class="mt-3" id="map-container" style="display:none;">
+                    <iframe id="map-frame"
+                        width="100%" 
+                        height="300" 
+                        style="border:0; border-radius: 10px;"
+                        loading="lazy" 
+                        allowfullscreen 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <input type="hidden" name="latitude" id="latitude" class="form-control">
+                <input type="hidden" name="longitude" id="longitude" class="form-control">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
@@ -200,150 +216,183 @@
 @endpush
 
 @push('js')
-<script>
-    const BASE = "{{ route('odc.index') }}";
+    <script>
+        const BASE = "{{ route('odc.index') }}";
 
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
-    });
+        let params = new URLSearchParams(window.location.search);
+        $("#sort").change(function() {
+            params.set('sort', $(this).val());
+            window.location.href = BASE + '?' + params.toString();
+        });
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah ODC");
-        $("#name").val("");
-        $("#type").val("create");
-        $("#id").val("");
-    });
-
-    $("#storeBtn").click(function() {
-        let id = $("#id").val();
-        let type = $("#type").val();
-        let code = $("#code").val();
-        let home_odc = $("#home_odc").val();
-        let hometowns_id = $("#hometowns_id").val();
-        let rts_id = $("#rts_id").val();
-        let rws_id = $("#rws_id").val();
-
-        let url;
-        let method;
-
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
-        } else {
-            url = BASE + `/${id}/update`
-            method = "PUT";
-        }
-        
-        $.ajax({
-            url: url,
-            method: method,
-            data: {
-                code: code,
-                home_odc: home_odc,
-                hometowns_id: hometowns_id,
-                rts_id: rts_id,
-                rws_id: rws_id
-            },
-        }).done(function(response) {
-            if (response.errors) {
-                $.each(response.errors, function(index, value) {
-                    
-                    $("#" + index).addClass('is-invalid');
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#" + index).removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                })                
-            } else {
-                $("#modal-simple").modal('hide')
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
         });
-    });
 
-    function editModal(id) {
-        let url = BASE + `/${id}/show`
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        }).done(function(response){
-            $(".modal-title").html("Edit ODC");
-            let data = response.data;
-            $("#modal-simple").modal('show')
-
-            $("#id").val(data.id);
-            $("#code").val(data.code);
-            $("#home_odc").val(data.home_odc);
-            $("#hometowns_id").val(data.hometowns_id);
-            $("#rts_id").val(data.rts_id);
-            $("#rws_id").val(data.rws_id);
-            $("#type").val("update");
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        $("#addBtn").click(function() {
+            $(".modal-title").html("Tambah ODC");
+            $("#name").val("");
+            // $("#latitude").val("");
+            // $("#longitude").val("");
+            $("#type").val("create");
+            $("#id").val("");
         });
-    }
 
-    function deleteType(id) {
-        Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
-                        Toast.fire({
-                            icon: response.status,
-                            title: response.message
-                        });
+        $("#storeBtn").click(function() {
+            let id = $("#id").val();
+            let type = $("#type").val();
+            let code = $("#code").val();
+            let home_odc = $("#home_odc").val();
+            let hometowns_id = $("#hometowns_id").val();
+            let rts_id = $("#rts_id").val();
+            let rws_id = $("#rws_id").val();
+            let latitude = $("#latitude").val();
+            let longitude = $("#longitude").val();
+
+            let url;
+            let method;
+
+            if (type === 'create') {
+                url = BASE + '/store';
+                method = "POST";
+            } else {
+                url = BASE + `/${id}/update`
+                method = "PUT";
+            }
+            
+            $.ajax({
+                url: url,
+                method: method,
+                data: {
+                    code: code,
+                    home_odc: home_odc,
+                    hometowns_id: hometowns_id,
+                    rts_id: rts_id,
+                    rws_id: rws_id,
+                    latitude: latitude,
+                    longitude: longitude,
+                },
+            }).done(function(response) {
+                if (response.errors) {
+                    $.each(response.errors, function(index, value) {
+                        
+                        $("#" + index).addClass('is-invalid');
+                        $(".error_" + index).html(value);
 
                         setTimeout(() => {
-                            window.location.reload();
+                            $("#" + index).removeClass('is-invalid');
+                            $(".error_" + index).html('');
                         }, 3000);
-                    },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
-                    }
-                })
-            }
+                    })                
+                } else {
+                    $("#modal-simple").modal('hide')
+                    Toast.fire({
+                        icon: response.status,
+                        title: response.message
+                    });
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);
+            });
         });
-    }
-</script>
+
+        function editModal(id) {
+            let url = BASE + `/${id}/show`
+            $.ajax({
+                url: url,
+                method: "GET",
+                dataType: "json"
+            }).done(function(response){
+                $(".modal-title").html("Edit ODC");
+                let data = response.data;
+                $("#modal-simple").modal('show')
+
+                $("#id").val(data.id);
+                $("#code").val(data.code);
+                $("#home_odc").val(data.home_odc);
+                $("#hometowns_id").val(data.hometowns_id);
+                $("#rts_id").val(data.rts_id);
+                $("#rws_id").val(data.rws_id);
+                $("#type").val("update");
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);
+            });
+        }
+
+        function deleteType(id) {
+            Swal.fire({
+                title: "Peringatan !",
+                text: "Anda yakin ingin menghapus data ini?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Hapus",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: BASE + '/' + id + '/destroy',
+                        method: "DELETE",
+                        dataType: "json",
+                        success: function(response) {
+                            Toast.fire({
+                                icon: response.status,
+                                title: response.message
+                            });
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        },
+                        error: function(err) {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Server Error"
+                            });
+                        }
+                    })
+                }
+            });
+        }
+    </script>
+    <script>
+		document.addEventListener("DOMContentLoaded", function() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					function(position) {
+						let latitude = position.coords.latitude;
+						let longitude = position.coords.longitude;
+
+						document.getElementById("latitude").value = latitude;
+						document.getElementById("longitude").value = longitude;
+
+						document.getElementById("map-container").style.display = "block";
+						document.getElementById("map-frame").src =
+							`https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`;
+
+					},
+					function(error) {
+						alert("Error mendapatkan lokasi");
+						console.error("Error mendapatkan lokasi:", error.message);
+					}
+				);
+			} else {
+				console.error("Browser tidak mendukung geolocation.");
+				alert("Error mendapatkan lokasi");
+			}
+		});
+	</script>
 @endpush

@@ -46,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive-lg">
+    <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
@@ -54,6 +54,7 @@
                     <th>Code</th>
                     <th>Nama OLT</th>
                     <th>Kampung</th>
+                    <th>Lokasi</th>
                     <th>Created</th>
                     @if(auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt'))
                         <th>Action</th>
@@ -82,6 +83,9 @@
                             <a href="#" class="text-reset" tabindex="-1">
                                 {{ $item->hometown->name }}
                             </a>
+                        </td>
+                        <td>
+                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
                         </td>
                         <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
@@ -152,6 +156,18 @@
                     </select>
                     <span class="invalid-feedback error_hometowns_id"></span>
                 </div>
+                <div class="mt-3" id="map-container" style="display:none;">
+                    <iframe id="map-frame"
+                        width="100%" 
+                        height="300" 
+                        style="border:0; border-radius: 10px;"
+                        loading="lazy" 
+                        allowfullscreen 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <input type="hidden" name="latitude" id="latitude" class="form-control">
+                <input type="hidden" name="longitude" id="longitude" class="form-control">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
@@ -196,6 +212,8 @@
         let type = $("#type").val();
         let name = $("#name").val();
         let hometowns_id = $("#hometowns_id").val();
+        let latitude = $("#latitude").val();
+        let longitude = $("#longitude").val();
 
         let url;
         let method;
@@ -214,6 +232,8 @@
             data: {
                 name: name,
                 hometowns_id: hometowns_id,
+                latitude: latitude,
+                longitude: longitude,
             },
         }).done(function(response) {
             if (response.errors) {
@@ -299,5 +319,32 @@
             }
         });
     }
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    let latitude = position.coords.latitude;
+                    let longitude = position.coords.longitude;
+
+                    document.getElementById("latitude").value = latitude;
+                    document.getElementById("longitude").value = longitude;
+
+                    document.getElementById("map-container").style.display = "block";
+                    document.getElementById("map-frame").src =
+                        `https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`;
+
+                },
+                function(error) {
+                    alert("Error mendapatkan lokasi");
+                    console.error("Error mendapatkan lokasi:", error.message);
+                }
+            );
+        } else {
+            console.error("Browser tidak mendukung geolocation.");
+            alert("Error mendapatkan lokasi");
+        }
+    });
 </script>
 @endpush

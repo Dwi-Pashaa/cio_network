@@ -21,7 +21,7 @@
                     <select name="filter" id="filter" class="form-control">
                         <option value="">Pilih</option>
                         @php
-                            $filter = ["kecamatan", "desa", "kampung", "vlan", "olt"];
+                            $filter = ["kecamatan", "desa", "kampung", "vlan", "olt", "voucher & ppoe"];
                         @endphp
                         @foreach ($filter as $item)
                             <option value="{{ $item }}" {{ request('filter') === $item ? 'selected' : '' }}>{{ ucfirst($item) }}</option>
@@ -58,7 +58,9 @@
                                 </div>
                                 <div class="col">
                                     <div class="font-weight-medium">
-                                        <b>{{ ucfirst($text) }} {{ $dt->name }}</b>
+                                        <b>
+                                            {{ request('filter') === "vlan" ? 'VLAN ' . $dt->name : $dt->name }}
+                                        </b>
                                     </div>
                                     <div class="text-secondary">
                                         {{ $dt->customer_count }}

@@ -9,20 +9,20 @@ class ODC extends Model
 {
     use HasFactory;
     protected $table = 'odc_networks';
-    protected $fillable = ['code', 'hometowns_id', 'rts_id', 'rws_id', 'home_odc'];
+    protected $guarded = [];
 
-    public function hometown() 
+    public function hometown()
     {
-        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');     
+        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
     }
 
-    public function rt() 
+    public function rt()
     {
-        return $this->belongsTo(RT::class, 'rts_id', 'id');    
+        return $this->belongsTo(RT::class, 'rts_id', 'id');
     }
 
-    public function rw() 
+    public function rw()
     {
-        return $this->belongsTo(RW::class, 'rws_id', 'id');    
+        return $this->belongsTo(RW::class, 'rws_id', 'id');
     }
 }

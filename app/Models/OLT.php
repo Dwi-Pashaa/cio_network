@@ -9,7 +9,7 @@ class OLT extends Model
 {
     use HasFactory;
     protected $table = 'olt_networks';
-    protected $fillable = ['code', 'hometowns_id', 'name'];
+    protected $guarded = [];
 
     public function customer()
     {

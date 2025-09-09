@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\HomeTown;
 use App\Models\OLT;
+use App\Models\Type;
 use App\Models\Village;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
@@ -39,6 +40,10 @@ class DashboardController extends Controller
             case 'olt':
                 $data = OLT::withCount('customer')->get();
                 $text = "olt";
+                break;
+            case 'voucher & ppoe':
+                $data = Type::withCount('customer')->get();
+                $text = "voucher & ppoe";
                 break;
 
             default:
@@ -74,6 +79,10 @@ class DashboardController extends Controller
             case 'olt':
                 $data = OLT::with('customer.type')->find($id);
                 $text = "olt";
+                break;
+            case 'voucher & ppoe':
+                $data = Type::with('customer.type')->find($id);
+                $text = "voucher & ppoe";
                 break;
 
             default:
