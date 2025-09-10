@@ -16,6 +16,13 @@
                 @method("PUT")
                 <input type="hidden" name="status" id="status" value="active">
                 <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">ID Pelanggan</label>
+                            <input type="text" name="" id="" value="{{ $customer->uuid != null ? $customer->uuid : $newCode }}" class="form-control" readonly>
+                            <input type="hidden" name="uuid" id="uuid" value="{{ $customer->uuid != null ? $customer->uuid : $newCode }}">
+                        </div>
+                    </div>
                     <div class="col-lg-12">
                         <div class="form-group mb-3">
                             <label for="types_id" class="mb-2">Type Pelanggan</label>
@@ -262,6 +269,13 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-lg-12 col-sm-12 col-md-12">
+                        <div class="mt-3" id="map-container">
+                            <div id="map" style="height: 400px;"></div>
+                            <input type="hidden" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror">
+							<input type="hidden" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-3">
@@ -274,5 +288,43 @@
 @endsection
 
 @push('js')
-    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let dbLat = "{{ $customer->latitude ?? '' }}";
+            let dbLng = "{{ $customer->longitude ?? '' }}";
+
+            if (dbLat && dbLng) {
+                initMap(parseFloat(dbLat), parseFloat(dbLng));
+            } else if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    initMap(position.coords.latitude, position.coords.longitude);
+                }, function (error) {
+                    alert("Gagal mendapatkan lokasi: " + error.message);
+                    initMap(-6.200000, 106.816666);
+                });
+            } else {
+                alert("Browser tidak mendukung geolocation");
+                initMap(-6.200000, 106.816666);
+            }
+
+            function initMap(latitude, longitude) {
+                document.getElementById("latitude").value = latitude;
+                document.getElementById("longitude").value = longitude;
+
+                let map = L.map('map').setView([latitude, longitude], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                let marker = L.marker([latitude, longitude], { draggable: true }).addTo(map);
+
+                marker.on('dragend', function () {
+                    let latLng = marker.getLatLng();
+                    document.getElementById("latitude").value = latLng.lat.toFixed(6);
+                    document.getElementById("longitude").value = latLng.lng.toFixed(6);
+                });
+            }
+        });
+    </script>
 @endpush

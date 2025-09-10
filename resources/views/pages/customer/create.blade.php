@@ -15,6 +15,13 @@
                 @csrf
                 <input type="hidden" name="status" id="status" value="active">
                 <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">ID Pelanggan</label>
+                            <input type="text" name="" id="" value="{{ $newCode }}" class="form-control" readonly>
+                            <input type="hidden" name="uuid" id="uuid" value="{{ $newCode }}">
+                        </div>
+                    </div>
                     <div class="col-lg-12">
                         <div class="form-group mb-3">
                             <label for="types_id" class="mb-2">Type Pelanggan</label>
@@ -261,6 +268,13 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-lg-12 col-sm-12 col-md-12">
+                        <div class="mt-3" id="map-container">
+                            <div id="map" style="height: 400px;"></div>
+                            <input type="hidden" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror">
+							<input type="hidden" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-3">
@@ -273,5 +287,44 @@
 @endsection
 
 @push('js')
-    
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            let latitude = position.coords.latitude;
+            let longitude = position.coords.longitude;
+
+            document.getElementById("latitude").value = latitude;
+            document.getElementById("longitude").value = longitude;
+
+            // Tampilkan map
+            document.getElementById("map").style.display = "block";
+
+            // Inisialisasi map
+            let map = L.map('map').setView([latitude, longitude], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Tambah marker draggable
+            let marker = L.marker([latitude, longitude], { draggable: true }).addTo(map);
+
+            // Update input ketika marker digeser
+            marker.on('dragend', function (e) {
+                let latLng = marker.getLatLng();
+                document.getElementById("latitude").value = latLng.lat.toFixed(6);
+                document.getElementById("longitude").value = latLng.lng.toFixed(6);
+            });
+
+        }, function (error) {
+            alert("Error mendapatkan lokasi");
+            console.error("Error:", error.message);
+        });
+    } else {
+        alert("Browser tidak mendukung geolocation");
+    }
+});
+</script>
+
 @endpush

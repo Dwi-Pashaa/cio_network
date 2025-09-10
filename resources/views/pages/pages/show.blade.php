@@ -42,6 +42,13 @@
 							</div>
 							<div class="card-body">
 								<div class="row">
+									<div class="col-lg-12 col-md-12 col-sm-12">
+										<div class="form-group mb-3">
+											<label for="" class="mb-2">ID Pelanggan</label>
+											<input type="text" name="" id="" value="{{ $newCode }}" class="form-control" readonly>
+											<input type="hidden" name="uuid" id="uuid" value="{{ $newCode }}">
+										</div>
+									</div>
 									<div class="col-lg-6 col-md-6 col-sm-12">
 										<div class="form-group mb-3">
 											<label for="" class="mb-2">Nama Pelanggan</label>

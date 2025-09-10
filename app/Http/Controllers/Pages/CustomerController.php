@@ -101,7 +101,20 @@ class CustomerController extends Controller
         $odp = ODP::with(['hometown', 'rt', 'rw'])->get();
         $olt = OLT::with(['hometown'])->get();
 
-        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt"));
+        $last = Customer::whereNotNull('uuid')
+            ->orderBy('uuid', 'desc')
+            ->first();
+        if (!$last) {
+            $nextNumber = 1;
+        } else {
+            preg_match('/\d+/', $last->uuid, $matches);
+            $lastNumber = $matches ? (int) $matches[0] : 0;
+            $nextNumber = $lastNumber + 1;
+        }
+
+        $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode"));
     }
 
     /**
@@ -134,7 +147,20 @@ class CustomerController extends Controller
 
         $customer = Customer::find($id);
 
-        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt"));
+        $last = Customer::whereNotNull('uuid')
+            ->orderBy('uuid', 'desc')
+            ->first();
+        if (!$last) {
+            $nextNumber = 1;
+        } else {
+            preg_match('/\d+/', $last->uuid, $matches);
+            $lastNumber = $matches ? (int) $matches[0] : 0;
+            $nextNumber = $lastNumber + 1;
+        }
+
+        $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode"));
     }
 
     /**
@@ -164,7 +190,7 @@ class CustomerController extends Controller
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }
 
-    public function export() 
+    public function export()
     {
         return Excel::download(new CustomerExport, 'customer.xlsx');
     }

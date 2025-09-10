@@ -39,6 +39,7 @@ class StoreCustomerRequest extends FormRequest
             'status'       => "required",
             'latitude'       => "required",
             'longitude'       => "required",
+            'uuid'         => 'required'
         ];
     }
 
@@ -65,6 +66,7 @@ class StoreCustomerRequest extends FormRequest
             'regencies_id.required' => 'Kabupaten/Kota wajib dipilih.',
             'latitude.required' => 'Latitude Lokasi Harus Di Isi.',
             'longitude.required' => 'Longitude Lokasi Harus Di Isi.',
+            'uuid.required' => 'ID Pelanggan Harus Di Isi.',
         ];
     }
 }

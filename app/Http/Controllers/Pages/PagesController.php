@@ -257,6 +257,19 @@ class PagesController extends Controller
 
         $page = $request->attributes->get('page');
 
+        $last = Customer::whereNotNull('uuid')
+            ->orderBy('uuid', 'desc')
+            ->first();
+        if (!$last) {
+            $nextNumber = 1;
+        } else {
+            preg_match('/\d+/', $last->uuid, $matches);
+            $lastNumber = $matches ? (int) $matches[0] : 0;
+            $nextNumber = $lastNumber + 1;
+        }
+
+        $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
         $rts = RT::select(['id', 'name'])->get();
         $rws = RW::select(['id', 'name'])->get();
         $types = Type::select(['id', 'name'])->get();
@@ -319,7 +332,7 @@ class PagesController extends Controller
             )
             ->get();
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts"));
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode"));
     }
 
     public function confirmPagesPassword(Request $request)
