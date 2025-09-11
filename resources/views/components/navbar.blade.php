@@ -190,10 +190,15 @@
                                             </a>
                                         @endcan
                                         @can('lihat halaman')
-                                        <a class="dropdown-item {{ Route::is("spam*") ? 'active' : '' }}" href="{{ route('spam.index') }}" rel="noopener">
-                                            Data Spam
-                                        </a>
-                                    @endcan
+                                            <a class="dropdown-item {{ Route::is("switch*") ? 'active' : '' }}" href="{{ route('switch.index') }}" rel="noopener">
+                                                Data Halaman Pergantian Perangkat
+                                            </a>
+                                        @endcan
+                                        @can('lihat halaman')
+                                            <a class="dropdown-item {{ Route::is("spam*") ? 'active' : '' }}" href="{{ route('spam.index') }}" rel="noopener">
+                                                Data Spam
+                                            </a>
+                                        @endcan
                                     </div>
                                 </li>
                             @endif

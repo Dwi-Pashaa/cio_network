@@ -16,6 +16,7 @@ use App\Http\Controllers\Pages\Pemukiman\RTController;
 use App\Http\Controllers\Pages\Pemukiman\RWController;
 use App\Http\Controllers\Pages\RoleController;
 use App\Http\Controllers\Pages\SpamController;
+use App\Http\Controllers\Pages\SwitchPerangkatController;
 use App\Http\Controllers\Pages\TypeController;
 use App\Http\Controllers\Pages\UserController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
@@ -213,9 +214,18 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}/destroy', [ComplainController::class, 'destroy'])->name('complain.destroy');
         });
 
+        Route::prefix('switch')->group(function () {
+            Route::get('/', [SwitchPerangkatController::class, 'index'])->name('switch.index');
+            Route::post('/store', [SwitchPerangkatController::class, 'store'])->name('switch.store');
+            Route::get('/{id}/show', [SwitchPerangkatController::class, 'show'])->name('switch.show');
+            Route::put('/{id}/update', [SwitchPerangkatController::class, 'update'])->name('switch.update');
+            Route::delete('/{id}/destroy', [SwitchPerangkatController::class, 'destroy'])->name('switch.destroy');
+        });
+
         Route::prefix('spam')->group(function () {
             Route::get('/', [SpamController::class, 'index'])->name('spam.index');
             Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
+            Route::put('/{id}/outSwitch', [SpamController::class, 'outSwitch'])->name('spam.outSwitch');
         });
     });
 });
@@ -229,4 +239,10 @@ Route::prefix('input-datas')->group(function () {
 Route::prefix('complain')->group(function () {
     Route::get('/{slug}', [ComplainController::class, 'getPagesBySlug'])->name('complain.show.form');
     Route::post('/send-to-wa', [ComplainController::class, 'sendToWa'])->name('compalin.sendToWa');
+});
+
+Route::prefix('switch')->group(function () {
+    Route::get('/{slug}', [SwitchPerangkatController::class, 'getPagesBySlug'])->name('switch.data.index')->middleware(['page.password']);
+    Route::post('/confirm-switch-password', [SwitchPerangkatController::class, 'confirmPagesPassword'])->name('switch.data.confirm.password');
+    Route::post('/save-switch-device', [SwitchPerangkatController::class, 'saveSwitchDevice'])->name('switch.data.save');
 });

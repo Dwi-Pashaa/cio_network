@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\SwitchDevice;
 use Illuminate\Http\Request;
 
 class SpamController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
@@ -57,8 +58,32 @@ class SpamController extends Controller
             ->where('status', 'spam')
             ->paginate($sort);
 
+        $switchs = SwitchDevice::with(['customer', 'typeOld', 'routerOld', 'typeNew', 'routerNew'])
+            ->when($request->search, function ($q) use ($request) {
+                $search = $request->search;
+                $q->where(function ($q) use ($search) {
+                    $q->whereHas('customer', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('typeOld', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('routerOld', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('typeNew', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('routerNew', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->orderBy('id', 'DESC')
+            ->paginate($sort);
 
-        return view("pages.spam.index", compact("customers"));
+
+        return view("pages.spam.index", compact("customers", "switchs"));
     }
 
     public function outSpam($id)
@@ -66,6 +91,22 @@ class SpamController extends Controller
         $customers = Customer::find($id);
 
         $customers->update(['status' => 'active']);
+
+        return response()->json(200);
+    }
+
+    public function outSwitch($id)
+    {
+        $switch = SwitchDevice::find($id);
+
+        Customer::where('id', $switch->customer_id)
+            ->update([
+                'types_id' => $switch->type_new_id,
+                'routers_id' => $switch->router_new_id,
+                'mac_address' => $switch->mac_address_new,
+            ]);
+
+        $switch->update(['status' => 'active']);
 
         return response()->json(200);
     }

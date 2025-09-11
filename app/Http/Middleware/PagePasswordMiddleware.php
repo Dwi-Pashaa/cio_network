@@ -24,7 +24,6 @@ class PagePasswordMiddleware
             abort(404);
         }
 
-
         if ($page->password) {
             // $sessionKey = 'page_access_' . $page->id;
             // if (!Session::has($sessionKey) || now()->diffInMinutes(Session::get($sessionKey)) > 60) {

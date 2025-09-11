@@ -110,10 +110,10 @@
                             </td>
                             <td>{{ $item->olt->hometown->name }} | {{ $item->olt->name }}</td>
                             <td>
-                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
+                                <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
                             </td>
                             <td>
-                                <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                             </td>
                             @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                                 <td>
