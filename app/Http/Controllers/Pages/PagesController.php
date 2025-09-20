@@ -382,6 +382,8 @@ class PagesController extends Controller
 
         $customer = Customer::create($data);
 
+        $userName = Auth::user()->name;
+
         $phone = preg_replace('/^08/', '628', $request->wa_phone);
 
         $type = Type::where('id', $request->types_id)->first();
@@ -397,7 +399,8 @@ class PagesController extends Controller
         $odp = ODP::with(['hometown', 'rt', 'rw'])->where('id', $request->odps_id)->first();
         $olt = OLT::with(['hometown'])->where('id', $request->olts_id)->first();
 
-        $message = "*ID Pelanggan*: {$customer->uuid} \n"
+        $message = "*Di Input Oleh : {$userName} \n"
+            . "*ID Pelanggan*: {$customer->uuid} \n"
             . "*Nama Pelanggan*: {$customer->name} \n"
             . "*Mac Address*: {$customer->mac_address} \n"
             . "*Jenis Router*: {$router->name} \n"
@@ -430,9 +433,7 @@ class PagesController extends Controller
                 . "*Paket*: {$paket->name}\n";
         }
 
-        $userName = Auth::user()->name;
-        $message .= "*Di Input Oleh : {$userName} \n"
-            . "*LANGSUNG KIRIM*";
+        $message .= "*LANGSUNG KIRIM*";
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
