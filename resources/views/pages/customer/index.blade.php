@@ -82,6 +82,7 @@
                         <th>Tipe Paket</th>
                         <th>Tipe Pembayaran</th>
                         <th>Lokasi</th>
+                        <th>Di Input Oleh</th>
                         <th>Created</th>
                         @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                             <th>Action</th>
@@ -137,6 +138,9 @@
                             </td>
                             <td>
                                 <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                            </td>
+                            <td>
+                                {{ optional($item)->user->name ?? '-' }}
                             </td>
                             <td>
                                 {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}

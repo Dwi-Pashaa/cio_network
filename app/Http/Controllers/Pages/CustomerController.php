@@ -36,7 +36,7 @@ class CustomerController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt', 'price', 'paket'])
+        $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt', 'price', 'paket', 'user'])
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%")

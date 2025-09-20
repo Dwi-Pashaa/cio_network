@@ -21,6 +21,7 @@ use App\Models\Type;
 use App\Models\Village;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -359,6 +360,7 @@ class PagesController extends Controller
     {
         $data = $request->validated();
 
+        $data['user_id'] = Auth::user()->id;
         $uuid     = $data['uuid'] ?? null;
         $typeName = $data['type_name'] ?? null;
 
@@ -395,8 +397,7 @@ class PagesController extends Controller
         $odp = ODP::with(['hometown', 'rt', 'rw'])->where('id', $request->odps_id)->first();
         $olt = OLT::with(['hometown'])->where('id', $request->olts_id)->first();
 
-        $message = "*SALINKAN DATA INI KE Link , . data.cionetworksolution.com . MASUKAN DENGAN TELITI*\n"
-            . "*ID Pelanggan*: {$customer->uuid} \n"
+        $message = "*ID Pelanggan*: {$customer->uuid} \n"
             . "*Nama Pelanggan*: {$customer->name} \n"
             . "*Mac Address*: {$customer->mac_address} \n"
             . "*Jenis Router*: {$router->name} \n"
@@ -413,8 +414,7 @@ class PagesController extends Controller
             . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
             . "*NO HP / WA*: {$customer->telp} \n"
             . "*Email*: {$customer->email} \n"
-            . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n"
-            . "*LANGSUNG KIRIM*";
+            . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";
 
         if ($typeName === "PPPOE") {
             $wifiName = $customer->name_wifi;
@@ -422,13 +422,17 @@ class PagesController extends Controller
             $paket = Paket::find($request->paket_id);
 
             $message .= "\n\n"
-                . "*Tambahan Data Jaringan*\n"
+                . "*Tambahan Data PPPOE dibawah ini Ke ONU dan MIXRADIUS*\n"
                 . "*Nama WiFi*: {$wifiName}\n"
                 . "*Password WiFi*: {$wifiPass}\n"
                 . "*Username PPPoE*: {$pppoeUser}\n"
                 . "*Password PPPoE*: {$pppoePass}\n"
                 . "*Paket*: {$paket->name}\n";
         }
+
+        $userName = Auth::user()->name;
+        $message .= "*Di Input Oleh : {$userName} \n"
+            . "*LANGSUNG KIRIM*";
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
