@@ -61,7 +61,7 @@
 									</div>
 									<div class="col-lg-12 col-md-12 col-sm-12">
 										<div class="form-group mb-3">
-											<label for="" class="mb-2">Pilih Tipe Voucher Lama</label>
+											<label for="" class="mb-2">Pilih Tipe Pelanggan Lama</label>
 											<select name="type_old_id" id="type_old_id" class="form-control @error('type_old_id') is-invalid @enderror">
 												<option value="">Pilih</option>
 												@foreach ($type as $tpl)
@@ -114,7 +114,7 @@
 								<div class="row">
 									<div class="col-lg-12 col-md-12 col-sm-12">
 										<div class="form-group mb-3">
-											<label for="" class="mb-2">Pilih Tipe Voucher Baru</label>
+											<label for="" class="mb-2">Pilih Tipe Pelanggan Baru</label>
 											<select name="type_new_id" id="type_new_id" class="form-control  @error('type_new_id') is-invalid @enderror">
 												<option value="">Pilih</option>
 												@foreach ($type as $tpl)
@@ -179,7 +179,7 @@
 		</div>
 	</div>
 	<!-- Libs JS -->
-	@if (session('password_required'))
+	{{-- @if (session('password_required'))
 		<div class="modal modal-blur fade" id="passwordModal" tabindex="-1" data-bs-backdrop="static" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-1 modal-dialog-centered" role="document">
 				<div class="modal-content">
@@ -206,7 +206,7 @@
 				</div>
 			</div>
 		</div>
-	@endif
+	@endif --}}
 	<!-- Tabler Core -->
 	<script src="{{asset('')}}js/tabler.min.js?1738096682" defer></script>
 	<script src="{{asset('')}}js/demo.min.js?1738096682" defer></script>
