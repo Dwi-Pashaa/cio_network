@@ -50,6 +50,16 @@
                                             Data Type Pelanggan
                                         </a>
                                     @endrole
+                                    @can('lihat tipe paket')
+                                        <a class="dropdown-item {{ Route::is("paket*") ? 'active' : '' }}" href="{{ route('paket.index') }}" rel="noopener">
+                                            Data Tipe Paket
+                                        </a>
+                                    @endcan
+                                    @can('lihat tipe pembayaran')
+                                        <a class="dropdown-item {{ Route::is("price*") ? 'active' : '' }}" href="{{ route('price.index') }}" rel="noopener">
+                                            Data Tipe Pembayaran
+                                        </a>
+                                    @endcan
                                     @can('lihat pelanggan')
                                         <a class="dropdown-item {{ Route::is("customer*") ? 'active' : '' }}" href="{{ route('customer.index') }}" rel="noopener">
                                             Data Pelanggan

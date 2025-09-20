@@ -11,6 +11,8 @@ use App\Models\HomeTown;
 use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
+use App\Models\Paket;
+use App\Models\Price;
 use App\Models\Regency;
 use App\Models\Router;
 use App\Models\RT;
@@ -34,7 +36,7 @@ class CustomerController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt'])
+        $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt', 'price', 'paket'])
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%")
@@ -77,6 +79,7 @@ class CustomerController extends Controller
                     });
             })
             ->where('status', 'active')
+            ->orderBy('id', 'DESC')
             ->paginate($sort);
 
 
@@ -114,7 +117,10 @@ class CustomerController extends Controller
 
         $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode"));
+        $paket = Paket::all();
+        $price = Price::all();
+
+        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket"));
     }
 
     /**
@@ -160,7 +166,10 @@ class CustomerController extends Controller
 
         $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode"));
+        $paket = Paket::all();
+        $price = Price::all();
+
+        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket"));
     }
 
     /**

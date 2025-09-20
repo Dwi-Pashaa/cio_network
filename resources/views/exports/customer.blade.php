@@ -18,6 +18,12 @@
             <th>Alamat ODC</th>
             <th>Alamat ODP</th>
             <th>Alamat OLT</th>
+            <th>Nama Wifi</th>
+            <th>Password Wifi</th>
+            <th>PPOE Username</th>
+            <th>PPOE Password</th>
+            <th>Tipe Paket</th>
+            <th>Tipe Pembayaran</th>
             <th>Lokasi</th>
             <th>Created</th>
         </tr>
@@ -50,6 +56,24 @@
                     {{ $item->odp->home_odc }}
                 </td>
                 <td>{{ $item->olt->hometown->name }} | {{ $item->olt->name }}</td>
+                <td>
+                    {{ $item->name_wifi ?? '-' }}
+                </td>
+                <td>
+                    {{ $item->password_wifi ?? '-' }}
+                </td>
+                <td>
+                    {{ $item->pppoe_username ?? '-' }}
+                </td>
+                <td>
+                    {{ $item->pppoe_password ?? '-' }}
+                </td>
+                <td>
+                    {{ optional($item)->paket->name ?? '-' }}
+                </td>
+                <td>
+                    {{ optional($item)->price->name ?? '-' }}
+                </td>
                 <td>
                     https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}
                 </td>

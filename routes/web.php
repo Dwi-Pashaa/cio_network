@@ -10,10 +10,12 @@ use App\Http\Controllers\Pages\Jaringan\OLTController;
 use App\Http\Controllers\Pages\Jaringan\RouterController;
 use App\Http\Controllers\Pages\Jaringan\VlanController;
 use App\Http\Controllers\Pages\PagesController;
+use App\Http\Controllers\Pages\PaketController;
 use App\Http\Controllers\Pages\Pemukiman\DesaController;
 use App\Http\Controllers\Pages\Pemukiman\KampungController;
 use App\Http\Controllers\Pages\Pemukiman\RTController;
 use App\Http\Controllers\Pages\Pemukiman\RWController;
+use App\Http\Controllers\Pages\PriceController;
 use App\Http\Controllers\Pages\RoleController;
 use App\Http\Controllers\Pages\SpamController;
 use App\Http\Controllers\Pages\SwitchPerangkatController;
@@ -73,6 +75,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/show', [TypeController::class, 'show'])->name('type.show');
         Route::put('/{id}/update', [TypeController::class, 'update'])->name('type.update');
         Route::delete('/{id}/destroy', [TypeController::class, 'destroy'])->name('type.destroy');
+    });
+
+    Route::prefix('paket')->group(function () {
+        Route::get('/', [PaketController::class, 'index'])->name('paket.index');
+        Route::post('/store', [PaketController::class, 'store'])->name('paket.store');
+        Route::get('/{id}/show', [PaketController::class, 'show'])->name('paket.show');
+        Route::put('/{id}/update', [PaketController::class, 'update'])->name('paket.update');
+        Route::delete('/{id}/destroy', [PaketController::class, 'destroy'])->name('paket.destroy');
+    });
+
+    Route::prefix('price')->group(function () {
+        Route::get('/', [PriceController::class, 'index'])->name('price.index');
+        Route::post('/store', [PriceController::class, 'store'])->name('price.store');
+        Route::get('/{id}/show', [PriceController::class, 'show'])->name('price.show');
+        Route::put('/{id}/update', [PriceController::class, 'update'])->name('price.update');
+        Route::delete('/{id}/destroy', [PriceController::class, 'destroy'])->name('price.destroy');
     });
 
     // data pelanggan
@@ -228,12 +246,12 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{id}/outSwitch', [SpamController::class, 'outSwitch'])->name('spam.outSwitch');
         });
     });
-});
 
-Route::prefix('input-datas')->group(function () {
-    Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
-    Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
-    Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
+    Route::prefix('input-datas')->group(function () {
+        Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
+        Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
+        Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
+    });
 });
 
 Route::prefix('complain')->group(function () {

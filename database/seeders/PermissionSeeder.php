@@ -14,7 +14,15 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'lihat halaman', 'buat halaman', 'edit halaman', 'hapus halaman',
+            // 'lihat halaman', 'buat halaman', 'edit halaman', 'hapus halaman',
+            'lihat tipe paket',
+            'buat tipe paket',
+            'edit tipe paket',
+            'hapus tipe paket',
+            'lihat tipe pembayaran',
+            'buat tipe pembayaran',
+            'edit tipe paket',
+            'hapus tipe paket',
         ];
 
         foreach ($permissions as $permission) {

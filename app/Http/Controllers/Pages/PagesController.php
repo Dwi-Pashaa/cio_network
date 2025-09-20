@@ -11,6 +11,8 @@ use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
 use App\Models\Pages;
+use App\Models\Paket;
+use App\Models\Price;
 use App\Models\Regency;
 use App\Models\Router;
 use App\Models\RT;
@@ -202,7 +204,6 @@ class PagesController extends Controller
         $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
         $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
 
-        // Update hubungan one-to-many
         $pages->router()->delete();
         foreach ($routers as $rtr) {
             $pages->router()->create(["routers_id" => $rtr]);
@@ -332,7 +333,10 @@ class PagesController extends Controller
             )
             ->get();
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode"));
+        $paket = Paket::all();
+        $price = Price::all();
+
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "paket", "price"));
     }
 
     public function confirmPagesPassword(Request $request)
@@ -353,7 +357,28 @@ class PagesController extends Controller
 
     public function saveCustomerToSpan(StoreCustomerRequest $request)
     {
-        $customer = Customer::create($request->validated());
+        $data = $request->validated();
+
+        $uuid     = $data['uuid'] ?? null;
+        $typeName = $data['type_name'] ?? null;
+
+        if ($typeName === "PPPOE") {
+            $vlan     = Vlan::find($request->vlans_id);
+            $vlanName = $vlan?->name;
+
+            $pppoeUser = $vlanName . '/' . $uuid;
+            $pppoePass = $vlanName . '/' . $uuid;
+
+            $data['pppoe_username'] = $pppoeUser;
+            $data['pppoe_password'] = $pppoePass;
+        } else {
+            $data['pppoe_username'] = null;
+            $data['pppoe_password'] = null;
+        }
+
+        unset($data['type_name']);
+
+        $customer = Customer::create($data);
 
         $phone = preg_replace('/^08/', '628', $request->wa_phone);
 
@@ -371,6 +396,7 @@ class PagesController extends Controller
         $olt = OLT::with(['hometown'])->where('id', $request->olts_id)->first();
 
         $message = "*SALINKAN DATA INI KE Link , . data.cionetworksolution.com . MASUKAN DENGAN TELITI*\n"
+            . "*ID Pelanggan*: {$customer->uuid} \n"
             . "*Nama Pelanggan*: {$customer->name} \n"
             . "*Mac Address*: {$customer->mac_address} \n"
             . "*Jenis Router*: {$router->name} \n"
@@ -390,6 +416,19 @@ class PagesController extends Controller
             . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n"
             . "*LANGSUNG KIRIM*";
 
+        if ($typeName === "PPPOE") {
+            $wifiName = $customer->name_wifi;
+            $wifiPass = $customer->password_wifi;
+            $paket = Paket::find($request->paket_id);
+
+            $message .= "\n\n"
+                . "*Tambahan Data Jaringan*\n"
+                . "*Nama WiFi*: {$wifiName}\n"
+                . "*Password WiFi*: {$wifiPass}\n"
+                . "*Username PPPoE*: {$pppoeUser}\n"
+                . "*Password PPPoE*: {$pppoePass}\n"
+                . "*Paket*: {$paket->name}\n";
+        }
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 

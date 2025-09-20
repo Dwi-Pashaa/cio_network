@@ -29,7 +29,7 @@
                             <select name="types_id" id="types_id" class="form-control @error('types_id') is-invalid @enderror">
                                 <option value="">Pilih</option>
                                 @foreach ($type as $tp)
-                                    <option value="{{ $tp->id }}" {{ $customer->types_id == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
+                                    <option value="{{ $tp->id }}" data-label="{{ $tp->name }}" {{ $customer->types_id == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
                                 @endforeach
                             </select>
                             @error('types_id')
@@ -70,6 +70,62 @@
                                     {{ $message }}
                                 </span>
                             @enderror
+                        </div>
+                    </div>
+                    <div class="row" id="pppoe-show">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Nama Wifi</label>
+                                <input type="text" name="name_wifi" value="{{ $customer->name_wifi }}" id="name_wifi" class="form-control @error('name_wifi') is-invalid @enderror">
+                                @error('name_wifi')
+                                    <span class="invalid-feedback">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Password Wifi</label>
+                                <input type="text" name="password_wifi" value="{{ $customer->password_wifi }}" id="password_wifi" class="form-control @error('password_wifi') is-invalid @enderror">
+                                @error('password_wifi')
+                                    <span class="invalid-feedback">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Tipe Paket</label>
+                                <select name="paket_id" id="paket_id" class="form-control @error('paket_id') is-invalid @enderror">
+                                    <option value="">Pilih</option>
+                                    @foreach ($paket as $pkt)
+                                        <option value="{{ $pkt->id }}" {{ $customer->paket_id == $pkt->id ? 'selected' : '' }}>{{ $pkt->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('paket_id')
+                                    <span class="invalid-feedback">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Tipe Pembayaran</label>
+                                <select name="price_id" id="price_id" class="form-control @error('price_id') is-invalid @enderror">
+                                    <option value="">Pilih</option>
+                                    @foreach ($price as $prc)
+                                        <option value="{{ $prc->id }}" {{ $customer->price_id == $prc->id ? 'selected' : '' }}>{{ $prc->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('price_id')
+                                    <span class="invalid-feedback">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -325,6 +381,25 @@
                     document.getElementById("longitude").value = latLng.lng.toFixed(6);
                 });
             }
+
+            let typeName = "{{ $customer->type->name }}";
+
+            if (typeName === "PPPOE") {
+                document.getElementById('pppoe-show').style.display = 'block';
+            } else {
+                document.getElementById('pppoe-show').style.display = 'none';
+            }
+
+            $("#types_id").change(function() {
+                let value = $(this).find("option:selected").data("label");
+                if (value === "PPPOE") {
+                    document.getElementById('pppoe-show').style.display = 'block';
+                    $("#type_name").val(value)
+                } else {
+                    document.getElementById('pppoe-show').style.display = 'none';
+                    $("#type_name").val('')
+                }
+            });
         });
     </script>
 @endpush

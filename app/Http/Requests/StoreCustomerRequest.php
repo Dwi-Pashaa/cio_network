@@ -39,7 +39,12 @@ class StoreCustomerRequest extends FormRequest
             'status'       => "required",
             'latitude'       => "required",
             'longitude'       => "required",
-            'uuid'         => 'required'
+            'uuid'         => 'required',
+            'paket_id' => 'nullable',
+            'price_id' => 'nullable',
+            'name_wifi' => 'nullable',
+            'password_wifi' => 'nullable',
+            'type_name' => 'nullable',
         ];
     }
 
