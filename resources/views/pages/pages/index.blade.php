@@ -270,6 +270,18 @@
                             <span class="invalid-feedback error_olts_id"></span>
                         </div>
                     </div>
+                    <div class="col-lg-12">
+                        <div class="form-group mb-3">
+                            <label for="paket_id[]" class="mb-2">Tipe Paket</label>
+                            <select name="paket_id[]" id="paket_id" class="form-control" multiple>
+                                <option value="">Pilih</option>
+                                @foreach ($paket as $okt)
+                                    <option value="{{ $okt->id }}">{{ $okt->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_paket_id"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group mb-3">
                     <label for="telp" class="mb-2">No Telephone</label>
@@ -347,6 +359,10 @@
         dropdownParent: $('#modal-simple')
     });
 
+    $('#paket_id').select2({
+        width: '100%',
+        dropdownParent: $('#modal-simple')
+    });
 
     const Toast = Swal.mixin({
         toast: true,
@@ -443,6 +459,7 @@
         formData.append('odcs_id', $('#odcs_id').val());
         formData.append('odps_id', $('#odps_id').val());
         formData.append('olts_id', $('#olts_id').val());
+        formData.append('paket_id', $('#paket_id').val());
         formData.append('telp', $('#telp').val());
         formData.append('password', $('#password').val());
 
@@ -514,6 +531,8 @@
         }).done(function(response){
             $(".modal-title").html("Edit Halaman");
             let data = response.data;
+            console.log(data);
+            
             $("#modal-simple").modal('show')
 
             $("#id").val(data.id);
@@ -556,6 +575,12 @@
                 let selectedolts = $("#olts_id").val() || [];
                 selectedolts.push(value.olts_id);
                 $("#olts_id").val(selectedolts).trigger('change');
+            });
+
+            $.each(response.data.paket, function(index, value) {
+                let selectedPaket = $("#paket_id").val() || [];
+                selectedPaket.push(value.paket_id);
+                $("#paket_id").val(selectedPaket).trigger('change');
             });
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);

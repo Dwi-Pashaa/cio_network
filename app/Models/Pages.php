@@ -11,48 +11,53 @@ class Pages extends Model
     protected $table = 'pages';
     protected $guarded = [];
 
-    public function hometown() 
+    public function hometown()
     {
-        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');    
+        return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
     }
 
-    public function village() 
+    public function village()
     {
-        return $this->belongsTo(Village::class, 'villages_id', 'id');    
+        return $this->belongsTo(Village::class, 'villages_id', 'id');
     }
 
-    public function regencie() 
+    public function regencie()
     {
-        return $this->belongsTo(Regency::class, 'regencies_id', 'id');    
+        return $this->belongsTo(Regency::class, 'regencies_id', 'id');
     }
 
-    public function district() 
+    public function district()
     {
-        return $this->belongsTo(District::class, 'districts_id', 'id');    
+        return $this->belongsTo(District::class, 'districts_id', 'id');
     }
 
-    public function router() 
+    public function router()
     {
-        return $this->hasMany(PagesRouter::class, 'pages_id', 'id');    
+        return $this->hasMany(PagesRouter::class, 'pages_id', 'id');
     }
 
-    public function vlan() 
+    public function vlan()
     {
-        return $this->hasMany(PagesVlan::class, 'pages_id', 'id');    
+        return $this->hasMany(PagesVlan::class, 'pages_id', 'id');
     }
 
-    public function odc() 
+    public function odc()
     {
-        return $this->hasMany(PagesODC::class, 'pages_id', 'id');    
+        return $this->hasMany(PagesODC::class, 'pages_id', 'id');
     }
 
-    public function odp() 
+    public function odp()
     {
-        return $this->hasMany(PagesODP::class, 'pages_id', 'id');    
+        return $this->hasMany(PagesODP::class, 'pages_id', 'id');
     }
 
-    public function olt() 
+    public function olt()
     {
-        return $this->hasMany(PagesOLT::class, 'pages_id', 'id');    
+        return $this->hasMany(PagesOLT::class, 'pages_id', 'id');
+    }
+
+    public function paket()
+    {
+        return $this->hasMany(PagesPaket::class, 'pages_id', 'id');
     }
 }

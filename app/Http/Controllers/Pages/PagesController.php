@@ -58,6 +58,7 @@ class PagesController extends Controller
         $odps = ODP::all();
         $odcs = ODC::all();
         $olts = OLT::all();
+        $paket = Paket::all();
 
         return view("pages.pages.index", compact(
             "pages",
@@ -69,7 +70,8 @@ class PagesController extends Controller
             "routers",
             "odps",
             "odcs",
-            "olts"
+            "olts",
+            "paket"
         ));
     }
 
@@ -92,6 +94,7 @@ class PagesController extends Controller
             "odcs_id" => "required",
             "odps_id" => "required",
             "olts_id" => "required",
+            "paket_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -145,6 +148,14 @@ class PagesController extends Controller
             ]);
         }
 
+        $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
+        foreach ($paket as $pkt) {
+            DB::table('pages_paket')->insert([
+                "pages_id" => $pages->id,
+                "paket_id" => $pkt
+            ]);
+        }
+
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
 
@@ -153,7 +164,7 @@ class PagesController extends Controller
      */
     public function show(string $id)
     {
-        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt'])->find($id);
+        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket'])->find($id);
 
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -181,6 +192,7 @@ class PagesController extends Controller
             "odcs_id" => "required",
             "odps_id" => "required",
             "olts_id" => "required",
+            "paket_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -204,6 +216,7 @@ class PagesController extends Controller
         $odcs = is_array($request->odcs_id) ? $request->odcs_id : explode(',', $request->odcs_id);
         $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
         $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
+        $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
 
         $pages->router()->delete();
         foreach ($routers as $rtr) {
@@ -228,6 +241,11 @@ class PagesController extends Controller
         $pages->olt()->delete();
         foreach ($olts as $olt) {
             $pages->olt()->create(["olts_id" => $olt]);
+        }
+
+        $pages->paket()->delete();
+        foreach ($paket as $pkt) {
+            $pages->paket()->create(["paket_id" => $pkt]);
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -334,10 +352,19 @@ class PagesController extends Controller
             )
             ->get();
 
-        $paket = Paket::all();
+        $paket = DB::table('pages_paket')
+            ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
+            ->where('pages_paket.pages_id', $pages->id)
+            ->select(
+                'pages_paket.*',
+                'paket.id as id',
+                'paket.name as name',
+            )
+            ->get();
+
         $price = Price::all();
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "paket", "price"));
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket"));
     }
 
     public function confirmPagesPassword(Request $request)
