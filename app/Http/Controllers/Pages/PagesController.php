@@ -37,17 +37,30 @@ class PagesController extends Controller
     {
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
+        $hometown = $request->filter_hometown ?? null;
+        $village = $request->filter_village ?? null;
 
-        $pages = Pages::with(['hometown'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhereHas('hometown', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    });
-            })
-            ->where('type', 'pages')
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        // Jika hometown dan village tidak ada, kosongkan data
+        if (empty($hometown) && empty($village)) {
+            $pages = Pages::whereRaw('1 = 0')->paginate($sort);
+        } else {
+            $pages = Pages::with(['hometown'])
+                ->when($search, function ($query, $search) {
+                    $query->where('name', 'like', "%$search%")
+                        ->orWhereHas('hometown', function ($q) use ($search) {
+                            $q->where('name', 'like', "%$search%");
+                        });
+                })
+                ->when($hometown, function ($query, $hometown) {
+                    $query->where('hometowns_id', $hometown);
+                })
+                ->when($village, function ($query, $village) {
+                    $query->where('villages_id', $village);
+                })
+                ->where('type', 'pages')
+                ->orderBy('id', 'DESC')
+                ->paginate($sort);
+        }
 
         $regencies = Regency::all();
         $districts = District::all();

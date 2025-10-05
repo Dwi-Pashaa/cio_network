@@ -19,28 +19,44 @@
         </div>
     @endcan
     <div class="card-body border-bottom py-3">
-        <div class="d-flex">
+        <div class="d-flex flex-wrap align-items-center">
             <div class="text-secondary">
                 <div class="mx-2 d-inline-block">
                     <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [
-                                10,25,50,100
-                            ];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                        @endforeach
+                    @php
+                        $opts = [
+                        10,25,50,100
+                        ];
+                    @endphp 
+                    @foreach ($opts as $opt)
+                        <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                    @endforeach
                     </select>
                 </div>
+            </div>
+            <div class="mx-2 d-inline-block">
+                <select name="filter_hometown" id="filter_hometown" class="form-control">
+                    <option value="">Pilih Berdasarkan Kampung</option>
+                    @foreach ($hometown as $ht)
+                    <option value="{{ $ht->id }}" {{ request('filter_hometown') == $ht->id ? 'selected' : '' }}>{{ $ht->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mx-2 d-inline-block">
+                <select name="filter_village" id="filter_village" class="form-control">
+                    <option value="">Pilih Berdasarkan Desa</option>
+                    @foreach ($villages as $vlg)
+                    <option value="{{ $vlg->id }}" {{ request('filter_village') == $vlg->id ? 'selected' : '' }}>{{ $vlg->name }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="ms-auto text-secondary">
                 <form>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
+                    <input type="text" class="form-control" name="search" placeholder="Search for…" value="{{ request('search') }}">
+                    <button class="btn" type="submit">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                    </button>
                     </div>
                 </form>
             </div>
@@ -376,69 +392,19 @@
         }
     });
 
+    $('#filter_hometown, #filter_village').change(function() {
+        let params = new URLSearchParams(window.location.search);
+        params.set('filter_hometown', $('#filter_hometown').val());
+        params.set('filter_village', $('#filter_village').val());
+        window.location.search = params.toString();
+    });
+
     $("#addBtn").click(function() {
         $(".modal-title").html("Tambah Halaman");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
     });
-
-    // $("#storeBtn").click(function() {
-    //     let id = $("#id").val();
-    //     let type = $("#type").val()
-    //     let name = $("#name").val();
-    //     let hometowns_id = $("#hometowns_id").val();
-    //     let telp = $("#telp").val();
-    //     let desc = $("#desc").val();
-    //     let password = $("#password").val();
-
-    //     let url;
-    //     let method;
-
-    //     if (type === 'create') {
-    //         url = BASE + '/store';
-    //         method = "POST";
-    //     } else {
-    //         url = BASE + `/${id}/update`
-    //         method = "PUT";
-    //     }
-        
-    //     $.ajax({
-    //         url: url,
-    //         method: method,
-    //         data: {
-    //             name: name,
-    //             hometowns_id: hometowns_id,
-    //             telp: telp,
-    //             desc: desc,
-    //             password: password
-    //         },
-    //     }).done(function(response) {
-    //         if (response.errors) {
-    //             $.each(response.errors, function(index, value) {
-    //                 $("#" + index).addClass('is-invalid');
-    //                 $(".error_" + index).html(value);
-
-    //                 setTimeout(() => {
-    //                     $("#" + index).removeClass('is-invalid');
-    //                     $(".error_" + index).html('');
-    //                 }, 3000);
-    //             })                
-    //         } else {
-    //             $("#modal-simple").modal('hide')
-    //             Toast.fire({
-    //                 icon: response.status,
-    //                 title: response.message
-    //             });
-
-    //             setTimeout(() => {
-    //                 window.location.reload();
-    //             }, 3000);
-    //         }
-    //     }).fail(function(jqXHR, textStatus, errorThrown) {
-    //         console.log("Error:", textStatus, errorThrown);
-    //     });
-    // });
 
     $('#storeBtn').click(function(e) {
         e.preventDefault();
