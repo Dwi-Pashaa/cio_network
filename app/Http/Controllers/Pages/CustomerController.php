@@ -59,6 +59,8 @@ class CustomerController extends Controller
                     $q->where('name', 'like', "%$search%")
                         ->orWhere('email', 'like', "%$search%")
                         ->orWhere('mac_address', 'like', "%$search%")
+                        ->orWhere('uuid', 'like', "%$search%")
+                        ->orWhere('telp', 'like', "%$search%")
                         ->orWhereHas('router', fn($sub) => $sub->where('name', 'like', "%$search%"))
                         ->orWhereHas('type', fn($sub) => $sub->where('name', 'like', "%$search%"))
                         ->orWhereHas('hometown', fn($sub) => $sub->where('name', 'like', "%$search%"))
