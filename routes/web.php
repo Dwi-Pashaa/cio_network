@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\CustomerController;
 use App\Http\Controllers\Pages\DashboardController;
+use App\Http\Controllers\Pages\Jaringan\MicRadiusController;
 use App\Http\Controllers\Pages\Jaringan\ODCController;
 use App\Http\Controllers\Pages\Jaringan\ODPController;
 use App\Http\Controllers\Pages\Jaringan\OLTController;
@@ -150,6 +151,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{id}/show', [OLTController::class, 'show'])->name('olt.show');
             Route::put('/{id}/update', [OLTController::class, 'update'])->name('olt.update');
             Route::delete('/{id}/destroy', [OLTController::class, 'destroy'])->name('olt.destroy');
+        });
+
+        // mic radius
+        Route::prefix('mic-radius')->group(function () {
+            Route::get('/', [MicRadiusController::class, 'index'])->name('mic.radius.index');
+            Route::post('/store', [MicRadiusController::class, 'store'])->name('mic.radius.store');
+            Route::get('/{id}/show', [MicRadiusController::class, 'show'])->name('mic.radius.show');
+            Route::put('/{id}/update', [MicRadiusController::class, 'update'])->name('mic.radius.update');
+            Route::delete('/{id}/destroy', [MicRadiusController::class, 'destroy'])->name('mic.radius.destroy');
         });
     });
 

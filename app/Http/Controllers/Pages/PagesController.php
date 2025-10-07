@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\HomeTown;
+use App\Models\MicRadius;
 use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
@@ -72,6 +73,7 @@ class PagesController extends Controller
         $odcs = ODC::all();
         $olts = OLT::all();
         $paket = Paket::all();
+        $micRadius = MicRadius::all();
 
         return view("pages.pages.index", compact(
             "pages",
@@ -84,7 +86,8 @@ class PagesController extends Controller
             "odps",
             "odcs",
             "olts",
-            "paket"
+            "paket",
+            "micRadius",
         ));
     }
 
@@ -108,6 +111,7 @@ class PagesController extends Controller
             "odps_id" => "required",
             "olts_id" => "required",
             "paket_id" => "required",
+            "mic_radius_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -169,6 +173,14 @@ class PagesController extends Controller
             ]);
         }
 
+        $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
+        foreach ($micRadius as $mc) {
+            DB::table('pages_mic_radius')->insert([
+                "pages_id" => $pages->id,
+                "mic_radius_id" => $mc
+            ]);
+        }
+
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
 
@@ -177,7 +189,7 @@ class PagesController extends Controller
      */
     public function show(string $id)
     {
-        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket'])->find($id);
+        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius'])->find($id);
 
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -206,6 +218,7 @@ class PagesController extends Controller
             "odps_id" => "required",
             "olts_id" => "required",
             "paket_id" => "required",
+            "mic_radius_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -230,6 +243,7 @@ class PagesController extends Controller
         $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
         $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
         $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
+        $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
 
         $pages->router()->delete();
         foreach ($routers as $rtr) {
@@ -259,6 +273,11 @@ class PagesController extends Controller
         $pages->paket()->delete();
         foreach ($paket as $pkt) {
             $pages->paket()->create(["paket_id" => $pkt]);
+        }
+
+        $pages->mic_radius()->delete();
+        foreach ($micRadius as $mc) {
+            $pages->mic_radius()->create(["mic_radius_id" => $mc]);
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -375,9 +394,20 @@ class PagesController extends Controller
             )
             ->get();
 
+        $micRadius = DB::table('pages_mic_radius')
+            ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
+            ->where('pages_mic_radius.pages_id', $pages->id)
+            ->select(
+                'pages_mic_radius.*',
+                'mic_radius.id as id',
+                'mic_radius.code as code',
+                'mic_radius.name as name'
+            )
+            ->get();
+
         $price = Price::all();
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket"));
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius"));
     }
 
     public function confirmPagesPassword(Request $request)
@@ -410,12 +440,15 @@ class PagesController extends Controller
 
             $pppoeUser = $vlanName . '/' . $uuid;
             $pppoePass = $vlanName . '/' . $uuid;
+            $selectedMicRadius = $request->mic_radius_id;
 
             $data['pppoe_username'] = $pppoeUser;
             $data['pppoe_password'] = $pppoePass;
+            $data['mic_radius_id'] = $selectedMicRadius;
         } else {
             $data['pppoe_username'] = null;
             $data['pppoe_password'] = null;
+            $data['mic_radius_id'] = null;
         }
 
         unset($data['type_name']);
@@ -463,6 +496,7 @@ class PagesController extends Controller
             $wifiName = $customer->name_wifi;
             $wifiPass = $customer->password_wifi;
             $paket = Paket::find($request->paket_id);
+            $micRadius = MicRadius::where('id', $request->mic_radius_id)->first();
 
             $message .= "\n\n"
                 . "*Tambahan Data PPPOE dibawah ini Ke ONU dan MIXRADIUS*\n"
@@ -470,7 +504,8 @@ class PagesController extends Controller
                 . "*Password WiFi*: {$wifiPass}\n"
                 . "*Username PPPoE*: {$pppoeUser}\n"
                 . "*Password PPPoE*: {$pppoePass}\n"
-                . "*Paket*: {$paket->name}\n";
+                . "*Paket*: {$paket->name}\n"
+                . "*MiX Radius*: {$micRadius->code} - {$micRadius->name}\n";
         }
 
         $message .= "*LANGSUNG KIRIM*";

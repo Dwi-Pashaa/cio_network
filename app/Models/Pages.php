@@ -60,4 +60,9 @@ class Pages extends Model
     {
         return $this->hasMany(PagesPaket::class, 'pages_id', 'id');
     }
+
+    public function mic_radius()
+    {
+        return $this->hasMany(PagesMicRadius::class, 'pages_id', 'id');
+    }
 }

@@ -171,6 +171,22 @@
 										</div>
 										<div class="col-lg-12 col-md-12 col-sm-12">
 											<div class="form-group mb-3">
+												<label for="" class="mb-2">Mix Radius</label>
+												<select name="mic_radius_id" id="mic_radius_id" class="form-control @error('mic_radius_id') is-invalid @enderror">
+													<option value="">Pilih</option>
+													@foreach ($micRadius as $mc)
+														<option value="{{ $mc->id }}" {{ old('mic_radius_id') == $mc->id ? 'selected' : '' }}>{{ $mc->code }} - {{ $mc->name }}</option>
+													@endforeach
+												</select>
+												@error('mic_radius_id')
+													<span class="invalid-feedback">
+														{{ $message }}
+													</span>
+												@enderror
+											</div>
+										</div>
+										<div class="col-lg-12 col-md-12 col-sm-12">
+											<div class="form-group mb-3">
 												<label for="" class="mb-2">Tipe Pembayaran</label>
 												<select name="price_id" id="price_id" class="form-control @error('price_id') is-invalid @enderror">
 													<option value="">Pilih</option>

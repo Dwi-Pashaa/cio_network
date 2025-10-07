@@ -8,6 +8,7 @@ use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\HomeTown;
+use App\Models\MicRadius;
 use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
@@ -51,7 +52,8 @@ class CustomerController extends Controller
             'olt',
             'price',
             'paket',
-            'user'
+            'user',
+            'mic_radius'
         ])
             ->where('status', 'active')
             ->when($search, function ($query) use ($search) {
@@ -99,6 +101,7 @@ class CustomerController extends Controller
         $odc = ODC::with(['hometown', 'rt', 'rw'])->get();
         $odp = ODP::with(['hometown', 'rt', 'rw'])->get();
         $olt = OLT::with(['hometown'])->get();
+        $micRadius = MicRadius::all();
 
         $last = Customer::whereNotNull('uuid')
             ->orderBy('uuid', 'desc')
@@ -116,7 +119,7 @@ class CustomerController extends Controller
         $paket = Paket::all();
         $price = Price::all();
 
-        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket"));
+        return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket", "micRadius"));
     }
 
     /**
@@ -146,6 +149,7 @@ class CustomerController extends Controller
         $odc = ODC::with(['hometown', 'rt', 'rw'])->get();
         $odp = ODP::with(['hometown', 'rt', 'rw'])->get();
         $olt = OLT::with(['hometown'])->get();
+        $micRadius = MicRadius::all();
 
         $customer = Customer::find($id);
 
@@ -165,7 +169,7 @@ class CustomerController extends Controller
         $paket = Paket::all();
         $price = Price::all();
 
-        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket"));
+        return view("pages.customer.edit", compact("customer", "type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket", "micRadius"));
     }
 
     /**

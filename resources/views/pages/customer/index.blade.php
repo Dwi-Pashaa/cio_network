@@ -80,6 +80,7 @@
                         <th>PPOE Username</th>
                         <th>PPOE Password</th>
                         <th>Tipe Paket</th>
+                        <th>Mix Radius</th>
                         <th>Tipe Pembayaran</th>
                         <th>Lokasi</th>
                         <th>Di Input Oleh</th>
@@ -132,6 +133,9 @@
                             </td>
                             <td>
                                 {{ optional($item)->paket->name ?? '-' }}
+                            </td>
+                            <td>
+                                {{ optional($item)->mic_radius->code ?? '-' }} - {{ optional($item)->mic_radius->name ?? '-' }}
                             </td>
                             <td>
                                 {{ optional($item)->price->name ?? '-' }}

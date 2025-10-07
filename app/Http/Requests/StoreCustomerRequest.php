@@ -45,6 +45,7 @@ class StoreCustomerRequest extends FormRequest
             'name_wifi' => 'nullable',
             'password_wifi' => 'nullable',
             'type_name' => 'nullable',
+            'mic_radius_id' => 'nullable',
         ];
     }
 

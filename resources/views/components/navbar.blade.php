@@ -72,7 +72,8 @@
                                 auth()->user()->can('lihat vlan') || 
                                 auth()->user()->can('lihat odc') ||
                                 auth()->user()->can('lihat odp') ||
-                                auth()->user()->can('lihat olt')
+                                auth()->user()->can('lihat olt') || 
+                                auth()->user()->can('lihat mic radius') 
                             )
                                 <li class="nav-item dropdown {{ request()->is('master-network*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -107,6 +108,11 @@
                                         @can('lihat olt')
                                             <a class="dropdown-item {{ Route::is("olt*") ? 'active' : '' }}" href="{{ route('olt.index') }}" rel="noopener">
                                                 Data OLT
+                                            </a>
+                                        @endcan
+                                        @can('lihat mic radius')
+                                            <a class="dropdown-item {{ Route::is("mic.radius*") ? 'active' : '' }}" href="{{ route('mic.radius.index') }}" rel="noopener">
+                                                Data Mic Radius
                                             </a>
                                         @endcan
                                     </div>

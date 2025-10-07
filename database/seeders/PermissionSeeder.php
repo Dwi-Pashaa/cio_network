@@ -15,14 +15,16 @@ class PermissionSeeder extends Seeder
     {
         $permissions = [
             // 'lihat halaman', 'buat halaman', 'edit halaman', 'hapus halaman',
-            'lihat tipe paket',
-            'buat tipe paket',
-            'edit tipe paket',
-            'hapus tipe paket',
-            'lihat tipe pembayaran',
-            'buat tipe pembayaran',
-            'edit tipe paket',
-            'hapus tipe paket',
+            'lihat mic radius',
+            'buat mic radius',
+            'edit mic radius',
+            'hapus mic radius',
+            // 'lihat tipe paket',
+            // 'buat tipe paket',
+            // 'edit tipe paket',
+            // 'hapus tipe paket',
+            // 'lihat tipe pembayaran',
+            // 'buat tipe pembayaran',
         ];
 
         foreach ($permissions as $permission) {
