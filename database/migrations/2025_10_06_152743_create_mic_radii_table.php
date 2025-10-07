@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mic_radius', function (Blueprint $table) {
             $table->id();
-            $table->foreign('hometowns_id')->references('id')->on('home_towns')->onDelete('CASCADE');
+            $table->foreignId('hometowns_id')->references('id')->on('home_towns')->onDelete('CASCADE');
             $table->string('code');
             $table->string('name');
             $table->string('latitude');
