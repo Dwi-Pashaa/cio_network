@@ -32,6 +32,7 @@
                                     <option value="{{ $tp->id }}" data-label="{{ $tp->name }}" {{ $customer->types_id == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
                                 @endforeach
                             </select>
+                           <input type="text" name="type_name" value="{{ ucfirst($customer->type->name) }}">
                             @error('types_id')
                                 <span class="invalid-feedback">
                                     {{ $message }}
@@ -117,7 +118,7 @@
                                 <select name="mic_radius_id" id="mic_radius_id" class="form-control @error('mic_radius_id') is-invalid @enderror">
                                     <option value="">Pilih</option>
                                     @foreach ($micRadius as $mc)
-                                        <option value="{{ $mc->id }}">{{ $mc->code }} - {{ $mc->name }}</option>
+                                        <option value="{{ $mc->id }}" {{ $customer->mic_radius_id == $mc->id ? 'selected' : '' }}>{{ $mc->code }} - {{ $mc->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('mic_radius_id')

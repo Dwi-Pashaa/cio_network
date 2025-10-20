@@ -30,6 +30,7 @@
                                 @foreach ($type as $tp)
                                     <option value="{{ $tp->id }}" data-label="{{ $tp->name }}" {{ old('types_id') == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
                                 @endforeach
+                                <input type="text" name="type_name" id="type_name">
                             </select>
                             @error('types_id')
                                 <span class="invalid-feedback">

@@ -25,6 +25,7 @@ use Google_Client;
 use Google_Service_Sheets;
 use Google_Service_Sheets_ValueRange;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerController extends Controller
@@ -127,9 +128,40 @@ class CustomerController extends Controller
      */
     public function store(StoreCustomerRequest $request)
     {
-        Customer::create($request->validated());
+        $data = $request->validated();
 
-        return redirect()->route('customer.index')->with('success', 'Data pelanggan berhasil disimpan!');
+        $data['user_id'] = Auth::id();
+        $uuid = $data['uuid'] ?? null;
+        $typeName = $data['type_name'] ?? $request->type_name ?? null;
+
+        if ($typeName === 'PPPOE') {
+            $vlanId = $data['vlan_id'] ?? $request->vlan_id ?? $request->vlans_id ?? null;
+            $vlan = $vlanId ? Vlan::find($vlanId) : null;
+            $vlanName = $vlan?->name;
+
+            if ($vlanName && $uuid) {
+                $pppoe = $vlanName . '/' . $uuid;
+                $data['pppoe_username'] = $pppoe;
+                $data['pppoe_password'] = $pppoe;
+            } else {
+                $data['pppoe_username'] = null;
+                $data['pppoe_password'] = null;
+            }
+
+            $data['mic_radius_id'] = $data['mic_radius_id'] ?? $request->mic_radius_id ?? null;
+        } else {
+            $data['pppoe_username'] = null;
+            $data['pppoe_password'] = null;
+            $data['mic_radius_id'] = null;
+        }
+
+        if (array_key_exists('type_name', $data)) {
+            unset($data['type_name']);
+        }
+
+        Customer::create($data);
+
+        return redirect()->route('customer.index')->with('success', 'Data pelanggan berhasil ditambahkan!');
     }
 
     /**
@@ -178,10 +210,54 @@ class CustomerController extends Controller
     public function update(StoreCustomerRequest $request, string $id)
     {
         $customer = Customer::find($id);
-        $customer->update($request->validated());
 
-        return redirect()->route('customer.index')->with('success', 'Data pelanggan berhasil diperbarui!');
+        if (!$customer) {
+            return redirect()
+                ->route('customer.index')
+                ->with('error', 'Data pelanggan tidak ditemukan.');
+        }
+
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
+
+        $uuid = $data['uuid'] ?? null;
+        $typeName = $data['type_name'] ?? $request->type_name ?? null;
+
+        if ($typeName === 'PPPOE') {
+            // Ambil VLAN ID dari data atau request
+            $vlanId = $data['vlan_id'] ?? $request->vlan_id ?? $request->vlans_id ?? null;
+            $vlan = $vlanId ? Vlan::find($vlanId) : null;
+            $vlanName = $vlan?->name;
+
+            // Jika ada nama VLAN dan UUID, buat username & password PPPoE
+            if ($vlanName && $uuid) {
+                $pppoe = "{$vlanName}/{$uuid}";
+                $data['pppoe_username'] = $pppoe;
+                $data['pppoe_password'] = $pppoe;
+            } else {
+                $data['pppoe_username'] = null;
+                $data['pppoe_password'] = null;
+            }
+
+            $data['mic_radius_id'] = $data['mic_radius_id'] ?? $request->mic_radius_id ?? null;
+        } else {
+            // Jika bukan tipe PPPoE, kosongkan field terkait
+            $data['pppoe_username'] = null;
+            $data['pppoe_password'] = null;
+            $data['mic_radius_id'] = null;
+        }
+
+        // Hapus type_name jika ada, karena bukan kolom tabel
+        unset($data['type_name']);
+
+        // Update data customer
+        $customer->update($data);
+
+        return redirect()
+            ->route('customer.index')
+            ->with('success', 'Data pelanggan berhasil diperbarui!');
     }
+
 
     /**
      * Remove the specified resource from storage.
