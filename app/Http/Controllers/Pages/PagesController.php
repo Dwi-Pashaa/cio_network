@@ -74,6 +74,7 @@ class PagesController extends Controller
         $olts = OLT::all();
         $paket = Paket::all();
         $micRadius = MicRadius::all();
+        $price = Price::all();
 
         return view("pages.pages.index", compact(
             "pages",
@@ -88,6 +89,7 @@ class PagesController extends Controller
             "olts",
             "paket",
             "micRadius",
+            "price",
         ));
     }
 
@@ -112,6 +114,7 @@ class PagesController extends Controller
             "olts_id" => "required",
             "paket_id" => "required",
             "mic_radius_id" => "required",
+            "price" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -181,6 +184,14 @@ class PagesController extends Controller
             ]);
         }
 
+        $price = is_array($request->price) ? $request->price : explode(',', $request->price);
+        foreach ($price as $mc) {
+            DB::table('pages_price')->insert([
+                "pages_id" => $pages->id,
+                "price_id" => $mc
+            ]);
+        }
+
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
 
@@ -189,7 +200,7 @@ class PagesController extends Controller
      */
     public function show(string $id)
     {
-        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius'])->find($id);
+        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius', 'price'])->find($id);
 
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -219,6 +230,7 @@ class PagesController extends Controller
             "olts_id" => "required",
             "paket_id" => "required",
             "mic_radius_id" => "required",
+            "price" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -244,6 +256,7 @@ class PagesController extends Controller
         $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
         $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
         $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
+        $price = is_array($request->price) ? $request->price : explode(',', $request->price);
 
         $pages->router()->delete();
         foreach ($routers as $rtr) {
@@ -278,6 +291,11 @@ class PagesController extends Controller
         $pages->mic_radius()->delete();
         foreach ($micRadius as $mc) {
             $pages->mic_radius()->create(["mic_radius_id" => $mc]);
+        }
+
+        $pages->price()->delete();
+        foreach ($price as $pc) {
+            $pages->price()->create(["price_id" => $pc]);
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -405,7 +423,11 @@ class PagesController extends Controller
             )
             ->get();
 
-        $price = Price::all();
+        $price = DB::table('pages_price')
+            ->join('price', 'pages_price.price_id', '=', 'price.id')
+            ->where('pages_price.pages_id', $pages->id)
+            ->select('pages_price.*', 'price.*')
+            ->get();
 
         return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius"));
     }

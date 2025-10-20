@@ -310,6 +310,18 @@
                                 <span class="invalid-feedback error_mic_radius_id"></span>
                             </div>
                         </div>
+                        <div class="col-lg-12">
+                            <div class="form-group mb-3">
+                                <label for="price[]" class="mb-2">Tipe Pembayaran</label>
+                                <select name="price[]" id="price" class="form-control" multiple>
+                                    <option value="">Pilih</option>
+                                    @foreach ($price as $prc)
+                                        <option value="{{ $prc->id }}">{{ $prc->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="invalid-feedback error_price"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group mb-3">
                         <label for="telp" class="mb-2">No Telephone</label>
@@ -397,6 +409,11 @@
             dropdownParent: $('#modal-simple')
         });
 
+        $('#price').select2({
+            width: '100%',
+            dropdownParent: $('#modal-simple')
+        });
+
         const Toast = Swal.mixin({
             toast: true,
             position: "top-end",
@@ -444,6 +461,7 @@
             formData.append('olts_id', $('#olts_id').val());
             formData.append('paket_id', $('#paket_id').val());
             formData.append('mic_radius_id', $('#mic_radius_id').val());
+            formData.append('price', $('#price').val());
             formData.append('telp', $('#telp').val());
             formData.append('password', $('#password').val());
 
@@ -571,6 +589,12 @@
                     let seelctedMicRadius = $("#mic_radius_id").val() || [];
                     seelctedMicRadius.push(value.mic_radius_id);
                     $("#mic_radius_id").val(seelctedMicRadius).trigger('change');
+                });
+
+                $.each(response.data.price, function(index, value) {
+                    let selectedPrice = $("#price").val() || [];
+                    selectedPrice.push(value.price_id);
+                    $("#price").val(selectedPrice).trigger('change');
                 });
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("Error:", textStatus, errorThrown);

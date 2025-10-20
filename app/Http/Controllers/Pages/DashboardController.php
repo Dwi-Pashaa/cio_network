@@ -61,27 +61,27 @@ class DashboardController extends Controller
 
         switch ($text) {
             case 'kecamatan':
-                $data = District::with('customer.type')->find($id);
+                $data = District::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "kecamatan";
                 break;
             case 'desa':
-                $data = Village::with('customer.type')->find($id);
+                $data = Village::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "desa";
                 break;
             case 'kampung':
-                $data = HomeTown::with('customer.type')->find($id);
+                $data = HomeTown::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "kampung";
                 break;
             case 'vlan':
-                $data = Vlan::with('customer.type')->find($id);
+                $data = Vlan::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "vlan";
                 break;
             case 'olt':
-                $data = OLT::with('customer.type')->find($id);
+                $data = OLT::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "olt";
                 break;
             case 'voucher & ppoe':
-                $data = Type::with('customer.type')->find($id);
+                $data = Type::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "voucher & ppoe";
                 break;
 

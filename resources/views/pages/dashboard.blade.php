@@ -92,20 +92,26 @@
                     </button>
                 </div>
                 <div class="modal-body p-0">
-                    <table class="table card-table table-vcenter text-nowrap datatable">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Type Pelanggan</th>
-                                <th>Nama Pelanggan</th>
-                                <th>Email</th>
-                                <th>No Telephone</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-show">
-                            
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap datatable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Type Pelanggan</th>
+                                    <th>Nama Pelanggan</th>
+                                    <th>Email</th>
+                                    <th>No Telephone</th>
+                                    <th>Mac Address</th>
+                                    <th>Nama Router</th>
+                                    <th>Di Input Oleh</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-show">
+                                
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,6 +150,14 @@
                                     <td>${value.name}</td>
                                     <td>${value.email}</td>
                                     <td>${value.telp}</td>
+                                    <td>${value.mac_address}</td>
+                                    <td>${value.router.name}</td>
+                                    <td>${value.user?.name ?? '-'}</td>
+                                    <td>${new Date(value.created_at).toLocaleDateString('id-ID', {
+                                        day: '2-digit',
+                                        month: 'long',
+                                        year: 'numeric'
+                                        })}</td>
                                 </tr>`;
                     });
                     $("#tbody-show").html(html);

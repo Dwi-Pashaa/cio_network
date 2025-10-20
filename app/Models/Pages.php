@@ -65,4 +65,9 @@ class Pages extends Model
     {
         return $this->hasMany(PagesMicRadius::class, 'pages_id', 'id');
     }
+
+    public function price()
+    {
+        return $this->hasMany(PagesPrice::class, 'pages_id', 'id');
+    }
 }
