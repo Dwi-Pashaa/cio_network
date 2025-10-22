@@ -65,6 +65,11 @@
                                             Data Pelanggan
                                         </a>
                                     @endcan
+                                    @can('lihat barang')
+                                        <a class="dropdown-item {{ Route::is("user.router*") ? 'active' : '' }}" href="{{ route('user.router.index') }}" rel="noopener">
+                                            Data Barang
+                                        </a>
+                                    @endcan
                                 </div>
                             </li>
                             @if(

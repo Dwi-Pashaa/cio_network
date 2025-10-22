@@ -22,6 +22,7 @@ use App\Http\Controllers\Pages\SpamController;
 use App\Http\Controllers\Pages\SwitchPerangkatController;
 use App\Http\Controllers\Pages\TypeController;
 use App\Http\Controllers\Pages\UserController;
+use App\Http\Controllers\Pages\UserRouterController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
 use App\Http\Controllers\Pages\Wilayah\KecamatanController;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
         Route::put('/{id}/update', [UserController::class, 'update'])->name('user.update');
         Route::delete('/{id}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
+    });
+
+    // data barang
+    Route::prefix('barang')->group(function () {
+        Route::get('/', [UserRouterController::class, 'index'])->name('user.router.index');
+        Route::post('/store', [UserRouterController::class, 'store'])->name('user.router.store');
+        Route::get('/{id}/show', [UserRouterController::class, 'show'])->name('user.router.show');
+        Route::put('/{id}/update', [UserRouterController::class, 'update'])->name('user.router.update');
+        Route::delete('/{id}/destroy', [UserRouterController::class, 'destroy'])->name('user.router.destroy');
     });
 
     // data type pelanggan
@@ -254,6 +264,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [SpamController::class, 'index'])->name('spam.index');
             Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
             Route::put('/{id}/outSwitch', [SpamController::class, 'outSwitch'])->name('spam.outSwitch');
+            Route::delete('/{id}/reject', [SpamController::class, 'reject'])->name('spam.reject');
         });
     });
 

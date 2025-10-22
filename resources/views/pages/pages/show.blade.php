@@ -36,6 +36,12 @@
 						
 						@include('components.alert.success')
 
+						@if (session()->has('error'))
+							<div class="alert alert-danger">
+								{{ session()->get('error') }}
+							</div>
+						@endif
+
 						<div class="card">
 							<div class="card-header">
 								<b>Form Input Data Pelanggan</b>

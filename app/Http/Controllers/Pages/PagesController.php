@@ -19,6 +19,7 @@ use App\Models\Router;
 use App\Models\RT;
 use App\Models\RW;
 use App\Models\Type;
+use App\Models\UserRouter;
 use App\Models\Village;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
@@ -451,10 +452,24 @@ class PagesController extends Controller
     public function saveCustomerToSpan(StoreCustomerRequest $request)
     {
         $data = $request->validated();
-
         $data['user_id'] = Auth::user()->id;
+
         $uuid     = $data['uuid'] ?? null;
         $typeName = $data['type_name'] ?? null;
+
+        $userRouter = UserRouter::where('user_id', Auth::user()->id)
+            ->where('router_id', $data['routers_id'])
+            ->first();
+
+        if (!$userRouter) {
+            return redirect()->back()->with('error', 'Router tidak ditemukan atau tidak terdaftar untuk user ini.');
+        }
+
+        if ($userRouter->total <= 0) {
+            return redirect()->back()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
+        }
+
+        $userRouter->decrement('total');
 
         if ($typeName === "PPPOE") {
             $vlan     = Vlan::find($request->vlans_id);
@@ -478,47 +493,46 @@ class PagesController extends Controller
         $customer = Customer::create($data);
 
         $userName = Auth::user()->name;
-
         $phone = preg_replace('/^08/', '628', $request->wa_phone);
 
-        $type = Type::where('id', $request->types_id)->first();
-        $router = Router::where('id', $request->routers_id)->first();
-        $hometown = HomeTown::where('id', $request->hometowns_id)->first();
-        $rt = RT::where('id', $request->rts_id)->first();
-        $rw = RW::where('id', $request->rws_id)->first();
-        $village = Village::where('id', $request->villages_id)->first();
-        $district = District::where('id', $request->districts_id)->first();
-        $regency = Regency::where('id', $request->regencies_id)->first();
-        $vlan = Vlan::where('id', $request->vlans_id)->first();
-        $odc = ODC::with(['hometown', 'rt', 'rw'])->where('id', $request->odcs_id)->first();
-        $odp = ODP::with(['hometown', 'rt', 'rw'])->where('id', $request->odps_id)->first();
-        $olt = OLT::with(['hometown'])->where('id', $request->olts_id)->first();
+        $type = Type::find($request->types_id);
+        $router = Router::find($request->routers_id);
+        $hometown = HomeTown::find($request->hometowns_id);
+        $rt = RT::find($request->rts_id);
+        $rw = RW::find($request->rws_id);
+        $village = Village::find($request->villages_id);
+        $district = District::find($request->districts_id);
+        $regency = Regency::find($request->regencies_id);
+        $vlan = Vlan::find($request->vlans_id);
+        $odc = ODC::with(['hometown', 'rt', 'rw'])->find($request->odcs_id);
+        $odp = ODP::with(['hometown', 'rt', 'rw'])->find($request->odps_id);
+        $olt = OLT::with(['hometown'])->find($request->olts_id);
 
-        $message = "*Di Input Oleh : {$userName} \n"
-            . "*ID Pelanggan*: {$customer->uuid} \n"
-            . "*Nama Pelanggan*: {$customer->name} \n"
-            . "*Mac Address*: {$customer->mac_address} \n"
-            . "*Jenis Router*: {$router->name} \n"
-            . "*Type Pelanggan*: {$type->name} \n"
-            . "*Kampung*: {$hometown->name} \n"
-            . "*Rt*: {$rt->name} \n"
-            . "*Rw*: {$rw->name} \n"
-            . "*Desa*: {$village->name} \n"
-            . "*Kecamatan*: {$district->name} \n"
-            . "*Kabupaten*: {$regency->name} \n"
-            . "*Vlan*: {$vlan->name} \n"
+        $message = "*Di Input Oleh : {$userName}*\n"
+            . "*ID Pelanggan*: {$customer->uuid}\n"
+            . "*Nama Pelanggan*: {$customer->name}\n"
+            . "*Mac Address*: {$customer->mac_address}\n"
+            . "*Jenis Router*: {$router->name}\n"
+            . "*Type Pelanggan*: {$type->name}\n"
+            . "*Kampung*: {$hometown->name}\n"
+            . "*Rt*: {$rt->name}\n"
+            . "*Rw*: {$rw->name}\n"
+            . "*Desa*: {$village->name}\n"
+            . "*Kecamatan*: {$district->name}\n"
+            . "*Kabupaten*: {$regency->name}\n"
+            . "*Vlan*: {$vlan->name}\n"
             . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
             . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
             . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
-            . "*NO HP / WA*: {$customer->telp} \n"
-            . "*Email*: {$customer->email} \n"
+            . "*NO HP / WA*: {$customer->telp}\n"
+            . "*Email*: {$customer->email}\n"
             . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";
 
         if ($typeName === "PPPOE") {
             $wifiName = $customer->name_wifi;
             $wifiPass = $customer->password_wifi;
             $paket = Paket::find($request->paket_id);
-            $micRadius = MicRadius::where('id', $request->mic_radius_id)->first();
+            $micRadius = MicRadius::find($request->mic_radius_id);
 
             $message .= "\n\n"
                 . "*Tambahan Data PPPOE dibawah ini Ke ONU dan MIXRADIUS*\n"
@@ -534,6 +548,7 @@ class PagesController extends Controller
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
-        return redirect()->away($whatsappUrl)->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
+        return redirect()->away($whatsappUrl)
+            ->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
     }
 }

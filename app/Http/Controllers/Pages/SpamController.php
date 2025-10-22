@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\SwitchDevice;
+use App\Models\UserRouter;
 use Illuminate\Http\Request;
 
 class SpamController extends Controller
@@ -91,6 +92,29 @@ class SpamController extends Controller
         $customers = Customer::find($id);
 
         $customers->update(['status' => 'active']);
+
+        return response()->json(200);
+    }
+
+    public function reject($id)
+    {
+        $customer = Customer::find($id);
+
+        if (!$customer) {
+            return redirect()->back()->with('error', 'Data pelanggan tidak ditemukan.');
+        }
+
+        if ($customer->routers_id) {
+            $userRouter = UserRouter::where('user_id', $customer->user_id)
+                ->where('router_id', $customer->routers_id)
+                ->first();
+
+            if ($userRouter) {
+                $userRouter->increment('total');
+            }
+        }
+
+        $customer->delete();
 
         return response()->json(200);
     }
