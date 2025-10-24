@@ -22,10 +22,9 @@ class UserRouterController extends Controller
         $userRouter = UserRouter::with('user', 'router')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q2) use ($search) {
-                            $q2->where('name', 'like', "%{$search}%");
-                        })
+                    $q->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    })
                         ->orWhereHas('router', function ($q3) use ($search) {
                             $q3->where('name', 'like', "%{$search}%");
                         });

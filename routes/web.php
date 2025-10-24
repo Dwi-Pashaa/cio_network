@@ -25,6 +25,7 @@ use App\Http\Controllers\Pages\UserController;
 use App\Http\Controllers\Pages\UserRouterController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
 use App\Http\Controllers\Pages\Wilayah\KecamatanController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
