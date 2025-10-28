@@ -46,50 +46,41 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive">
+    <div id="advanced-table" class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>Code</th>
-                    <th>Nama Mic Radius</th>
-                    <th>Kampung</th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-code">Code</button>
+                    </th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-name">Nama Mic Radius</button>
+                    </th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-home">Kampung</button>
+                    </th>
                     <th>Lokasi</th>
-                    <th>Created</th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-created">Created</button>
+                    </th>
                     @if(auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="table-tbody">
                 @forelse ($micRadius as $item)
                     <tr>
+                         <td>{{ $loop->iteration }}</td>
+                        <td class="sort-code">{{ $item->code }}</td>
+                        <td class="sort-name">{{ $item->name }}</td>
+                        <td class="sort-home">{{ $item->hometown->name }}</td>
                         <td>
-                            <span class="text-secondary">
-                                {{ $loop->iteration }}
-                            </span>
+                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" 
+                            target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
                         </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->code }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->hometown->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                        </td>
+                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
                         @if(auth()->user()->can('edit mic radius') || auth()->user()->can('hapus mic radius'))
                             <td>
                                 @can('edit mic radius')
@@ -184,6 +175,29 @@
 @endpush
 
 @push('js')
+<script>
+    // ========= SORT TABLE (List.js + Tabler) =========
+    const advancedTable = {
+        headers: [
+            { "data-sort": "sort-code", name: "Code" },
+            { "data-sort": "sort-name", name: "Nama Mic Radius" },
+            { "data-sort": "sort-home", name: "Kampung" },
+            { "data-sort": "sort-created", name: "Created" },
+        ],
+    };
+
+    window.tabler_list = window.tabler_list || {};
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+            sortClass: "table-sort",
+            listClass: "table-tbody",
+            page: parseInt("{{ request('sort', 10) }}"),
+            pagination: true,
+            valueNames: advancedTable.headers.map(header => header["data-sort"]),
+        }));
+    });
+</script>
 <script>
     const BASE = "{{ route('mic.radius.index') }}";
 

@@ -46,71 +46,46 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive">
+    <div id="advanced-table" class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>Code</th>
-                    <th>Nama OLT</th>
-                    <th>Kampung</th>
+                    <th><button class="table-sort" data-sort="sort-code">Code</button></th>
+                    <th><button class="table-sort" data-sort="sort-name">Nama OLT</button></th>
+                    <th><button class="table-sort" data-sort="sort-home">Kampung</button></th>
+                    <th><button class="table-sort" data-sort="sort-created">Created</button></th>
                     <th>Lokasi</th>
-                    <th>Created</th>
                     @if(auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="table-tbody">
                 @forelse ($olts as $item)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td class="sort-code">{{ $item->code }}</td>
+                        <td class="sort-name">{{ $item->name }}</td>
+                        <td class="sort-home">{{ $item->hometown->name }}</td>
+                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i') }}</td>
                         <td>
-                            <span class="text-secondary">
-                                {{ $loop->iteration }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->code }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->hometown->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
+                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}"
+                                target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
                         </td>
                         @if(auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt'))
                             <td>
                                 @can('ubah olt')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                        Edit
-                                    </a>
+                                    <a href="javascript:void(0)" onclick="editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">Edit</a>
                                 @endcan
                                 @can('hapus olt')
-                                    <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Hapus
-                                    </a>
+                                    <a href="javascript:void(0)" onclick="deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">Hapus</a>
                                 @endcan
-                            </td> 
+                            </td>
                         @endif
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="8" class="text-center">Tidak Ada Data</td>
-                    </tr>
+                    <tr><td colspan="7" class="text-center">Tidak Ada Data</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -179,6 +154,36 @@
 @endpush
 
 @push('js')
+<script>
+    // ========= SORT TABLE (List.js + Tabler) =========
+    const advancedTable = {
+        headers: [
+            { "data-sort": "sort-code", name: "Code" },
+            { "data-sort": "sort-name", name: "Nama OLT" },
+            { "data-sort": "sort-home", name: "Kampung" },
+            { "data-sort": "sort-created", name: "Created" },
+        ],
+    };
+
+    window.tabler_list = window.tabler_list || {};
+    document.addEventListener("DOMContentLoaded", function () {
+        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+            sortClass: "table-sort",
+            listClass: "table-tbody",
+            page: parseInt("{{ request('sort', 10) }}"),
+            pagination: true,
+            valueNames: advancedTable.headers.map(header => header["data-sort"]),
+        }));
+    });
+
+    // ========= SELECT LIMIT =========
+    const BASE = "{{ route('olt.index') }}";
+    let params = new URLSearchParams(window.location.search);
+    $("#sort").change(function() {
+        params.set('sort', $(this).val());
+        window.location.href = BASE + '?' + params.toString();
+    });
+</script>
 <script>
     const BASE = "{{ route('olt.index') }}";
 

@@ -181,7 +181,6 @@
 @endpush
 
 @push('js')
-<script src="{{ asset('') }}libs/list.js/dist/list.min.js?1759774804" defer=""></script>
 <script>
     const advancedTable = {
         headers: [

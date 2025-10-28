@@ -46,86 +46,112 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive-lg">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
-                <tr>
-                    <th class="w-1">No</th>
-                    <th>Code</th>
-                    <th>Nama Pemilik</th>
-                    <th>Kampung</th>
-                    <th>RT</th>
-                    <th>RW</th>
-                    <th>Lokasi</th>
-                    <th>Created</th>
-                    @if(auth()->user()->can('ubah odc') || auth()->user()->can('hapus odc'))
-                        <th>Action</th>
-                    @endif
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($odcs as $item)
+    <div id="advanced-table">
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable">
+                <thead>
                     <tr>
-                        <td>
-                            <span class="text-secondary">
-                                {{ $loop->iteration }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->code }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->home_odc }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->hometown->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->rt->name ?? '-' }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->rw->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                        </td>
+                        <th class="w-1">No</th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-code">
+                                Code
+                             </button>
+                        </th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">
+                                Nama Pemilik
+                             </button>
+                        </th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-home">
+                                Kampung
+                             </button>
+                        </th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-rt">
+                                RT
+                             </button>
+                        </th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-rw">
+                                RW
+                             </button>
+                        </th>
+                        <th>Lokasi</th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">
+                                Created
+                             </button>
+                        </th>
                         @if(auth()->user()->can('ubah odc') || auth()->user()->can('hapus odc'))
-                            <td>
-                                @can('ubah odc')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus odc')
-                                    <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td> 
+                            <th>Action</th>
                         @endif
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="9" class="text-center">Tidak Ada Data</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="table-tbody">
+                    @forelse ($odcs as $item)
+                        <tr>
+                            <td>
+                                <span class="text-secondary">
+                                    {{ $loop->iteration }}
+                                </span>
+                            </td>
+                            <td class="sort-code">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ $item->code }}
+                                </a>
+                            </td>
+                            <td class="sort-name">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ $item->home_odc }}
+                                </a>
+                            </td>
+                            <td class="sort-home">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ $item->hometown->name }}
+                                </a>
+                            </td>
+                            <td class="sort-rt">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ $item->rt->name ?? '-' }}
+                                </a>
+                            </td>
+                            <td class="sort-rw">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ $item->rw->name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                            </td>
+                            <td class="sort-created">
+                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
+                            </td>
+                            @if(auth()->user()->can('ubah odc') || auth()->user()->can('hapus odc'))
+                                <td>
+                                    @can('ubah odc')
+                                        <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                                            Edit
+                                        </a>
+                                    @endcan
+                                    @can('hapus odc')
+                                        <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                            Hapus
+                                        </a>
+                                    @endcan
+                                </td> 
+                            @endif
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center">Tidak Ada Data</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
@@ -216,6 +242,41 @@
 @endpush
 
 @push('js')
+    <script>
+        const advancedTable = {
+            headers: [
+                { "data-sort": "sort-code", name: "Code" },
+                { "data-sort": "sort-name", name: "Nama Pemilik" },
+                { "data-sort": "sort-home", name: "Kampung" },
+                { "data-sort": "sort-rt", name: "RT" },
+                { "data-sort": "sort-rw", name: "RW" },
+                { "data-sort": "sort-created", name: "Created" },
+            ],
+        };
+        const setPageListItems = (e) => {
+            window.tabler_list["advanced-table"].page = parseInt(e.target.dataset.value);
+            window.tabler_list["advanced-table"].update();
+            document.querySelector("#page-count").innerHTML = e.target.dataset.value;
+        };
+        window.tabler_list = window.tabler_list || {};
+        document.addEventListener("DOMContentLoaded", function () {
+            const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+                sortClass: "table-sort",
+                listClass: "table-tbody",
+                page: parseInt("20"),
+                pagination: {
+                    item: (value) => {
+                        return `<li class="page-item"><a class="page-link cursor-pointer">${value.page}</a></li>`;
+                    },
+                    innerWindow: 1,
+                    outerWindow: 1,
+                    left: 0,
+                    right: 0,
+                },
+                valueNames: advancedTable.headers.map((header) => header["data-sort"]),
+            }));
+        });
+    </script>
     <script>
         const BASE = "{{ route('odc.index') }}";
 

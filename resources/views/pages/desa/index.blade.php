@@ -46,51 +46,41 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive-lg">
+    <div id="advanced-table" class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>Kode</th>
-                    <th>Nama Desa</th>
-                    <th>Created</th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-code">Kode</button>
+                    </th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-name">Nama Desa</button>
+                    </th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-created">Created</button>
+                    </th>
                     @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="table-tbody">
                 @forelse ($villages as $item)
                     <tr>
-                        <td>
-                            <span class="text-secondary">
-                                {{ $loop->iteration }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->code }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->name }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                        </td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td class="sort-code">{{ $item->code }}</td>
+                        <td class="sort-name">{{ $item->name }}</td>
+                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
                         @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
                             <td>
                                 @can('ubah desa')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                         Edit
                                     </a>
                                 @endcan
                                 @can('hapus desa')
                                     <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                         Hapus
                                     </a>
                                 @endcan
@@ -154,6 +144,25 @@
     $("#sort").change(function() {
         params.set('sort', $(this).val());
         window.location.href = BASE + '?' + params.toString();
+    });
+
+     const advancedTable = {
+        headers: [
+            { "data-sort": "sort-code", name: "Kode" },
+            { "data-sort": "sort-name", name: "Nama Desa" },
+            { "data-sort": "sort-created", name: "Created" },
+        ],
+    };
+    window.tabler_list = window.tabler_list || {};
+    document.addEventListener("DOMContentLoaded", function () {
+        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+            sortClass: "table-sort",
+            listClass: "table-tbody",
+            searchClass: "search",
+            page: parseInt("{{ request('sort', 10) }}"),
+            pagination: true,
+            valueNames: advancedTable.headers.map(h => h["data-sort"]),
+        }));
     });
 
     const Toast = Swal.mixin({

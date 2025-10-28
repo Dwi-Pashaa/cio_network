@@ -62,64 +62,51 @@
                 </div>
             </div>
         </div>
-        <div class="table-responsive-lg">
+        <div id="advanced-table" class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap datatable">
                 <thead>
                     <tr>
                         <th class="w-1">No</th>
-                        <th>Nama</th>
-                        <th>No Telephone</th>
-                        <th>Kunci</th>
-                        <th>Created</th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-name">Nama</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-telp">No Telephone</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-pass">Kunci</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-created">Created</button>
+                        </th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="table-tbody list">
                     @forelse ($pages as $item)
                         <tr>
-                            <td>
-                                <span class="text-secondary">
-                                    {{ $loop->iteration }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->name }}
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->telp }}
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->password_show }}
-                                </a>
-                            </td>
-                            <td>
-                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                            </td>
+                            <td><span class="text-secondary">{{ $loop->iteration }}</span></td>
+                            <td class="sort-name">{{ $item->name }}</td>
+                            <td class="sort-telp">{{ $item->telp }}</td>
+                            <td class="sort-pass">{{ $item->password_show }}</td>
+                            <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
                             <td>
                                 @can('lihat halaman')
                                     <a href="{{ route('input.data.index', ['slug' => $item->slug]) }}" target="_blank" class="btn btn-outline-info btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
-                                        Lihat Halaman
+                                        <i class="ti ti-eye"></i> Lihat Halaman
                                     </a>
                                 @endcan
                                 @can('edit halaman')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                        Edit
+                                        <i class="ti ti-edit"></i> Edit
                                     </a>
                                 @endcan
                                 @can('hapus halaman')
                                     <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Hapus
+                                        <i class="ti ti-trash"></i> Hapus
                                     </a>
                                 @endcan
-                            </td> 
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -347,6 +334,27 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const BASE = "{{ route('halaman.index') }}";
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const advancedTable = {
+                headers: [
+                    { "data-sort": "sort-name", name: "Nama" },
+                    { "data-sort": "sort-telp", name: "No Telephone" },
+                    { "data-sort": "sort-pass", name: "Kunci" },
+                    { "data-sort": "sort-created", name: "Created" },
+                ],
+            };
+
+            window.tabler_list = window.tabler_list || {};
+            const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+                sortClass: "table-sort",
+                listClass: "table-tbody",
+                searchClass: "search",
+                page: 10,
+                pagination: true,
+                valueNames: advancedTable.headers.map(h => h["data-sort"]),
+            }));
+        });
 
         let params = new URLSearchParams(window.location.search);
         $("#sort").change(function() {
