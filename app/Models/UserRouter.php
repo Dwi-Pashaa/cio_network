@@ -20,4 +20,11 @@ class UserRouter extends Model
     {
         return $this->belongsTo(Router::class, 'router_id', 'id');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_router', 'router_id', 'user_id')
+            ->withPivot('total')
+            ->withTimestamps();
+    }
 }

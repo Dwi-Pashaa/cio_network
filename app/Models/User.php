@@ -22,6 +22,7 @@ class User extends Authenticatable
         'username',
         'name',
         'email',
+        'telp',
         'password',
     ];
 
@@ -44,4 +45,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function router()
+    {
+        return $this->belongsToMany(Router::class, 'user_router', 'user_id', 'router_id')
+            ->withPivot('total')
+            ->withTimestamps();
+    }
 }

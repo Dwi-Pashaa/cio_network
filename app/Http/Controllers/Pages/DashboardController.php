@@ -10,6 +10,7 @@ use App\Models\Type;
 use App\Models\Village;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -52,7 +53,9 @@ class DashboardController extends Controller
                 break;
         }
 
-        return view("pages.dashboard", compact("data", "text"));
+        $userRouter = Auth::user()->router()->get();
+
+        return view("pages.dashboard", compact("data", "text", "userRouter"));
     }
 
     public function getDetailCount($id, $text)

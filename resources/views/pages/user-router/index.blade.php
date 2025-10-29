@@ -145,13 +145,20 @@
             <div class="modal-body">
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3">
+                <div class="form-group mb-3" id="role_id_show">
+                    <label for="name" class="mb-2">Pilih Level</label>
+                    <select name="role" id="role" class="form-control">
+                        <option value="">Pilih</option>
+                        @foreach ($role as $rl)
+                            <option value="{{ $rl->name }}">{{ $rl->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_role"></span>
+                </div>
+                <div class="form-group mb-3" id="user_id_show">
                     <label for="name" class="mb-2">Pilih User</label>
                     <select name="user_id" id="user_id" class="form-control">
                         <option value="">Pilih</option>
-                        @foreach ($user as $usr)
-                            <option value="{{ $usr->id }}">{{ $usr->name }}</option>
-                        @endforeach
                     </select>
                     <span class="invalid-feedback error_user_id"></span>
                 </div>
@@ -235,13 +242,53 @@
         }
     });
 
+    $("#role").change(function() {
+        let role = $(this).val();
+
+        $.ajax({
+            url: BASE + '/get-role', 
+            method: "POST",
+            data: {
+                role: role,
+                _token: $('meta[name="csrf-token"]').attr('content') 
+            },
+            success: function(response) {
+                console.log(response); 
+                let html = '';
+
+                if (response.code == 200) {
+                    $("#user_id_show").removeClass('d-none');
+                    $("#user_id_show").addClass('d-block');
+                    $.each(response.data, function(index, value) {
+                        html += `<option value="${value.id}">${value.name}</option>`;
+                    })
+                } else {
+                    html += '';       
+                    $("#user_id_show").removeClass('d-block');
+                    $("#user_id_show").addClass('d-none');             
+                }
+
+                $("#user_id").html(html)
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);
+            }
+        });
+    });
+
+
     $("#addBtn").click(function() {
         $(".modal-title").html("Tambah Barang");
+        $("#role").val("");
         $("#user_id").val("");
         $("#router_id").val("");
         $("#total").val("");
         $("#type").val("create");
         $("#id").val("");
+        $("#user_id_show").removeClass('d-block');
+        $("#user_id_show").addClass('d-none');
+        $("#role_id_show").removeClass('d-none');
+        $("#role_id_show").addClass('d-block');
     });
 
     $("#storeBtn").click(function() {
@@ -250,6 +297,7 @@
         let user_id = $("#user_id").val();
         let router_id = $("#router_id").val();
         let total = $("#total").val();
+        let role = $("#role").val();
 
         let url;
         let method;
@@ -269,6 +317,7 @@
                 user_id: user_id,
                 router_id: router_id,
                 total: total,
+                role: role,
             },
         }).done(function(response) {
             if (response.errors) {
@@ -298,23 +347,38 @@
     });
 
     function editModal(id) {
-        let url = BASE + `/${id}/show`
+        let url = BASE + `/${id}/show`;
+
         $.ajax({
             url: url,
             method: "GET",
             dataType: "json"
-        }).done(function(response){
-            $(".modal-title").html("Edit Level");
+        })
+        .done(function(response) {
+            $(".modal-title").html("Edit Data Router");
+
             let data = response.data;
-            $("#modal-simple").modal('show')
+
+            $("#modal-simple").modal('show');
+
+            $("#role_id_show").addClass('d-none').removeClass('d-block');
+            $("#user_id_show").removeClass('d-none').addClass('d-block');
 
             $("#id").val(data.id);
             $("#user_id").val(data.user_id);
             $("#router_id").val(data.router_id);
             $("#total").val(data.total);
+
+            $("#role").val(data.role).trigger('change');
+
+            setTimeout(() => {
+                $("#user_id").val(data.user_id);
+            }, 500);
+
             $("#type").val("update");
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("Error:", textStatus, errorThrown);
         });
     }
 

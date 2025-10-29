@@ -7,7 +7,10 @@ use App\Models\Router;
 use App\Models\User;
 use App\Models\UserRouter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class UserRouterController extends Controller
 {
@@ -33,32 +36,84 @@ class UserRouterController extends Controller
             ->orderBy('id', 'DESC')
             ->paginate($sort);
 
-        $user = User::all();
         $router = Router::all();
+        $role = Role::all();
 
-        return view("pages.user-router.index", compact("userRouter", "user", "router"));
+        return view("pages.user-router.index", compact("userRouter", "router", "role"));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "user_id" => "required",
-            "router_id" => "required",
-            "total" => "required|string",
+            "role" => "required|string",
+            "user_id" => "required|integer",
+            "router_id" => "required|integer",
+            "total" => "required|integer|min:1",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $post = $request->all();
+        $user = Auth::user();
+        $userRole = strtolower($user->getRoleNames()->first());
 
-        UserRouter::create($post);
+        DB::beginTransaction();
 
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
+        try {
+            if ($userRole !== 'admin') {
+                $pengirimRouter = UserRouter::where('user_id', $user->id)->first();
+
+                if (!$pengirimRouter) {
+                    return response()->json([
+                        'code' => 404,
+                        'status' => 'error',
+                        'message' => 'Router tidak ditemukan untuk user login.'
+                    ]);
+                }
+
+                if ($pengirimRouter->total < $request->total) {
+                    return response()->json([
+                        'code' => 400,
+                        'status' => 'error',
+                        'message' => 'Jumlah router kamu tidak mencukupi.'
+                    ]);
+                }
+
+                $pengirimRouter->total -= $request->total;
+                $pengirimRouter->save();
+            }
+
+            $penerimaRouter = UserRouter::where('router_id', $request->router_id)
+                ->where('user_id', $request->user_id)
+                ->first();
+
+            if (!$penerimaRouter) {
+                UserRouter::create([
+                    'user_id' => $request->user_id,
+                    'router_id' => $request->router_id,
+                    'total' => $request->total,
+                ]);
+            } else {
+                $penerimaRouter->total += $request->total;
+                $penerimaRouter->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Berhasil menambahkan data.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -113,5 +168,30 @@ class UserRouterController extends Controller
         $userRouter->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
+    }
+
+    public function selectRole(Request $request)
+    {
+        $role = $request->role;
+
+        if (empty($role)) {
+            $user = User::all();
+        } else {
+            $user = User::role($role)->get();
+        }
+
+        if ($user->isEmpty()) {
+            return response()->json([
+                'code' => 404,
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan.'
+            ]);
+        }
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'data' => $user
+        ]);
     }
 }

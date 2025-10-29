@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('barang')->group(function () {
         Route::get('/', [UserRouterController::class, 'index'])->name('user.router.index');
         Route::post('/store', [UserRouterController::class, 'store'])->name('user.router.store');
+        Route::post('/get-role', [UserRouterController::class, 'selectRole'])->name('user.router.selectRole');
         Route::get('/{id}/show', [UserRouterController::class, 'show'])->name('user.router.show');
         Route::put('/{id}/update', [UserRouterController::class, 'update'])->name('user.router.update');
         Route::delete('/{id}/destroy', [UserRouterController::class, 'destroy'])->name('user.router.destroy');
