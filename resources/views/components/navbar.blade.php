@@ -220,6 +220,11 @@
                                                 Data Spam
                                             </a>
                                         @endcan
+                                        @can('lihat histori pemasangan')
+                                            <a class="dropdown-item {{ Route::is("history*") ? 'active' : '' }}" href="{{ route('history.index') }}" rel="noopener">
+                                                History Pemasangan
+                                            </a>
+                                        @endcan
                                     </div>
                                 </li>
                             @endif

@@ -121,7 +121,7 @@ class UserRouterController extends Controller
      */
     public function show(string $id)
     {
-        $userRouter = UserRouter::find($id);
+        $userRouter = UserRouter::with(['user'])->find($id);
 
         if (!$userRouter) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -193,5 +193,75 @@ class UserRouterController extends Controller
             'status' => 'success',
             'data' => $user
         ]);
+    }
+
+    public function addStore(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            "user_router_id" => "required",
+            "total_stock"    => "required|min:1",
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'code' => 400,
+                'errors' => $validation->errors()
+            ]);
+        }
+
+        $user = Auth::user();
+        $userRole = strtolower($user->getRoleNames()->first());
+
+        DB::beginTransaction();
+
+        try {
+            $data = UserRouter::find($request->user_router_id);
+
+            $selisih = $request->total_stock;
+
+            if ($userRole !== 'admin') {
+
+                $pengirimRouter = UserRouter::where('user_id', $user->id)
+                    ->where('router_id', $data->router_id)
+                    ->first();
+
+                if (!$pengirimRouter) {
+                    return response()->json([
+                        'code' => 404,
+                        'status' => 'error',
+                        'message' => 'Router pengirim tidak ditemukan.'
+                    ]);
+                }
+
+                if ($pengirimRouter->total < $selisih) {
+                    return response()->json([
+                        'code' => 400,
+                        'status' => 'error',
+                        'message' => 'Jumlah router pengirim tidak mencukupi.'
+                    ]);
+                }
+
+                $pengirimRouter->total -= $selisih;
+                $pengirimRouter->save();
+            }
+
+            $data->total += $request->total_stock;
+            $data->save();
+
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Berhasil update stock.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
     }
 }

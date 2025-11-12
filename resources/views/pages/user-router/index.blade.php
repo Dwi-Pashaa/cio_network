@@ -96,6 +96,12 @@
                                 {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
                             </td>
                             <td>
+                                @hasanyrole(['Admin', 'Manager'])
+                                    <a href="javascript:void(0)" onclick="return addStock('{{ $item->id }}')" class="btn btn-outline-primary btn-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-unsplash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 11h5v4h6v-4h5v9h-16zm5 -7h6v4h-6z" /></svg>
+                                        Tambah Stock
+                                    </a>
+                                @endhasanyrole
                                 @can('edit barang')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
@@ -133,58 +139,87 @@
 @endsection
 
 @push('modal')
-<div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Barang</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3" id="role_id_show">
-                    <label for="name" class="mb-2">Pilih Level</label>
-                    <select name="role" id="role" class="form-control">
-                        <option value="">Pilih</option>
-                        @foreach ($role as $rl)
-                            <option value="{{ $rl->name }}">{{ $rl->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_role"></span>
+    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Barang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
                 </div>
-                <div class="form-group mb-3" id="user_id_show">
-                    <label for="name" class="mb-2">Pilih User</label>
-                    <select name="user_id" id="user_id" class="form-control">
-                        <option value="">Pilih</option>
-                    </select>
-                    <span class="invalid-feedback error_user_id"></span>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
+                    <div class="form-group mb-3" id="role_id_show">
+                        <label for="name" class="mb-2">Pilih Level</label>
+                        <select name="role" id="role" class="form-control">
+                            <option value="">Pilih</option>
+                            @foreach ($role as $rl)
+                                <option value="{{ $rl->name }}">{{ $rl->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="invalid-feedback error_role"></span>
+                    </div>
+                    <div class="form-group mb-3" id="user_id_show">
+                        <label for="name" class="mb-2">Pilih User</label>
+                        <select name="user_id" id="user_id" class="form-control">
+                            <option value="">Pilih</option>
+                        </select>
+                        <span class="invalid-feedback error_user_id"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="name" class="mb-2">Pilih Router</label>
+                        <select name="router_id" id="router_id" class="form-control">
+                            <option value="">Pilih</option>
+                            @foreach ($router as $rtr)
+                                <option value="{{ $rtr->id }}">{{ $rtr->code }} - {{ $rtr->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="invalid-feedback error_router_id"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="name" class="mb-2">Jumlah Router</label>
+                        <input type="number" name="total" id="total" class="form-control">
+                        <span class="invalid-feedback error_total"></span>
+                    </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Pilih Router</label>
-                    <select name="router_id" id="router_id" class="form-control">
-                        <option value="">Pilih</option>
-                        @foreach ($router as $rtr)
-                            <option value="{{ $rtr->id }}">{{ $rtr->code }} - {{ $rtr->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_router_id"></span>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Jumlah Router</label>
-                    <input type="number" name="total" id="total" class="form-control">
-                    <span class="invalid-feedback error_total"></span>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="modal modal-blur fade" id="modal-add-stock" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Barang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="user_router_id" id="user_router_id">
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">User</label>
+                        <input type="text" name="" id="user" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="name" class="mb-2">Jumlah Router</label>
+                        <input type="number" name="total_stock" id="total_stock" class="form-control">
+                        <span class="invalid-feedback error_total"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeAddStock" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('js')
@@ -355,7 +390,7 @@
             dataType: "json"
         })
         .done(function(response) {
-            $(".modal-title").html("Edit Data Router");
+            $(".modal-title").html("Tambah Stock Router");
 
             let data = response.data;
 
@@ -381,6 +416,70 @@
             console.error("Error:", textStatus, errorThrown);
         });
     }
+
+    function addStock(id) {
+        let url = BASE + `/${id}/show`;
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "json"
+        })
+        .done(function(response) {
+            $(".modal-title").html("Tambah Stock Router");
+
+            let data = response.data;
+
+            $("#modal-add-stock").modal('show');
+            
+            $("#user_router_id").val(data.id);
+            $("#user").val(data.user.name);
+            // $("#total_stock").val(data.total);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("Error:", textStatus, errorThrown);
+        });
+    }
+
+    $("#storeAddStock").click(function() {
+        let user_router_id = $("#user_router_id").val();
+        let total_stock = $("#total_stock").val()
+
+        let url = "{{ route('user.router.addStore') }}";
+        
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                user_router_id: user_router_id,
+                total_stock: total_stock,
+            },
+        }).done(function(response) {
+            if (response.errors) {
+                $.each(response.errors, function(index, value) {
+                    $("#" + index).addClass('is-invalid');
+                    $(".error_" + index).html(value);
+
+                    setTimeout(() => {
+                        $("#" + index).removeClass('is-invalid');
+                        $(".error_" + index).html('');
+                    }, 3000);
+                })                
+            } else {
+                $("#modal-add-stock").modal('hide')
+                Toast.fire({
+                    icon: response.status,
+                    title: response.message
+                });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.log("Error:", textStatus, errorThrown);
+        });
+    });
 
     function deleteType(id) {
         Swal.fire({

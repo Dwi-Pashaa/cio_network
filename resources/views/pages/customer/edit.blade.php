@@ -32,7 +32,7 @@
                                     <option value="{{ $tp->id }}" data-label="{{ $tp->name }}" {{ $customer->types_id == $tp->id ? 'selected' : '' }}>{{ $tp->name }}</option>
                                 @endforeach
                             </select>
-                           <input type="text" name="type_name" value="{{ ucfirst($customer->type->name) }}">
+                           <input type="hidden" name="type_name" value="{{ ucfirst($customer->type->name) }}">
                             @error('types_id')
                                 <span class="invalid-feedback">
                                     {{ $message }}

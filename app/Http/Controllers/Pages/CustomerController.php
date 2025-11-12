@@ -218,18 +218,15 @@ class CustomerController extends Controller
         }
 
         $data = $request->validated();
-        $data['user_id'] = Auth::id();
 
         $uuid = $data['uuid'] ?? null;
         $typeName = $data['type_name'] ?? $request->type_name ?? null;
 
         if ($typeName === 'PPPOE') {
-            // Ambil VLAN ID dari data atau request
             $vlanId = $data['vlan_id'] ?? $request->vlan_id ?? $request->vlans_id ?? null;
             $vlan = $vlanId ? Vlan::find($vlanId) : null;
             $vlanName = $vlan?->name;
 
-            // Jika ada nama VLAN dan UUID, buat username & password PPPoE
             if ($vlanName && $uuid) {
                 $pppoe = "{$vlanName}/{$uuid}";
                 $data['pppoe_username'] = $pppoe;
@@ -241,13 +238,11 @@ class CustomerController extends Controller
 
             $data['mic_radius_id'] = $data['mic_radius_id'] ?? $request->mic_radius_id ?? null;
         } else {
-            // Jika bukan tipe PPPoE, kosongkan field terkait
             $data['pppoe_username'] = null;
             $data['pppoe_password'] = null;
             $data['mic_radius_id'] = null;
         }
 
-        // Hapus type_name jika ada, karena bukan kolom tabel
         unset($data['type_name']);
 
         // Update data customer

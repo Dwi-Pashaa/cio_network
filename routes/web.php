@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\CustomerController;
 use App\Http\Controllers\Pages\DashboardController;
+use App\Http\Controllers\Pages\HistoryController;
 use App\Http\Controllers\Pages\Jaringan\MicRadiusController;
 use App\Http\Controllers\Pages\Jaringan\ODCController;
 use App\Http\Controllers\Pages\Jaringan\ODPController;
@@ -25,7 +26,6 @@ use App\Http\Controllers\Pages\UserController;
 use App\Http\Controllers\Pages\UserRouterController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
 use App\Http\Controllers\Pages\Wilayah\KecamatanController;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -71,6 +71,11 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
     });
 
+    // data users
+    Route::prefix('history')->group(function () {
+        Route::get('/', [HistoryController::class, 'index'])->name('history.index');
+    });
+
     // data barang
     Route::prefix('barang')->group(function () {
         Route::get('/', [UserRouterController::class, 'index'])->name('user.router.index');
@@ -79,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/show', [UserRouterController::class, 'show'])->name('user.router.show');
         Route::put('/{id}/update', [UserRouterController::class, 'update'])->name('user.router.update');
         Route::delete('/{id}/destroy', [UserRouterController::class, 'destroy'])->name('user.router.destroy');
+        Route::post('/addStore', [UserRouterController::class, 'addStore'])->name('user.router.addStore');
     });
 
     // data type pelanggan
