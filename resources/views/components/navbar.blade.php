@@ -189,7 +189,7 @@
                                     </div>
                                 </li>
                             @endif
-                            @if(auth()->user()->can('lihat halaman'))
+                            @if(auth()->user()->can('lihat halaman') || auth()->user()->can('lihat histori pemasangan'))
                                 <li class="nav-item dropdown {{ request()->is('master-pages*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">

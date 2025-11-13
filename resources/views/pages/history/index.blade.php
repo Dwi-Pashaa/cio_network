@@ -13,17 +13,19 @@
         <div class="card-body">
             <form>
                 <div class="row">
-                    <div class="col-lg-3">
-                        <div class="form-group mb-3">
-                            <label for="" class="mb-2">Pilih User</label>
-                            <select name="user_id" id="user_id" class="form-control">
-                                <option value="">Pilih</option>
-                                @foreach ($user as $usr)
-                                    <option value="{{ $usr->id }}" {{ request('user_id') == $usr->id ? 'selected' : '' }}>{{ $usr->name }}</option>
-                                @endforeach
-                            </select>
+                    @role("Admin")
+                        <div class="col-lg-3">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Pilih User</label>
+                                <select name="user_id" id="user_id" class="form-control">
+                                    <option value="">Pilih</option>
+                                    @foreach ($user as $usr)
+                                        <option value="{{ $usr->id }}" {{ request('user_id') == $usr->id ? 'selected' : '' }}>{{ $usr->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    @endrole
                     <div class="col-lg-3">
                         <div class="form-group mb-3">
                             <label for="" class="mb-2">Tanggal Mulai</label>
