@@ -177,11 +177,11 @@
     });
 
     // ========= SELECT LIMIT =========
-    const BASE = "{{ route('olt.index') }}";
+    const BASE_URL = "{{ route('olt.index') }}";
     let params = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
         params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
+        window.location.href = BASE_URL + '?' + params.toString();
     });
 </script>
 <script>
