@@ -178,10 +178,10 @@
 
     // ========= SELECT LIMIT =========
     const BASE_URL = "{{ route('olt.index') }}";
-    let params = new URLSearchParams(window.location.search);
+    let params_limit = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE_URL + '?' + params.toString();
+        params_limit.set('sort', $(this).val());
+        window.location.href = BASE_URL + '?' + params_limit.toString();
     });
 </script>
 <script>
