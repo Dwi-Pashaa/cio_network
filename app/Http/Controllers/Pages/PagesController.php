@@ -516,7 +516,7 @@ class PagesController extends Controller
 
             $customer = Customer::create($data);
 
-            // $this->sendWablasNotification($request, $customer, $typeName);
+            $this->sendWablasNotification($request, $customer, $typeName);
 
             return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
         });
