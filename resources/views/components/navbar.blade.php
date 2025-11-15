@@ -220,6 +220,11 @@
                                                 Data Spam
                                             </a>
                                         @endcan
+                                        @can('chatting')
+                                            <a class="dropdown-item {{ Route::is("chatting*") ? 'active' : '' }}" href="{{ route('chatting.index') }}" rel="noopener">
+                                                Chatting
+                                            </a>
+                                        @endcan
                                         @can('lihat histori pemasangan')
                                             <a class="dropdown-item {{ Route::is("history*") ? 'active' : '' }}" href="{{ route('history.index') }}" rel="noopener">
                                                 History Pemasangan

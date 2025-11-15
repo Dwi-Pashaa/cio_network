@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Pages\ChattingController;
 use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\CustomerController;
 use App\Http\Controllers\Pages\DashboardController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Pages\UserController;
 use App\Http\Controllers\Pages\UserRouterController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
 use App\Http\Controllers\Pages\Wilayah\KecamatanController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +43,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('post.login');
+
+Broadcast::routes(['middleware' => ['auth']]);
+require base_path('routes/channels.php');
 
 Route::middleware(['auth'])->group(function () {
     // logout
@@ -280,6 +285,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
         Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
         Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
+    });
+
+    Route::prefix('chatting')->group(function () {
+        Route::get('/', [ChattingController::class, 'index'])->name('chatting.index');
+        Route::post('/store', [ChattingController::class, 'store'])->name('chatting.store');
     });
 });
 
