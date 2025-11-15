@@ -5,7 +5,7 @@ namespace App\Events;
 use App\Models\Chat;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast; // WAJIB
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -17,7 +17,6 @@ class ChatSent implements ShouldBroadcast
 
     public function __construct(Chat $chat)
     {
-        // ambil data sender untuk ditampilkan
         $this->chat = $chat->load(['sender']);
     }
 

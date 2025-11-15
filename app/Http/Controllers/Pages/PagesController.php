@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\Events\ChatSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
+use App\Models\Chat;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\HomeTown;
@@ -20,6 +22,7 @@ use App\Models\Router;
 use App\Models\RT;
 use App\Models\RW;
 use App\Models\Type;
+use App\Models\User;
 use App\Models\UserRouter;
 use App\Models\Village;
 use App\Models\Vlan;
@@ -459,6 +462,7 @@ class PagesController extends Controller
         $typeName = $data['type_name'] ?? null;
 
         return DB::transaction(function () use ($request, $data, $typeName) {
+
             $userRouter = UserRouter::where('user_id', Auth::id())
                 ->where('router_id', $data['routers_id'])
                 ->lockForUpdate()
@@ -497,6 +501,7 @@ class PagesController extends Controller
             }
 
             if ($typeName === "PPPOE") {
+
                 $vlan     = Vlan::find($request->vlans_id);
                 $vlanName = $vlan?->name ?? 'vlan';
 
@@ -507,6 +512,7 @@ class PagesController extends Controller
                 $data['pppoe_password'] = $pppoePass;
                 $data['mic_radius_id']  = $request->mic_radius_id;
             } else {
+
                 $data['pppoe_username'] = null;
                 $data['pppoe_password'] = null;
                 $data['mic_radius_id']  = null;
@@ -516,86 +522,147 @@ class PagesController extends Controller
 
             $customer = Customer::create($data);
 
-            // $this->sendWablasNotification($request, $customer, $typeName);
+            $userName = Auth::user()->name;
 
-            return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
+            $type      = Type::find($request->types_id);
+            $router    = Router::find($request->routers_id);
+            $hometown  = HomeTown::find($request->hometowns_id);
+            $rt        = RT::find($request->rts_id);
+            $rw        = RW::find($request->rws_id);
+            $village   = Village::find($request->villages_id);
+            $district  = District::find($request->districts_id);
+            $regency   = Regency::find($request->regencies_id);
+            $vlan      = Vlan::find($request->vlans_id);
+            $odc       = ODC::with(['hometown', 'rt', 'rw'])->find($request->odcs_id);
+            $odp       = ODP::with(['hometown', 'rt', 'rw'])->find($request->odps_id);
+            $olt       = OLT::with(['hometown'])->find($request->olts_id);
+
+            $message = "*Di Input Oleh : {$userName}*\n"
+                . "*ID Pelanggan*: {$customer->uuid}\n"
+                . "*Nama Pelanggan*: {$customer->name}\n"
+                . "*Mac Address*: {$customer->mac_address}\n"
+                . "*Jenis Router*: {$router->name}\n"
+                . "*Type Pelanggan*: {$type->name}\n"
+                . "*Kampung*: {$hometown->name}\n"
+                . "*RT*: {$rt->name}\n"
+                . "*RW*: {$rw->name}\n"
+                . "*Desa*: {$village->name}\n"
+                . "*Kecamatan*: {$district->name}\n"
+                . "*Kabupaten*: {$regency->name}\n"
+                . "*VLAN*: {$vlan->name}\n"
+                . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
+                . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
+                . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
+                . "*NO HP / WA*: {$customer->telp}\n"
+                . "*Email*: {$customer->email}\n"
+                . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";
+
+            if ($typeName === "PPPOE") {
+                $wifiName  = $customer->name_wifi;
+                $wifiPass  = $customer->password_wifi;
+                $paket     = Paket::find($request->paket_id);
+                $micRadius = MicRadius::find($request->mic_radius_id);
+                $typePrice = Price::find($request->price_id);
+
+                $message .= "\n\n"
+                    . "*Tambahan Data PPPOE dibawah ini Ke ONU dan MIXRADIUS*\n"
+                    . "*Nama WiFi*: {$wifiName}\n"
+                    . "*Password WiFi*: {$wifiPass}\n"
+                    . "*Username PPPoE*: {$customer->pppoe_username}\n"
+                    . "*Password PPPoE*: {$customer->pppoe_password}\n"
+                    . "*MiX Radius*: {$micRadius->code} - {$micRadius->name}\n"
+                    . "*Paket*: {$paket->name}\n"
+                    . "*Tipe Pembayaran*: {$typePrice->name}\n";
+            }
+
+            $receivers = User::role(['Admin', 'Manager'])->get();
+
+            if ($receivers->count() > 0) {
+                foreach ($receivers as $receiver) {
+
+                    $chat = Chat::create([
+                        'sender_id'   => Auth::id(),
+                        'receiver_id' => $receiver->id,
+                        'message'     => $message,
+                    ]);
+
+                    broadcast(new ChatSent($chat))->toOthers();
+                }
+            }
+
+            return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan dikirim!');
         });
     }
 
-    // private function sendWablasNotification($request, $customer, $typeName)
+
+    // public function saveCustomerToSpan(StoreCustomerRequest $request)
     // {
-    //     $token      = config('wablas.token');
-    //     $secretKey  = config('wablas.secret_key');
-    //     $subdomain  = config('wablas.api_url');
+    //     $data = $request->validated();
+    //     $data['user_id'] = Auth::id();
+    //     $typeName = $data['type_name'] ?? null;
 
-    //     if (!$token || !$secretKey || !$subdomain) {
-    //         return back()->with('error', 'Konfigurasi Wablas belum lengkap.');
-    //     }
+    //     return DB::transaction(function () use ($request, $data, $typeName) {
+    //         $userRouter = UserRouter::where('user_id', Auth::id())
+    //             ->where('router_id', $data['routers_id'])
+    //             ->lockForUpdate()
+    //             ->first();
 
-    //     $userName = Auth::user()->name;
-    //     $phone = preg_replace('/^08/', '628', $request->wa_phone);
+    //         if (!$userRouter) {
+    //             return back()->with('error', 'Router tidak ditemukan atau tidak terdaftar untuk user ini.');
+    //         }
 
-    //     $type      = Type::find($request->types_id);
-    //     $router    = Router::find($request->routers_id);
-    //     $hometown  = HomeTown::find($request->hometowns_id);
-    //     $rt        = RT::find($request->rts_id);
-    //     $rw        = RW::find($request->rws_id);
-    //     $village   = Village::find($request->villages_id);
-    //     $district  = District::find($request->districts_id);
-    //     $regency   = Regency::find($request->regencies_id);
-    //     $vlan      = Vlan::find($request->vlans_id);
-    //     $odc       = ODC::with(['hometown', 'rt', 'rw'])->find($request->odcs_id);
-    //     $odp       = ODP::with(['hometown', 'rt', 'rw'])->find($request->odps_id);
-    //     $olt       = OLT::with(['hometown'])->find($request->olts_id);
+    //         if ($userRouter->total <= 0) {
+    //             return back()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
+    //         }
 
-    //     $message = "*Di Input Oleh : {$userName}*\n"
-    //         . "*ID Pelanggan*: {$customer->uuid}\n"
-    //         . "*Nama Pelanggan*: {$customer->name}\n"
-    //         . "*Mac Address*: {$customer->mac_address}\n"
-    //         . "*Jenis Router*: {$router->name}\n"
-    //         . "*Type Pelanggan*: {$type->name}\n"
-    //         . "*Kampung*: {$hometown->name}\n"
-    //         . "*RT*: {$rt->name}\n"
-    //         . "*RW*: {$rw->name}\n"
-    //         . "*Desa*: {$village->name}\n"
-    //         . "*Kecamatan*: {$district->name}\n"
-    //         . "*Kabupaten*: {$regency->name}\n"
-    //         . "*VLAN*: {$vlan->name}\n"
-    //         . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
-    //         . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
-    //         . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
-    //         . "*NO HP / WA*: {$customer->telp}\n"
-    //         . "*Email*: {$customer->email}\n"
-    //         . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";
+    //         $userRouter->decrement('total');
 
-    //     if ($typeName === "PPPOE") {
-    //         $wifiName  = $customer->name_wifi;
-    //         $wifiPass  = $customer->password_wifi;
-    //         $paket     = Paket::find($request->paket_id);
-    //         $micRadius = MicRadius::find($request->mic_radius_id);
-    //         $typePrice = Price::find($request->price_id);
+    //         $last = Customer::whereNotNull('uuid')
+    //             ->where('uuid', 'like', 'CSTMR%')
+    //             ->orderBy('uuid', 'desc')
+    //             ->first();
 
-    //         $message .= "\n\n"
-    //             . "*Tambahan Data PPPOE dibawah ini Ke ONU dan MIXRADIUS*\n"
-    //             . "*Nama WiFi*: {$wifiName}\n"
-    //             . "*Password WiFi*: {$wifiPass}\n"
-    //             . "*Username PPPoE*: {$customer->pppoe_username}\n"
-    //             . "*Password PPPoE*: {$customer->pppoe_password}\n"
-    //             . "*MiX Radius*: {$micRadius->code} - {$micRadius->name}\n"
-    //             . "*Paket*: {$paket->name}\n"
-    //             . "*Tipe Pembayaran*: {$typePrice->name}\n";
-    //     }
+    //         if (!$last) {
+    //             $nextNumber = 1;
+    //         } else {
+    //             preg_match('/\d+/', $last->uuid, $matches);
+    //             $lastNumber = $matches ? (int) $matches[0] : 0;
+    //             $nextNumber = $lastNumber + 1;
+    //         }
 
-    //     $response = Http::withoutVerifying()
-    //         ->get("{$subdomain}/api/send-message", [
-    //             'token'   => "{$token}.{$secretKey}",
-    //             'phone'   => $phone,
-    //             'message' => $message,
-    //         ]);
+    //         $uuid = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    //         $data['uuid'] = $uuid;
 
-    //     if (!$response->successful()) {
-    //         throw new \Exception('Gagal mengirim pesan WhatsApp: ' . $response->body());
-    //     }
+    //         if (!empty($data['email']) && Customer::where('email', $data['email'])->exists()) {
+    //             $emailParts = explode('@', $data['email']);
+    //             $uniqueSuffix = rand(1000, 9999);
+    //             $data['email'] = "{$emailParts[0]}{$uniqueSuffix}@{$emailParts[1]}";
+    //         }
+
+    //         if ($typeName === "PPPOE") {
+    //             $vlan     = Vlan::find($request->vlans_id);
+    //             $vlanName = $vlan?->name ?? 'vlan';
+
+    //             $pppoeUser = "{$vlanName}/{$uuid}";
+    //             $pppoePass = "{$vlanName}/{$uuid}";
+
+    //             $data['pppoe_username'] = $pppoeUser;
+    //             $data['pppoe_password'] = $pppoePass;
+    //             $data['mic_radius_id']  = $request->mic_radius_id;
+    //         } else {
+    //             $data['pppoe_username'] = null;
+    //             $data['pppoe_password'] = null;
+    //             $data['mic_radius_id']  = null;
+    //         }
+
+    //         unset($data['type_name']);
+
+    //         $customer = Customer::create($data);
+
+    //         // $this->sendWablasNotification($request, $customer, $typeName);
+
+    //         return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
+    //     });
     // }
 
     private function sendWablasNotification($request, $customer, $typeName)
