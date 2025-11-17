@@ -575,7 +575,7 @@ class PagesController extends Controller
                     . "*Tipe Pembayaran*: {$typePrice->name}\n";
             }
 
-            $receivers = User::role(['Admin', 'Manager'])->get();
+            $receivers = User::role(['Admin', 'Manager', 'Staf pendataan'])->get();
 
             if ($receivers->count() > 0) {
                 foreach ($receivers as $receiver) {
