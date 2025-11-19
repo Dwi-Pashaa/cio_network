@@ -407,14 +407,14 @@ class CustomerController extends Controller
                         "============================================================\n" .
                         "TOLONG KASIH NAMA DAN DESCRIPSI DI MAC ADDRES : " . ($customer->mac_address ?? '-') . "\n\n" .
 
-                        "DI BAGIAN NAMA : {$customer->uuid}\n" .
-                        "DI BAGIAN DESCRIPSI :\n" .
-                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*\n" .
-                        "NAMA : {$customer->name}\n" .
-                        "EMAIL : {$customer->email}\n" .
-                        "TELP : {$customer->telp}\n" .
-                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
-                        "ALAMAT : \n{$customerAddress}\n\n" .
+                        "DI BAGIAN NAMA : {$customer->uuid}" .
+                        "DI BAGIAN DESCRIPSI :" .
+                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*" .
+                        "NAMA : {$customer->name}" .
+                        "EMAIL : {$customer->email}" .
+                        "TELP : {$customer->telp}" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "" .
+                        "ALAMAT : \n{$customerAddress}" .
                         "============================================================\n" .
                         "Terimakasih *Admin CN*";
 
@@ -466,14 +466,14 @@ class CustomerController extends Controller
                         "DELETE ONU YANG BERNAMA ID PELANGGAN : {$customer->uuid}\n" .
                         "CARI MAC ADDRESS : " . ($customer->mac_address ?? '-') . "\n\n" .
 
-                        "DI BAGIAN NAMA : {$customer->uuid}\n" .
-                        "DI BAGIAN DESCRIPSI :\n" .
-                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*\n" .
-                        "NAMA : {$customer->name}\n" .
-                        "EMAIL : {$customer->email}\n" .
-                        "TELP : {$customer->telp}\n" .
-                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
-                        "ALAMAT : \n{$customerAddress}\n\n" .
+                        "DI BAGIAN NAMA : {$customer->uuid}" .
+                        "DI BAGIAN DESCRIPSI :" .
+                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*" .
+                        "NAMA : {$customer->name}" .
+                        "EMAIL : {$customer->email}" .
+                        "TELP : {$customer->telp}" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "" .
+                        "ALAMAT : \n{$customerAddress}" .
                         "============================================================\n" .
                         "Terimakasih *Admin CN*";
 
