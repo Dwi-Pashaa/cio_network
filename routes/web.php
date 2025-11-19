@@ -127,6 +127,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}/destroy', [CustomerController::class, 'destroy'])->name('customer.destroy');
         Route::get('/export', [CustomerController::class, 'export'])->name('customer.export');
         Route::get('/exportToGoogleSheet', [CustomerController::class, 'exportToGoogleSheet'])->name('customer.exportToGoogleSheet');
+        Route::post('/get-select', [CustomerController::class, 'getSelect'])->name('customer.getSelect');
+        Route::post('/send-notif', [CustomerController::class, 'notif'])->name('customer.notif');
     });
 
     // master jaringan

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\Events\ChatSent;
 use App\Exports\CustomerExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
+use App\Models\Chat;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\HomeTown;
@@ -19,13 +21,12 @@ use App\Models\Router;
 use App\Models\RT;
 use App\Models\RW;
 use App\Models\Type;
+use App\Models\User;
 use App\Models\Village;
 use App\Models\Vlan;
-use Google_Client;
-use Google_Service_Sheets;
-use Google_Service_Sheets_ValueRange;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerController extends Controller
@@ -81,8 +82,24 @@ class CustomerController extends Controller
             ->orderBy('id', 'DESC')
             ->paginate($sort);
 
+        $hometown = HomeTown::select(['id', 'name'])->get();
 
-        return view("pages.customer.index", compact("customers"));
+        return view("pages.customer.index", compact("customers", "hometown"));
+    }
+
+    public function getSelect(Request $request)
+    {
+        $hometownId = $request->home_town_id;
+
+        $olts = OLT::where('hometowns_id', $hometownId)->get();
+        $micRadius = MicRadius::where('hometowns_id', $hometownId)->get();
+
+        $data = [
+            'olts' => $olts,
+            'micRadius' => $micRadius,
+        ];
+
+        return response()->json(['data' => $data]);
     }
 
     /**
@@ -273,5 +290,259 @@ class CustomerController extends Controller
     public function export()
     {
         return Excel::download(new CustomerExport, 'customer.xlsx');
+    }
+
+    public function notif(Request $request)
+    {
+        $rules = [
+            "notif" => "required",
+            "home_town_id" => "required",
+            "olt_id" => "required",
+            "mic_radius_id" => "required",
+            "customer_id" => "required",
+        ];
+
+        $validated = $request->validate($rules);
+
+        $customer = Customer::with([
+            'router',
+            'type',
+            'hometown',
+            'rt',
+            'rw',
+            'village',
+            'district',
+            'regencie',
+            'vlan',
+            'odc',
+            'odp',
+            'olt',
+            'price',
+            'paket',
+            'user',
+            'mic_radius'
+        ])
+            ->find($validated['customer_id'])
+            ->toArray();
+
+        $operatorOlt = User::role('Operator OLT')
+            ->where('olt_id', $validated['olt_id'])
+            ->get();
+
+        $operatorMic = User::role('Operator Mic Radius')
+            ->where('mic_radius_id', $validated['mic_radius_id'])
+            ->get();
+
+        $operators = $operatorOlt->merge($operatorMic);
+
+        $this->messageNotification($validated['notif'], $operators, $customer);
+
+        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Pemberitahuan berhasil dikirimkan.']);
+    }
+
+    private function messageNotification($notif, $operators, $customer)
+    {
+        $customer = json_decode(json_encode($customer));
+
+        $customerAddress =
+            "Kampung " . ($customer->hometown->name ?? '-') . "\n" .
+            "RT " . ($customer->rt->name ?? '-') . "\n" .
+            "RW " . ($customer->rw->name ?? '-') . "\n" .
+            "Desa " . ($customer->village->name ?? '-') . "\n" .
+            "Kec. " . ($customer->district->name ?? '-') . "\n" .
+            "Kab. " . ($customer->regencie->name ?? '-');
+
+        if ($notif === 'pendaftaran baru') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name}\n" .
+                        "============================================================\n" .
+                        "TOLONG ISIKAN DATA PELANGGAN BARU MIXRADIUS DI BAWAH INI.\n" .
+                        "============================================================\n\n" .
+
+                        "⚡ BAGIAN PAKET LANGGANAN\n\n" .
+                        "Status Registrasi      : AKTIF SEKARANG\n" .
+                        "Tipe Pelanggan         : Reguler\n" .
+                        "Nama Server | Service  : Semua Server & NAS\n" .
+                        "Tipe Pembayaran        : " . ($customer->price->name ?? '-') . "\n" .
+                        "Status Bayar           : Jangan diubah / biarkan saja\n" .
+                        "Status Akun            : ENABLED\n" .
+                        "Owner Data             : {$customer->name}\n" .
+                        "Bind On Login          : YA\n" .
+                        "Tipe Service           : " . ($customer->type->name ?? '-') . "\n" .
+                        "Paket Langganan        : " . ($customer->paket->name ?? '-') . "\n\n" .
+
+                        "============================================================\n\n" .
+
+                        "📌 BAGIAN INFO PELANGGAN\n\n" .
+                        "ODP | POP              : Jangan diubah / biarkan saja\n" .
+                        "ID Pelanggan           : {$customer->uuid}\n" .
+                        "Nama                   : {$customer->name}\n" .
+                        "Nomor HP               : {$customer->telp}\n" .
+                        "Alamat                 : {$customerAddress}\n" .
+                        "Metode Login           : USERNAME & PASSWORD\n" .
+                        "Username               : {$customer->pppoe_username}\n" .
+                        "Password               : {$customer->pppoe_password}\n" .
+                        "Konfirmasi Password    : {$customer->pppoe_password}\n" .
+                        "Password Clientarea    : {$customer->pppoe_password}\n\n" .
+
+                        "============================================================\n" .
+                        "KEMUDIAN KLIK TAMBAH PELANGGAN\n" .
+                        "============================================================\n\n" .
+
+                        "Terimakasih\n*Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+
+                if ($operator->hasRole('Operator OLT')) {
+
+                    $message =
+                        "Hallo OLT : {$operator->name}\n" .
+                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "============================================================\n" .
+                        "TOLONG KASIH NAMA DAN DESCRIPSI DI MAC ADDRES : " . ($customer->mac_address ?? '-') . "\n\n" .
+
+                        "DI BAGIAN NAMA : {$customer->uuid}\n" .
+                        "DI BAGIAN DESCRIPSI :\n" .
+                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*\n" .
+                        "NAMA : {$customer->name}\n" .
+                        "EMAIL : {$customer->email}\n" .
+                        "TELP : {$customer->telp}\n" .
+                        "PAKET : " . ($customer->paket->name ?? '-') . "\n" .
+                        "TIPE PEMBAYARAN : " . ($customer->price->name ?? '-') . "\n" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
+                        "ODC : " . ($customer->odc->name ?? '-') . "\n" .
+                        "ODP : " . ($customer->odp->name ?? '-') . "\n" .
+                        "OLT : " . ($customer->olt->name ?? '-') . "\n" .
+                        "NAMA WIFI : {$customer->name_wifi}\n" .
+                        "PASSWORD WIFI : {$customer->password_wifi}\n" .
+                        "USERNAME PPPOE : {$customer->pppoe_username}\n" .
+                        "PASSWORD PPPOE : {$customer->pppoe_password}\n" .
+                        "MIC RADIUS : " . ($customer->mic_radius->name ?? '-') . "\n" .
+                        "ALAMAT : \n{$customerAddress}\n\n" .
+                        "============================================================\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+
+        if ($notif === 'riset mac address') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name}\n" .
+                        "============================================================\n" .
+                        "TOLONG RISET MAC ADDRES DARI ID PELANGGAN PPPOE : {$customer->uuid}\n" .
+                        "============================================================\n\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+
+        if ($notif === 'ganti perangkat') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name}\n" .
+                        "============================================================\n" .
+                        "TOLONG HAPUS PELANGGAN DENGAN NAMA ID PELANGGAN : {$customer->uuid}\n" .
+                        "============================================================\n\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+
+                if ($operator->hasRole('Operator OLT')) {
+
+                    $message =
+                        "Hallo OLT : {$operator->name}\n" .
+                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "============================================================\n\n" .
+                        "DELETE ONU YANG BERNAMA ID PELANGGAN : {$customer->uuid}\n" .
+                        "CARI MAC ADDRESS : " . ($customer->mac_address ?? '-') . "\n\n" .
+
+                        "DI BAGIAN NAMA : {$customer->uuid}\n" .
+                        "DI BAGIAN DESCRIPSI :\n" .
+                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*\n" .
+                        "NAMA : {$customer->name}\n" .
+                        "EMAIL : {$customer->email}\n" .
+                        "TELP : {$customer->telp}\n" .
+                        "PAKET : " . ($customer->paket->name ?? '-') . "\n" .
+                        "TIPE PEMBAYARAN : " . ($customer->price->name ?? '-') . "\n" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
+                        "ODC : " . ($customer->odc->name ?? '-') . "\n" .
+                        "ODP : " . ($customer->odp->name ?? '-') . "\n" .
+                        "OLT : " . ($customer->olt->name ?? '-') . "\n" .
+                        "NAMA WIFI : {$customer->name_wifi}\n" .
+                        "PASSWORD WIFI : {$customer->password_wifi}\n" .
+                        "USERNAME PPPOE : {$customer->pppoe_username}\n" .
+                        "PASSWORD PPPOE : {$customer->pppoe_password}\n" .
+                        "MIC RADIUS : " . ($customer->mic_radius->name ?? '-') . "\n" .
+                        "ALAMAT : \n{$customerAddress}\n\n" .
+                        "============================================================\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+
+        if ($notif === 'berhenti langganan') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name}\n" .
+                        "============================================================\n" .
+                        "TOLONG HAPUS PELANGGAN DENGAN NAMA ID PELANGGAN : {$customer->uuid}\n" .
+                        "============================================================\n\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+
+                if ($operator->hasRole('Operator OLT')) {
+
+                    $message =
+                        "Hallo OLT : {$operator->name}\n" .
+                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "============================================================\n" .
+                        "DELETE ONU YANG BERNAMA ID PELANGGAN : {$customer->uuid}\n" .
+                        "Dengan Alasan Berhenti Berlangganan.\n" .
+                        "============================================================\n\n" .
+                        "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+    }
+
+    private function saveChat($receiverId, $message)
+    {
+        $chat = Chat::create([
+            'sender_id'   => Auth::id(),
+            'receiver_id' => $receiverId,
+            'message'     => $message,
+        ]);
+
+        broadcast(new ChatSent($chat))->toOthers();
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
+use App\Models\MicRadius;
+use App\Models\OLT;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +20,7 @@ class UserController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $users = User::query()
+        $users = User::with(['olt', 'micRadius'])
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%");
@@ -36,15 +38,15 @@ class UserController extends Controller
     public function create()
     {
         $role = Role::all();
-        return view("pages.user.create", compact("role"));
+        $olts = OLT::all();
+        $micRadius = MicRadius::all();
+
+        return view("pages.user.create", compact("role", "olts", "micRadius"));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             "username" => "required|unique:users,username",
             "name" => "required|string",
             "email" => "required|unique:users,email",
@@ -52,16 +54,27 @@ class UserController extends Controller
             "telp" => "required",
             "password" => "required|string|min:8|confirmed",
             "password_confirmation" => "required|string"
-        ]);
+        ];
 
-        $post = $request->except('password_confirmation', 'role');
+        if ($request->role === "Operator OLT") {
+            $rules["olt_id"] = "required";
+        } elseif ($request->role === "Operator Mic Radius") {
+            $rules["mic_radius_id"] = "required";
+        }
 
-        $user = User::create($post);
-        $post['password'] = Hash::make($request->password);
+        $validated = $request->validate($rules);
+
+        $data = $request->except('password_confirmation');
+        $data['password'] = Hash::make($request->password);
+
+        $user = User::create($data);
+
         $user->assignRole($request->role);
 
-        return redirect()->route('user.index')->with('success', 'Berhasil menambahkan user baru.');
+        return redirect()->route('user.index')
+            ->with('success', 'Berhasil menambahkan user baru.');
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -70,37 +83,58 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $role = Role::all();
-        return view("pages.user.edit", compact("user", "role"));
+        $olts = OLT::all();
+        $micRadius = MicRadius::all();
+
+        return view("pages.user.edit", compact("user", "role", "olts", "micRadius"));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $user = User::find($id);
 
-        $request->validate([
+        if (!$user) {
+            return redirect()->route('user.index')
+                ->with('error', 'Data user tidak ditemukan.');
+        }
+
+        $rules = [
             "username" => "required|unique:users,username," . $user->id,
             "name" => "required|string",
             "email" => "required|unique:users,email," . $user->id,
             "role" => "required",
             "telp" => "required",
-            "password" => "nullable|string|min:8|confirmed",
-        ]);
-
-        $updateData = $request->except('password', 'password_confirmation', 'role');
+        ];
 
         if ($request->filled('password')) {
-            $updateData['password'] = Hash::make($request->password);
+            $rules["password"] = "string|min:8|confirmed";
+            $rules["password_confirmation"] = "required_with:password|string";
         }
 
-        $user->update($updateData);
+        if ($request->role === "Operator OLT") {
+            $rules["olt_id"] = "required";
+        } elseif ($request->role === "Operator Mic Radius") {
+            $rules["mic_radius_id"] = "required";
+        }
+
+        $validated = $request->validate($rules);
+
+        $data = $request->except('password_confirmation');
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
 
         $user->syncRoles([$request->role]);
 
-        return redirect()->route('user.index')->with('success', 'Berhasil memperbarui user.');
+        return redirect()->route('user.index')
+            ->with('success', 'Berhasil memperbarui data user.');
     }
+
 
     /**
      * Remove the specified resource from storage.

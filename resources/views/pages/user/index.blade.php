@@ -45,7 +45,7 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive-lg">
+    <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
@@ -55,6 +55,8 @@
                     <th>Email</th>
                     <th>Telphone</th>
                     <th>Level</th>
+                    <th>OLT</th>
+                    <th>Mic Radius</th>
                     <th>Created</th>
                     <th>Action</th>
                 </tr>
@@ -83,6 +85,12 @@
                         </td>
                         <td>
                             {{ optional($item->roles->first())->name ?? '-' }}
+                        </td>
+                        <td>
+                            {{ optional($item->olt)->name ?? '-' }}
+                        </td>
+                        <td>
+                            {{ optional($item->micRadius)->name ?? '-' }}
                         </td>
                         <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}

@@ -136,6 +136,9 @@
                                 
                                 @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                                     <td class="sort-action">
+                                        @can('chatting')
+                                            <a href="javascript:void(0)" onclick="return openChat('{{ $item->id }}')" class="btn btn-outline-primary btn-md">Kirim Pemberitahuan</a>
+                                        @endcan
                                         @can('ubah pelanggan')
                                             <a href="{{ route('customer.edit', ['id' => $item->id]) }}" class="btn btn-outline-warning btn-md">Edit</a>
                                         @endcan
@@ -167,6 +170,66 @@
         </div>
     </div>
 @endsection
+
+@push('modal')
+    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kirim Pemberitahuan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="customer_id" id="customer_id" hidden>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Tipe Pemberitahuan</label>
+                        <select name="notif" id="notif" class="form-control">
+                            <option value="">Pilih</option>
+                            @php
+                                $listNotif = [
+                                    'pendaftaran baru',
+                                    'riset mac address',
+                                    'ganti perangkat',
+                                    'berhenti langganan'
+                                ]
+                            @endphp
+                            @foreach ($listNotif as $ln)
+                                <option value="{{ $ln }}">{{ ucfirst($ln) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Pilih Kampung</label>
+                        <select name="home_town_id" id="home_town_id" class="form-control">
+                            <option value="">Pilih</option>
+                            @foreach ($hometown as $ht)
+                                <option value="{{ $ht->id }}">{{ $ht->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Pilih OLT</label>
+                        <select name="olt_id" id="olt_id" class="form-control">
+                            <option value="">Pilih</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Pilih Mic Radius</label>
+                        <select name="mic_radius_id" id="mic_radius_id" class="form-control">
+                            <option value="">Pilih</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="send-notif" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush
 
 @push('js')
     <script>
@@ -287,5 +350,87 @@
                 }
             });
         }
+
+        function openChat(id) {
+            $("#modal-simple").modal("show");
+            $("#customer_id").val(id);
+        }
+
+        $("#home_town_id").change(function () {
+            let hometown_id = $(this).val();
+
+            if (hometown_id) {
+                $.ajax({
+                    url: "{{ route('customer.getSelect') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        home_town_id: hometown_id
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                        let data = response.data;
+
+                        let oltOptions = '<option value="">Pilih</option>';
+                        if (data.olts && data.olts.length > 0) {
+                            data.olts.forEach(item => {
+                                oltOptions += `<option value="${item.id}">${item.name}</option>`;
+                            });
+                        }
+                        $("#olt_id").html(oltOptions);
+
+                        let micOptions = '<option value="">Pilih</option>';
+                        if (data.micRadius && data.micRadius.length > 0) {
+                            data.micRadius.forEach(item => {
+                                micOptions += `<option value="${item.id}">${item.code} - ${item.name}</option>`;
+                            });
+                        }
+                        $("#mic_radius_id").html(micOptions);
+                    },
+                    error: function () {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Server Error"
+                        });
+                    }
+                });
+            }
+        });
+
+        $("#send-notif").click(function () {
+            let customer_id = $("#customer_id").val();
+            let notif = $("#notif").val();
+            let home_town_id = $("#home_town_id").val();
+            let olt_id = $("#olt_id").val();
+            let mic_radius_id = $("#mic_radius_id").val();
+
+            $.ajax({
+                url: "{{ route('customer.notif') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: customer_id,
+                    notif: notif,
+                    home_town_id: home_town_id,
+                    olt_id: olt_id,
+                    mic_radius_id: mic_radius_id
+                },
+                dataType: "JSON",
+                success: function (response) {
+                    Toast.fire({
+                        icon: response.status,
+                        title: response.message
+                    });
+
+                    $("#modal-simple").modal("hide");
+                },
+                error: function (err) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Server Error"
+                    });
+                }
+            });
+        });
     </script>
 @endpush

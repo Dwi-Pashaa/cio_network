@@ -590,7 +590,8 @@ class PagesController extends Controller
                 }
             }
 
-            return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan dikirim!');
+            return redirect()->route('chatting.index')
+                ->with('success', 'Data pelanggan berhasil disimpan dan pesan dikirim!');
         });
     }
 

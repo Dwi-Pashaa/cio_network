@@ -15,6 +15,8 @@
 	<link href="{{asset('')}}css/tabler-vendors.min.css?1738096685" rel="stylesheet" />
 	<link href="{{asset('')}}css/tabler-marketing.min.css?1738096685" rel="stylesheet" />
 	<link href="{{asset('')}}css/demo.min.css?1738096685" rel="stylesheet" />
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.rtl.min.css"/>
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.rtl.min.css"/>
 	<style>
 		@import url('https://rsms.me/inter/inter.css');
 	</style>
@@ -81,6 +83,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 	<script src="{{ asset('') }}libs/list.js/dist/list.min.js?1759774804" defer=""></script>
+	<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.15.0/echo.iife.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 	<script>
 		$.ajaxSetup({
 			headers: {
@@ -89,6 +94,51 @@
 		}); 
 	</script>
 	@stack('js')
+	<script>
+		window.Echo = new Echo({
+			broadcaster: "pusher",
+			key: "{{ env('PUSHER_APP_KEY') }}",
+			cluster: "{{ env('PUSHER_APP_CLUSTER') }}",
+			forceTLS: true,
+		});
+
+		alertify.minimalDialog || alertify.dialog('minimalDialog', function () {
+			return {
+				main: function (content) {
+					this.setContent(content);
+				}
+			};
+		});
+
+		Echo.private("chat.{{ auth()->id() }}")
+			.listen(".chat-sent", (data) => {
+
+				let html = `
+					<div style="font-size: 14px; padding: 5px;">
+						<strong>Pesan Baru!</strong><br>
+						Dari: ${data.chat.sender_name}<br>
+						Pesan: ${data.chat.message}<br><br>
+
+						<button id="goChat"
+							class="btn btn-primary btn-sm">
+							Pergi ke Chatting
+						</button>
+					</div>
+				`;
+
+			let dialog = alertify.minimalDialog(html);
+
+			setTimeout(() => {
+				let btn = document.getElementById("goChat");
+				if (btn) {
+					btn.onclick = () => {
+						window.location.href = "/chatting?user_id=" + data.chat.sender_id;
+						dialog.close();
+					};
+				}
+			}, 100);
+		});
+    </script>
 </body>
 
 </html>

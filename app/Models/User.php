@@ -24,6 +24,8 @@ class User extends Authenticatable
         'email',
         'telp',
         'password',
+        'olt_id',
+        'mic_radius_id',
     ];
 
     /**
@@ -45,6 +47,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function olt()
+    {
+        return $this->belongsTo(OLT::class, 'olt_id', 'id');
+    }
+
+    public function micRadius()
+    {
+        return $this->belongsTo(MicRadius::class, 'mic_radius_id', 'id');
+    }
 
     public function router()
     {

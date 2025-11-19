@@ -3,9 +3,9 @@
 @section('title', 'Chatting')
 
 @section('content')
+@include('components.alert.success')
 <div class="card flex-fill">
     <div class="row g-0 flex-fill">
-
         {{-- Sidebar daftar user --}}
         <div class="col-12 col-lg-5 col-xl-3 border-end d-flex flex-column">
             <div class="card-header d-none d-md-block">

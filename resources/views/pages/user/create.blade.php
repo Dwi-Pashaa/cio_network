@@ -75,6 +75,34 @@
                     </span>
                 @enderror
             </div>
+            <div class="form-group mb-3" style="display: none">
+                <label for="username" class="mb-2">Mic Radius</label>
+                <select name="mic_radius_id" id="mic_radius_id" class="form-control @error('mic_radius_id') is-invalid @enderror">
+                    <option value="">Pilih</option>
+                    @foreach ($micRadius as $mc)
+                        <option value="{{ $mc->id }}">{{ $mc->name }}</option>
+                    @endforeach
+                </select>
+                @error('mic_radius_id')
+                    <span class="invalid-feedback">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
+            <div class="form-group mb-3" style="display: none">
+                <label for="username" class="mb-2">OLT</label>
+                <select name="olt_id" id="olt_id" class="form-control @error('olt_id') is-invalid @enderror">
+                    <option value="">Pilih</option>
+                    @foreach ($olts as $olt)
+                        <option value="{{ $olt->id }}">{{ $olt->name }}</option>
+                    @endforeach
+                </select>
+                @error('olt_id')
+                    <span class="invalid-feedback">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="form-group mb-3">
@@ -110,5 +138,19 @@
 @endsection
 
 @push('js')
-    
+    <script>
+        $("#role").change(function() {
+            var role = $(this).val();
+            if (role == "Operator OLT") {
+                $("#mic_radius_id").parent().hide();
+                $("#olt_id").parent().show();
+            } else if(role == "Operator Mic Radius") {
+                $("#mic_radius_id").parent().show();
+                $("#olt_id").parent().hide();
+            } else {
+                $("#mic_radius_id").parent().hide();
+                $("#olt_id").parent().hide();
+            }
+        });
+    </script>
 @endpush
