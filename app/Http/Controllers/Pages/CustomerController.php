@@ -472,17 +472,7 @@ class CustomerController extends Controller
                         "NAMA : {$customer->name}\n" .
                         "EMAIL : {$customer->email}\n" .
                         "TELP : {$customer->telp}\n" .
-                        "PAKET : " . ($customer->paket->name ?? '-') . "\n" .
-                        "TIPE PEMBAYARAN : " . ($customer->price->name ?? '-') . "\n" .
                         "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
-                        "ODC : " . ($customer->odc->name ?? '-') . "\n" .
-                        "ODP : " . ($customer->odp->name ?? '-') . "\n" .
-                        "OLT : " . ($customer->olt->name ?? '-') . "\n" .
-                        "NAMA WIFI : {$customer->name_wifi}\n" .
-                        "PASSWORD WIFI : {$customer->password_wifi}\n" .
-                        "USERNAME PPPOE : {$customer->pppoe_username}\n" .
-                        "PASSWORD PPPOE : {$customer->pppoe_password}\n" .
-                        "MIC RADIUS : " . ($customer->mic_radius->name ?? '-') . "\n" .
                         "ALAMAT : \n{$customerAddress}\n\n" .
                         "============================================================\n" .
                         "Terimakasih *Admin CN*";
