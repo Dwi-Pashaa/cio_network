@@ -53,7 +53,7 @@ class User extends Authenticatable
     public function olts(): BelongsToMany
     {
         return $this->belongsToMany(
-            Olt::class,
+            OLT::class,
             'olt_users',             // pivot table
             'user_id',               // foreign key di pivot: user
             'olt_id'                 // foreign key di pivot: olt
