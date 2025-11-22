@@ -87,10 +87,22 @@
                             {{ optional($item->roles->first())->name ?? '-' }}
                         </td>
                         <td>
-                            {{ optional($item->olt)->name ?? '-' }}
+                            @forelse ($item->olts as $olt)
+                                <span class="badge bg-primary text-white">
+                                    {{$olt->name}}
+                                </span>
+                            @empty
+                                -
+                            @endforelse
                         </td>
                         <td>
-                            {{ optional($item->micRadius)->name ?? '-' }}
+                            @forelse ($item->mixRadius as $mc)
+                                <span class="badge bg-primary text-white">
+                                    {{$mc->name}}
+                                </span>
+                            @empty
+                                -
+                            @endforelse
                         </td>
                         <td>
                             {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}

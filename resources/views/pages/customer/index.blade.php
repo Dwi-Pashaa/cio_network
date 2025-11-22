@@ -11,18 +11,22 @@
 @section('content')
     @include('components.alert.success')
     <div class="card">
-        @can('buat desa')
+        @can('buat pelanggan')
             <div class="card-header">
                 <a href="{{ route('customer.create') }}" class="btn btn-primary m-2">
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                     Tambah
                 </a>
                 @can('download excel')
-                    <a href="{{ route('customer.export') }}" class="btn btn-success btn-md">
+                    <a href="{{ route('customer.export') }}" class="btn btn-success btn-md m-2">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-spreadsheet"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M8 11h8v7h-8z" /><path d="M8 15h8" /><path d="M11 11v7" /></svg>
                         Download Excel
                     </a>
                 @endcan
+                <a href="javascript:void(0)" class="btn btn-info" onclick="return openSwitch()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-transfer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 10h-16l5.5 -6" /><path d="M4 14h16l-5.5 6" /></svg>
+                    Pindah OLT
+                </a>
             </div>
         @endcan
         <div class="card-body border-bottom py-3">
@@ -58,7 +62,9 @@
                 <table class="table card-table table-vcenter text-nowrap datatable">
                     <thead>
                         <tr>
-                            <th><button class="table-sort d-flex justify-content-between desc">No</button></th>
+                            <th>
+                                <button class="table-sort d-flex justify-content-between desc">No</button>
+                            </th>
                             <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-id">ID Pelanggan</button></th>
                             <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-type">Type Pelanggan</button></th>
                             <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nama">Nama Pelanggan</button></th>
@@ -95,7 +101,10 @@
                     <tbody class="table-tbody">
                         @forelse ($customers as $item)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    <input class="form-check-input row-check" style="margin-right: 20px" type="checkbox" id="checkbox-user" name="selected[]" value="{{ $item->id }}">
+                                    {{ $loop->iteration }}
+                                </td>
                                 <td class="sort-id">{{ $item->uuid ?? '-' }}</td>
                                 <td class="sort-type">{{ $item->type->name }}</td>
                                 <td class="sort-nama">{{ $item->name }}</td>
@@ -191,6 +200,8 @@
                                 $listNotif = [
                                     'pendaftaran baru',
                                     'riset mac address',
+                                    'pindah dari pppoe ke voucher',
+                                    'pindah dari voucher ke pppoe',
                                     'ganti perangkat',
                                     'berhenti langganan'
                                 ]
@@ -200,7 +211,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group mb-3">
+                    {{-- <div class="form-group mb-3">
                         <label for="" class="mb-2">Pilih Kampung</label>
                         <select name="home_town_id" id="home_town_id" class="form-control">
                             <option value="">Pilih</option>
@@ -219,6 +230,34 @@
                         <label for="" class="mb-2">Pilih Mic Radius</label>
                         <select name="mic_radius_id" id="mic_radius_id" class="form-control">
                             <option value="">Pilih</option>
+                        </select>
+                    </div> --}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="send-notif" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-blur fade" id="modal-switch-olt" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pindah OLT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="customer_id" id="customer_id" hidden>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Pilih OLT</label>
+                        <select name="olt_id" id="olt_id" class="form-control">
+                            <option value="">Pilih</option>
+                            @foreach ($olts as $olt)
+                                <option value="{{$olt->id}}">{{$olt->name}}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -400,9 +439,9 @@
         $("#send-notif").click(function () {
             let customer_id = $("#customer_id").val();
             let notif = $("#notif").val();
-            let home_town_id = $("#home_town_id").val();
-            let olt_id = $("#olt_id").val();
-            let mic_radius_id = $("#mic_radius_id").val();
+            // let home_town_id = $("#home_town_id").val();
+            // let olt_id = $("#olt_id").val();
+            // let mic_radius_id = $("#mic_radius_id").val();
 
             $.ajax({
                 url: "{{ route('customer.notif') }}",
@@ -411,9 +450,9 @@
                     _token: "{{ csrf_token() }}",
                     customer_id: customer_id,
                     notif: notif,
-                    home_town_id: home_town_id,
-                    olt_id: olt_id,
-                    mic_radius_id: mic_radius_id
+                    // home_town_id: home_town_id,
+                    // olt_id: olt_id,
+                    // mic_radius_id: mic_radius_id
                 },
                 dataType: "JSON",
                 success: function (response) {
@@ -423,6 +462,10 @@
                     });
 
                     $("#modal-simple").modal("hide");
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
                 },
                 error: function (err) {
                     Toast.fire({
@@ -432,5 +475,21 @@
                 }
             });
         });
+
+        function openSwitch() {
+            let checks = document.querySelectorAll('.row-check:checked');
+
+            if (checks.length === 0) {
+                Toast.fire({
+                    icon: "info",
+                    title: "Pilih satu atau lebih pelanggan untuk dipindah OLT"
+                });
+                return false;
+            }
+
+            $("#modal-switch-olt").modal("show");
+
+            return true;
+        }
     </script>
 @endpush

@@ -102,10 +102,21 @@
 			forceTLS: true,
 		});
 
-		alertify.minimalDialog || alertify.dialog('minimalDialog', function () {
+		alertify.dialog('minimalDialog', function () {
 			return {
 				main: function (content) {
 					this.setContent(content);
+				},
+				setup: function () {
+					return {
+						options: {
+							title: "Pesan Baru",
+							movable: false,
+							resizable: false,
+							closable: true,
+							transition: "fade"
+						}
+					};
 				}
 			};
 		});

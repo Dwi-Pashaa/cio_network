@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class OLT extends Model
 {
@@ -19,6 +20,16 @@ class OLT extends Model
     public function hometown()
     {
         return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'olt_users',
+            'olt_id',
+            'user_id'
+        );
     }
 
     protected static function boot()

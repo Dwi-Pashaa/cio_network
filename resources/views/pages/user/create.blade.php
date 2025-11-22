@@ -5,7 +5,7 @@
 @endsection
 
 @push('css')
-    
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -76,22 +76,23 @@
                 @enderror
             </div>
             <div class="form-group mb-3" style="display: none">
-                <label for="username" class="mb-2">Mic Radius</label>
-                <select name="mic_radius_id" id="mic_radius_id" class="form-control @error('mic_radius_id') is-invalid @enderror">
-                    <option value="">Pilih</option>
+                <label for="select-mic-radius" class="mb-2">Mic Radius</label>
+
+                <select name="mic_radius_id[]" id="select-mic-radius" 
+                    class="form-select @error('mic_radius_id') is-invalid @enderror" 
+                    multiple>
                     @foreach ($micRadius as $mc)
                         <option value="{{ $mc->id }}">{{ $mc->name }}</option>
                     @endforeach
                 </select>
+
                 @error('mic_radius_id')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
+                    <span class="invalid-feedback">{{ $message }}</span>
                 @enderror
             </div>
             <div class="form-group mb-3" style="display: none">
                 <label for="username" class="mb-2">OLT</label>
-                <select name="olt_id" id="olt_id" class="form-control @error('olt_id') is-invalid @enderror">
+                <select name="olt_id[]" id="select-olt" class="form-control @error('olt_id') is-invalid @enderror" multiple>
                     <option value="">Pilih</option>
                     @foreach ($olts as $olt)
                         <option value="{{ $olt->id }}">{{ $olt->name }}</option>
@@ -138,18 +139,37 @@
 @endsection
 
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#select-mic-radius", {
+                plugins: ['remove_button'],
+                placeholder: "Pilih Mic Radius",
+                persist: false,
+                maxItems: null, // unlimited
+                create: false
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#select-olt", {
+                plugins: ['remove_button'],
+                placeholder: "Pilih OLT",
+                persist: false,
+                maxItems: null, // unlimited
+                create: false
+            });
+        });
         $("#role").change(function() {
             var role = $(this).val();
             if (role == "Operator OLT") {
-                $("#mic_radius_id").parent().hide();
-                $("#olt_id").parent().show();
+                $("#select-mic-radius").parent().hide();
+                $("#select-olt").parent().show();
             } else if(role == "Operator Mic Radius") {
-                $("#mic_radius_id").parent().show();
-                $("#olt_id").parent().hide();
+                $("#select-mic-radius").parent().show();
+                $("#select-olt").parent().hide();
             } else {
-                $("#mic_radius_id").parent().hide();
-                $("#olt_id").parent().hide();
+                $("#select-mic-radius").parent().hide();
+                $("#select-olt").parent().hide();
             }
         });
     </script>

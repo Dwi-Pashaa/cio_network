@@ -84,7 +84,9 @@ class CustomerController extends Controller
 
         $hometown = HomeTown::select(['id', 'name'])->get();
 
-        return view("pages.customer.index", compact("customers", "hometown"));
+        $olts = OLT::select(['id', 'name'])->get();
+
+        return view("pages.customer.index", compact("customers", "hometown", "olts"));
     }
 
     public function getSelect(Request $request)
@@ -296,9 +298,6 @@ class CustomerController extends Controller
     {
         $rules = [
             "notif" => "required",
-            "home_town_id" => "required",
-            "olt_id" => "required",
-            "mic_radius_id" => "required",
             "customer_id" => "required",
         ];
 
@@ -326,11 +325,15 @@ class CustomerController extends Controller
             ->toArray();
 
         $operatorOlt = User::role('Operator OLT')
-            ->where('olt_id', $validated['olt_id'])
+            ->whereHas('olts', function ($q) use ($customer) {
+                $q->where('olt_id', $customer['olts_id']);
+            })
             ->get();
 
         $operatorMic = User::role('Operator Mic Radius')
-            ->where('mic_radius_id', $validated['mic_radius_id'])
+            ->whereHas('mixRadius', function ($q) use ($customer) {
+                $q->where('mic_radius_id', $customer['mic_radius_id']);
+            })
             ->get();
 
         $operators = $operatorOlt->merge($operatorMic);
@@ -371,7 +374,7 @@ class CustomerController extends Controller
                         "Tipe Pembayaran        : " . ($customer->price->name ?? '-') . "\n" .
                         "Status Bayar           : Jangan diubah / biarkan saja\n" .
                         "Status Akun            : ENABLED\n" .
-                        "Owner Data             : {$customer->name}\n" .
+                        "Owner Data             : {$customer->mic_radius->name}\n" .
                         "Bind On Login          : YA\n" .
                         "Tipe Service           : " . ($customer->type->name ?? '-') . "\n" .
                         "Paket Langganan        : " . ($customer->paket->name ?? '-') . "\n\n" .
@@ -400,7 +403,6 @@ class CustomerController extends Controller
                 }
 
                 if ($operator->hasRole('Operator OLT')) {
-
                     $message =
                         "Hallo OLT : {$operator->name}\n" .
                         "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
@@ -435,6 +437,78 @@ class CustomerController extends Controller
                         "TOLONG RISET MAC ADDRES DARI ID PELANGGAN PPPOE : {$customer->uuid}\n" .
                         "============================================================\n\n" .
                         "Terimakasih *Admin CN*";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+
+        if ($notif === 'pindah dari pppoe ke voucher') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name} \n
+                        ============================================================\n
+                        ID PELANGGAN {$customer->uuid} TELAH PINDAH DARI PPPOE KE VOUCHER
+                        TOLONG HAPUS /DISABLE PELANGGAN DENGAN NAMA ID PELANGGAN : {$customer->uuid}
+                        ============================================================
+                        Terimakasih *Admin CN*
+";
+
+                    $this->saveChat($operator->id, $message);
+                }
+            }
+        }
+
+        if ($notif === 'pindah dari voucher ke pppoe') {
+
+            foreach ($operators as $operator) {
+
+                if ($operator->hasRole('Operator Mic Radius')) {
+
+                    $message =
+                        "Hallo MIXRADIUS : {$operator->name}\n" .
+                        "============================================================\n" .
+                        "ID PELANGGAN {$customer->uuid} TELAH PINDAH DARI VOUCHER KE PPPOE\n" .
+                        "============================================================\n" .
+                        "TOLONG ISIKAN DATA PELANGGAN MIXRADIUS DI BAWAH INI.\n" .
+                        "============================================================\n\n" .
+
+                        "⚡ BAGIAN PAKET LANGGANAN\n\n" .
+                        "Status Registrasi      : AKTIF SEKARANG\n" .
+                        "Tipe Pelanggan         : Reguler\n" .
+                        "Nama Server | Service  : Semua Server & NAS\n" .
+                        "Tipe Pembayaran        : " . ($customer->price->name ?? '-') . "\n" .
+                        "Status Bayar           : Jangan diubah / biarkan saja\n" .
+                        "Status Akun            : ENABLED\n" .
+                        "Owner Data             : {$customer->mic_radius->name}\n" .
+                        "Bind On Login          : YA\n" .
+                        "Tipe Service           : " . ($customer->type->name ?? '-') . "\n" .
+                        "Paket Langganan        : " . ($customer->paket->name ?? '-') . "\n\n" .
+
+                        "============================================================\n\n" .
+
+                        "📌 BAGIAN INFO PELANGGAN\n\n" .
+                        "ODP | POP              : Jangan diubah / biarkan saja\n" .
+                        "ID Pelanggan           : {$customer->uuid}\n" .
+                        "Nama                   : {$customer->name}\n" .
+                        "Nomor HP               : {$customer->telp}\n" .
+                        "Alamat                 : {$customerAddress}\n" .
+                        "Metode Login           : USERNAME & PASSWORD\n" .
+                        "Username               : {$customer->pppoe_username}\n" .
+                        "Password               : {$customer->pppoe_password}\n" .
+                        "Konfirmasi Password    : {$customer->pppoe_password}\n" .
+                        "Password Clientarea    : {$customer->pppoe_password}\n\n" .
+
+                        "============================================================\n" .
+                        "KEMUDIAN KLIK TAMBAH PELANGGAN\n" .
+                        "============================================================\n\n" .
+
+                        "Terimakasih\n" .
+                        "*Admin CN*";
 
                     $this->saveChat($operator->id, $message);
                 }

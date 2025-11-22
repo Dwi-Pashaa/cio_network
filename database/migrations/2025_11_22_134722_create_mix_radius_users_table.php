@@ -11,20 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('olt_id')->nullable()->after('id');
+        Schema::create('mix_radius_users', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
 
-            $table->foreign('olt_id')
+            $table->foreign('user_id')
                 ->references('id')
-                ->on('olt_networks')
-                ->onDelete('set null');
+                ->on('users')
+                ->onDelete('CASCADE');
 
-            $table->unsignedBigInteger('mic_radius_id')->nullable()->after('id');
+            $table->unsignedBigInteger('mic_radius_id');
 
             $table->foreign('mic_radius_id')
                 ->references('id')
                 ->on('mic_radius')
-                ->onDelete('set null');
+                ->onDelete('CASCADE');
+            $table->timestamps();
         });
     }
 
@@ -33,8 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('mix_radius_users');
     }
 };
