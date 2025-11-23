@@ -129,6 +129,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exportToGoogleSheet', [CustomerController::class, 'exportToGoogleSheet'])->name('customer.exportToGoogleSheet');
         Route::post('/get-select', [CustomerController::class, 'getSelect'])->name('customer.getSelect');
         Route::post('/send-notif', [CustomerController::class, 'notif'])->name('customer.notif');
+        Route::post('/switch-olt', [CustomerController::class, 'switchOlt'])->name('customer.switchOlt');
     });
 
     // master jaringan

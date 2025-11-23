@@ -250,7 +250,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" name="customer_id" id="customer_id" hidden>
+                    <input type="text" name="customer_switch_id" id="customer_switch_id" hidden>
                     <div class="form-group mb-3">
                         <label for="" class="mb-2">Pilih OLT</label>
                         <select name="olt_id" id="olt_id" class="form-control">
@@ -263,7 +263,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="send-notif" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="btn-switch" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
         </div>
@@ -487,9 +487,52 @@
                 return false;
             }
 
+            let customerIDs = Array.from(checks).map(c => c.value);
+
+            document.getElementById('customer_switch_id').value = JSON.stringify(customerIDs);
+
             $("#modal-switch-olt").modal("show");
 
             return true;
         }
+
+        $("#btn-switch").click(function () {
+            let customer_switch_id = $("#customer_switch_id").val();
+            let olt_id = $("#olt_id").val();
+
+            $.ajax({
+                url: "{{ route('customer.switchOlt') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_switch_id: customer_switch_id,
+                    olt_id: olt_id
+                },
+                dataType: "JSON",
+                success: function (response) {
+                    console.log(response);
+                    
+                    Toast.fire({
+                        icon: response.status,
+                        title: response.message
+                    });
+                    
+                    if (response.code == 200) {
+                        $("#modal-switch-olt").modal("hide");
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function (err) {
+                    // Toast.fire({
+                    //     icon: "error",
+                    //     title: "Server Error"
+                    // });
+                    console.log(err);
+                }
+            });
+        });
     </script>
 @endpush

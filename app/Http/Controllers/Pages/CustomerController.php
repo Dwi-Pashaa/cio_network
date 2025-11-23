@@ -456,7 +456,7 @@ class CustomerController extends Controller
                         TOLONG HAPUS /DISABLE PELANGGAN DENGAN NAMA ID PELANGGAN : {$customer->uuid}
                         ============================================================
                         Terimakasih *Admin CN*
-";
+        ";
 
                     $this->saveChat($operator->id, $message);
                 }
@@ -598,5 +598,33 @@ class CustomerController extends Controller
         ]);
 
         broadcast(new ChatSent($chat))->toOthers();
+    }
+
+    public function switchOlt(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'customer_switch_id' => 'required',
+            'olt_id' => 'required|exists:olt_networks,id',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'code' => 400,
+                'status' => 'error',
+                'message' => $validation->errors()->first(),
+            ]);
+        }
+
+        $customerIds = json_decode($request->customer_switch_id, true);
+
+        Customer::whereIn('id', $customerIds)->update([
+            'olts_id' => $request->olt_id,
+        ]);
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'message' => 'Berhasil memindahkan pelanggan ke OLT baru.',
+        ]);
     }
 }
