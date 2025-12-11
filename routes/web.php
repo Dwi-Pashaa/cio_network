@@ -293,6 +293,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('chatting')->group(function () {
         Route::get('/', [ChattingController::class, 'index'])->name('chatting.index');
         Route::post('/store', [ChattingController::class, 'store'])->name('chatting.store');
+        Route::delete('/{id}/destroy', [ChattingController::class, 'destroy'])->name('chatting.destroy');
     });
 });
 

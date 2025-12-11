@@ -14,22 +14,36 @@ class ChattingController extends Controller
     {
         $userId = $request->user_id ?? null;
 
-        $users = User::where('id', '!=', auth()->id())
-            ->get()
-            ->map(function ($usr) {
-                $lastChat = Chat::where(function ($query) use ($usr) {
-                    $query->where('sender_id', auth()->id())
+        $auth = auth()->user();
+        $authId = $auth->id;
+
+        if ($auth->can('view all chatting')) {
+            $userQuery = User::where('id', '!=', $authId);
+        } elseif ($auth->can('view inbox chatting')) {
+            $userQuery = User::whereIn('id', function ($q) use ($authId) {
+                $q->select('sender_id')
+                    ->from('chat')
+                    ->where('receiver_id', $authId);
+            });
+        } else {
+            $userQuery = User::where('id', '!=', $authId);
+        }
+
+        $users = $userQuery->get()
+            ->map(function ($usr) use ($authId) {
+                $lastChat = Chat::where(function ($query) use ($usr, $authId) {
+                    $query->where('sender_id', $authId)
                         ->where('receiver_id', $usr->id);
                 })
-                    ->orWhere(function ($query) use ($usr) {
+                    ->orWhere(function ($query) use ($usr, $authId) {
                         $query->where('sender_id', $usr->id)
-                            ->where('receiver_id', auth()->id());
+                            ->where('receiver_id', $authId);
                     })
                     ->latest()
                     ->first();
 
-                $usr->last_message = $lastChat ? $lastChat->message : null;
-                $usr->last_message_time = $lastChat ? $lastChat->created_at->diffForHumans() : null;
+                $usr->last_message = $lastChat?->message;
+                $usr->last_message_time = $lastChat?->created_at?->diffForHumans();
 
                 return $usr;
             })
@@ -37,6 +51,7 @@ class ChattingController extends Controller
             ->values();
 
         $chats = collect();
+
         if ($userId) {
             $chats = Chat::with(['sender', 'receiver'])
                 ->where(function ($query) use ($userId) {
@@ -48,7 +63,10 @@ class ChattingController extends Controller
                         ->where('receiver_id', auth()->id());
                 })
                 ->orderBy('created_at', 'asc')
-                ->get();
+                ->get()
+                ->groupBy(function ($chat) {
+                    return $chat->created_at->format('Y-m-d');
+                });
         }
 
         return view('pages.chatting.index', compact('users', 'chats'));
@@ -72,5 +90,18 @@ class ChattingController extends Controller
         broadcast(new ChatSent($chat))->toOthers();
 
         return back();
+    }
+
+    public function destroy($id)
+    {
+        $chat = Chat::find($id);
+
+        if (!$chat) {
+            return response()->json(['message' => 'Chat not found.'], 404);
+        }
+
+        $chat->delete();
+
+        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus pesan.']);;
     }
 }

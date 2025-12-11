@@ -54,6 +54,7 @@
                     <th><button class="table-sort" data-sort="sort-code">Code</button></th>
                     <th><button class="table-sort" data-sort="sort-name">Nama OLT</button></th>
                     <th><button class="table-sort" data-sort="sort-home">Kampung</button></th>
+                    <th><button class="table-sort" data-sort="sort-link">Link OLT</button></th>
                     <th><button class="table-sort" data-sort="sort-created">Created</button></th>
                     <th>Lokasi</th>
                     @if(auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt'))
@@ -68,6 +69,15 @@
                         <td class="sort-code">{{ $item->code }}</td>
                         <td class="sort-name">{{ $item->name }}</td>
                         <td class="sort-home">{{ $item->hometown->name }}</td>
+                        <td class="sort-link">
+                            @if ($item->link != null)
+                                <a href="{{ $item->link ?? '' }}" class="btn btn-primary btn-sm" target="_blank">
+                                    Buka Web OLT
+                                </a>
+                            @else
+                                <i>Belum Ada Link Untuk Web OLT</i>
+                            @endif
+                        </td>
                         <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i') }}</td>
                         <td>
                             <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}"
@@ -85,7 +95,7 @@
                         @endif
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center">Tidak Ada Data</td></tr>
+                    <tr><td colspan="8" class="text-center">Tidak Ada Data</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -131,6 +141,11 @@
                     </select>
                     <span class="invalid-feedback error_hometowns_id"></span>
                 </div>
+                <div class="form-group mb-3">
+                    <label for="link" class="mb-2">Link OLT</label>
+                    <input type="text" name="link" id="link" class="form-control">
+                    <span class="invalid-feedback error_link"></span>
+                </div>
                 <div class="mt-3" id="map-container" style="display:none;">
                     <iframe id="map-frame"
                         width="100%" 
@@ -161,6 +176,7 @@
             { "data-sort": "sort-code", name: "Code" },
             { "data-sort": "sort-name", name: "Nama OLT" },
             { "data-sort": "sort-home", name: "Kampung" },
+            { "data-sort": "sort-link", name: "Link OLT" },
             { "data-sort": "sort-created", name: "Created" },
         ],
     };
@@ -208,6 +224,7 @@
     $("#addBtn").click(function() {
         $(".modal-title").html("Tambah OLT");
         $("#name").val("");
+        $("#link").val("");
         $("#type").val("create");
         $("#id").val("");
     });
@@ -216,6 +233,7 @@
         let id = $("#id").val();
         let type = $("#type").val();
         let name = $("#name").val();
+        let link = $("#link").val();
         let hometowns_id = $("#hometowns_id").val();
         let latitude = $("#latitude").val();
         let longitude = $("#longitude").val();
@@ -237,6 +255,7 @@
             data: {
                 name: name,
                 hometowns_id: hometowns_id,
+                link: link,
                 latitude: latitude,
                 longitude: longitude,
             },
@@ -282,6 +301,7 @@
             $("#id").val(data.id);
             $("#name").val(data.name);
             $("#hometowns_id").val(data.hometowns_id);
+            $("#link").val(data.link);
             $("#type").val("update");
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);

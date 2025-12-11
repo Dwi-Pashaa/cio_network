@@ -67,7 +67,8 @@ class PagesController extends Controller
                 })
                 ->where('type', 'pages')
                 ->orderBy('id', 'DESC')
-                ->paginate($sort);
+                ->paginate($sort)
+                ->appends($request->query());
         }
 
         $regencies = Regency::all();
@@ -552,7 +553,7 @@ class PagesController extends Controller
                 . "*VLAN*: {$vlan->name}\n"
                 . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
                 . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
-                . "*Alamat OLT*: {$olt->hometown->name} - {$olt->name}\n"
+                . "*Alamat OLT: <a href=\"{$olt->link}\" target=\"_blank\">{$olt->hometown->name} - {$olt->name}</a>\n"
                 . "*NO HP / WA*: {$customer->telp}\n"
                 . "*Email*: {$customer->email}\n"
                 . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";

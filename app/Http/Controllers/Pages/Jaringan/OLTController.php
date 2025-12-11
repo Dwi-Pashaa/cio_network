@@ -19,15 +19,15 @@ class OLTController extends Controller
         $search = $request->search ?? null;
 
         $olts = OLT::with(['hometown'])
-                ->when($search, function ($query, $search) {
-                    $query->where('code', 'like', "%$search%")
-                        ->orWhereHas('hometown', function ($q) use ($search) {
-                            $q->where('name', 'like', "%$search%");
-                        })
-                        ->orWhere('name', 'like', "%$search");
-                })
-                ->orderBy('id', 'DESC')
-                ->paginate($sort);
+            ->when($search, function ($query, $search) {
+                $query->where('code', 'like', "%$search%")
+                    ->orWhereHas('hometown', function ($q) use ($search) {
+                        $q->where('name', 'like', "%$search%");
+                    })
+                    ->orWhere('name', 'like', "%$search");
+            })
+            ->orderBy('id', 'DESC')
+            ->paginate($sort);
 
         $hometown = HomeTown::select(['id', 'name'])->get();
 
@@ -42,6 +42,7 @@ class OLTController extends Controller
         $validation = Validator::make($request->all(), [
             "name" => "required|string",
             "hometowns_id" => "required|string",
+            "link" => "required|string",
         ]);
 
         if ($validation->fails()) {
@@ -77,6 +78,7 @@ class OLTController extends Controller
         $validation = Validator::make($request->all(), [
             "name" => "required|string",
             "hometowns_id" => "required|string",
+            "link" => "required|string",
         ]);
 
         if ($validation->fails()) {
@@ -102,7 +104,7 @@ class OLTController extends Controller
         if (!$olts) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $olts->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);

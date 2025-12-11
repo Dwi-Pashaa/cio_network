@@ -45,6 +45,83 @@
                         </select>
                     </div>
                 </div>
+                <form id="filterForm" class="d-flex" method="GET">
+
+                    <div class="text-secondary">
+                        <div class="mx-2 d-inline-block">
+                            <select name="village" id="village" class="form-control filter-select">
+                                <option value="">Pilih Desa</option>
+                                @foreach ($vilage as $vlg)
+                                    <option value="{{ $vlg->id }}" {{ request('village') == $vlg->id ? 'selected' : '' }}>
+                                        {{ $vlg->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-secondary">
+                        <div class="mx-2 d-inline-block">
+                            <select name="hometown" id="hometown" class="form-control filter-select">
+                                <option value="">Pilih Kampung</option>
+                                @foreach ($hometown as $hmt)
+                                    <option value="{{ $hmt->id }}" {{ request('hometown') == $hmt->id ? 'selected' : '' }}>
+                                        {{ $hmt->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-secondary">
+                        <div class="mx-2 d-inline-block">
+                            <select name="vlan" id="vlan" class="form-control filter-select">
+                                <option value="">Pilih Vlan</option>
+                                @foreach ($vlan as $vln)
+                                    <option value="{{ $vln->id }}" {{ request('vlan') == $vln->id ? 'selected' : '' }}>
+                                        {{ $vln->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-secondary">
+                        <div class="mx-2 d-inline-block">
+                            <select name="olt" id="olt" class="form-control filter-select">
+                                <option value="">Pilih OLT</option>
+                                @foreach ($olts as $ol)
+                                    <option value="{{ $ol->id }}" {{ request('olt') == $ol->id ? 'selected' : '' }}>
+                                        {{ $ol->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-secondary">
+                        <div class="mx-2 d-inline-block">
+                            <select name="micradius" id="micradius" class="form-control filter-select">
+                                <option value="">Pilih Mic Radius</option>
+                                @foreach ($micRadius as $mc)
+                                    <option value="{{ $mc->id }}" {{ request('micradius') == $mc->id ? 'selected' : '' }}>
+                                        {{ $mc->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+
+                <script>
+                    document.querySelectorAll('.filter-select').forEach((select) => {
+                        select.addEventListener('change', function () {
+                            document.getElementById('filterForm').submit();
+                        });
+                    });
+                </script>
+
                 <div class="ms-auto text-secondary">
                     <form>
                         <div class="input-group mb-2">

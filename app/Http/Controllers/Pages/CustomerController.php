@@ -38,6 +38,11 @@ class CustomerController extends Controller
     {
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
+        $micradius = $request->micradius ?? null;
+        $vlan = $request->vlan ?? null;
+        $village = $request->village ?? null;
+        $olts = $request->olts ?? null;
+        $hometowns = $request->hometown ?? null;
 
         $customers = Customer::with([
             'router',
@@ -79,14 +84,32 @@ class CustomerController extends Controller
                         ->orWhereHas('olt', fn($sub) => $sub->where('name', 'like', "%$search%"));
                 });
             })
+            ->when($vlan, function ($query, $vlan) {
+                $query->where('vlans_id', $vlan);
+            })
+            ->when($micradius, function ($query, $micradius) {
+                $query->where('mic_radius_id', $micradius);
+            })
+            ->when($village, function ($query, $village) {
+                $query->where('villages_id', $village);
+            })
+            ->when($olts, function ($query, $olts) {
+                $query->where('olts_id', $olts);
+            })
+            ->when($hometowns, function ($query, $hometowns) {
+                $query->where('hometowns_id', $hometowns);
+            })
             ->orderBy('id', 'DESC')
-            ->paginate($sort);
+            ->paginate($sort)
+            ->appends($request->query());
 
-        $hometown = HomeTown::select(['id', 'name'])->get();
+        $vilage = Village::all();
+        $hometown = HomeTown::all();
+        $olts = OLT::all();
+        $vlan = Vlan::all();
+        $micRadius = MicRadius::all();
 
-        $olts = OLT::select(['id', 'name'])->get();
-
-        return view("pages.customer.index", compact("customers", "hometown", "olts"));
+        return view("pages.customer.index", compact("customers", "hometown", "olts", "vlan", "micRadius", "vilage"));
     }
 
     public function getSelect(Request $request)
@@ -405,18 +428,15 @@ class CustomerController extends Controller
                 if ($operator->hasRole('Operator OLT')) {
                     $message =
                         "Hallo OLT : {$operator->name}\n" .
-                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "silakan login ke data olt : <a href=\"{$customer->olt->link}\" target=\"_blank\">{$customer->olt->name}</a>\n\n" .
                         "============================================================\n" .
                         "TOLONG KASIH NAMA DAN DESCRIPSI DI MAC ADDRES : " . ($customer->mac_address ?? '-') . "\n\n" .
 
-                        "DI BAGIAN NAMA : {$customer->uuid}" .
-                        "DI BAGIAN DESCRIPSI :" .
-                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*" .
-                        "NAMA : {$customer->name}" .
-                        "EMAIL : {$customer->email}" .
-                        "TELP : {$customer->telp}" .
-                        "VLAN : " . ($customer->vlan->name ?? '-') . "" .
-                        "ALAMAT : \n{$customerAddress}" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
+                        "KAMPUNG : {$customer->hometown->name}\n" .
+                        "PELANGGAN : {$customer->name}\n" .
+                        "TELP : {$customer->telp}\n" .
+                        "MIC RADIUS : {$customer->mic_radius->name}\n" .
                         "============================================================\n" .
                         "Terimakasih *Admin CN*";
 
@@ -535,19 +555,16 @@ class CustomerController extends Controller
 
                     $message =
                         "Hallo OLT : {$operator->name}\n" .
-                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "silakan login ke data olt : <a href=\"{$customer->olt->link}\" target=\"_blank\">{$customer->olt->name}</a>\n\n" .
                         "============================================================\n\n" .
                         "DELETE ONU YANG BERNAMA ID PELANGGAN : {$customer->uuid}\n" .
                         "CARI MAC ADDRESS : " . ($customer->mac_address ?? '-') . "\n\n" .
 
-                        "DI BAGIAN NAMA : {$customer->uuid}" .
-                        "DI BAGIAN DESCRIPSI :" .
-                        "DI INPUT OLEH : *" . ($customer->user->name ?? '-') . "*" .
-                        "NAMA : {$customer->name}" .
-                        "EMAIL : {$customer->email}" .
-                        "TELP : {$customer->telp}" .
-                        "VLAN : " . ($customer->vlan->name ?? '-') . "" .
-                        "ALAMAT : \n{$customerAddress}" .
+                        "VLAN : " . ($customer->vlan->name ?? '-') . "\n" .
+                        "KAMPUNG : {$customer->hometown->name}\n" .
+                        "PELANGGAN : {$customer->name}\n" .
+                        "TELP : {$customer->telp}\n" .
+                        "MIC RADIUS : {$customer->mic_radius->name}\n" .
                         "============================================================\n" .
                         "Terimakasih *Admin CN*";
 
@@ -576,7 +593,7 @@ class CustomerController extends Controller
 
                     $message =
                         "Hallo OLT : {$operator->name}\n" .
-                        "silakan login ke data olt : " . ($customer->olt->name ?? '-') . "\n\n" .
+                        "silakan login ke data olt : <a href=\"{$customer->olt->link}\" target=\"_blank\">{$customer->olt->name}</a>\n\n" .
                         "============================================================\n" .
                         "DELETE ONU YANG BERNAMA ID PELANGGAN : {$customer->uuid}\n" .
                         "Dengan Alasan Berhenti Berlangganan.\n" .

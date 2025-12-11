@@ -30,7 +30,10 @@ class PermissionSeeder extends Seeder
             // 'edit barang',
             // 'hapus barang',
             // 'lihat histori pemasangan'
-            'chatting',
+            // 'chatting',
+            'view all chatting',
+            'view inbox chatting',
+            'tambah stock'
         ];
 
         foreach ($permissions as $permission) {
