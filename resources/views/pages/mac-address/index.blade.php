@@ -167,45 +167,79 @@
 
 @push('modal')
     <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Mac Address</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3">
-                    <label for="mac_address" class="mb-2">Mac Address</label>
-                    <input type="text" id="mac" class="form-control" disabled>
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Mac Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="mac_address" class="mb-2">ID Pelanggan</label>
-                    <input type="text" id="id_customer" class="form-control" disabled>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">Mac Address</label>
+                        <input type="text" id="mac_address" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="status_device" class="mb-2">Status Device</label>
+                        <select name="status_device" id="status_device" class="form-control">
+                            <option value="">-- Pilih Status Device --</option>
+                            <option value="baik">Baik</option>
+                            <option value="rusak">Rusak</option>
+                        </select>
+                        <div class="invalid-feedback error_status_device"></div>
+                    </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="mac_address" class="mb-2">Tipe Pelanggan</label>
-                    <input type="text" id="tipe" class="form-control" disabled>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="mac_address" class="mb-2">OLT</label>
-                    <input type="text" id="olt" class="form-control" disabled>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="mac_address" class="mb-2">Di Input Oleh</label>
-                    <input type="text" id="user" class="form-control" disabled>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="modal modal-blur fade" id="modal-customer" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Customer/h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">Mac Address</label>
+                        <input type="text" id="mac" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">ID Pelanggan</label>
+                        <input type="text" id="id_customer" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">Tipe Pelanggan</label>
+                        <input type="text" id="tipe" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">OLT</label>
+                        <input type="text" id="olt" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">Di Input Oleh</label>
+                        <input type="text" id="user" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('js')
@@ -321,7 +355,7 @@
                 $(".modal-title").html("Detail Customer");
                 let data = response.data;
                 
-                $("#modal-simple").modal('show')
+                $("#modal-customer").modal('show')
                 
                 $("#mac").val(data.mac_address);
                 $("#id_customer").val(data.uuid);
