@@ -180,7 +180,7 @@
                     <input type="hidden" name="id" id="id">
                     <div class="form-group mb-3">
                         <label for="mac_address" class="mb-2">Mac Address</label>
-                        <input type="text" id="mac_address" class="form-control" disabled>
+                        <input type="text" id="mac_address" class="form-control" name="mac_address">
                     </div>
                     <div class="form-group">
                         <label for="status_device" class="mb-2">Status Device</label>
