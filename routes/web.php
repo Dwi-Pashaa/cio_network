@@ -12,6 +12,7 @@ use App\Http\Controllers\Pages\Jaringan\ODPController;
 use App\Http\Controllers\Pages\Jaringan\OLTController;
 use App\Http\Controllers\Pages\Jaringan\RouterController;
 use App\Http\Controllers\Pages\Jaringan\VlanController;
+use App\Http\Controllers\Pages\MacAddressController;
 use App\Http\Controllers\Pages\PagesController;
 use App\Http\Controllers\Pages\PaketController;
 use App\Http\Controllers\Pages\Pemukiman\DesaController;
@@ -288,12 +289,24 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{slug}', [PagesController::class, 'getPagesBySlug'])->name('input.data.index')->middleware(['page.password']);
         Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
         Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
+        Route::post('/check-mac-address', [PagesController::class, 'checkMacAddress'])->name('input.data.checkMacAddress');
     });
 
     Route::prefix('chatting')->group(function () {
         Route::get('/', [ChattingController::class, 'index'])->name('chatting.index');
         Route::post('/store', [ChattingController::class, 'store'])->name('chatting.store');
         Route::delete('/{id}/destroy', [ChattingController::class, 'destroy'])->name('chatting.destroy');
+    });
+
+    Route::prefix('mac-address')->group(function () {
+        Route::get('/', [MacAddressController::class, 'index'])->name('mac.address.index');
+        Route::post('/store', [MacAddressController::class, 'store'])->name('mac.address.store');
+        Route::get('/{id}/show', [MacAddressController::class, 'show'])->name('mac.address.show');
+        Route::put('/{id}/update', [MacAddressController::class, 'update'])->name('mac.address.update');
+        Route::delete('/{id}/destroy', [MacAddressController::class, 'destroy'])->name('mac.address.destroy');
+        Route::post('/toggle-mac-activation', [MacAddressController::class, 'toggleMacValidation'])->name('mac.address.toggleMacValidation');
+        Route::get('/print-label', [MacAddressController::class, 'cetakLabel'])->name('mac.address.cetakLabel');
+        Route::get('/{id}/get-customer', [MacAddressController::class, 'getCustomer'])->name('mac.address.getCustomer');
     });
 });
 

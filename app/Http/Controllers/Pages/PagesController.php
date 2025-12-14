@@ -521,6 +521,34 @@ class PagesController extends Controller
 
             unset($data['type_name']);
 
+            $isMacValidationActive = DB::table('setting')
+                ->where('key', 'mac_address_validation')
+                ->value('value') === 'active';
+
+            if ($isMacValidationActive) {
+
+                $mac = DB::table('mac_address')
+                    ->where('mac_address', $data['mac_address'])
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$mac) {
+                    return back()->with('error', 'MAC Address tidak terdaftar.');
+                }
+
+                if ($mac->status === 'used') {
+                    return back()->with('error', 'MAC Address sudah digunakan.');
+                }
+
+                if ($mac->status === 'blocked') {
+                    return back()->with('error', 'MAC Address diblokir.');
+                }
+
+                DB::table('mac_address')
+                    ->where('id', $mac->id)
+                    ->update(['status' => 'used']);
+            }
+
             $customer = Customer::create($data);
 
             $userName = Auth::user()->name;
@@ -761,5 +789,58 @@ class PagesController extends Controller
             Log::error('Gagal mengirim pesan WhatsApp: ' . $response->body());
             throw new \Exception('Gagal mengirim pesan WhatsApp: ' . $response->body());
         }
+    }
+
+    public function checkMacAddress(Request $request)
+    {
+        $request->validate([
+            'mac_address' => 'required|string'
+        ]);
+
+        $isActive = DB::table('setting')
+            ->where('key', 'mac_address_validation')
+            ->value('value') === 'active';
+
+        if (!$isActive) {
+            return response()->json([
+                'valid' => true,
+                'status' => 'inactive',
+                'message' => 'Pengecekan MAC Address tidak aktif'
+            ]);
+        }
+
+        $mac = DB::table('mac_address')
+            ->where('mac_address', $request->mac_address)
+            ->first();
+
+        if (!$mac) {
+            return response()->json([
+                'valid' => false,
+                'status' => 'not_found',
+                'message' => 'MAC Address tidak terdaftar'
+            ], 422);
+        }
+
+        if ($mac->status === 'used') {
+            return response()->json([
+                'valid' => false,
+                'status' => 'used',
+                'message' => 'MAC Address sudah digunakan'
+            ], 422);
+        }
+
+        if ($mac->status === 'blocked') {
+            return response()->json([
+                'valid' => false,
+                'status' => 'blocked',
+                'message' => 'MAC Address diblokir'
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'status' => 'available',
+            'message' => 'MAC Address tersedia'
+        ]);
     }
 }

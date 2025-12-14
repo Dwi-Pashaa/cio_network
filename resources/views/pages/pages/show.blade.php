@@ -97,6 +97,7 @@
 													{{ $message }}
 												</span>
 											@enderror
+											<small id="macFeedback"></small>
 										</div>
 									</div>
 									<div class="col-lg-6 col-md-6 col-sm-12">
@@ -481,6 +482,28 @@
 		});
 	</script>
 
+	@if ($isMacValidationActive == true)
+		<script>
+			document.getElementById('mac_address').addEventListener('blur', function () {
+				fetch("{{ route('input.data.checkMacAddress') }}", {
+					method: "POST",
+					headers: {
+						"X-CSRF-TOKEN": "{{ csrf_token() }}",
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						mac_address: this.value
+					})
+				})
+				.then(res => res.json())
+				.then(data => {
+					const feedback = document.getElementById('macFeedback');
+					feedback.textContent = data.message;
+					feedback.style.color = data.valid ? 'green' : 'red';
+				});
+			});
+		</script>
+	@endif
 </body>
 
 </html>

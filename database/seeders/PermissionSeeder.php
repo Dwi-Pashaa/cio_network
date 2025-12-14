@@ -31,9 +31,13 @@ class PermissionSeeder extends Seeder
             // 'hapus barang',
             // 'lihat histori pemasangan'
             // 'chatting',
-            'view all chatting',
-            'view inbox chatting',
-            'tambah stock'
+            // 'view all chatting',
+            // 'view inbox chatting',
+            // 'tambah stock'
+            'tambah mac address',
+            'lihat mac address',
+            'hapus mac address',
+            'edit mac address',
         ];
 
         foreach ($permissions as $permission) {

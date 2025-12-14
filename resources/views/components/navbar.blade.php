@@ -120,6 +120,11 @@
                                                 Data Mic Radius
                                             </a>
                                         @endcan
+                                        @can('lihat mac address')
+                                            <a class="dropdown-item {{ Route::is("mac.address*") ? 'active' : '' }}" href="{{ route('mac.address.index') }}" rel="noopener">
+                                                Data Mac Address
+                                            </a>
+                                        @endcan
                                     </div>
                                 </li>
                             @endif
