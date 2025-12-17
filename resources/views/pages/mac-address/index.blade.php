@@ -37,6 +37,11 @@
                     </button>
                 </form>
             @endif
+            @role('Admin')
+                <a href="javascript:void(0)" class="btn btn-info m-2" onclick="return switchUsedMac()">
+                    Ubah ke Used
+                </a>
+            @endrole
         </div>
         <div class="card-body border-bottom py-3">
             <div class="d-flex">
@@ -54,6 +59,37 @@
                         </select>
                     </div>
                 </div>
+                <form method="GET" action="{{ url()->current() }}" class="d-flex gap-2">
+
+                    <div class="text-secondary">
+                        <select name="user" id="user" class="form-control">
+                            <option value="">Pilih User</option>
+                            @foreach ($user as $usr)
+                                <option value="{{ $usr->id }}"
+                                    {{ request('user') == $usr->id ? 'selected' : '' }}>
+                                    {{ $usr->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="text-secondary">
+                        <input
+                            type="date"
+                            class="form-control"
+                            name="date"
+                            id="date"
+                            value="{{ request('date') }}"
+                        >
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            Cari
+                        </button>
+                    </div>
+                </form>
+
                 <div class="ms-auto text-secondary">
                     <form>
                         <div class="input-group mb-2">
@@ -66,101 +102,130 @@
                 </div>
             </div>
         </div>
+        @if (count($macAdress) != 0)
+            <div class="card-body border-bottom py-3">
+                <div class="alert alert-primary">
+                    <h4>Total Mac Address yang sudah di input : {{ count($macAdress) }}</h4>
+                    <p class="mb-0">
+                        Jumlah Mac Address Available : <strong>    {{ $macAdress->where('status', 'available')->count() }}</strong>
+                    </p>
+                    <p>
+                        Jumlah Mac Address Used : <strong>    {{ $macAdress->where('status', 'used')->count() }}</strong>
+                    </p>
+                </div>
+            </div>
+        @endif
         <div id="advanced-table" class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
-                <tr>
-                    <th class="w-1">No</th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-mac-address">Mac Address</button>
-                    </th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-status">Status</button>
-                    </th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-status-device">Status Device</button>
-                    </th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-customer">Customer</button>
-                    </th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-created">Created At</button>
-                    </th>
-                    @canany(['edit mac address','hapus mac address'])
-                        <th>Action</th>
-                    @endcanany
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($macAdress as $item)
+            <table class="table card-table table-vcenter text-nowrap datatable">
+                <thead>
                     <tr>
-                        <td>
-                            {{ $loop->iteration + $macAdress->firstItem() - 1  }}
-                        </td>
-                        <td>
-                            {{ $item->mac_address }}
-                        </td>
-                        <td>
-                            <span class="badge 
-                                bg-{{ 
-                                    $item->status === 'used' 
-                                        ? 'primary' 
-                                        : ($item->status === 'available' 
-                                            ? 'success' 
-                                            : 'danger') 
-                                }} text-white">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge bg-{{ $item->status_device === "rusak" ? "danger" : "primary" }} text-white">
-                                {{ ucfirst($item->status_device) }}
-                            </span>
-                        </td>
-                        <td>
-                            @if ($item->customer)
-                                <a href="javascript:void(0)" onclick="return showCustomer({{ $item->id }})" 
-                                class="btn btn-sm btn-info">
-                                    Lihat Customer
-                                </a>
-                            @else
-                                <i>Mac Address Belum Digunakan</i>
-                            @endif
-                        </td>
-                        <td>
-                            {{ $item->created_at->format('d M Y H:i') }}
-                        </td>
+                        <th class="w-1">No</th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-mac-address">Mac Address</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-router">Router</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-status">Status</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-status-device">Status Device</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-customer">Customer</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-user">Di Input</button>
+                        </th>
+                        <th>
+                            <button class="table-sort" data-sort="sort-created">Created At</button>
+                        </th>
                         @canany(['edit mac address','hapus mac address'])
-                            <td>
-                                @can('edit mac address')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus mac address')
-                                    <a href="javascript:void(0)" onclick="return deleteItem('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td>
+                            <th>Action</th>
                         @endcanany
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center">Tidak Ada Data</td>
-                    </tr>
-                @endforelse 
-            </tbody>
-        </table>
-        <div class="card-footer d-flex align-items-center">
-            <p class="m-0 text-secondary">
-                Showing <span>{{ $macAdress->firstItem() }}</span> 
-                to <span>{{ $macAdress->lastItem() }}</span> of
-                <span>{{ $macAdress->total() }}</span> entries
-            </p>
-            <ul class="pagination m-0 ms-auto">
-                {{ $macAdress->links() }}
-            </ul>
+                </thead>
+                <tbody class="table-tbody list">
+                    @forelse ($macAdress as $item)
+                        <tr>
+                            <td>
+                                @role("Admin")
+                                    <input class="form-check-input row-check" style="margin-right: 20px" type="checkbox" id="checkbox-mac" name="selected[]" value="{{ $item->id }}">
+                                @endrole
+                                {{ $loop->iteration + $macAdress->firstItem() - 1  }}
+                            </td>
+                            <td class="sort-mac-address">
+                                {{ $item->mac_address }}
+                            </td>
+                            <td class="sort-router">
+                                {{ $item->router->name ?? '-' }}
+                            </td>
+                            <td class="sort-sort-status">
+                                <span class="badge 
+                                    bg-{{ 
+                                        $item->status === 'used' 
+                                            ? 'primary' 
+                                            : ($item->status === 'available' 
+                                                ? 'success' 
+                                                : 'danger') 
+                                    }} text-white">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                            <td class="sort-status-device">
+                                <span class="badge bg-{{ $item->status_device === "rusak" ? "danger" : "primary" }} text-white">
+                                    {{ ucfirst($item->status_device) }}
+                                </span>
+                            </td>
+                            <td class="sort-customer">
+                                @if ($item->customer)
+                                    <a href="javascript:void(0)" onclick="return showCustomer({{ $item->id }})" 
+                                    class="btn btn-sm btn-info">
+                                        Lihat Customer
+                                    </a>
+                                @else
+                                    <i>Mac Address Belum Digunakan</i>
+                                @endif
+                            </td>
+                            <td class="sort-user">
+                                {{ $item->user->name ?? '-' }}
+                            </td>
+                            <td class="sort-created">
+                                {{ $item->created_at->format('d/M/Y - H:i:s') }}
+                            </td>
+                            @canany(['edit mac address','hapus mac address'])
+                                <td>
+                                    @can('edit mac address')
+                                        <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
+                                            Edit
+                                        </a>
+                                    @endcan
+                                    @can('hapus mac address')
+                                        <a href="javascript:void(0)" onclick="return deleteItem('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
+                                            Hapus
+                                        </a>
+                                    @endcan
+                                </td>
+                            @endcanany
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Tidak Ada Data</td>
+                        </tr>
+                    @endforelse 
+                </tbody>
+            </table>
+            <div class="card-footer d-flex align-items-center">
+                <p class="m-0 text-secondary">
+                    Showing <span>{{ $macAdress->firstItem() }}</span> 
+                    to <span>{{ $macAdress->lastItem() }}</span> of
+                    <span>{{ $macAdress->total() }}</span> entries
+                </p>
+                <ul class="pagination m-0 ms-auto">
+                    {{ $macAdress->links() }}
+                </ul>
+            </div>
         </div>
     </div>
 @endsection
@@ -181,6 +246,17 @@
                     <div class="form-group mb-3">
                         <label for="mac_address" class="mb-2">Mac Address</label>
                         <input type="text" id="mac_address" class="form-control" name="mac_address">
+                        <div class="invalid-feedback error_mac_address"></div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="router_id" class="mb-2">Router</label>
+                        <select name="router_id" id="router_id" class="form-control">
+                            <option value="">-- Pilih Router --</option>
+                            @foreach ($router as $rtr)
+                                <option value="{{ $rtr->id }}">{{ $rtr->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback error_status_device"></div>
                     </div>
                     <div class="form-group">
                         <label for="status_device" class="mb-2">Status Device</label>
@@ -225,12 +301,21 @@
                         <input type="text" id="tipe" class="form-control" disabled>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="mac_address" class="mb-2">OLT</label>
-                        <input type="text" id="olt" class="form-control" disabled>
+                        <label class="mb-2">OLT</label>
+                        <div class="input-group">
+                            <input type="text" id="olt" class="form-control" disabled>
+                            <a href="#" id="olt_link" class="btn btn-outline-primary" target="_blank">
+                                🔗
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group mb-3">
                         <label for="mac_address" class="mb-2">Di Input Oleh</label>
-                        <input type="text" id="user" class="form-control" disabled>
+                        <input type="text" id="user_show" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="mac_address" class="mb-2">Tanggal Terdaftar</label>
+                        <input type="text" id="created_user" class="form-control" disabled>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -245,6 +330,28 @@
 @push('js')
     <script>
         const BASE = "{{ route('mac.address.index') }}";
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const advancedTable = {
+                headers: [
+                    { "data-sort": "sort-mac-address", name: "Mac Address" },
+                    { "data-sort": "sort-status", name: "Status" },
+                    { "data-sort": "sort-status-device", name: "Status Device" },
+                    { "data-sort": "sort-customer", name: "Customer" },
+                    { "data-sort": "sort-created", name: "Created" },
+                ],
+            };
+
+            window.tabler_list = window.tabler_list || {};
+            const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+                sortClass: "table-sort",
+                listClass: "table-tbody",
+                searchClass: "search",
+                page: 10,
+                pagination: true,
+                valueNames: advancedTable.headers.map(h => h["data-sort"]),
+            }));
+        });
 
         let params = new URLSearchParams(window.location.search);
         $("#sort").change(function() {
@@ -276,6 +383,7 @@
             let id = $("#id").val();
             let type = $("#type").val();
             let mac_address = $("#mac_address").val();
+            let router_id = $("#router_id").val();
             let status_device = $("#status_device").val();
 
             let url;
@@ -294,6 +402,7 @@
                 method: method,
                 data: {
                     mac_address: mac_address,
+                    router_id: router_id,
                     status_device: status_device,
                 },
             }).done(function(response) {
@@ -338,6 +447,7 @@
 
                 $("#id").val(data.id);
                 $("#mac_address").val(data.mac_address);
+                $("#router_id").val(data.router_id);
                 $("#status_device").val(data.status_device);
                 $("#type").val("update");
             }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -360,8 +470,24 @@
                 $("#mac").val(data.mac_address);
                 $("#id_customer").val(data.uuid);
                 $("#tipe").val(data.type.name);
+                
                 $("#olt").val(data.olt.name);
-                $("#user").val(data.user.name);
+                $("#olt_link").attr("href", data.olt.link);
+
+                $("#user_show").val(data.user.name);
+
+                let isoDate = data.user.created_at;
+                let date = new Date(isoDate);
+
+                let formatted =
+                    String(date.getDate()).padStart(2, '0') + '/' +
+                    String(date.getMonth() + 1).padStart(2, '0') + '/' +
+                    date.getFullYear() + ' - ' +
+                    String(date.getHours()).padStart(2, '0') + ':' +
+                    String(date.getMinutes()).padStart(2, '0') + ':' +
+                    String(date.getSeconds()).padStart(2, '0');
+
+                $("#created_user").val(formatted);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("Error:", textStatus, errorThrown);
             });
@@ -402,6 +528,49 @@
                     })
                 }
             });
+        }
+
+        function switchUsedMac() {
+            let checks = document.querySelectorAll('.row-check:checked');
+
+            if (checks.length === 0) {
+                Toast.fire({
+                    icon: "info",
+                    title: "Pilih satu atau lebih mac address untuk ubah status ke used"
+                });
+                return false;
+            }
+
+            let macIds = Array.from(checks).map(c => c.value);
+
+            console.log(macIds);
+
+            $.ajax({
+                url: BASE + '/switch-used',
+                method: "POST",
+                data: {
+                    ids: macIds,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    Toast.fire({
+                        icon: response.status,
+                        title: response.message
+                    });
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                },
+                error: function(err) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Server Error"
+                    });
+                }
+            });
+
+            // return true;
         }
     </script>
 @endpush

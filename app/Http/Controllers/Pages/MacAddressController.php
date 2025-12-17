@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Pages;
 use App\Exports\MacAddressLabelExport;
 use App\Http\Controllers\Controller;
 use App\Models\MacAddress;
+use App\Models\Router;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -16,16 +19,42 @@ class MacAddressController extends Controller
     {
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
+        $user = $request->user ?? null;
+        $date = $request->filled('date') && strtotime($request->date)
+            ? $request->date
+            : null;
 
-        $macAdress = MacAddress::with(['customer'])
-            ->when($search, function ($query, $search) {
-                $query->where('mac_address', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($date === null) {
+            $macAdress = new LengthAwarePaginator(
+                collect(),
+                0,
+                $sort,
+                1,
+                [
+                    'path' => request()->url(),
+                    'query' => request()->query(),
+                ]
+            );
+        } else {
+            $macAdress = MacAddress::with(['customer', 'user', 'router'])
+                ->when($search, function ($query, $search) {
+                    $query->where('mac_address', 'like', "%{$search}%");
+                })
+                ->when($user, function ($query, $user) {
+                    $query->where('user_id', $user);
+                })
+                ->when($date !== null, function ($query) use ($date) {
+                    $query->whereDate('created_at', $date);
+                })
+                ->orderBy('id', 'DESC')
+                ->paginate($sort)
+                ->appends($request->query());
+        }
 
-        return view('pages.mac-address.index', compact('macAdress'));
+        $user = User::all();
+        $router = Router::all();
+
+        return view('pages.mac-address.index', compact('macAdress', 'user', 'router'));
     }
 
     /**
@@ -34,7 +63,8 @@ class MacAddressController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "mac_address" => "required|string",
+            "mac_address" => "required|unique:mac_address,mac_address|string",
+            "router_id" => "required",
             "status_device" => "required|string",
         ]);
 
@@ -43,6 +73,7 @@ class MacAddressController extends Controller
         }
 
         $post = $request->all();
+        $post['user_id'] = auth()->user()->id;
 
         MacAddress::create($post);
 
@@ -70,6 +101,7 @@ class MacAddressController extends Controller
     {
         $validation = Validator::make($request->all(), [
             "mac_address" => "required|string",
+            "router_id" => "required",
             "status_device" => "required|string",
         ]);
 
@@ -120,12 +152,25 @@ class MacAddressController extends Controller
 
     public function getCustomer($id)
     {
-        $macAddress = MacAddress::with('customer.olt', 'customer.type', 'customer.user')->find($id);
+        $macAddress = MacAddress::with('customer.olt', 'customer.type', 'customer.user', 'user')->find($id);
 
         if (!$macAddress) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'data' => $macAddress->customer]);
+    }
+
+    public function switchUsed(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'No MAC addresses selected.']);
+        }
+
+        MacAddress::whereIn('id', $ids)->update(['status' => 'Used']);
+
+        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil mengubah data.']);
     }
 }

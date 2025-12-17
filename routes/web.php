@@ -307,6 +307,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/toggle-mac-activation', [MacAddressController::class, 'toggleMacValidation'])->name('mac.address.toggleMacValidation');
         Route::get('/print-label', [MacAddressController::class, 'cetakLabel'])->name('mac.address.cetakLabel');
         Route::get('/{id}/get-customer', [MacAddressController::class, 'getCustomer'])->name('mac.address.getCustomer');
+        Route::post('/switch-used', [MacAddressController::class, 'switchUsed'])->name('mac.address.switchUsed');
     });
 });
 

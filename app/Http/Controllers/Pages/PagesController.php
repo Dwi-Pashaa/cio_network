@@ -813,6 +813,8 @@ class PagesController extends Controller
             ->where('mac_address', $request->mac_address)
             ->first();
 
+        $router = Router::where('id', $mac->router_id)->first();
+
         if (!$mac) {
             return response()->json([
                 'valid' => false,
@@ -840,7 +842,8 @@ class PagesController extends Controller
         return response()->json([
             'valid' => true,
             'status' => 'available',
-            'message' => 'MAC Address tersedia'
+            'message' => 'MAC Address tersedia',
+            'router' => $router
         ]);
     }
 }

@@ -122,7 +122,7 @@
 									<div class="col-lg-6 col-md-6 col-sm-12">
 										<div class="form-group mb-3">
 											<label for="" class="mb-2">Jenis Router</label>
-											<select name="routers_id" id="routers_id" class="form-control @error('routers_id') is-invalid @enderror">
+											{{-- <select name="routers_id" id="routers_id" class="form-control @error('routers_id') is-invalid @enderror">
 												<option value="">Pilih</option>
 												@foreach ($routers as $rtr)
 													<option value="{{ $rtr->id }}" {{ old('routers_id') == $rtr->id ? 'selected' : '' }}>
@@ -134,7 +134,9 @@
 												<span class="invalid-feedback">
 													{{ $message }}
 												</span>
-											@enderror
+											@enderror --}}
+											<input type="text" name="router_name" id="router_name" class="form-control" disabled>
+											<input type="hidden" name="routers_id" id="routers_id">
 										</div>
 									</div>
 									<div class="row" id="pppoe-show">
@@ -500,6 +502,18 @@
 					const feedback = document.getElementById('macFeedback');
 					feedback.textContent = data.message;
 					feedback.style.color = data.valid ? 'green' : 'red';
+					console.log(data);
+					
+					let routerName = document.getElementById('router_name');
+					let routersId = document.getElementById('routers_id');
+
+					if (data.valid == true) {
+						routerName.value = data.router.name || '';
+						routersId.value = data.router.id || '';
+					} else {
+						routerName.value = '';
+						routersId.value = '';
+					}
 				});
 			});
 		</script>
