@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('mac_address', function (Blueprint $table) {
-            // $table->unsignedBigInteger('user_id')->nullable()->after('id')->default(1);
-            // $table->foreign('user_id')
-            //     ->references('id')
-            //     ->on('users')
-            //     ->nullOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable()->after('id')->default(1);
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->nullOnDelete();
 
             $table->unsignedBigInteger('router_id')->nullable()->after('user_id');
             $table->foreign('router_id')
