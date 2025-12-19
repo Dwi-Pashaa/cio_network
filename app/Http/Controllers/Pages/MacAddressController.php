@@ -8,7 +8,6 @@ use App\Models\MacAddress;
 use App\Models\Router;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,6 +16,7 @@ class MacAddressController extends Controller
 {
     public function index(Request $request)
     {
+        $authUser = Auth()->user();
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
         $user = $request->user ?? null;
@@ -24,32 +24,19 @@ class MacAddressController extends Controller
             ? $request->date
             : null;
 
-        if ($date === null) {
-            $macAdress = new LengthAwarePaginator(
-                collect(),
-                0,
-                $sort,
-                1,
-                [
-                    'path' => request()->url(),
-                    'query' => request()->query(),
-                ]
-            );
-        } else {
-            $macAdress = MacAddress::with(['customer', 'user', 'router'])
-                ->when($search, function ($query, $search) {
-                    $query->where('mac_address', 'like', "%{$search}%");
-                })
-                ->when($user, function ($query, $user) {
-                    $query->where('user_id', $user);
-                })
-                ->when($date !== null, function ($query) use ($date) {
-                    $query->whereDate('created_at', $date);
-                })
-                ->orderBy('id', 'DESC')
-                ->paginate($sort)
-                ->appends($request->query());
-        }
+        $macAdress = MacAddress::with(['customer', 'user', 'router'])
+            ->when($search, function ($query, $search) {
+                $query->where('mac_address', 'like', "%{$search}%");
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('created_at', $date);
+            })
+            ->when(!$authUser->hasRole('Admin'), function ($query) use ($authUser) {
+                $query->where('user_id', $authUser->id);
+            })
+            ->orderByDesc('id')
+            ->paginate($sort)
+            ->appends($request->query());
 
         $user = User::all();
         $router = Router::all();
@@ -62,10 +49,14 @@ class MacAddressController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'mac_address' => strtoupper(trim($request->mac_address))
+        ]);
+
         $validation = Validator::make($request->all(), [
-            "mac_address" => "required|unique:mac_address,mac_address|string",
-            "router_id" => "required",
-            "status_device" => "required|string",
+            'mac_address'   => 'required|string|size:17|unique:mac_address,mac_address',
+            'router_id'     => 'required',
+            'status_device' => 'required|string',
         ]);
 
         if ($validation->fails()) {
@@ -152,13 +143,17 @@ class MacAddressController extends Controller
 
     public function getCustomer($id)
     {
-        $macAddress = MacAddress::with('customer.olt', 'customer.type', 'customer.user', 'user')->find($id);
+        $macAddress = MacAddress::with(['customer', 'customer.olt', 'customer.type', 'customer.user', 'user'])->find($id);
 
         if (!$macAddress) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        return response()->json(['code' => 200, 'status' => 'success', 'data' => $macAddress->customer]);
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'data' => $macAddress->customer
+        ]);
     }
 
     public function switchUsed(Request $request)

@@ -61,17 +61,19 @@
                 </div>
                 <form method="GET" action="{{ url()->current() }}" class="d-flex gap-2">
 
-                    <div class="text-secondary">
-                        <select name="user" id="user" class="form-control">
-                            <option value="">Pilih User</option>
-                            @foreach ($user as $usr)
-                                <option value="{{ $usr->id }}"
-                                    {{ request('user') == $usr->id ? 'selected' : '' }}>
-                                    {{ $usr->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @role('Admin')
+                        <div class="text-secondary">
+                            <select name="user" id="user" class="form-control">
+                                <option value="">Tampilkan Semua</option>
+                                @foreach ($user as $usr)
+                                    <option value="{{ $usr->id }}"
+                                        {{ request('user') == $usr->id ? 'selected' : '' }}>
+                                        {{ $usr->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endrole
 
                     <div class="text-secondary">
                         <input
@@ -216,16 +218,16 @@
                     @endforelse 
                 </tbody>
             </table>
-            <div class="card-footer d-flex align-items-center">
-                <p class="m-0 text-secondary">
-                    Showing <span>{{ $macAdress->firstItem() }}</span> 
-                    to <span>{{ $macAdress->lastItem() }}</span> of
-                    <span>{{ $macAdress->total() }}</span> entries
-                </p>
-                <ul class="pagination m-0 ms-auto">
-                    {{ $macAdress->links() }}
-                </ul>
-            </div>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary">
+                Showing <span>{{ $macAdress->firstItem() }}</span> 
+                to <span>{{ $macAdress->lastItem() }}</span> of
+                <span>{{ $macAdress->total() }}</span> entries
+            </p>
+            <ul class="pagination m-0 ms-auto">
+                {{ $macAdress->links() }}
+            </ul>
         </div>
     </div>
 @endsection
@@ -476,9 +478,9 @@
 
                 $("#user_show").val(data.user.name);
 
-                let isoDate = data.user.created_at;
+                let isoDate = data.created_at;
                 let date = new Date(isoDate);
-
+                
                 let formatted =
                     String(date.getDate()).padStart(2, '0') + '/' +
                     String(date.getMonth() + 1).padStart(2, '0') + '/' +
