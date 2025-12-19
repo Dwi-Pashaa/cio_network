@@ -19,7 +19,7 @@ class MacAddressController extends Controller
         $authUser = Auth()->user();
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
-        $user = $request->user ?? null;
+        $filterUserId = $request->user ?? null;
         $date = $request->filled('date') && strtotime($request->date)
             ? $request->date
             : null;
@@ -33,6 +33,9 @@ class MacAddressController extends Controller
             })
             ->when(!$authUser->hasRole('Admin'), function ($query) use ($authUser) {
                 $query->where('user_id', $authUser->id);
+            })
+            ->when($filterUserId, function ($query) use ($filterUserId) {
+                $query->where('user_id', $filterUserId);
             })
             ->orderByDesc('id')
             ->paginate($sort)
