@@ -35,51 +35,83 @@
                                     </div>
                                 </li>
                             @endrole
-                            <li class="nav-item dropdown {{ request()->is('type*') || request()->is('customer*') ? 'active' : '' }}">
-                                <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Master Pelanggan
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu">
-                                    @role('Admin')
-                                        <a class="dropdown-item {{ Route::is('type*') ? 'active' : '' }}" href="{{ route('type.index') }}" rel="noopener">
-                                            Data Type Pelanggan
-                                        </a>
-                                    @endrole
-                                    @can('lihat tipe paket')
-                                        <a class="dropdown-item {{ Route::is("paket*") ? 'active' : '' }}" href="{{ route('paket.index') }}" rel="noopener">
-                                            Data Tipe Paket
-                                        </a>
-                                    @endcan
-                                    @can('lihat tipe pembayaran')
-                                        <a class="dropdown-item {{ Route::is("price*") ? 'active' : '' }}" href="{{ route('price.index') }}" rel="noopener">
-                                            Data Tipe Pembayaran
-                                        </a>
-                                    @endcan
-                                    @can('lihat pelanggan')
-                                        <a class="dropdown-item {{ Route::is("customer*") ? 'active' : '' }}" href="{{ route('customer.index') }}" rel="noopener">
-                                            Data Pelanggan
-                                        </a>
-                                    @endcan
-                                    @can('lihat barang')
-                                        <a class="dropdown-item {{ Route::is("user.router*") ? 'active' : '' }}" href="{{ route('user.router.index') }}" rel="noopener">
-                                            Data Barang
-                                        </a>
-                                    @endcan
-                                </div>
-                            </li>
-                            @if(
-                                auth()->user()->can('lihat router') || 
-                                auth()->user()->can('lihat vlan') || 
-                                auth()->user()->can('lihat odc') ||
-                                auth()->user()->can('lihat odp') ||
-                                auth()->user()->can('lihat olt') || 
-                                auth()->user()->can('lihat mic radius') 
-                            )
+                            @canany(['lihat barang', 'lihat mac address'])
+                                <li class="nav-item dropdown {{ request()->is('barang*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Barang
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        @can('lihat patch core')
+                                            <a class="dropdown-item {{ Route::is("patch.core*") ? 'active' : '' }}" href="{{ route('patch.core.index') }}" rel="noopener">
+                                                Data Patch Core
+                                            </a>
+                                        @endcan
+                                        @can('lihat plc')
+                                            <a class="dropdown-item {{ Route::is("plc*") ? 'active' : '' }}" href="{{ route('plc.index') }}" rel="noopener">
+                                                Data PLC
+                                            </a>
+                                        @endcan
+                                        @canany(['lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
+                                            <div class="dropdown-divider"></div>
+                                            @can('lihat stock router')
+                                                <a class="dropdown-item {{ Route::is("user.router*") ? 'active' : '' }}" href="{{ route('user.router.index') }}" rel="noopener">
+                                                    Stock Router
+                                                </a>
+                                            @endcan
+                                            @can('lihat stock patch core')
+                                                <a class="dropdown-item {{ Route::is("user.patch.core*") ? 'active' : '' }}" href="{{ route('user.patch.core.index') }}" rel="noopener">
+                                                    Stock Patch Core
+                                                </a>
+                                            @endcan
+                                            @can('lihat stock plc')
+                                                <a class="dropdown-item {{ Route::is("user.plc*") ? 'active' : '' }}" href="{{ route('user.plc.index') }}" rel="noopener">
+                                                    Stock PLC
+                                                </a>
+                                            @endcan
+                                        @endcanany
+                                    </div>
+                                </li>
+                            @endcanany
+                            @canany(['lihat tipe paket', 'lihat tipe pembayaran', 'lihat pelanggan'])
+                                <li class="nav-item dropdown {{ request()->is('type*') || request()->is('customer*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Master Pelanggan
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        @role('Admin')
+                                            <a class="dropdown-item {{ Route::is('type*') ? 'active' : '' }}" href="{{ route('type.index') }}" rel="noopener">
+                                                Data Tipe Pelanggan
+                                            </a>
+                                        @endrole
+                                        @can('lihat tipe paket')
+                                            <a class="dropdown-item {{ Route::is("paket*") ? 'active' : '' }}" href="{{ route('paket.index') }}" rel="noopener">
+                                                Data Tipe Paket
+                                            </a>
+                                        @endcan
+                                        @can('lihat tipe pembayaran')
+                                            <a class="dropdown-item {{ Route::is("price*") ? 'active' : '' }}" href="{{ route('price.index') }}" rel="noopener">
+                                                Data Tipe Pembayaran
+                                            </a>
+                                        @endcan
+                                        @can('lihat pelanggan')
+                                            <a class="dropdown-item {{ Route::is("customer*") ? 'active' : '' }}" href="{{ route('customer.index') }}" rel="noopener">
+                                                Data Pelanggan
+                                            </a>
+                                        @endcan
+                                    </div>
+                                </li>
+                            @endcanany
+                            @canany(['lihat router', 'lihat vlan', 'lihat odc', 'lihat odp', 'lihat olt', 'lihat mic radius', 'lihat mac address'])
                                 <li class="nav-item dropdown {{ request()->is('master-network*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -127,11 +159,8 @@
                                         @endcan
                                     </div>
                                 </li>
-                            @endif
-                            @if(
-                                auth()->user()->can('lihat kabupaten') || 
-                                auth()->user()->can('lihat kecamatan')
-                            )
+                            @endcanany
+                            @canany(['lihat kabupaten', 'lihat kecamatan', 'lihat kampung', 'lihat desa', 'lihat rt', 'lihat rw'])
                                 <li class="nav-item dropdown {{ request()->is('master-region*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -144,7 +173,7 @@
                                     <div class="dropdown-menu">
                                         @can('lihat kabupaten')
                                             <a class="dropdown-item {{ Route::is("kabupaten*") ? 'active' : '' }}" href="{{ route('kabupaten.index') }}" rel="noopener">
-                                                Data Kabupaten
+                                                Data Kabupaten/Kota
                                             </a>
                                         @endcan
                                         @can('lihat kecamatan')
@@ -152,26 +181,7 @@
                                                 Data Kecamatan
                                             </a>
                                         @endcan
-                                    </div>
-                                </li>
-                            @endif
-                            @if(
-                                auth()->user()->can('lihat kampung') || 
-                                auth()->user()->can('lihat desa') || 
-                                auth()->user()->can('lihat rt') || 
-                                auth()->user()->can('lihat rw')
-                            )
-                                <li class="nav-item dropdown {{ request()->is('master-settlement*') ? 'active' : '' }}">
-                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-databricks"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l9 5l9 -5v-3l-9 5l-9 -5v-3l9 5l9 -5v-3l-9 5l-9 -5l9 -5l5.418 3.01" /></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Master Pemukiman
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        @can('lihat kampung')
+                                         @can('lihat kampung')
                                             <a class="dropdown-item {{ Route::is("kampung*") ? 'active' : '' }}" href="{{ route('kampung.index') }}" rel="noopener">
                                                 Data Kampung
                                             </a>
@@ -193,8 +203,8 @@
                                         @endcan
                                     </div>
                                 </li>
-                            @endif
-                            @if(auth()->user()->can('lihat halaman') || auth()->user()->can('lihat histori pemasangan'))
+                            @endcanany
+                            @canany(['lihat halaman', 'lihat histori pemasangan'])
                                 <li class="nav-item dropdown {{ request()->is('master-pages*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -210,7 +220,7 @@
                                                 Data Halaman
                                             </a>
                                         @endcan
-                                        @can('lihat halaman')
+                                        {{-- @can('lihat halaman')
                                             <a class="dropdown-item {{ Route::is("complain*") ? 'active' : '' }}" href="{{ route('complain.index') }}" rel="noopener">
                                                 Data Halaman Complain
                                             </a>
@@ -219,7 +229,7 @@
                                             <a class="dropdown-item {{ Route::is("switch*") ? 'active' : '' }}" href="{{ route('switch.index') }}" rel="noopener">
                                                 Data Halaman Pergantian Perangkat
                                             </a>
-                                        @endcan
+                                        @endcan --}}
                                         @can('lihat halaman')
                                             <a class="dropdown-item {{ Route::is("spam*") ? 'active' : '' }}" href="{{ route('spam.index') }}" rel="noopener">
                                                 Data Spam
@@ -237,7 +247,7 @@
                                         @endcan
                                     </div>
                                 </li>
-                            @endif
+                            @endcanany
                         </ul>
                     </div>
                 </div>

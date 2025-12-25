@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\HomeTown;
 use App\Models\OLT;
+use App\Models\Regency;
 use App\Models\Type;
 use App\Models\Village;
 use App\Models\Vlan;
@@ -22,6 +23,10 @@ class DashboardController extends Controller
         $data = collect();
 
         switch ($filter) {
+            case 'kabupaten':
+                $data = Regency::withCount('customer')->get();
+                $text = "Kabupaten / Kota";
+                break;
             case 'kecamatan':
                 $data = District::withCount('customer')->get();
                 $text = "kecamatan";
@@ -63,6 +68,10 @@ class DashboardController extends Controller
         $data = collect();
 
         switch ($text) {
+            case 'kabupaten':
+                $data = Regency::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $text = "Kabupaten / Kota";
+                break;
             case 'kecamatan':
                 $data = District::with('customer.type', 'customer.router', 'customer.user')->find($id);
                 $text = "kecamatan";

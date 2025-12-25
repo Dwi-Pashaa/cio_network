@@ -46,6 +46,7 @@ class StoreCustomerRequest extends FormRequest
             'password_wifi' => 'nullable',
             'type_name' => 'nullable',
             'mic_radius_id' => 'nullable',
+            'patch_core_id' => 'required',
         ];
     }
 
@@ -73,6 +74,7 @@ class StoreCustomerRequest extends FormRequest
             'latitude.required' => 'Latitude Lokasi Harus Di Isi.',
             'longitude.required' => 'Longitude Lokasi Harus Di Isi.',
             'uuid.required' => 'ID Pelanggan Harus Di Isi.',
+            'patch_core_id.required' => 'Patch Core wajib dipilih.',
         ];
     }
 }

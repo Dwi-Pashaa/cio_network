@@ -52,6 +52,7 @@
                 <tr>
                     <th class="w-1">No</th>
                     <th><button class="table-sort" data-sort="sort-code">Kode</button></th>
+                    <th><button class="table-sort" data-sort="sort-kabupaten">Kabupaten/Kota</button></th>
                     <th><button class="table-sort" data-sort="sort-name">Nama Kecamatan</button></th>
                     <th><button class="table-sort" data-sort="sort-created">Created</button></th>
                     @if(auth()->user()->can('ubah kecamatan') || auth()->user()->can('hapus kecamatan'))
@@ -64,6 +65,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td class="sort-code">{{ $item->code }}</td>
+                        <td class="sort-kabupaten">{{ optional($item->regencie)->name ?? '-' }}</td>
                         <td class="sort-name">{{ $item->name }}</td>
                         <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
                         @if(auth()->user()->can('ubah kecamatan') || auth()->user()->can('hapus kecamatan'))
@@ -98,7 +100,7 @@
                         @endif
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="text-center">Tidak Ada Data</td></tr>
+                    <tr><td colspan="6" class="text-center">Tidak Ada Data</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -130,6 +132,16 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
+                    <label for="regencie_id" class="mb-2">Kabupaten/Kota</label>
+                    <select name="regencie_id" id="regencie_id" class="form-control">
+                        <option value="">Pilih Kabupaten/Kota</option>
+                        @foreach ($regencie as $item)
+                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_regencie_id"></span>
+                </div>
+                <div class="form-group mb-3">
                     <label for="name" class="mb-2">Nama Kecamatan</label>
                     <input type="text" name="name" id="name" class="form-control">
                     <span class="invalid-feedback error_name"></span>
@@ -157,6 +169,7 @@
     const advancedTable = {
         headers: [
             { "data-sort": "sort-code", name: "Kode" },
+            { "data-sort": "sort-kabupaten", name: "Kabupaten/Kota" },
             { "data-sort": "sort-name", name: "Nama Kecamatan" },
             { "data-sort": "sort-created", name: "Created" },
         ],
@@ -188,6 +201,7 @@
     $("#addBtn").click(function() {
         $(".modal-title").html("Tambah Kecamatan");
         $("#name").val("");
+        $("#regencie_id").val("");
         $("#type").val("create");
         $("#id").val("");
     });
@@ -196,6 +210,7 @@
         let id = $("#id").val();
         let type = $("#type").val()
         let name = $("#name").val();
+        let regencie_id = $("#regencie_id").val();
 
         let url;
         let method;
@@ -212,16 +227,17 @@
             url: url,
             method: method,
             data: {
-                name: name
+                name: name,
+                regencie_id: regencie_id,
             },
         }).done(function(response) {
             if (response.errors) {
                 $.each(response.errors, function(index, value) {
-                    $("#name").addClass('is-invalid');
+                    $("#" + index).addClass('is-invalid');
                     $(".error_" + index).html(value);
 
                     setTimeout(() => {
-                        $("#name").removeClass('is-invalid');
+                        $("#" + index).removeClass('is-invalid');
                         $(".error_" + index).html('');
                     }, 3000);
                 })                
@@ -254,6 +270,7 @@
 
             $("#id").val(data.id);
             $("#name").val(data.name);
+            $("#regencie_id").val(data.regencie_id);
             $("#type").val("update");
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);

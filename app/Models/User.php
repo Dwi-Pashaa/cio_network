@@ -59,4 +59,14 @@ class User extends Authenticatable
             'olt_id'                 // foreign key di pivot: olt
         );
     }
+
+    public function regencie(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Regency::class,
+            'user_citie',        // pivot table
+            'user_id',           // FK user
+            'regencie_id'        // FK regency
+        )->withTimestamps();
+    }
 }

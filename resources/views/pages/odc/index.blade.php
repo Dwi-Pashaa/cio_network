@@ -63,6 +63,16 @@
                              </button>
                         </th>
                         <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-plc">
+                                PLC
+                             </button>
+                        </th>
+                        <th>
+                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-patch-core">
+                                Patch Core
+                             </button>
+                        </th>
+                        <th>
                              <button class="table-sort d-flex justify-content-between desc" data-sort="sort-home">
                                 Kampung
                              </button>
@@ -106,6 +116,16 @@
                                     {{ $item->home_odc }}
                                 </a>
                             </td>
+                            <td class="sort-patch-core">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ optional($item)->patchCore->name ?? '-' }}
+                                </a>
+                            </td>
+                            <td class="sort-plc">
+                                <a href="#" class="text-reset" tabindex="-1">
+                                    {{ optional($item)->plc->name ?? '-' }}
+                                </a>
+                            </td>
                             <td class="sort-home">
                                 <a href="#" class="text-reset" tabindex="-1">
                                     {{ $item->hometown->name }}
@@ -146,7 +166,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">Tidak Ada Data</td>
+                            <td colspan="11" class="text-center">Tidak Ada Data</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -168,7 +188,7 @@
 
 @push('modal')
 <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-1 modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah ODC</h5>
@@ -179,45 +199,81 @@
             <div class="modal-body">
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3">
-                    <label for="code" class="mb-2">Kode ODC</label>
-                    <input type="text" name="code" id="code" class="form-control">
-                    <span class="invalid-feedback error_code"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="home_odc" class="mb-2">Nama Pemilik</label>
-                    <input type="text" name="home_odc" id="home_odc" class="form-control">
-                    <span class="invalid-feedback error_home_odc"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="hometowns_id" class="mb-2">Kampung</label>
-                    <select name="hometowns_id" id="hometowns_id" class="form-control">
-                        <option value="">Pilih</option>
-                        @foreach ($hometown as $hmt)
-                            <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_hometowns_id"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="rts_id" class="mb-2">RT</label>
-                    <select name="rts_id" id="rts_id" class="form-control">
-                        <option value="">Pilih</option>
-                        @foreach ($rts as $rt)
-                            <option value="{{ $rt->id }}">{{ $rt->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_rts_id"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="rws_id" class="mb-2">RW</label>
-                    <select name="rws_id" id="rws_id" class="form-control">
-                        <option value="">Pilih</option>
-                        @foreach ($rws as $rw)
-                            <option value="{{ $rw->id }}">{{ $rw->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_rws_id"></span>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="plc" class="mb-2">Pilih PLC</label>
+                            <select name="plc_id" id="plc_id" class="form-control">
+                                <option value="">Pilih</option>
+                                @foreach ($plcs as $plc)
+                                    <option value="{{ $plc->id }}">{{ $plc->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_plc_id"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="patch_core_id" class="mb-2">Pilih Patch Core</label>
+                            <select name="patch_core_id" id="patch_core_id" class="form-control">
+                                <option value="">Pilih</option>
+                                @foreach ($patchCores as $pc)
+                                    <option value="{{ $pc->id }}">{{ $pc->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_patch_core_id"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="code" class="mb-2">Kode ODC</label>
+                            <input type="text" name="code" id="code" class="form-control">
+                            <span class="invalid-feedback error_code"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="home_odc" class="mb-2">Nama Pemilik</label>
+                            <input type="text" name="home_odc" id="home_odc" class="form-control">
+                            <span class="invalid-feedback error_home_odc"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group mb-3">
+                            <label for="hometowns_id" class="mb-2">Kampung</label>
+                            <select name="hometowns_id" id="hometowns_id" class="form-control">
+                                <option value="">Pilih</option>
+                                @foreach ($hometown as $hmt)
+                                    <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_hometowns_id"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="rts_id" class="mb-2">RT</label>
+                            <select name="rts_id" id="rts_id" class="form-control">
+                                <option value="">Pilih</option>
+                                @foreach ($rts as $rt)
+                                    <option value="{{ $rt->id }}">{{ $rt->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_rts_id"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-3">
+                            <label for="rws_id" class="mb-2">RW</label>
+                            <select name="rws_id" id="rws_id" class="form-control">
+                                <option value="">Pilih</option>
+                                @foreach ($rws as $rw)
+                                    <option value="{{ $rw->id }}">{{ $rw->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_rws_id"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="mt-3" id="map-container" style="display:none;">
                     <iframe id="map-frame"
@@ -247,6 +303,9 @@
             headers: [
                 { "data-sort": "sort-code", name: "Code" },
                 { "data-sort": "sort-name", name: "Nama Pemilik" },
+                { "data-sort": "sort-name", name: "Nama Pemilik" },
+                { "data-sort": "sort-plc", name: "PLC" },
+                { "data-sort": "sort-patch-core", name: "Patch Core" },
                 { "data-sort": "sort-home", name: "Kampung" },
                 { "data-sort": "sort-rt", name: "RT" },
                 { "data-sort": "sort-rw", name: "RW" },
@@ -312,6 +371,8 @@
             let type = $("#type").val();
             let code = $("#code").val();
             let home_odc = $("#home_odc").val();
+            let plc_id = $("#plc_id").val();
+            let patch_core_id = $("#patch_core_id").val();
             let hometowns_id = $("#hometowns_id").val();
             let rts_id = $("#rts_id").val();
             let rws_id = $("#rws_id").val();
@@ -335,6 +396,8 @@
                 data: {
                     code: code,
                     home_odc: home_odc,
+                    plc_id: plc_id,
+                    patch_core_id: patch_core_id,
                     hometowns_id: hometowns_id,
                     rts_id: rts_id,
                     rws_id: rws_id,
@@ -381,6 +444,8 @@
                 $("#modal-simple").modal('show')
 
                 $("#id").val(data.id);
+                $("#plc_id").val(data.plc_id);
+                $("#patch_core_id").val(data.patch_core_id);
                 $("#code").val(data.code);
                 $("#home_odc").val(data.home_odc);
                 $("#hometowns_id").val(data.hometowns_id);

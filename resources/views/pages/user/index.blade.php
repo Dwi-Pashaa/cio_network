@@ -55,6 +55,7 @@
                     <th>Email</th>
                     <th>Telphone</th>
                     <th>Level</th>
+                    <th>Penempatan</th>
                     <th>OLT</th>
                     <th>Mic Radius</th>
                     <th>Created</th>
@@ -87,19 +88,33 @@
                             {{ optional($item->roles->first())->name ?? '-' }}
                         </td>
                         <td>
+                            @forelse ($item->regencie as $regencie)
+                                <span class="badge bg-primary text-white mb-2">
+                                    {{$regencie->name}}
+                                </span>
+                                <br>
+                            @empty
+                                <span class="badge bg-secondary text-white">
+                                    Tidak ada penempatan
+                                </span>
+                            @endforelse
+                        </td>
+                        <td>
                             @forelse ($item->olts as $olt)
-                                <span class="badge bg-primary text-white">
+                                <span class="badge bg-primary text-white mb-2">
                                     {{$olt->name}}
                                 </span>
+                                <br>
                             @empty
                                 -
                             @endforelse
                         </td>
                         <td>
                             @forelse ($item->mixRadius as $mc)
-                                <span class="badge bg-primary text-white">
+                                <span class="badge bg-primary text-white mb-2">
                                     {{$mc->name}}
                                 </span>
+                                <br>
                             @empty
                                 -
                             @endforelse
@@ -120,7 +135,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center">Tidak Ada Data</td>
+                        <td colspan="9" class="text-center">Tidak Ada Data</td>
                     </tr>
                 @endforelse
             </tbody>

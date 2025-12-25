@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\SwitchDevice;
 use App\Models\UserRouter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SpamController extends Controller
 {
@@ -15,7 +16,10 @@ class SpamController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+
         $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt'])
+            ->whereIn('regencies_id', $authUserRegencies)
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%")

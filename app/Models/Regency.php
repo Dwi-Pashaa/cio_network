@@ -11,6 +11,21 @@ class Regency extends Model
     protected $table = 'regencies';
     protected $fillable = ['code', 'name'];
 
+    public function customer()
+    {
+        return $this->hasMany(Customer::class, 'regencies_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_citie',        // pivot table
+            'regencie_id',       // FK regency
+            'user_id'            // FK user
+        )->withTimestamps();
+    }
+
     protected static function boot()
     {
         parent::boot();

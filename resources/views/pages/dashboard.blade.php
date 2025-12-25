@@ -66,10 +66,17 @@
                     <select name="filter" id="filter" class="form-control">
                         <option value="">Pilih</option>
                         @php
-                            $filter = ["kecamatan", "desa", "kampung", "vlan", "olt", "voucher & ppoe"];
+                            $filter = ["kabupaten", "kecamatan", "desa", "kampung", "vlan", "olt", "voucher & ppoe"];
                         @endphp
                         @foreach ($filter as $item)
-                            <option value="{{ $item }}" {{ request('filter') === $item ? 'selected' : '' }}>{{ ucfirst($item) }}</option>
+                            @php
+                                $value = $item;
+                                $label = $item === 'kabupaten' ? 'Kabupaten / Kota' : ucfirst($item);
+                            @endphp
+
+                            <option value="{{ $value }}" {{ request('filter') === $value ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -174,13 +181,14 @@
         const BASE = "{{ route('dashboard') }}"
 
         function detailCount(id, text) {
+            if (text == "Kabupaten / Kota") {
+                text = "kabupaten";
+            }
             $.ajax({
                 url: `/get-detail-count/` + id + '/' + text,
                 method: "GET",
                 dataType: "json",
                 success: function(data) {
-                    console.log(data);
-
                     $(".modal-title").html('Detail customer ' + text + '  ' + data.data.name);
                     $("#tbody-show").html('');
 

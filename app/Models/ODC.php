@@ -25,4 +25,14 @@ class ODC extends Model
     {
         return $this->belongsTo(RW::class, 'rws_id', 'id');
     }
+
+    public function patchCore()
+    {
+        return $this->belongsTo(PatchCore::class, 'patch_core_id', 'id');
+    }
+
+    public function plc()
+    {
+        return $this->belongsTo(PLC::class, 'plc_id', 'id');
+    }
 }

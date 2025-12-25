@@ -14,8 +14,8 @@ use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
 use App\Models\Pages;
-use App\Models\PagesPrice;
 use App\Models\Paket;
+use App\Models\PatchCore;
 use App\Models\Price;
 use App\Models\Regency;
 use App\Models\Router;
@@ -23,6 +23,7 @@ use App\Models\RT;
 use App\Models\RW;
 use App\Models\Type;
 use App\Models\User;
+use App\Models\UserPatchCore;
 use App\Models\UserRouter;
 use App\Models\Village;
 use App\Models\Vlan;
@@ -32,7 +33,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -47,6 +47,8 @@ class PagesController extends Controller
         $search = $request->search ?? null;
         $hometown = $request->filter_hometown ?? null;
         $village = $request->filter_village ?? null;
+
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
 
         // Jika hometown dan village tidak ada, kosongkan data
         if (empty($hometown) && empty($village)) {
@@ -73,8 +75,8 @@ class PagesController extends Controller
 
         $regencies = Regency::all();
         $districts = District::all();
-        $hometown = HomeTown::select(['id', 'name'])->get();
-        $villages = Village::all();
+        $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
+        $villages = Village::whereIn('regencie_id', $authUserRegencies)->get();
         $vlans = Vlan::all();
         $routers = Router::all();
         $odps = ODP::all();
@@ -437,7 +439,9 @@ class PagesController extends Controller
             ->select('pages_price.*', 'price.*')
             ->get();
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius"));
+        $pathCore = PatchCore::all();
+
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore"));
     }
 
     public function confirmPagesPassword(Request $request)
@@ -478,6 +482,21 @@ class PagesController extends Controller
             }
 
             $userRouter->decrement('total');
+
+            $userPatchCore = UserPatchCore::where('user_id', Auth::id())
+                ->where('patch_core_id', $data['patch_core_id'])
+                ->lockForUpdate()
+                ->first();
+
+            if (!$userPatchCore) {
+                return back()->with('error', 'Patch Core tidak ditemukan atau tidak terdaftar untuk user ini.');
+            }
+
+            if ($userPatchCore->total <= 0) {
+                return back()->with('error', 'Kuota Patch Core Anda sudah habis. Tidak dapat menambah pelanggan baru.');
+            }
+
+            $userPatchCore->decrement('total');
 
             $last = Customer::whereNotNull('uuid')
                 ->where('uuid', 'like', 'CSTMR%')

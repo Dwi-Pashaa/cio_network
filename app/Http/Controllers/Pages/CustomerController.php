@@ -44,6 +44,8 @@ class CustomerController extends Controller
         $olts = $request->olts ?? null;
         $hometowns = $request->hometown ?? null;
 
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+
         $customers = Customer::with([
             'router',
             'type',
@@ -62,6 +64,7 @@ class CustomerController extends Controller
             'user',
             'mic_radius'
         ])
+            ->whereIn('regencies_id', $authUserRegencies)
             ->where('status', 'active')
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
@@ -103,8 +106,8 @@ class CustomerController extends Controller
             ->paginate($sort)
             ->appends($request->query());
 
-        $vilage = Village::all();
-        $hometown = HomeTown::all();
+        $vilage = Village::whereIn('regencie_id', $authUserRegencies)->get();
+        $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
         $olts = OLT::all();
         $vlan = Vlan::all();
         $micRadius = MicRadius::all();

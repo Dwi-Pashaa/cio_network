@@ -9,11 +9,21 @@ class Village extends Model
 {
     use HasFactory;
     protected $table = 'villages';
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'district_id', 'regencie_id'];
 
     public function customer()
     {
         return $this->hasMany(Customer::class, 'villages_id', 'id');
+    }
+
+    public function regencie()
+    {
+        return $this->belongsTo(Regency::class, 'regencie_id', 'id');
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id', 'id');
     }
 
     protected static function boot()

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Desa
+    Data Patch Core
 @endsection
 
 @push('css')
@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="card">
-    @can('buat desa')
+    @can('tambah patch core')
         <div class="card-header">
             <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -51,39 +51,27 @@
             <thead>
                 <tr>
                     <th class="w-1">No</th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-code">Kode</button>
-                    </th>
-                    <th><button class="table-sort" data-sort="sort-kabupaten">Kabupaten/Kota</button></th>
-                    <th><button class="table-sort" data-sort="sort-kecamatan">Kecamatan</button></th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-name">Nama Desa</button>
-                    </th>
-                    <th>
-                        <button class="table-sort" data-sort="sort-created">Created</button>
-                    </th>
-                    @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                    <th><button class="table-sort" data-sort="sort-name">Nama Patch Core</button></th>
+                    <th><button class="table-sort" data-sort="sort-created">Created</button></th>
+                    @if(auth()->user()->can('ubah patch core') || auth()->user()->can('hapus patch core'))
                         <th>Action</th>
                     @endif
                 </tr>
             </thead>
             <tbody class="table-tbody">
-                @forelse ($villages as $item)
+                @forelse ($patchCore as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td class="sort-code">{{ $item->code }}</td>
-                        <td class="sort-name">{{ optional($item)->regencie->name ?? '-' }}</td>
-                        <td class="sort-name">{{ optional($item)->district->name  ?? '-'}}</td>
                         <td class="sort-name">{{ $item->name }}</td>
                         <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
-                        @if(auth()->user()->can('ubah desa') || auth()->user()->can('hapus desa'))
+                        @if(auth()->user()->can('edit patch core') || auth()->user()->can('hapus patch core'))
                             <td>
-                                @can('ubah desa')
+                                @can('edit patch core')
                                     <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
                                         Edit
                                     </a>
                                 @endcan
-                                @can('hapus desa')
+                                @can('hapus patch core')
                                     <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
                                         Hapus
                                     </a>
@@ -92,21 +80,19 @@
                         @endif
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="7" class="text-center">Tidak Ada Data</td>
-                    </tr>
+                    <tr><td colspan="4" class="text-center">Tidak Ada Data</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
-            Showing <span>{{ $villages->firstItem() }}</span> 
-            to <span>{{ $villages->lastItem() }}</span> of
-            <span>{{ $villages->total() }}</span> entries
+            Showing <span>{{ $patchCore->firstItem() }}</span> 
+            to <span>{{ $patchCore->lastItem() }}</span> of
+            <span>{{ $patchCore->total() }}</span> entries
         </p>
         <ul class="pagination m-0 ms-auto">
-            {{ $villages->links() }}
+            {{ $patchCore->links() }}
         </ul>
     </div>
 </div>
@@ -117,7 +103,7 @@
     <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Desa</h5>
+                <h5 class="modal-title">Tambah Patch Core</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close">
                 </button>
@@ -126,27 +112,7 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
-                    <label for="regencie_id" class="mb-2">Pilih Kabupaten/Kota</label>
-                    <select name="regencie_id" id="regencie_id" class="form-control">
-                        <option value="">Pilih Kabupaten/Kota</option>
-                        @foreach($regencie as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_regencie_id"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="district_id" class="mb-2">Pilih Kecamatan</label>
-                    <select name="district_id" id="district_id" class="form-control">
-                        <option value="">Pilih Kecamatan</option>
-                        @foreach($district as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_district_id"></span>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama Desa</label>
+                    <label for="name" class="mb-2">Nama Patch Core</label>
                     <input type="text" name="name" id="name" class="form-control">
                     <span class="invalid-feedback error_name"></span>
                 </div>
@@ -162,7 +128,7 @@
 
 @push('js')
 <script>
-    const BASE = "{{ route('desa.index') }}";
+    const BASE = "{{ route('patch.core.index') }}";
 
     let params = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
@@ -170,12 +136,9 @@
         window.location.href = BASE + '?' + params.toString();
     });
 
-     const advancedTable = {
+    const advancedTable = {
         headers: [
-            { "data-sort": "sort-code", name: "Kode" },
-            { "data-sort": "sort-name", name: "Kabupaten/Kota" },
-            { "data-sort": "sort-name", name: "Kecamatan" },
-            { "data-sort": "sort-name", name: "Nama Desa" },
+            { "data-sort": "sort-name", name: "Nama RT" },
             { "data-sort": "sort-created", name: "Created" },
         ],
     };
@@ -204,9 +167,7 @@
     });
 
     $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Desa");
-        $("#regencie_id").val("");
-        $("#district_id").val("");
+        $(".modal-title").html("Tambah Patch Core");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
@@ -214,9 +175,7 @@
 
     $("#storeBtn").click(function() {
         let id = $("#id").val();
-        let type = $("#type").val();
-        let regencie_id = $("#regencie_id").val();
-        let district_id = $("#district_id").val();
+        let type = $("#type").val()
         let name = $("#name").val();
 
         let url;
@@ -234,8 +193,6 @@
             url: url,
             method: method,
             data: {
-                regencie_id: regencie_id,
-                district_id: district_id,
                 name: name
             },
         }).done(function(response) {
@@ -272,13 +229,11 @@
             method: "GET",
             dataType: "json"
         }).done(function(response){
-            $(".modal-title").html("Edit Desa");
+            $(".modal-title").html("Edit Patch Core");
             let data = response.data;
             $("#modal-simple").modal('show')
 
             $("#id").val(data.id);
-            $("#regencie_id").val(data.regencie_id);
-            $("#district_id").val(data.district_id);
             $("#name").val(data.name);
             $("#type").val("update");
         }).fail(function(jqXHR, textStatus, errorThrown) {

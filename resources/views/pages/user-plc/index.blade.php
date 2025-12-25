@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Stock Router
+    Data Stock PLC
 @endsection
 
 @push('css')
@@ -56,7 +56,7 @@
                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">Nama User</button>
                         </th>
                         <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-router">Nama Router</button>
+                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-plc">Nama PLC</button>
                         </th>
                         <th>
                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-total">Jumlah</button>
@@ -70,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-tbody">
-                    @forelse ($userRouter as $item)
+                    @forelse ($userPLC as $item)
                         <tr>
                             <td>
                                 <span class="text-secondary">
@@ -79,12 +79,12 @@
                             </td>
                             <td class="sort-name">
                                 <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->user->name }}
+                                    {{ $item->user->name ?? '-' }}
                                 </a>
                             </td>
-                            <td class="sort-router">
+                            <td class="sort-plc">
                                 <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->router->name }}
+                                    {{ $item->plc->name ?? '-' }}
                                 </a>
                             </td>
                             <td class="sort-total">
@@ -127,12 +127,12 @@
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
-            Showing <span>{{ $userRouter->firstItem() }}</span> 
-            to <span>{{ $userRouter->lastItem() }}</span> of
-            <span>{{ $userRouter->total() }}</span> entries
+            Showing <span>{{ $userPLC->firstItem() ?? 0 }}</span> 
+            to <span>{{ $userPLC->lastItem() ?? 0 }}</span> of
+            <span>{{ $userPLC->total() }}</span> entries
         </p>
         <ul class="pagination m-0 ms-auto">
-            {{ $userRouter->links() }}
+            {{ $userPLC->links() }}
         </ul>
     </div>
 </div>
@@ -143,7 +143,7 @@
         <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Barang</h5>
+                    <h5 class="modal-title">Tambah Stock PLC</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                         aria-label="Close">
                     </button>
@@ -152,7 +152,7 @@
                     <input type="hidden" name="type" id="type">
                     <input type="hidden" name="id" id="id">
                     <div class="form-group mb-3" id="role_id_show">
-                        <label for="name" class="mb-2">Pilih Level</label>
+                        <label for="role" class="mb-2">Pilih Level</label>
                         <select name="role" id="role" class="form-control">
                             <option value="">Pilih</option>
                             @foreach ($role as $rl)
@@ -161,26 +161,26 @@
                         </select>
                         <span class="invalid-feedback error_role"></span>
                     </div>
-                    <div class="form-group mb-3" id="user_id_show">
-                        <label for="name" class="mb-2">Pilih User</label>
+                    <div class="form-group mb-3" id="user_id_show" style="display: none;">
+                        <label for="user_id" class="mb-2">Pilih User</label>
                         <select name="user_id" id="user_id" class="form-control">
                             <option value="">Pilih</option>
                         </select>
                         <span class="invalid-feedback error_user_id"></span>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Pilih Router</label>
-                        <select name="router_id" id="router_id" class="form-control">
+                        <label for="plc_id" class="mb-2">Pilih PLC</label>
+                        <select name="plc_id" id="plc_id" class="form-control">
                             <option value="">Pilih</option>
-                            @foreach ($router as $rtr)
-                                <option value="{{ $rtr->id }}">{{ $rtr->code }} - {{ $rtr->name }}</option>
+                            @foreach ($plc as $p)
+                                <option value="{{ $p->id }}">{{ $p->name }}</option>
                             @endforeach
                         </select>
-                        <span class="invalid-feedback error_router_id"></span>
+                        <span class="invalid-feedback error_plc_id"></span>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Jumlah Router</label>
-                        <input type="number" name="total" id="total" class="form-control">
+                        <label for="total" class="mb-2">Jumlah PLC</label>
+                        <input type="number" name="total" id="total" class="form-control" min="1">
                         <span class="invalid-feedback error_total"></span>
                     </div>
                 </div>
@@ -196,21 +196,21 @@
         <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Barang</h5>
+                    <h5 class="modal-title">Tambah Stock PLC</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                         aria-label="Close">
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="user_router_id" id="user_router_id">
+                    <input type="hidden" name="user_plc_id" id="user_plc_id">
                     <div class="form-group mb-3">
-                        <label for="" class="mb-2">User</label>
-                        <input type="text" name="" id="user" class="form-control" disabled>
+                        <label for="user" class="mb-2">User</label>
+                        <input type="text" name="user" id="user" class="form-control" disabled>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Jumlah Router</label>
-                        <input type="number" name="total_stock" id="total_stock" class="form-control">
-                        <span class="invalid-feedback error_total"></span>
+                        <label for="total_stock" class="mb-2">Jumlah PLC</label>
+                        <input type="number" name="total_stock" id="total_stock" class="form-control" min="1">
+                        <span class="invalid-feedback error_total_stock"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -227,7 +227,7 @@
     const advancedTable = {
         headers: [
             { "data-sort": "sort-name", name: "Nama User" },
-            { "data-sort": "sort-router", name: "Nama Router" },
+            { "data-sort": "sort-plc", name: "Nama PLC" },
             { "data-sort": "sort-total", name: "Jumlah" },
             { "data-sort": "sort-created", name: "Created" },
         ],
@@ -257,7 +257,7 @@
     });
 </script>
 <script>
-    const BASE = "{{ route('user.router.index') }}";
+    const BASE = "{{ route('user.plc.index') }}";
 
     let params = new URLSearchParams(window.location.search);
     $("#sort").change(function() {
@@ -289,48 +289,46 @@
             },
             success: function(response) {
                 console.log(response); 
-                let html = '';
+                let html = '<option value="">Pilih</option>';
 
                 if (response.code == 200) {
-                    $("#user_id_show").removeClass('d-none');
-                    $("#user_id_show").addClass('d-block');
+                    $("#user_id_show").removeClass('d-none').addClass('d-block');
                     $.each(response.data, function(index, value) {
                         html += `<option value="${value.id}">${value.name}</option>`;
                     })
                 } else {
-                    html += '';       
-                    $("#user_id_show").removeClass('d-block');
-                    $("#user_id_show").addClass('d-none');             
+                    $("#user_id_show").removeClass('d-block').addClass('d-none');             
                 }
 
                 $("#user_id").html(html)
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.log("Error:", textStatus, errorThrown);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Terjadi kesalahan saat mengambil data user'
+                });
             }
         });
     });
 
-
     $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Stock Router");
+        $(".modal-title").html("Tambah Stock PLC");
         $("#role").val("");
         $("#user_id").val("");
-        $("#router_id").val("");
+        $("#plc_id").val("");
         $("#total").val("");
         $("#type").val("create");
         $("#id").val("");
-        $("#user_id_show").removeClass('d-block');
-        $("#user_id_show").addClass('d-none');
-        $("#role_id_show").removeClass('d-none');
-        $("#role_id_show").addClass('d-block');
+        $("#user_id_show").removeClass('d-block').addClass('d-none');
+        $("#role_id_show").removeClass('d-none').addClass('d-block');
     });
 
     $("#storeBtn").click(function() {
         let id = $("#id").val();
         let type = $("#type").val()
         let user_id = $("#user_id").val();
-        let router_id = $("#router_id").val();
+        let plc_id = $("#plc_id").val();
         let total = $("#total").val();
         let role = $("#role").val();
 
@@ -350,9 +348,10 @@
             method: method,
             data: {
                 user_id: user_id,
-                router_id: router_id,
+                plc_id: plc_id,
                 total: total,
                 role: role,
+                _token: $('meta[name="csrf-token"]').attr('content')
             },
         }).done(function(response) {
             if (response.errors) {
@@ -374,10 +373,14 @@
 
                 setTimeout(() => {
                     window.location.reload();
-                }, 3000);
+                }, 1500);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);
+            Toast.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan'
+            });
         });
     });
 
@@ -390,30 +393,35 @@
             dataType: "json"
         })
         .done(function(response) {
-            $(".modal-title").html("Tambah Stock Router");
+            if (response.code === 200) {
+                $(".modal-title").html("Edit Stock PLC");
 
-            let data = response.data;
+                let data = response.data;
 
-            $("#modal-simple").modal('show');
+                $("#modal-simple").modal('show');
 
-            $("#role_id_show").addClass('d-none').removeClass('d-block');
-            $("#user_id_show").removeClass('d-none').addClass('d-block');
+                $("#role_id_show").addClass('d-none').removeClass('d-block');
+                $("#user_id_show").removeClass('d-none').addClass('d-block');
 
-            $("#id").val(data.id);
-            $("#user_id").val(data.user_id);
-            $("#router_id").val(data.router_id);
-            $("#total").val(data.total);
-
-            $("#role").val(data.role).trigger('change');
-
-            setTimeout(() => {
+                $("#id").val(data.id);
                 $("#user_id").val(data.user_id);
-            }, 500);
+                $("#plc_id").val(data.plc_id);
+                $("#total").val(data.total);
 
-            $("#type").val("update");
+                $("#type").val("update");
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    title: response.message
+                });
+            }
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("Error:", textStatus, errorThrown);
+            Toast.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan saat mengambil data'
+            });
         });
     }
 
@@ -426,33 +434,45 @@
             dataType: "json"
         })
         .done(function(response) {
-            $(".modal-title").html("Tambah Stock Router");
+            if (response.code === 200) {
+                $(".modal-title").html("Tambah Stock PLC");
 
-            let data = response.data;
+                let data = response.data;
 
-            $("#modal-add-stock").modal('show');
-            
-            $("#user_router_id").val(data.id);
-            $("#user").val(data.user.name);
-            // $("#total_stock").val(data.total);
+                $("#modal-add-stock").modal('show');
+                
+                $("#user_plc_id").val(data.id);
+                $("#user").val(data.user.name);
+                $("#total_stock").val("");
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    title: response.message
+                });
+            }
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("Error:", textStatus, errorThrown);
+            Toast.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan saat mengambil data'
+            });
         });
     }
 
     $("#storeAddStock").click(function() {
-        let user_router_id = $("#user_router_id").val();
+        let user_plc_id = $("#user_plc_id").val();
         let total_stock = $("#total_stock").val()
 
-        let url = "{{ route('user.router.addStore') }}";
+        let url = "{{ route('user.plc.addStore') }}";
         
         $.ajax({
             url: url,
             method: "POST",
             data: {
-                user_router_id: user_router_id,
+                user_plc_id: user_plc_id,
                 total_stock: total_stock,
+                _token: $('meta[name="csrf-token"]').attr('content')
             },
         }).done(function(response) {
             if (response.errors) {
@@ -474,10 +494,14 @@
 
                 setTimeout(() => {
                     window.location.reload();
-                }, 3000);
+                }, 1500);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);
+            Toast.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan'
+            });
         });
     });
 
@@ -497,6 +521,9 @@
                     url: BASE + '/' + id + '/destroy',
                     method: "DELETE",
                     dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
                         Toast.fire({
                             icon: response.status,
@@ -505,7 +532,7 @@
 
                         setTimeout(() => {
                             window.location.reload();
-                        }, 3000);
+                        }, 1500);
                     },
                     error: function(err) {
                         Toast.fire({

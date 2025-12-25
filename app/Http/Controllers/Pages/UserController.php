@@ -7,8 +7,11 @@ use App\Models\MicRadius;
 use App\Models\MixRadiusUser;
 use App\Models\OLT;
 use App\Models\OLTUser;
+use App\Models\Regency;
 use App\Models\User;
+use Google\Service\Analytics\RemarketingAudienceAudienceDefinition;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -22,7 +25,7 @@ class UserController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $users = User::with(['mixRadius', 'olts'])
+        $users = User::with(['mixRadius', 'olts', 'regencie'])
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%");
@@ -41,8 +44,9 @@ class UserController extends Controller
         $role = Role::all();
         $olts = OLT::all();
         $micRadius = MicRadius::all();
+        $regencie = Regency::all();
 
-        return view("pages.user.create", compact("role", "olts", "micRadius"));
+        return view("pages.user.create", compact("role", "olts", "micRadius", "regencie"));
     }
 
     public function store(Request $request)
@@ -53,6 +57,8 @@ class UserController extends Controller
             "email" => "required|unique:users,email",
             "role" => "required",
             "telp" => "required",
+            'regencie_id'  => 'required|array|min:1',
+            'regencie_id.*' => 'exists:regencies,id',
             "password" => "required|string|min:8|confirmed",
         ];
 
@@ -69,7 +75,7 @@ class UserController extends Controller
 
         $user = User::create($data);
         $user->assignRole($request->role);
-
+        $user->regencie()->sync($validated['regencie_id']);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->attach($request->olt_id);
@@ -92,8 +98,9 @@ class UserController extends Controller
         $role = Role::all();
         $olts = OLT::all();
         $micRadius = MicRadius::all();
+        $regencie = Regency::all();
 
-        return view("pages.user.edit", compact("user", "role", "olts", "micRadius"));
+        return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie"));
     }
 
     public function update(Request $request, $id)
@@ -111,6 +118,7 @@ class UserController extends Controller
             "role" => "required",
             "telp" => "required",
             "password" => "nullable|string|min:8|confirmed",
+            'regencie_id' => 'required|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -131,6 +139,8 @@ class UserController extends Controller
         $user->update($data);
 
         $user->syncRoles([$request->role]);
+
+        $user->regencie()->sync($request->regencie_id);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->sync($request->olt_id);
@@ -153,14 +163,35 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::find($id);
+        DB::beginTransaction();
 
-        if (!$user) {
-            return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Data Not Found.']);
+        try {
+            $user = User::findOrFail($id);
+
+            $user->roles()->detach();
+            $user->olts()->detach();
+            $user->mixRadius()->detach();
+            $user->router()->detach();
+            $user->regencie()->detach();
+
+            $user->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Berhasil menghapus data.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'Gagal menghapus data.',
+                'error' => $e->getMessage()
+            ]);
         }
-
-        $user->delete();
-
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }
 }

@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Pages\Pemukiman;
+namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
-use App\Models\District;
-use App\Models\Pages;
-use App\Models\Regency;
-use App\Models\Village;
+use App\Models\PatchCore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class DesaController extends Controller
+class PatchCoreController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,19 +17,14 @@ class DesaController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $villages = Village::with(['regencie', 'district'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%");
-            })
+        $patchCore = PatchCore::when($search, function ($query, $search) {
+            $query->where('name', 'like', "%$search%");
+        })
             ->orderBy('id', 'DESC')
             ->paginate($sort)
             ->appends($request->query());
 
-        $regencie = Regency::all();
-        $district = District::all();
-
-        return view("pages.desa.index", compact("villages", "regencie", "district"));
+        return view("pages.patch-core.index", compact("patchCore"));
     }
 
     /**
@@ -41,8 +33,6 @@ class DesaController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "district_id" => "required|exists:districts,id",
-            "regencie_id" => "required|exists:regencies,id",
             "name" => "required|string"
         ]);
 
@@ -52,7 +42,7 @@ class DesaController extends Controller
 
         $post = $request->all();
 
-        Village::create($post);
+        PatchCore::create($post);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
@@ -62,13 +52,13 @@ class DesaController extends Controller
      */
     public function show(string $id)
     {
-        $villages = Village::find($id);
+        $patchCore = PatchCore::find($id);
 
-        if (!$villages) {
+        if (!$patchCore) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        return response()->json(['code' => 200, 'status' => 'success', 'data' => $villages]);
+        return response()->json(['code' => 200, 'status' => 'success', 'data' => $patchCore]);
     }
 
     /**
@@ -77,8 +67,6 @@ class DesaController extends Controller
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
-            "district_id" => "required|exists:districts,id",
-            "regencie_id" => "required|exists:regencies,id",
             "name" => "required|string"
         ]);
 
@@ -88,9 +76,9 @@ class DesaController extends Controller
 
         $put = $request->only('name', 'regencie_id', 'district_id');
 
-        $villages = Village::find($id);
+        $patchCore = PatchCore::find($id);
 
-        $villages->update($put);
+        $patchCore->update($put);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
     }
@@ -100,13 +88,13 @@ class DesaController extends Controller
      */
     public function destroy(string $id)
     {
-        $villages = Village::find($id);
+        $patchCore = PatchCore::find($id);
 
-        if (!$villages) {
+        if (!$patchCore) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        $villages->delete();
+        $patchCore->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }

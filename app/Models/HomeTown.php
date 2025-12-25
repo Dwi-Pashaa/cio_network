@@ -9,11 +9,21 @@ class HomeTown extends Model
 {
     use HasFactory;
     protected $table = 'home_towns';
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'regencie_id', 'district_id'];
 
     public function customer()
     {
         return $this->hasMany(Customer::class, 'hometowns_id', 'id');
+    }
+
+    public function regencie()
+    {
+        return $this->belongsTo(Regency::class, 'regencie_id', 'id');
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id', 'id');
     }
 
     protected static function boot()

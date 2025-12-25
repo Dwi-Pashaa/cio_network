@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Pages\Pemukiman;
+namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
-use App\Models\District;
-use App\Models\Pages;
-use App\Models\Regency;
-use App\Models\Village;
+use App\Models\PLC;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class DesaController extends Controller
+class PLCController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,19 +17,16 @@ class DesaController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $villages = Village::with(['regencie', 'district'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%");
-            })
+        $plc = PLC::when($search, function ($query, $search) {
+            $query->where('name', 'like', "%$search%")
+                ->orWhere('type', 'like', "%$search%")
+                ->orWhere('serial_number', 'like', "%$search%");
+        })
             ->orderBy('id', 'DESC')
             ->paginate($sort)
             ->appends($request->query());
 
-        $regencie = Regency::all();
-        $district = District::all();
-
-        return view("pages.desa.index", compact("villages", "regencie", "district"));
+        return view("pages.plc.index", compact("plc"));
     }
 
     /**
@@ -41,9 +35,9 @@ class DesaController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "district_id" => "required|exists:districts,id",
-            "regencie_id" => "required|exists:regencies,id",
-            "name" => "required|string"
+            "name" => "required|string",
+            "type_plc" => "required|string",
+            "serial_number" => "required|string",
         ]);
 
         if ($validation->fails()) {
@@ -51,8 +45,9 @@ class DesaController extends Controller
         }
 
         $post = $request->all();
+        $post['type'] = $request->type_plc;
 
-        Village::create($post);
+        PLC::create($post);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
@@ -62,13 +57,13 @@ class DesaController extends Controller
      */
     public function show(string $id)
     {
-        $villages = Village::find($id);
+        $plc = PLC::find($id);
 
-        if (!$villages) {
+        if (!$plc) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        return response()->json(['code' => 200, 'status' => 'success', 'data' => $villages]);
+        return response()->json(['code' => 200, 'status' => 'success', 'data' => $plc]);
     }
 
     /**
@@ -77,20 +72,21 @@ class DesaController extends Controller
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
-            "district_id" => "required|exists:districts,id",
-            "regencie_id" => "required|exists:regencies,id",
-            "name" => "required|string"
+            "name" => "required|string",
+            "type_plc" => "required|string",
+            "serial_number" => "required|string",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $put = $request->only('name', 'regencie_id', 'district_id');
+        $put = $request->only('name', 'type_plc', 'serial_number');
+        $put['type'] = $request->type_plc;
 
-        $villages = Village::find($id);
+        $plc = PLC::find($id);
 
-        $villages->update($put);
+        $plc->update($put);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
     }
@@ -100,13 +96,13 @@ class DesaController extends Controller
      */
     public function destroy(string $id)
     {
-        $villages = Village::find($id);
+        $plc = PLC::find($id);
 
-        if (!$villages) {
+        if (!$plc) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        $villages->delete();
+        $plc->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }

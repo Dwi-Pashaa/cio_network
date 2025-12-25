@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages\Wilayah;
 
 use App\Http\Controllers\Controller;
 use App\Models\District;
+use App\Models\Regency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,14 +18,18 @@ class KecamatanController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $districts = District::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%")
-            ->orWhere('code', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
+        $districts = District::with(['regencie'])
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%$search%")
+                    ->orWhere('code', 'like', "%$search%");
+            })
+            ->orderBy('id', 'DESC')
+            ->paginate($sort)
+            ->appends($request->query());
 
-        return view("pages.kecamatan.index", compact("districts"));
+        $regencie = Regency::all();
+
+        return view("pages.kecamatan.index", compact("districts", "regencie"));
     }
 
     /**
@@ -33,6 +38,7 @@ class KecamatanController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
+            "regencie_id" => "required|exists:regencies,id",
             "name" => "required|string"
         ]);
 
@@ -67,6 +73,7 @@ class KecamatanController extends Controller
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
+            "regencie_id" => "required|exists:regencies,id",
             "name" => "required|string"
         ]);
 
@@ -74,7 +81,7 @@ class KecamatanController extends Controller
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $put = $request->only('name');
+        $put = $request->only('name', 'regencie_id');
 
         $districts = District::find($id);
 
@@ -93,7 +100,7 @@ class KecamatanController extends Controller
         if (!$districts) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $districts->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
