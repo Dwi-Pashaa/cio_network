@@ -14,13 +14,13 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            // 'lihat stock router',
-            // 'lihat stock patch core',
-            // 'lihat stock plc',
-            // 'lihat patch core',
-            // 'tambah patch core',
-            // 'edit patch core',
-            // 'hapus patch core',
+            'lihat stock router',
+            'lihat stock patch core',
+            'lihat stock plc',
+            'lihat patch core',
+            'tambah patch core',
+            'edit patch core',
+            'hapus patch core',
             'lihat plc',
             'tambah plc',
             'edit plc',
