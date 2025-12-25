@@ -439,7 +439,7 @@ class PagesController extends Controller
             ->select('pages_price.*', 'price.*')
             ->get();
 
-        $pathCore = PatchCore::all();
+        $pathCore = Auth::user()->patchCore;
 
         return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore"));
     }

@@ -69,4 +69,14 @@ class User extends Authenticatable
             'regencie_id'        // FK regency
         )->withTimestamps();
     }
+
+    public function patchCore(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PatchCore::class,
+            'user_patch_core',        // pivot table
+            'user_id',           // FK user
+            'patch_core_id'       // FK patch core
+        )->withTimestamps();
+    }
 }

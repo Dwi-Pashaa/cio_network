@@ -12,4 +12,14 @@ class PatchCore extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function user()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_patch_core',        // pivot table
+            'patch_core_id',       // FK patch_core
+            'user_id'            // FK user
+        )->withTimestamps();
+    }
 }
