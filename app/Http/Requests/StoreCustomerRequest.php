@@ -48,6 +48,12 @@ class StoreCustomerRequest extends FormRequest
             'mic_radius_id' => 'nullable',
             'patch_core_id' => 'required',
         ];
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            $rules['patch_core_id'] = 'sometimes|nullable';
+        }
+
+        return $rules;
     }
 
     /**
