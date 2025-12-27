@@ -46,14 +46,8 @@ class StoreCustomerRequest extends FormRequest
             'password_wifi' => 'nullable',
             'type_name' => 'nullable',
             'mic_radius_id' => 'nullable',
-            'patch_core_id' => 'required',
+            'patch_core_id' => 'nullable',
         ];
-
-        if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $rules['patch_core_id'] = 'sometimes|nullable';
-        }
-
-        return $rules;
     }
 
     /**
