@@ -408,6 +408,12 @@
                 $("#patch_core_id").val(data.patch_core_id);
                 $("#total").val(data.total);
 
+                $("#role").val(data.role).trigger('change');
+
+                setTimeout(() => {
+                    $("#user_id").val(data.user_id);
+                }, 500);
+
                 $("#type").val("update");
             } else {
                 Toast.fire({

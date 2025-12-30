@@ -408,6 +408,12 @@
                 $("#plc_id").val(data.plc_id);
                 $("#total").val(data.total);
 
+                $("#role").val(data.role).trigger('change');
+
+                setTimeout(() => {
+                    $("#user_id").val(data.user_id);
+                }, 500);
+
                 $("#type").val("update");
             } else {
                 Toast.fire({
