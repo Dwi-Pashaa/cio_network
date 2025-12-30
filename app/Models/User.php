@@ -77,6 +77,8 @@ class User extends Authenticatable
             'user_patch_core',        // pivot table
             'user_id',           // FK user
             'patch_core_id'       // FK patch core
-        )->withTimestamps();
+        )
+            ->withPivot('total')
+            ->withTimestamps();
     }
 }

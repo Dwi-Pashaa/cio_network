@@ -5,7 +5,76 @@
 @endsection
 
 @push('css')
-    
+    <style>
+        .hover-shadow-lg {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .hover-shadow-lg:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus,
+        .btn:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+        .card {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .avatar-lg {
+            width: 3.5rem;
+            height: 3.5rem;
+            font-size: 1.5rem;
+        }
+
+        .bg-primary-lt {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+        }
+
+        .bg-success-lt {
+            background-color: rgba(25, 135, 84, 0.1) !important;
+        }
+
+        .bg-warning-lt {
+            background-color: rgba(255, 193, 7, 0.1) !important;
+        }
+
+        .bg-danger-lt {
+            background-color: rgba(220, 53, 69, 0.1) !important;
+        }
+
+        .bg-info-lt {
+            background-color: rgba(13, 202, 240, 0.1) !important;
+        }
+
+        .bg-secondary-lt {
+            background-color: rgba(108, 117, 125, 0.1) !important;
+        }
+
+        .bg-teal-lt {
+            background-color: rgba(32, 201, 151, 0.1) !important;
+        }
+
+        .bg-purple-lt {
+            background-color: rgba(109, 58, 219, 0.1) !important;
+        }
+
+        .text-teal {
+            color: #20c997 !important;
+        }
+
+        .text-purple {
+            color: #6d3adb !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -17,91 +86,260 @@
         $colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg-info', 'bg-secondary'];
     @endphp
 
-    <div class="row row-cards mb-3">
-        @foreach ($userRouter as $rtr)
-            @php
-                $bgColor = $colors[$loop->index % count($colors)];
-            @endphp
-
-            <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
+    <div class="row">
+        <div class="col-lg-6">
+            {{-- Router Section --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                            stroke-linejoin="round" class="icon me-2">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                            <path d="M17 17l0 .01" />
+                            <path d="M13 17l0 .01" />
+                            <path d="M15 13l0 -2" />
+                            <path d="M11.75 8.75a4 4 0 0 1 6.5 0" />
+                            <path d="M8.5 6.5a8 8 0 0 1 13 0" />
+                        </svg>
+                        Jumlah Router Tersedia
+                    </h3>
+                </div>
+                @if($userRouter->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-vcenter table-hover">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Router</th>
+                                    <th>Total Stock</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($userRouter as $rtr)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @php
+                                                    $bgColor = $colors[$loop->index % count($colors)];
+                                                @endphp
+                                                <span class="{{ $bgColor }} text-white avatar avatar-sm me-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                                        <path d="M17 17l0 .01" />
+                                                        <path d="M13 17l0 .01" />
+                                                        <path d="M15 13l0 -2" />
+                                                    </svg>
+                                                </span>
+                                                <strong>{{ $rtr->name }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-blue-lt">{{ $rtr->pivot->total }} Unit</span>
+                                        </td>
+                                        <td>
+                                            @if($rtr->pivot->total > 10)
+                                                <span class="badge bg-success">Stock Tersedia</span>
+                                            @elseif($rtr->pivot->total > 0)
+                                                <span class="badge bg-warning text-white">Stock Terbatas</span>
+                                            @else
+                                                <span class="badge bg-danger text-white">Stock Habis</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
                     <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="{{ $bgColor }} text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-router">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                                        <path d="M17 17l0 .01" />
-                                        <path d="M13 17l0 .01" />
-                                        <path d="M15 13l0 -2" />
-                                        <path d="M11.75 8.75a4 4 0 0 1 6.5 0" />
-                                        <path d="M8.5 6.5a8 8 0 0 1 13 0" />
-                                    </svg>
-                                </span>
+                        <div class="empty">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                                    stroke-linejoin="round" class="icon">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                </svg>
                             </div>
-                            <div class="col">
-                                <div class="font-weight-medium">
-                                    Router {{ $rtr->name }}
-                                </div>
-                                <div class="text-secondary">
-                                    Total Stock {{ $rtr->pivot->total }}
-                                </div>
-                            </div>
+                            <p class="empty-title">Tidak ada stock router</p>
+                            <p class="empty-subtitle text-muted">Silahkan minta admin untuk menambahkan stock router</p>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
-        @endforeach
+        </div>
+        <div class="col-lg-6">
+            {{-- Patch Core Section --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                            stroke-linejoin="round" class="icon me-2">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" />
+                            <path d="M9 12h6" />
+                            <path d="M12 9v6" />
+                        </svg>
+                        Jumlah Patch Core Tersedia
+                    </h3>
+                </div>
+                @if($userPatchCore->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-vcenter table-hover">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Patch Core</th>
+                                    <th>Total Stock</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($userPatchCore as $ptc)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @php
+                                                    $bgColor = $colors[$loop->index % count($colors)];
+                                                @endphp
+                                                <span class="{{ $bgColor }} text-white avatar avatar-sm me-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" />
+                                                        <path d="M9 12h6" />
+                                                        <path d="M12 9v6" />
+                                                    </svg>
+                                                </span>
+                                                <strong>{{ $ptc->name }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-cyan-lt">{{ $ptc->pivot->total }} Unit</span>
+                                        </td>
+                                        <td>
+                                            @if($ptc->pivot->total > 10)
+                                                <span class="badge bg-success">Stock Tersedia</span>
+                                            @elseif($ptc->pivot->total > 0)
+                                                <span class="badge bg-warning text-white">Stock Terbatas</span>
+                                            @else
+                                                <span class="badge bg-danger text-white">Stock Habis</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="card-body">
+                        <div class="empty">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                                    stroke-linejoin="round" class="icon">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" />
+                                </svg>
+                            </div>
+                            <p class="empty-title">Tidak ada stock patch core</p>
+                            <p class="empty-subtitle text-muted">Silahkan minta admin untuk menambahkan stock patch core</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
-    <div class="card">
+    <!-- Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler me-2 text-primary">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                </svg>
+                <h3 class="card-title mb-0 fw-bold">Filter Data Customer</h3>
+            </div>
+        </div>
         <div class="card-body">
-            <form action="">
-                <div class="form-group mb-3">
-                    <label for="" class="mb-2">Pilih</label>
-                    <select name="filter" id="filter" class="form-control">
-                        <option value="">Pilih</option>
-                        @php
-                            $filter = ["kabupaten", "kecamatan", "desa", "kampung", "vlan", "olt", "voucher & ppoe"];
-                        @endphp
-                        @foreach ($filter as $item)
+            <form action="" method="GET">
+                <div class="row align-items-end">
+                    <div class="col-md-12">
+                        <label for="filter" class="form-label fw-semibold mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            Pilih Kategori Filter
+                        </label>
+                        <select name="filter" id="filter" class="form-select form-select-md" onchange="this.form.submit()">
+                            <option value="">-- Pilih Filter --</option>
                             @php
-                                $value = $item;
-                                $label = $item === 'kabupaten' ? 'Kabupaten / Kota' : ucfirst($item);
+                                $filter = ["kabupaten", "kecamatan", "desa", "kampung", "vlan", "olt", "voucher & ppoe"];
                             @endphp
-
-                            <option value="{{ $value }}" {{ request('filter') === $value ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select>
+                            @foreach ($filter as $item)
+                                @php
+                                    $value = $item;
+                                    $label = $item === 'kabupaten' ? 'Kabupaten / Kota' : ucfirst($item);
+                                @endphp
+                                <option value="{{ $value }}" {{ request('filter') === $value ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="row row-cards mt-1">
+    <!-- Results Section -->
+    @if(request('filter'))
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <span class="badge bg-primary-lt text-primary px-3 py-2">
+                        Hasil Filter: {{ ucfirst(str_replace('_', ' ', request('filter'))) }}
+                    </span>
+                </h5>
+                <span class="text-muted">Total: <strong>{{ $data->count() }}</strong> item</span>
+            </div>
+        </div>
+    @endif
+
+    <!-- Data Cards -->
+    <div class="row row-cards g-3">
         @php
-            $colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg-info', 'bg-secondary', 'bg-dark'];
+            $colors = ['primary', 'success', 'warning', 'danger', 'info', 'secondary', 'teal', 'purple'];
         @endphp
 
         @forelse ($data as $dt)
-            <div class="col-sm-6 col-lg-4">
-                <a href="javascript:void(0)" onclick="return detailCount('{{ $dt->id }}', '{{ $text }}')">
-                    <div class="card card-sm">
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <a href="javascript:void(0)" 
+                   onclick="return detailCount('{{ $dt->id }}', '{{ $text }}')" 
+                   class="text-decoration-none">
+                    <div class="card card-sm hover-shadow-lg transition-all h-100">
                         <div class="card-body">
-                            <div class="row align-items-center">
+                            <div class="row align-items-center g-2">
                                 <div class="col-auto">
-                                    <span class="{{ $colors[$loop->index % count($colors)] }} text-white avatar">
+                                    <span class="avatar avatar-lg bg-{{ $colors[$loop->index % count($colors)] }}-lt text-{{ $colors[$loop->index % count($colors)] }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" 
-                                            width="24" height="24" viewBox="0 0 24 24" 
+                                            width="28" height="28" viewBox="0 0 24 24" 
                                             fill="none" stroke="currentColor" stroke-width="2" 
-                                            stroke-linecap="round" stroke-linejoin="round"  
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                                            stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                             <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                             <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
@@ -109,14 +347,25 @@
                                     </span>
                                 </div>
                                 <div class="col">
-                                    <div class="font-weight-medium">
-                                        <b>
+                                    <div class="font-weight-medium text-dark mb-1">
+                                        <strong>
                                             {{ request('filter') === "vlan" ? 'VLAN ' . $dt->name : $dt->name }}
-                                        </b>
+                                        </strong>
                                     </div>
-                                    <div class="text-secondary">
-                                        {{ $dt->customer_count }}
+                                    <div class="text-secondary small d-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        <span class="fw-semibold">{{ number_format($dt->customer_count) }} Customer</span>
                                     </div>
+                                </div>
+                                <div class="col-auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -124,9 +373,16 @@
                 </a>
             </div>
         @empty
-            <div class="col-sm-12 col-lg-12">
-                <div class="alert alert-secondary">
-                    <b>Silahkan melakukan filter terlebih dahulu</b>
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted mb-3">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <h4 class="text-muted mb-2">Belum Ada Filter Dipilih</h4>
+                        <p class="text-secondary mb-0">Silakan pilih kategori filter di atas untuk melihat data customer</p>
+                    </div>
                 </div>
             </div>
         @endforelse
