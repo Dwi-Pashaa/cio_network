@@ -396,8 +396,8 @@
 
             $("#modal-simple").modal('show');
 
-            $("#role_id_show").addClass('d-none').removeClass('d-block');
-            $("#user_id_show").removeClass('d-none').addClass('d-block');
+            // $("#role_id_show").addClass('d-none').removeClass('d-block');
+            // $("#user_id_show").removeClass('d-none').addClass('d-block');
 
             $("#id").val(data.id);
             $("#user_id").val(data.user_id);
@@ -407,6 +407,7 @@
             $("#role").val(data.role).trigger('change');
 
             setTimeout(() => {
+                $("#role").val(data.user.roles[0].name);
                 $("#user_id").val(data.user_id);
             }, 500);
 

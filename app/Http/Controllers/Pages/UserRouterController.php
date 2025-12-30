@@ -121,7 +121,7 @@ class UserRouterController extends Controller
      */
     public function show(string $id)
     {
-        $userRouter = UserRouter::with(['user'])->find($id);
+        $userRouter = UserRouter::with(['user', 'user.roles'])->find($id);
 
         if (!$userRouter) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);

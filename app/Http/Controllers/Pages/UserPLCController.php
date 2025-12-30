@@ -123,7 +123,7 @@ class UserPLCController extends Controller
      */
     public function show(string $id)
     {
-        $userPLC = UserPLC::with(['user', 'plc'])->find($id);
+        $userPLC = UserPLC::with(['user', 'plc', 'user.roles'])->find($id);
 
         if (!$userPLC) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);

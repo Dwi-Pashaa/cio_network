@@ -122,7 +122,7 @@ class UserPatchCoreController extends Controller
     public function show(string $id)
     {
         // Changed from PatchCore to UserPatchCore to match template usage
-        $userPatchCore = UserPatchCore::with(['user', 'patchCore'])->find($id);
+        $userPatchCore = UserPatchCore::with(['user', 'patchCore', 'user.roles'])->find($id);
 
         if (!$userPatchCore) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
