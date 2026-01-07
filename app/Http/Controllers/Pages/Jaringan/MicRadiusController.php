@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages\Jaringan;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\MicRadius;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +19,7 @@ class MicRadiusController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $micRadius = MicRadius::with(['hometown'])
+        $micRadius = MicRadius::with(['hometown', 'user'])
             ->when($search, function ($query, $search) {
                 $query->where('code', 'like', "%$search%")
                     ->orWhere('name', 'like', "%$search");
@@ -28,7 +29,9 @@ class MicRadiusController extends Controller
 
         $hometown = HomeTown::all();
 
-        return view("pages.mic-radius.index", compact("micRadius", "hometown"));
+        $user = User::all();
+
+        return view("pages.mic-radius.index", compact("micRadius", "hometown", "user"));
     }
 
     /**
@@ -40,15 +43,18 @@ class MicRadiusController extends Controller
             "name" => "required|string",
             "code" => "required|string",
             "hometowns_id" => "required|string",
+            "user_id" => "required|array"
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $post = $request->all();
+        $post = $request->except('user_id');
 
-        MicRadius::create($post);
+        $micRadius = MicRadius::create($post);
+
+        $micRadius->user()->attach($request->user_id);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
@@ -58,7 +64,7 @@ class MicRadiusController extends Controller
      */
     public function show(string $id)
     {
-        $micRadius = MicRadius::find($id);
+        $micRadius = MicRadius::with(['user'])->find($id);
 
         if (!$micRadius) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -76,17 +82,24 @@ class MicRadiusController extends Controller
             "name" => "required|string",
             "code" => "required|string",
             "hometowns_id" => "required|string",
+            "user_id" => "required|array"
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $put = $request->all();
+        $put = $request->except('user_id');
 
         $micRadius = MicRadius::find($id);
 
         $micRadius->update($put);
+
+        $micRadius->user()->detach();
+
+        foreach ($request->user_id as $uid) {
+            $micRadius->user()->attach($uid);
+        }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
     }
@@ -103,6 +116,8 @@ class MicRadiusController extends Controller
         }
 
         $micRadius->delete();
+
+        $micRadius->user()->detach();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }

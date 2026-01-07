@@ -5,7 +5,7 @@
 @endsection
 
 @push('css')
-    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @section('content')
@@ -56,6 +56,11 @@
                             </button>
                         </th>
                         <th>
+                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">
+                                User
+                            </button>
+                        </th>
+                        <th>
                             <button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">
                                 Created
                             </button>
@@ -75,6 +80,15 @@
                                 <a href="#" class="text-reset" tabindex="-1">
                                     {{ $item->name }}
                                 </a>
+                            </td>
+                            <td class="sort-name">
+                                @forelse ($item->user as $usr)
+                                    <span class="badge bg-primary text-white p-1">
+                                        {{ $usr->name }}
+                                    </span>
+                                @empty
+                                    -
+                                @endforelse
                             </td>
                             <td class="sort-created">
                                 {{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}
@@ -117,7 +131,7 @@
     <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Type Pelanggan</h5>
+                <h5 class="modal-title">Tambah Tipe Paket</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close">
                 </button>
@@ -126,7 +140,17 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Type Pelanggan</label>
+                    <label for="name" class="mb-2">Pilih User</label>
+                    <select name="user_id[]" id="user_id" class="form-control" multiple>
+                        <option value="">Pilih</option>
+                        @foreach ($user as $usr)
+                            <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_name"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="name" class="mb-2">Tipe Paket</label>
                     <input type="text" name="name" id="name" class="form-control">
                     <span class="invalid-feedback error_name"></span>
                 </div>
@@ -141,6 +165,7 @@
 @endpush
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     const advancedTable = {
         headers: [
@@ -194,79 +219,104 @@
     });
 
     $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Type Pelanggan");
+        $(".modal-title").html("Tambah Tipe Paket");
+        $("#user").val("");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
     });
 
-    $("#storeBtn").click(function() {
-        let id = $("#id").val();
-        let type = $("#type").val()
-        let name = $("#name").val();
+    $('#user_id').select2({
+        width: '100%',
+        dropdownParent: $('#modal-simple')
+    });
+
+    $("#storeBtn").click(function () {
+        let id   = $("#id").val();
+        let type = $("#type").val();
 
         let url;
-        let method;
+        let method = "POST";
 
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
+        if (type === "create") {
+            url = BASE + "/store";
         } else {
-            url = BASE + `/${id}/update`
-            method = "PUT";
+            url = BASE + `/${id}/update`;
         }
-        
+
+        let formData = new FormData();
+        formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        formData.append("_method", type === "create" ? "POST" : "PUT");
+
+        formData.append("name", $("#name").val());
+
+        let users = $("#user_id").val() || [];
+        users.forEach(u => formData.append("user_id[]", u));
+
         $.ajax({
             url: url,
             method: method,
-            data: {
-                name: name
-            },
-        }).done(function(response) {
+            data: formData,
+            processData: false, 
+            contentType: false, 
+        })
+        .done(function (response) {
             if (response.errors) {
-                $.each(response.errors, function(index, value) {
-                    $("#name").addClass('is-invalid');
+                $.each(response.errors, function (index, value) {
+                    $("#" + index).addClass("is-invalid");
                     $(".error_" + index).html(value);
 
                     setTimeout(() => {
-                        $("#name").removeClass('is-invalid');
-                        $(".error_" + index).html('');
+                        $("#" + index).removeClass("is-invalid");
+                        $(".error_" + index).html("");
                     }, 3000);
-                })                
+                });
             } else {
-                $("#modal-simple").modal('hide')
+                $("#modal-simple").modal("hide");
+
                 Toast.fire({
                     icon: response.status,
                     title: response.message
                 });
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                setTimeout(() => window.location.reload(), 1500);
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        })
+        .fail(function (jqXHR) {
+            console.log("Error:", jqXHR.responseText);
         });
     });
 
+
     function editModal(id) {
-        let url = BASE + `/${id}/show`
+        let url = BASE + `/${id}/show`;
+
         $.ajax({
             url: url,
             method: "GET",
             dataType: "json"
         }).done(function(response){
-            $(".modal-title").html("Edit Type Pelanggan");
+
+            $(".modal-title").html("Edit Tipe Paket");
+
             let data = response.data;
-            $("#modal-simple").modal('show')
+
+            $("#modal-simple").modal('show');
 
             $("#id").val(data.id);
             $("#name").val(data.name);
             $("#type").val("update");
+
+            // --- tampilkan relasi users ---
+            let selectedUsers = data.user.map(u => u.id);   // ambil id user yang sudah terhubung
+            $("#user_id").val(selectedUsers).trigger("change");
+            // (trigger change perlu jika pakai select2)
+
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);
         });
     }
+
 
     function deleteType(id) {
         Swal.fire({

@@ -412,24 +412,27 @@ class PagesController extends Controller
             )
             ->get();
 
+        $userId = Auth::id();
+
         $paket = DB::table('pages_paket')
             ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
+            ->join('user_paket', 'paket.id', '=', 'user_paket.paket_id')
             ->where('pages_paket.pages_id', $pages->id)
-            ->select(
-                'pages_paket.*',
-                'paket.id as id',
-                'paket.name as name',
-            )
+            ->where('user_paket.user_id', $userId)   // ⬅ hanya paket milik user login
+            ->select('paket.id', 'paket.name')
             ->get();
+
+        $userId = Auth::id();
 
         $micRadius = DB::table('pages_mic_radius')
             ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
+            ->join('user_mic_radius', 'mic_radius.id', '=', 'user_mic_radius.mic_radius_id')
             ->where('pages_mic_radius.pages_id', $pages->id)
+            ->where('user_mic_radius.user_id', $userId)   // ⬅ hanya yang di-assign ke user login
             ->select(
-                'pages_mic_radius.*',
-                'mic_radius.id as id',
-                'mic_radius.code as code',
-                'mic_radius.name as name'
+                'mic_radius.id',
+                'mic_radius.code',
+                'mic_radius.name'
             )
             ->get();
 

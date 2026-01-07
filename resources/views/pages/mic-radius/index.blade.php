@@ -5,7 +5,7 @@
 @endsection
 
 @push('css')
-    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @section('content')
@@ -60,6 +60,9 @@
                     <th>
                         <button class="table-sort" data-sort="sort-home">Kampung</button>
                     </th>
+                    <th>
+                        <button class="table-sort" data-sort="sort-home">User</button>
+                    </th>
                     <th>Lokasi</th>
                     <th>
                         <button class="table-sort" data-sort="sort-created">Created</button>
@@ -76,6 +79,15 @@
                         <td class="sort-code">{{ $item->code }}</td>
                         <td class="sort-name">{{ $item->name }}</td>
                         <td class="sort-home">{{ $item->hometown->name }}</td>
+                        <td class="sort-home">
+                            @forelse ($item->user as $usr)
+                                <span class="badge bg-primary text-white p-1">
+                                    {{ $usr->name }}
+                                </span>
+                            @empty
+                                -
+                            @endforelse
+                        </td>
                         <td>
                             <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" 
                             target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
@@ -133,6 +145,16 @@
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
                 <div class="form-group mb-3">
+                    <label for="name" class="mb-2">Pilih User</label>
+                    <select name="user_id[]" id="user_id" class="form-control" multiple>
+                        <option value="">Pilih</option>
+                        @foreach ($user as $usr)
+                            <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_name"></span>
+                </div>
+                <div class="form-group mb-3">
                     <label for="code" class="mb-2">Kode Mic Radius</label>
                     <input type="text" name="code" id="code" class="form-control">
                     <span class="invalid-feedback error_code"></span>
@@ -175,6 +197,7 @@
 @endpush
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     // ========= SORT TABLE (List.js + Tabler) =========
     const advancedTable = {
@@ -219,71 +242,82 @@
         }
     });
 
+    $('#user_id').select2({
+        width: '100%',
+        dropdownParent: $('#modal-simple')
+    });
+
     $("#addBtn").click(function() {
         $(".modal-title").html("Tambah Mic Radius");
+        $("#user_id").val("");
         $("#code").val("");
         $("#name").val("");
         $("#type").val("create");
         $("#id").val("");
     });
 
-    $("#storeBtn").click(function() {
+    $("#storeBtn").click(function () {
         let id = $("#id").val();
         let type = $("#type").val();
-        let name = $("#name").val();
-        let code = $("#code").val();
-        let hometowns_id = $("#hometowns_id").val();
-        let latitude = $("#latitude").val();
-        let longitude = $("#longitude").val();
 
         let url;
-        let method;
+        let method = "POST";
 
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
+        if (type === "create") {
+            url = BASE + "/store";
         } else {
-            url = BASE + `/${id}/update`
-            method = "PUT";
+            url = BASE + `/${id}/update`;
         }
-        
+
+        let formData = new FormData();
+
+        formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+        formData.append("_method", type === "create" ? "POST" : "PUT");
+
+        formData.append("name", $("#name").val());
+        formData.append("code", $("#code").val());
+        formData.append("hometowns_id", $("#hometowns_id").val());
+        formData.append("latitude", $("#latitude").val());
+        formData.append("longitude", $("#longitude").val());
+
+        let users = $("#user_id").val() || [];
+        users.forEach(u => formData.append("user_id[]", u));
+
         $.ajax({
             url: url,
             method: method,
-            data: {
-                code: code,
-                name: name,
-                hometowns_id: hometowns_id,
-                latitude: latitude,
-                longitude: longitude,
-            },
-        }).done(function(response) {
-            if (response.errors) {
-                $.each(response.errors, function(index, value) {
-                    
-                    $("#" + index).addClass('is-invalid');
-                    $(".error_" + index).html(value);
+            data: formData,
+            processData: false,
+            contentType: false,
+        })
+            .done(function (response) {
+                if (response.errors) {
+                    $.each(response.errors, function (index, value) {
+                        $("#" + index).addClass("is-invalid");
+                        $(".error_" + index).html(value);
+
+                        setTimeout(() => {
+                            $("#" + index).removeClass("is-invalid");
+                            $(".error_" + index).html("");
+                        }, 3000);
+                    });
+                } else {
+                    $("#modal-simple").modal("hide");
+                    Toast.fire({
+                        icon: response.status,
+                        title: response.message,
+                    });
 
                     setTimeout(() => {
-                        $("#" + index).removeClass('is-invalid');
-                        $(".error_" + index).html('');
+                        window.location.reload();
                     }, 3000);
-                })                
-            } else {
-                $("#modal-simple").modal('hide')
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
-        });
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);
+            });
     });
+
 
     function editModal(id) {
         let url = BASE + `/${id}/show`
@@ -300,6 +334,10 @@
             $("#id").val(data.id);
             $("#code").val(data.code);
             $("#name").val(data.name);
+            $("#hometowns_id").val(data.hometowns_id);
+
+            let selectedUsers = data.user.map(u => u.id);   // ambil id user yang sudah terhubung
+            $("#user_id").val(selectedUsers).trigger("change");
             $("#type").val("update");
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log("Error:", textStatus, errorThrown);

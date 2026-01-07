@@ -26,4 +26,14 @@ class MicRadius extends Model
             'user_id'
         );
     }
+
+    public function user(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_mic_radius',
+            'mic_radius_id',
+            'user_id'
+        );
+    }
 }

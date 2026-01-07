@@ -81,4 +81,25 @@ class User extends Authenticatable
             ->withPivot('total')
             ->withTimestamps();
     }
+
+    public function paket(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Paket::class,
+            'user_paket',        // pivot table
+            'user_id',           // FK user
+            'paket_id'       // FK patch core
+        )
+            ->withTimestamps();
+    }
+
+    public function micRadius(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MicRadius::class,
+            'user_mic_radius',      // pivot table
+            'user_id',               // foreign key di pivot: user
+            'mic_radius_id'          // foreign key di pivot: mix radius
+        );
+    }
 }

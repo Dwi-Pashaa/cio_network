@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Paket;
+use App\Models\User;
+use App\Models\UserPaket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,13 +19,16 @@ class PaketController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $type = Paket::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%");
-        })
+        $type = Paket::with(['user'])
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%$search%");
+            })
             ->orderBy('id', 'DESC')
             ->paginate($sort);
 
-        return view("pages.paket.index", compact("type"));
+        $user = User::all();
+
+        return view("pages.paket.index", compact("type", "user"));
     }
 
     /**
@@ -32,18 +37,23 @@ class PaketController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "name" => "required|string"
+            "name"    => "required|string",
+            "user_id" => "required|array",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $post = $request->all();
+        $paket = Paket::create($request->only("name"));
 
-        Paket::create($post);
+        $paket->user()->attach($request->user_id);
 
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
+        return response()->json([
+            'code'    => 200,
+            'status'  => 'success',
+            'message' => 'Berhasil membuat data.'
+        ]);
     }
 
     /**
@@ -51,7 +61,7 @@ class PaketController extends Controller
      */
     public function show(string $id)
     {
-        $type = Paket::find($id);
+        $type = Paket::with(['user'])->find($id);
 
         if (!$type) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -60,26 +70,41 @@ class PaketController extends Controller
         return response()->json(['code' => 200, 'status' => 'success', 'data' => $type]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
-            "name" => "required|string"
+            "name"      => "required|string",
+            "user_id"   => "required|array",
+            "user_id.*" => "exists:users,id",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $put = $request->only('name');
+        $paket = Paket::find($id);
 
-        $type = Paket::find($id);
+        if (!$paket) {
+            return response()->json([
+                'code' => 404,
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan.'
+            ]);
+        }
 
-        $type->update($put);
+        $paket->update(['name' => $request->name]);
 
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
+        $paket->user()->detach();
+
+        foreach ($request->user_id as $uid) {
+            $paket->user()->attach($uid);
+        }
+
+        return response()->json([
+            'code'    => 200,
+            'status'  => 'success',
+            'message' => 'Berhasil memperbarui data.'
+        ]);
     }
 
     /**
@@ -94,6 +119,8 @@ class PaketController extends Controller
         }
 
         $type->delete();
+
+        $type->user()->detach();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }
