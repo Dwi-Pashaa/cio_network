@@ -377,7 +377,7 @@
 									<div class="col-lg-12 col-md-6 col-sm-12">
 										<div class="form-group mb-3">
 											<label for="" class="mb-2">Pilih Ukuran Patch Core Yang Akan Digunakan</label>
-											<select name="patch_core_id" id="patch_core_id" class="form-control @error('patch_core_id') is-invalid @enderror">
+											<select name="patch_core_id" id="patch_core_id" class="form-control @error('patch_core_id') is-invalid @enderror" required>
 												<option value="">Pilih</option>
 												@foreach ($pathCore as $pc)
 													<option value="{{ $pc->id }}">{{ $pc->name }}</option>

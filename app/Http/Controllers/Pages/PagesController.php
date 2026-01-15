@@ -484,8 +484,6 @@ class PagesController extends Controller
                 return back()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
             }
 
-            $userRouter->decrement('total');
-
             $userPatchCore = UserPatchCore::where('user_id', Auth::id())
                 ->where('patch_core_id', $data['patch_core_id'])
                 ->lockForUpdate()
@@ -498,6 +496,8 @@ class PagesController extends Controller
             if ($userPatchCore->total <= 0) {
                 return back()->with('error', 'Kuota Patch Core Anda sudah habis. Tidak dapat menambah pelanggan baru.');
             }
+
+            $userRouter->decrement('total');
 
             $userPatchCore->decrement('total');
 
