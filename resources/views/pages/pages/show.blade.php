@@ -408,7 +408,10 @@
 							<input type="hidden" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror">
 							<div class="card-footer">
 								<button type="reset" class="btn btn-secondary float-start">Reset</button>
-								<button type="submit" class="btn btn-primary float-end">Kirim</button>
+								<button type="submit" id="btn" class="btn btn-primary float-end">
+									<span id="btn-text">Kirim</span>
+									<span id="btn-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+								</button>
 							</div>
 						</div>
 					</form>
@@ -417,34 +420,6 @@
 		</div>
 	</div>
 
-	@if (session('password_required'))
-		<div class="modal modal-blur fade" id="passwordModal" tabindex="-1" data-bs-backdrop="static" role="dialog" aria-hidden="true">
-			<div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Masukan Password</h5>
-					</div>
-					<form action="{{ route('input.data.confirm.password') }}" method="POST">
-						@csrf
-						<div class="modal-body">
-							@include('components.alert.danger')
-							<input type="hidden" name="slug" id="slug" value="{{ $pages->slug }}">
-							<input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Masukkan password">
-							@error('password')
-								<span class="invalid-feedback">
-									{{ $message }}      
-								</span>
-							@enderror
-						</div>
-						<div class="modal-footer">
-							<button type="reset" class="btn me-auto">Batal</button>
-							<button type="submit" id="storeBtn" class="btn btn-primary">Masuk</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	@endif
 	<!-- Libs JS -->
 	<!-- Tabler Core -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -458,6 +433,17 @@
             });
         </script>
     @endif --}}
+	<script>
+		document.querySelector('form').addEventListener('submit', function () {
+			const btn = document.getElementById('btn');
+			const text = document.getElementById('btn-text');
+			const loading = document.getElementById('btn-loading');
+
+			btn.disabled = true;            // disable button
+			text.textContent = 'Loading...';
+			loading.classList.remove('d-none');
+		});
+	</script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {

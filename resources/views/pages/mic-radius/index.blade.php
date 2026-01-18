@@ -189,7 +189,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                <button type="button" id="storeBtn" class="btn btn-primary">
+                    <span id="btnText">Simpan</span>
+                    <span id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -257,6 +260,10 @@
     });
 
     $("#storeBtn").click(function () {
+        $("#storeBtn").prop("disabled", true);
+        $("#btnText").addClass("d-none");
+        $("#btnLoading").removeClass("d-none");
+
         let id = $("#id").val();
         let type = $("#type").val();
 
@@ -290,34 +297,46 @@
             processData: false,
             contentType: false,
         })
-            .done(function (response) {
-                if (response.errors) {
-                    $.each(response.errors, function (index, value) {
-                        $("#" + index).addClass("is-invalid");
-                        $(".error_" + index).html(value);
+        .done(function (response) {
 
-                        setTimeout(() => {
-                            $("#" + index).removeClass("is-invalid");
-                            $(".error_" + index).html("");
-                        }, 3000);
-                    });
-                } else {
-                    $("#modal-simple").modal("hide");
-                    Toast.fire({
-                        icon: response.status,
-                        title: response.message,
-                    });
+            if (response.errors) {
+
+                resetBtn();
+
+                $.each(response.errors, function (index, value) {
+                    $("#" + index).addClass("is-invalid");
+                    $(".error_" + index).html(value);
 
                     setTimeout(() => {
-                        window.location.reload();
+                        $("#" + index).removeClass("is-invalid");
+                        $(".error_" + index).html("");
                     }, 3000);
-                }
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log("Error:", textStatus, errorThrown);
-            });
-    });
+                });
 
+            } else {
+                $("#modal-simple").modal("hide");
+
+                Toast.fire({
+                    icon: response.status,
+                    title: response.message,
+                });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            resetBtn();
+            console.log("Error:", textStatus, errorThrown);
+        });
+
+        function resetBtn() {
+            $("#storeBtn").prop("disabled", false);
+            $("#btnText").removeClass("d-none");
+            $("#btnLoading").addClass("d-none");
+        }
+    });
 
     function editModal(id) {
         let url = BASE + `/${id}/show`

@@ -312,11 +312,15 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="send-notif" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="send-notif" class="btn btn-primary">
+                        <span class="btn-text">Kirim</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    
     <div class="modal modal-blur fade" id="modal-switch-olt" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -340,7 +344,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="btn-switch" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="btn-switch" class="btn btn-primary">
+                        <span class="btn-text">Kirim</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -513,12 +520,20 @@
             }
         });
 
-        $("#send-notif").click(function () {
+        $("#send-notif").on("click", function () {
+            const btn = $(this);
+
+            if (btn.prop("disabled")) return;
+
+            const btnText = btn.find(".btn-text");
+            const btnLoading = btn.find(".btn-loading");
+
+            btn.prop("disabled", true);
+            btnText.text("Mengirim...");
+            btnLoading.removeClass("d-none");
+
             let customer_id = $("#customer_id").val();
             let notif = $("#notif").val();
-            // let home_town_id = $("#home_town_id").val();
-            // let olt_id = $("#olt_id").val();
-            // let mic_radius_id = $("#mic_radius_id").val();
 
             $.ajax({
                 url: "{{ route('customer.notif') }}",
@@ -527,30 +542,35 @@
                     _token: "{{ csrf_token() }}",
                     customer_id: customer_id,
                     notif: notif,
-                    // home_town_id: home_town_id,
-                    // olt_id: olt_id,
-                    // mic_radius_id: mic_radius_id
                 },
                 dataType: "JSON",
-                success: function (response) {
-                    Toast.fire({
-                        icon: response.status,
-                        title: response.message
-                    });
+            })
+            .done(function (response) {
+                Toast.fire({
+                    icon: response.status,
+                    title: response.message
+                });
 
-                    $("#modal-simple").modal("hide");
+                $("#modal-simple").modal("hide");
 
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 3000);
-                },
-                error: function (err) {
-                    Toast.fire({
-                        icon: "error",
-                        title: "Server Error"
-                    });
-                }
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            })
+            .fail(function () {
+                Toast.fire({
+                    icon: "error",
+                    title: "Server Error"
+                });
+
+                resetBtn();
             });
+
+            function resetBtn() {
+                btn.prop("disabled", false);
+                btnText.text("Kirim");
+                btnLoading.addClass("d-none");
+            }
         });
 
         function openSwitch() {
@@ -574,6 +594,11 @@
         }
 
         $("#btn-switch").click(function () {
+            const btn = $("#btn-switch");
+
+            btn.prop("disabled", true);
+            btn.html("Memproses...");
+
             let customer_switch_id = $("#customer_switch_id").val();
             let olt_id = $("#olt_id").val();
 
@@ -587,27 +612,31 @@
                 },
                 dataType: "JSON",
                 success: function (response) {
-                    console.log(response);
-                    
                     Toast.fire({
                         icon: response.status,
                         title: response.message
                     });
-                    
+
                     if (response.code == 200) {
                         $("#modal-switch-olt").modal("hide");
 
                         setTimeout(() => {
                             window.location.reload();
                         }, 3000);
+                    } else {
+                        // kalau gagal → aktifkan lagi
+                        btn.prop("disabled", false);
+                        btn.html("Kirim");
                     }
                 },
-                error: function (err) {
-                    // Toast.fire({
-                    //     icon: "error",
-                    //     title: "Server Error"
-                    // });
-                    console.log(err);
+                error: function () {
+                    btn.prop("disabled", false);
+                    btn.html("Kirim");
+
+                    Toast.fire({
+                        icon: "error",
+                        title: "Server Error"
+                    });
                 }
             });
         });

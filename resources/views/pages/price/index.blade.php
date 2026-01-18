@@ -123,7 +123,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary">
+                        <span class="btn-text">Simpan</span>
+                        <span class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -190,9 +193,17 @@
             $("#id").val("");
         });
 
-        $("#storeBtn").click(function() {
-            let id = $("#id").val();
-            let type = $("#type").val()
+        $("#storeBtn").click(function () {
+            const btn     = $("#storeBtn");
+            const btnText = btn.find(".btn-text");
+            const spinner = btn.find(".spinner-border");
+
+            btn.prop("disabled", true);
+            btnText.text("Menyimpan...");
+            spinner.removeClass("d-none");
+
+            let id   = $("#id").val();
+            let type = $("#type").val();
             let name = $("#name").val();
 
             let url;
@@ -202,19 +213,22 @@
                 url = BASE + '/store';
                 method = "POST";
             } else {
-                url = BASE + `/${id}/update`
+                url = BASE + `/${id}/update`;
                 method = "PUT";
             }
-            
+
             $.ajax({
                 url: url,
                 method: method,
                 data: {
                     name: name
                 },
-            }).done(function(response) {
+            })
+            .done(function (response) {
                 if (response.errors) {
-                    $.each(response.errors, function(index, value) {
+                    resetBtn();
+
+                    $.each(response.errors, function (index, value) {
                         $("#name").addClass('is-invalid');
                         $(".error_" + index).html(value);
 
@@ -222,9 +236,10 @@
                             $("#name").removeClass('is-invalid');
                             $(".error_" + index).html('');
                         }, 3000);
-                    })                
+                    });
                 } else {
-                    $("#modal-simple").modal('hide')
+                    $("#modal-simple").modal('hide');
+
                     Toast.fire({
                         icon: response.status,
                         title: response.message
@@ -234,9 +249,17 @@
                         window.location.reload();
                     }, 3000);
                 }
-            }).fail(function(jqXHR, textStatus, errorThrown) {
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("Error:", textStatus, errorThrown);
+                resetBtn();
             });
+
+            function resetBtn() {
+                btn.prop("disabled", false);
+                btnText.text("Simpan");
+                spinner.addClass("d-none");
+            }
         });
 
         function editModal(id) {

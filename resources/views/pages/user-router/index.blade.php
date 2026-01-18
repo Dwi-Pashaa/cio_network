@@ -186,7 +186,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary">
+                        <span class="btn-text">Simpan</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -215,7 +218,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeAddStock" class="btn btn-primary">Simpan</button>
+                    <button type="button" id="storeAddStock" class="btn btn-primary">
+                        <span class="btn-text">Simpan</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -326,25 +332,35 @@
         $("#role_id_show").addClass('d-block');
     });
 
-    $("#storeBtn").click(function() {
+    $("#storeBtn").on("click", function () {
+        const btn = $(this);
+
+        if (btn.prop("disabled")) return;
+
+        const btnText = btn.find(".btn-text");
+        const btnLoading = btn.find(".btn-loading");
+
+        btn.prop("disabled", true);
+        btnText.text("Menyimpan...");
+        btnLoading.removeClass("d-none");
+
         let id = $("#id").val();
-        let type = $("#type").val()
+        let type = $("#type").val();
         let user_id = $("#user_id").val();
         let router_id = $("#router_id").val();
         let total = $("#total").val();
         let role = $("#role").val();
 
-        let url;
-        let method;
+        let url, method;
 
         if (type === 'create') {
             url = BASE + '/store';
             method = "POST";
         } else {
-            url = BASE + `/${id}/update`
+            url = BASE + `/${id}/update`;
             method = "PUT";
         }
-        
+
         $.ajax({
             url: url,
             method: method,
@@ -354,9 +370,10 @@
                 total: total,
                 role: role,
             },
-        }).done(function(response) {
+        })
+        .done(function (response) {
             if (response.errors) {
-                $.each(response.errors, function(index, value) {
+                $.each(response.errors, function (index, value) {
                     $("#" + index).addClass('is-invalid');
                     $(".error_" + index).html(value);
 
@@ -364,21 +381,29 @@
                         $("#" + index).removeClass('is-invalid');
                         $(".error_" + index).html('');
                     }, 3000);
-                })                
+                });
+
+                resetBtn();
             } else {
-                $("#modal-simple").modal('hide')
+                $("#modal-simple").modal('hide');
                 Toast.fire({
                     icon: response.status,
                     title: response.message
                 });
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                setTimeout(() => window.location.reload(), 3000);
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        })
+        .fail(function () {
+            console.log("Error request");
+            resetBtn();
         });
+
+        function resetBtn() {
+            btn.prop("disabled", false);
+            btnText.text("Simpan");
+            btnLoading.addClass("d-none");
+        }
     });
 
     function editModal(id) {
@@ -442,45 +467,63 @@
         });
     }
 
-    $("#storeAddStock").click(function() {
-        let user_router_id = $("#user_router_id").val();
-        let total_stock = $("#total_stock").val()
+    $("#storeAddStock").on("click", function () {
+        const btn = $(this);
 
-        let url = "{{ route('user.router.addStore') }}";
-        
+        if (btn.prop("disabled")) return;
+
+        const btnText = btn.find(".btn-text");
+        const btnLoading = btn.find(".btn-loading");
+
+        btn.prop("disabled", true);
+        btnText.text("Menyimpan...");
+        btnLoading.removeClass("d-none");
+
+        let user_router_id = $("#user_router_id").val();
+        let total_stock = $("#total_stock").val();
+
         $.ajax({
-            url: url,
+            url: "{{ route('user.router.addStore') }}",
             method: "POST",
             data: {
                 user_router_id: user_router_id,
                 total_stock: total_stock,
-            },
-        }).done(function(response) {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            }
+        })
+        .done(function (response) {
             if (response.errors) {
-                $.each(response.errors, function(index, value) {
-                    $("#" + index).addClass('is-invalid');
+                $.each(response.errors, function (index, value) {
+                    $("#" + index).addClass("is-invalid");
                     $(".error_" + index).html(value);
+                });
 
-                    setTimeout(() => {
-                        $("#" + index).removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                })                
+                resetButton();
             } else {
-                $("#modal-add-stock").modal('hide')
+                $("#modal-add-stock").modal("hide");
                 Toast.fire({
                     icon: response.status,
                     title: response.message
                 });
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                setTimeout(() => location.reload(), 1500);
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        })
+        .fail(function () {
+            Toast.fire({
+                icon: "error",
+                title: "Terjadi kesalahan"
+            });
+            resetButton();
         });
+
+        function resetButton() {
+            btn.prop("disabled", false);
+            btnText.text("Simpan");
+            btnLoading.addClass("d-none");
+        }
     });
+
 
     function deleteType(id) {
         Swal.fire({

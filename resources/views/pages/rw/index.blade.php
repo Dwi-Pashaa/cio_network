@@ -71,12 +71,12 @@
                         @if(auth()->user()->can('ubah rw') || auth()->user()->can('hapus rw'))
                             <td>
                                 @can('ubah rw')
-                                    <a href="javascript:void(0)" onclick="editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-sm">
+                                    <a href="javascript:void(0)" onclick="editModal('{{ $item->id }}')" class="btn btn-outline-warning">
                                         Edit
                                     </a>
                                 @endcan
                                 @can('hapus rw')
-                                    <a href="javascript:void(0)" onclick="deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-sm">
+                                    <a href="javascript:void(0)" onclick="deleteType('{{ $item->id }}')" class="btn btn-outline-danger">
                                         Hapus
                                     </a>
                                 @endcan
@@ -125,7 +125,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                <button type="button" id="storeBtn" class="btn btn-primary">
+                    <span id="btnText">Simpan</span>
+                    <span id="btnLoading" class="spinner-border spinner-border-sm d-none"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -181,9 +184,13 @@
         $("#id").val("");
     });
 
-    $("#storeBtn").click(function() {
+    $("#storeBtn").click(function () {
+        $("#storeBtn").prop("disabled", true);
+        $("#btnText").addClass("d-none");
+        $("#btnLoading").removeClass("d-none");
+
         let id = $("#id").val();
-        let type = $("#type").val()
+        let type = $("#type").val();
         let name = $("#name").val();
 
         let url;
@@ -193,19 +200,24 @@
             url = BASE + '/store';
             method = "POST";
         } else {
-            url = BASE + `/${id}/update`
+            url = BASE + `/${id}/update`;
             method = "PUT";
         }
-        
+
         $.ajax({
             url: url,
             method: method,
             data: {
                 name: name
             },
-        }).done(function(response) {
+        })
+        .done(function (response) {
+
             if (response.errors) {
-                $.each(response.errors, function(index, value) {
+
+                resetBtn();
+
+                $.each(response.errors, function (index, value) {
                     $("#name").addClass('is-invalid');
                     $(".error_" + index).html(value);
 
@@ -213,9 +225,11 @@
                         $("#name").removeClass('is-invalid');
                         $(".error_" + index).html('');
                     }, 3000);
-                })                
+                });
+
             } else {
-                $("#modal-simple").modal('hide')
+                $("#modal-simple").modal('hide');
+
                 Toast.fire({
                     icon: response.status,
                     title: response.message
@@ -225,9 +239,17 @@
                     window.location.reload();
                 }, 3000);
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            resetBtn();
             console.log("Error:", textStatus, errorThrown);
         });
+
+        function resetBtn() {
+            $("#storeBtn").prop("disabled", false);
+            $("#btnText").removeClass("d-none");
+            $("#btnLoading").addClass("d-none");
+        }
     });
 
     function editModal(id) {

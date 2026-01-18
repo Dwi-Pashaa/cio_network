@@ -159,7 +159,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                <button type="button" id="storeBtn" class="btn btn-primary">
+                    <span id="btnText">Simpan</span>
+                    <span id="btnLoading" class="spinner-border spinner-border-sm d-none"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -218,9 +221,13 @@
         $("#id").val("");
     });
 
-    $("#storeBtn").click(function() {
+    $("#storeBtn").click(function () {
+        $("#storeBtn").prop("disabled", true);
+        $("#btnText").addClass("d-none");
+        $("#btnLoading").removeClass("d-none");
+
         let id = $("#id").val();
-        let type = $("#type").val()
+        let type = $("#type").val();
         let regencie_id = $("#regencie_id").val();
         let district_id = $("#district_id").val();
         let name = $("#name").val();
@@ -232,11 +239,10 @@
             url = BASE + '/store';
             method = "POST";
         } else {
-            url = BASE + `/${id}/update`
+            url = BASE + `/${id}/update`;
             method = "PUT";
         }
-        console.log(id);
-        
+
         $.ajax({
             url: url,
             method: method,
@@ -245,9 +251,14 @@
                 district_id: district_id,
                 name: name,
             },
-        }).done(function(response) {
+        })
+        .done(function (response) {
+
             if (response.errors) {
-                $.each(response.errors, function(index, value) {
+
+                resetBtn();
+
+                $.each(response.errors, function (index, value) {
                     $("#" + index).addClass('is-invalid');
                     $(".error_" + index).html(value);
 
@@ -255,9 +266,11 @@
                         $("#" + index).removeClass('is-invalid');
                         $(".error_" + index).html('');
                     }, 3000);
-                })                
+                });
+
             } else {
-                $("#modal-simple").modal('hide')
+                $("#modal-simple").modal('hide');
+
                 Toast.fire({
                     icon: response.status,
                     title: response.message
@@ -267,9 +280,17 @@
                     window.location.reload();
                 }, 3000);
             }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            resetBtn();
             console.log("Error:", textStatus, errorThrown);
         });
+
+        function resetBtn() {
+            $("#storeBtn").prop("disabled", false);
+            $("#btnText").removeClass("d-none");
+            $("#btnLoading").addClass("d-none");
+        }
     });
 
     function editModal(id) {

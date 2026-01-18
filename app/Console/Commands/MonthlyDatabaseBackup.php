@@ -43,7 +43,7 @@ class MonthlyDatabaseBackup extends Command
 
         try {
             Mail::raw('Berikut backup database bulan ini.', function ($message) use ($path, $fileName) {
-                $message->to('dwipasha776@gmail.com')
+                $message->to('dwi.putra.si.22@cic.ac.id')
                     ->subject('Backup Database Web Data CIO Network Bulanan')
                     ->attach($path);
             });

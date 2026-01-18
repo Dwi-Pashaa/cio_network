@@ -157,7 +157,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">Simpan</button>
+                <button type="button" id="storeBtn" class="btn btn-primary">
+                    <span class="btn-text">Simpan</span>
+                    <span class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -232,6 +235,14 @@
     });
 
     $("#storeBtn").click(function () {
+        const btn     = $("#storeBtn");
+        const btnText = btn.find(".btn-text");
+        const spinner = btn.find(".spinner-border");
+
+        btn.prop("disabled", true);
+        btnText.text("Menyimpan...");
+        spinner.removeClass("d-none");
+
         let id   = $("#id").val();
         let type = $("#type").val();
 
@@ -257,11 +268,13 @@
             url: url,
             method: method,
             data: formData,
-            processData: false, 
-            contentType: false, 
+            processData: false,
+            contentType: false,
         })
         .done(function (response) {
             if (response.errors) {
+                resetBtn();
+
                 $.each(response.errors, function (index, value) {
                     $("#" + index).addClass("is-invalid");
                     $(".error_" + index).html(value);
@@ -284,9 +297,15 @@
         })
         .fail(function (jqXHR) {
             console.log("Error:", jqXHR.responseText);
+            resetBtn();
         });
-    });
 
+        function resetBtn() {
+            btn.prop("disabled", false);
+            btnText.text("Simpan");
+            spinner.addClass("d-none");
+        }
+    });
 
     function editModal(id) {
         let url = BASE + `/${id}/show`;

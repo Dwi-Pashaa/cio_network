@@ -170,7 +170,10 @@
 
             {{-- Buttons --}}
             <div class="mt-3">
-                <button type="submit" class="btn btn-primary float-end">Update</button>
+                <button type="submit" id="btn" class="btn btn-primary float-end">
+                    <span id="btn-text">Tambah</span>
+                    <span id="btn-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
             </div>
 
         </form>
@@ -220,4 +223,15 @@
             }
         });
     </script>
+    <script>
+		document.querySelector('form').addEventListener('submit', function () {
+			const btn = document.getElementById('btn');
+			const text = document.getElementById('btn-text');
+			const loading = document.getElementById('btn-loading');
+
+			btn.disabled = true;            // disable button
+			text.textContent = 'Loading...';
+			loading.classList.remove('d-none');
+		});
+	</script>
 @endpush
