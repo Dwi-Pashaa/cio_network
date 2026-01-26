@@ -337,8 +337,8 @@
                                                             {{ $upg->name }}
                                                         </div>
                                                         <div class="text-muted small">
-                                                            @if($upg->regency)
-                                                                <div class="text-truncate">{{ $upg->regency->name }}</div>
+                                                            @if($upg->regencie)
+                                                                <div class="text-truncate">{{ $upg->regencie->name }}</div>
                                                             @endif
                                                             @if($upg->district)
                                                                 <div class="text-truncate">{{ $upg->district->name }}</div>
