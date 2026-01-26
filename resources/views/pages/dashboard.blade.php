@@ -338,13 +338,13 @@
                                                         </div>
                                                         <div class="text-muted small">
                                                             @if($upg->regencie)
-                                                                <div class="text-truncate">{{ $upg->regencie->first()?->name }}</div>
+                                                                <div class="text-truncate">Kabupaten/Kota : {{ $upg->regencie->first()?->name }}</div>
                                                             @endif
                                                             @if($upg->district)
-                                                                <div class="text-truncate">{{ $upg->district->first()?->name }}</div>
+                                                                <div class="text-truncate">Kecamatan : {{ $upg->district->first()?->name }}</div>
                                                             @endif
                                                             @if($upg->village)
-                                                                <div class="text-truncate">{{ $upg->village->first()?->name }}</div>
+                                                                <div class="text-truncate">Desa : {{ $upg->village->first()?->name }}</div>
                                                             @endif
                                                             @if($upg->vlan)
                                                                 <div class="text-truncate">VLAN: {{ $upg->vlan->first()?->name }}</div>
