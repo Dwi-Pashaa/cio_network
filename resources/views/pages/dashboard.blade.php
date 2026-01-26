@@ -336,14 +336,19 @@
                                                         <div class="fw-bold text-truncate" title="{{ $upg->name }}" style="max-width: 100%;">
                                                             {{ $upg->name }}
                                                         </div>
-                                                        <div class="text-muted small text-nowrap">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" 
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                                <path d="M5 12l5 5l10 -10" />
-                                                            </svg>
-                                                            Aktif
+                                                        <div class="text-muted small">
+                                                            @if($upg->regency)
+                                                                <div class="text-truncate">{{ $upg->regency->name }}</div>
+                                                            @endif
+                                                            @if($upg->district)
+                                                                <div class="text-truncate">{{ $upg->district->name }}</div>
+                                                            @endif
+                                                            @if($upg->village)
+                                                                <div class="text-truncate">{{ $upg->village->name }}</div>
+                                                            @endif
+                                                            @if($upg->vlan)
+                                                                <div class="text-truncate">VLAN: {{ $upg->vlan->name }}</div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
