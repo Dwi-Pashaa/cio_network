@@ -346,8 +346,10 @@
                                                             @if($upg->village)
                                                                 <div class="text-truncate">Desa : {{ $upg->village->first()?->name }}</div>
                                                             @endif
-                                                            @if($upg->vlan)
-                                                                <div class="text-truncate">VLAN: {{ $upg->vlan->first()?->name }}</div>
+                                                            @if($upg->vlan->count() > 0)
+                                                                <div class="text-truncate">
+                                                                    VLAN: {{ $upg->vlan->first()->name }}
+                                                                </div>
                                                             @endif
                                                         </div>
                                                     </div>

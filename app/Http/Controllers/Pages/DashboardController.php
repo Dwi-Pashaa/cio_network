@@ -63,8 +63,6 @@ class DashboardController extends Controller
 
         $userPages = Auth::user()->pages()->with(['regencie', 'district', 'village', 'vlan'])->get();
 
-        dd($userPages['vlan']);
-
         return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages"));
     }
 
