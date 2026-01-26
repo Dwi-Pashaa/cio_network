@@ -319,7 +319,7 @@
                                     $bgColor = $colors[$loop->index % count($colors)];
                                 @endphp
                                 <div class="col-lg-3 col-md-4 col-sm-6">
-                                    <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" style="text-decoration: none">
+                                    <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" target="_blank" style="text-decoration: none">
                                         <div class="card card-sm border hover-shadow-sm h-100">
                                             <div class="card-body p-3">
                                                 <div class="d-flex align-items-center">
