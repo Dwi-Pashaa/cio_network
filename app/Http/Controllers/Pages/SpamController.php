@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\SwitchDevice;
+use App\Models\UserPatchCore;
 use App\Models\UserRouter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,6 +116,16 @@ class SpamController extends Controller
 
             if ($userRouter) {
                 $userRouter->increment('total');
+            }
+        }
+
+        if ($customer->patch_core_id) {
+            $userPatchCore = UserPatchCore::where('user_id', $customer->user_id)
+                ->where('patch_core_id', $customer->patch_core_id)
+                ->first();
+
+            if ($userPatchCore) {
+                $userPatchCore->increment('total');
             }
         }
 
