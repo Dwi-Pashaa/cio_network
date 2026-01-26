@@ -348,7 +348,7 @@
                                                             @endif
                                                             @if($upg->vlan->count() > 0)
                                                                 <div class="text-truncate">
-                                                                    VLAN: {{ dd($upg->vlan) }}
+                                                                    VLAN: {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}
                                                                 </div>
                                                             @endif
                                                         </div>

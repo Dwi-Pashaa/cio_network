@@ -21,4 +21,8 @@ class PagesVlan extends Model
     {
         return $this->belongsTo(Router::class, 'routers_id');
     }
+    public function vlan()
+    {
+        return $this->belongsTo(Vlan::class, 'vlans_id');
+    }
 }
