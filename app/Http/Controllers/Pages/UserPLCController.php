@@ -48,7 +48,7 @@ class UserPLCController extends Controller
             "role" => "required|string",
             "user_id" => "required|integer",
             "plc_id" => "required|integer",
-            "total" => "required|integer|min:1",
+            "total" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -140,7 +140,7 @@ class UserPLCController extends Controller
         $validation = Validator::make($request->all(), [
             "user_id" => "required",
             "plc_id" => "required",
-            "total" => "required|integer|min:1",
+            "total" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -207,7 +207,7 @@ class UserPLCController extends Controller
     {
         $validation = Validator::make($request->all(), [
             "user_plc_id" => "required",
-            "total_stock" => "required|integer|min:1",
+            "total_stock" => "required",
         ]);
 
         if ($validation->fails()) {

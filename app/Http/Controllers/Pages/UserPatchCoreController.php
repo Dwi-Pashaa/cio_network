@@ -48,7 +48,7 @@ class UserPatchCoreController extends Controller
             "role" => "required|string",
             "user_id" => "required|integer",
             "patch_core_id" => "required|integer",
-            "total" => "required|integer|min:1",
+            "total" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -139,7 +139,7 @@ class UserPatchCoreController extends Controller
         $validation = Validator::make($request->all(), [
             "user_id" => "required",
             "patch_core_id" => "required",
-            "total" => "required|integer|min:1",
+            "total" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -206,7 +206,7 @@ class UserPatchCoreController extends Controller
     {
         $validation = Validator::make($request->all(), [
             "user_patch_core_id" => "required",
-            "total_stock"    => "required|integer|min:1",
+            "total_stock"    => "required",
         ]);
 
         if ($validation->fails()) {
