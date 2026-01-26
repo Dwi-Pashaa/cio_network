@@ -56,6 +56,7 @@
                     <th>Telphone</th>
                     <th>Level</th>
                     <th>Penempatan</th>
+                    <th>Aksess Halaman</th>
                     <th>OLT</th>
                     <th>Mic Radius</th>
                     <th>Created</th>
@@ -91,6 +92,18 @@
                             @forelse ($item->regencie as $regencie)
                                 <span class="badge bg-primary text-white mb-2">
                                     {{$regencie->name}}
+                                </span>
+                                <br>
+                            @empty
+                                <span class="badge bg-secondary text-white">
+                                    Tidak ada penempatan
+                                </span>
+                            @endforelse
+                        </td>
+                        <td>
+                            @forelse ($item->pages as $page)
+                                <span class="badge bg-primary text-white mb-2">
+                                    {{$page->name}}
                                 </span>
                                 <br>
                             @empty

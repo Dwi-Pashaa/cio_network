@@ -17,6 +17,7 @@
     // Ambil selected OLT dari pivot
     $selectedOlts = $user->olts->pluck('id')->toArray();
     $selectedRegencie = $user->regencie->pluck('id')->toArray();
+    $selectedPages = $user->pages->pluck('id')->toArray();
 
     $currentRole = old('role', $user->roles->first()->name ?? '');
 @endphp
@@ -148,6 +149,24 @@
                 @enderror
             </div>
 
+            <div class="form-group mb-3">
+                <label for="username" class="mb-2">Aksess Data Halaman</label>
+                <select name="pages_id[]" id="select-pages" class="form-control @error('pages_id') is-invalid @enderror" multiple>
+                    <option value="">Pilih</option>
+                    @foreach ($pages as $page)
+                        <option value="{{ $page->id }}"
+                            {{ in_array($page->id, old('pages_id', $selectedPages)) ? 'selected' : '' }}>
+                            {{ $page->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('pages_id')
+                    <span class="invalid-feedback">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
             {{-- Password --}}
             <div class="row">
                 <div class="col-md-6">
@@ -200,6 +219,12 @@
         });
 
         new TomSelect("#select-regencie", {
+            plugins: ['remove_button'],
+            placeholder: "Pilih Penempatan Kabupaten/Kota",
+            maxItems: null
+        });
+        
+        new TomSelect("#select-pages", {
             plugins: ['remove_button'],
             placeholder: "Pilih Penempatan Kabupaten/Kota",
             maxItems: null

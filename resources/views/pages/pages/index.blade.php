@@ -74,7 +74,7 @@
                             <button class="table-sort" data-sort="sort-telp">No Telephone</button>
                         </th>
                         <th>
-                            <button class="table-sort" data-sort="sort-pass">Kunci</button>
+                            <button class="table-sort" data-sort="sort-pass">Fitur KTP</button>
                         </th>
                         <th>
                             <button class="table-sort" data-sort="sort-created">Created</button>
@@ -88,7 +88,13 @@
                             <td><span class="text-secondary">{{ $loop->iteration }}</span></td>
                             <td class="sort-name">{{ $item->name }}</td>
                             <td class="sort-telp">{{ $item->telp }}</td>
-                            <td class="sort-pass">{{ $item->password_show }}</td>
+                            <td class="sort-pass">
+                                @if($item->is_ktp == 'aktif')
+                                    <span class="badge bg-success text-white">Aktif</span>
+                                @else
+                                    <span class="badge bg-warning text-white">Tidak Aktif</span>
+                                @endif
+                            </td>
                             <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
                             <td>
                                 @can('lihat halaman')
@@ -309,17 +315,20 @@
                                 <span class="invalid-feedback error_price"></span>
                             </div>
                         </div>
+                        <div class="col-lg-12">
+                            <div class="form-group mb-3">
+                                <label for="is_ktp" class="mb-2">Apakah Halaman Menggunakan KTP</label>
+                                <select name="is_ktp" id="is_ktp" class="form-control">
+                                    <option value="">Pilih</option>
+                                    <option value="aktif">Aktif</option>
+                                    <option value="tidak">Tidak</option>
+                                </select>
+                                <span class="invalid-feedback error_is_ktp"></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group mb-3">
-                        <label for="telp" class="mb-2">No Telephone</label>
-                        <input type="text" name="telp" id="telp" class="form-control">
-                        <span class="invalid-feedback error_telp"></span>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="password" class="mb-2">Kunci Halaman</label>
-                        <input type="text" name="password" id="password" class="form-control">
-                        <span class="invalid-feedback error_password"></span>
-                    </div>
+                    <input type="hidden" name="telp" id="telp" class="form-control" value="123">
+                    <input type="hidden" name="password" id="password" class="form-control" value="123">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
@@ -478,6 +487,7 @@
             formData.append('price', $('#price').val());
             formData.append('telp', $('#telp').val());
             formData.append('password', $('#password').val());
+            formData.append('is_ktp', $('#is_ktp').val());
 
             if (id) {
                 formData.append('_method', 'PUT');
@@ -564,7 +574,7 @@
                 $("#name").val(data.name);
                 $("#telp").val(data.telp);
                 $("#desc").val(data.desc);
-                $("#password").val(data.password_show);
+                $("#is_ktp").val(data.is_ktp);
                 $("#type").val("update");
 
                 $("#regencies_id").val(data.regencies_id).trigger('change');

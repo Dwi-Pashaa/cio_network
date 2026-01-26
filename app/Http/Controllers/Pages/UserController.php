@@ -7,6 +7,7 @@ use App\Models\MicRadius;
 use App\Models\MixRadiusUser;
 use App\Models\OLT;
 use App\Models\OLTUser;
+use App\Models\Pages;
 use App\Models\Regency;
 use App\Models\User;
 use Google\Service\Analytics\RemarketingAudienceAudienceDefinition;
@@ -25,7 +26,7 @@ class UserController extends Controller
         $sort = $request->sort ?? 10;
         $search = $request->search ?? null;
 
-        $users = User::with(['mixRadius', 'olts', 'regencie'])
+        $users = User::with(['mixRadius', 'olts', 'regencie', 'pages'])
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%");
@@ -45,8 +46,9 @@ class UserController extends Controller
         $olts = OLT::all();
         $micRadius = MicRadius::all();
         $regencie = Regency::all();
+        $pages = Pages::all();
 
-        return view("pages.user.create", compact("role", "olts", "micRadius", "regencie"));
+        return view("pages.user.create", compact("role", "olts", "micRadius", "regencie", "pages"));
     }
 
     public function store(Request $request)
@@ -60,6 +62,7 @@ class UserController extends Controller
             'regencie_id'  => 'required|array|min:1',
             'regencie_id.*' => 'exists:regencies,id',
             "password" => "required|string|min:8|confirmed",
+            'pages_id' => 'required|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -74,8 +77,12 @@ class UserController extends Controller
         $data['password'] = Hash::make($request->password);
 
         $user = User::create($data);
+
         $user->assignRole($request->role);
+
         $user->regencie()->sync($validated['regencie_id']);
+
+        $user->pages()->sync($validated['pages_id']);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->attach($request->olt_id);
@@ -99,8 +106,9 @@ class UserController extends Controller
         $olts = OLT::all();
         $micRadius = MicRadius::all();
         $regencie = Regency::all();
+        $pages = Pages::all();
 
-        return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie"));
+        return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie", "pages"));
     }
 
     public function update(Request $request, $id)
@@ -119,6 +127,7 @@ class UserController extends Controller
             "telp" => "required",
             "password" => "nullable|string|min:8|confirmed",
             'regencie_id' => 'required|array',
+            'pages_id' => 'required|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -141,6 +150,8 @@ class UserController extends Controller
         $user->syncRoles([$request->role]);
 
         $user->regencie()->sync($request->regencie_id);
+
+        $user->pages()->sync($request->pages_id);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->sync($request->olt_id);

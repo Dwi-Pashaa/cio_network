@@ -118,6 +118,20 @@
                     </span>
                 @enderror
             </div>
+            <div class="form-group mb-3">
+                <label for="username" class="mb-2">Aksess Data Halaman</label>
+                <select name="pages_id[]" id="select-pages" class="form-control @error('pages_id') is-invalid @enderror" multiple>
+                    <option value="">Pilih</option>
+                    @foreach ($pages as $page)
+                        <option value="{{ $page->id }}">{{ $page->name }}</option>
+                    @endforeach
+                </select>
+                @error('pages_id')
+                    <span class="invalid-feedback">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="form-group mb-3">
@@ -180,6 +194,15 @@
             new TomSelect("#select-regencie", {
                 plugins: ['remove_button'],
                 placeholder: "Pilih Penempatan Kabupaten/Kota",
+                persist: false,
+                maxItems: null, // unlimited
+                create: false
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#select-pages", {
+                plugins: ['remove_button'],
+                placeholder: "Pilih Aksess Data Halaman",
                 persist: false,
                 maxItems: null, // unlimited
                 create: false

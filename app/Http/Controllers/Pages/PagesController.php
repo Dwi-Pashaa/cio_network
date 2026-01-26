@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\Events\ChatSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\StorePagesRequest;
 use App\Models\Chat;
 use App\Models\Customer;
 use App\Models\District;
@@ -30,6 +31,7 @@ use App\Models\Vlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -49,12 +51,15 @@ class PagesController extends Controller
         $village = $request->filter_village ?? null;
 
         $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+        $authUserPages = Auth::user()->pages->pluck('id')->toArray();
 
-        // Jika hometown dan village tidak ada, kosongkan data
         if (empty($hometown) && empty($village)) {
-            $pages = Pages::whereRaw('1 = 0')->paginate($sort);
+            $pages = Pages::whereIn('id', $authUserPages)
+                ->whereRaw('1 = 0')
+                ->paginate($sort);
         } else {
             $pages = Pages::with(['hometown'])
+                ->whereIn('id', $authUserPages)
                 ->when($search, function ($query, $search) {
                     $query->where('name', 'like', "%$search%")
                         ->orWhereHas('hometown', function ($q) use ($search) {
@@ -111,9 +116,7 @@ class PagesController extends Controller
         $validation = Validator::make($request->all(), [
             "name" => "required|string",
             "hometowns_id" => "required",
-            "telp" => "required|string",
             "desc" => "required|string",
-            "password" => "required|string",
             "regencies_id" => "required",
             "districts_id" => "required",
             "villages_id" => "required",
@@ -125,16 +128,18 @@ class PagesController extends Controller
             "paket_id" => "required",
             "mic_radius_id" => "required",
             "price" => "required",
+            "is_ktp" => "required|in:aktif,tidak",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $post = $request->only("name", "hometowns_id", "telp", "desc", "password", "regencies_id", "districts_id", "villages_id");
+        $post = $request->only("name", "hometowns_id", "telp", "desc", "password", "regencies_id", "districts_id", "villages_id", "is_ktp");
         $post['slug'] = Str::slug($request->name);
         $post['password'] = Hash::make($request->password);
         $post['password_show'] = $request->password;
+        $post['is_ktp'] = $request->is_ktp;
 
         $pages = Pages::create($post);
 
@@ -227,9 +232,7 @@ class PagesController extends Controller
         $validation = Validator::make($request->all(), [
             "name" => "required|string",
             "hometowns_id" => "required",
-            "telp" => "required|string",
             "desc" => "required|string",
-            "password" => "nullable|string",
             "regencies_id" => "required",
             "districts_id" => "required",
             "villages_id" => "required",
@@ -241,6 +244,7 @@ class PagesController extends Controller
             "paket_id" => "required",
             "mic_radius_id" => "required",
             "price" => "required",
+            "is_ktp" => "required|in:aktif,tidak",
         ]);
 
         if ($validation->fails()) {
@@ -249,8 +253,9 @@ class PagesController extends Controller
 
         $pages = Pages::findOrFail($id);
 
-        $updateData = $request->only("name", "hometowns_id", "telp", "desc", "regencies_id", "districts_id", "villages_id");
+        $updateData = $request->only("name", "hometowns_id", "telp", "desc", "regencies_id", "districts_id", "villages_id", "is_ktp");
         $updateData['slug'] = Str::slug($request->name);
+        $post['is_ktp'] = $request->is_ktp;
 
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
@@ -447,29 +452,59 @@ class PagesController extends Controller
         return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore"));
     }
 
-    public function confirmPagesPassword(Request $request)
+    private function handleKtpBase64($base64Image)
     {
-        $request->validate([
-            "password" => "required|string"
-        ]);
-
-        $pages = Pages::where('slug', $request->slug)->first();
-
-        if (Hash::check($request->password, $pages->password)) {
-            return redirect()->route('input.data.index', ['slug' => $pages->slug])
-                ->withCookie(cookie('page_access_' . $pages->id, true, 5));
+        if (!preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
+            throw new \Exception('Format foto KTP tidak valid.');
         }
 
-        return back()->with('error', 'Password salah.');
+        $imageType = $matches[1];
+        $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+        $imageData = base64_decode($imageData);
+
+        if ($imageData === false) {
+            throw new \Exception('Gagal decode foto KTP.');
+        }
+
+        $fileName = 'ktp_' . time() . '_' . Str::random(10) . '.' . $imageType;
+        $folderPath = public_path('upload/ktp');
+
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
+
+        $filePath = $folderPath . '/' . $fileName;
+        file_put_contents($filePath, $imageData);
+
+        return [
+            'file_name' => $fileName,
+            'path'      => 'upload/ktp/' . $fileName,
+        ];
     }
 
-    public function saveCustomerToSpan(StoreCustomerRequest $request)
+    public function saveCustomerToSpan(StorePagesRequest $request)
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
         $typeName = $data['type_name'] ?? null;
 
-        return DB::transaction(function () use ($request, $data, $typeName) {
+        $ktpUrl = null;
+
+        if ($request->is_ktp === 'aktif') {
+            try {
+                $ktpResult = $this->handleKtpBase64($request->ktp_photo);
+                $data['ktp_photo'] = $ktpResult['path'];
+
+                $ktpUrl = asset($ktpResult['path']);
+            } catch (\Exception $e) {
+                Log::error('Error processing KTP photo: ' . $e->getMessage());
+                return back()->with('error', 'Gagal memproses foto KTP: ');
+            }
+        } else {
+            $data['ktp_photo'] = null;
+        }
+
+        return DB::transaction(function () use ($request, $data, $typeName, $ktpUrl) {
 
             $userRouter = UserRouter::where('user_id', Auth::id())
                 ->where('router_id', $data['routers_id'])
@@ -606,7 +641,8 @@ class PagesController extends Controller
                 . "*Alamat OLT: <a href=\"{$olt->link}\" target=\"_blank\">{$olt->hometown->name} - {$olt->name}</a>\n"
                 . "*NO HP / WA*: {$customer->telp}\n"
                 . "*Email*: {$customer->email}\n"
-                . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n";
+                . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n"
+                . "*Foto KTP*: <a href=\"{$ktpUrl}\" target=\"_blank\">Foto KTP</a>\n";
 
             if ($typeName === "PPPOE") {
                 $wifiName  = $customer->name_wifi;

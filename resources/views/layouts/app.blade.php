@@ -85,7 +85,7 @@
 	<script src="{{ asset('') }}libs/list.js/dist/list.min.js?1759774804" defer=""></script>
 	<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.15.0/echo.iife.js"></script>
-	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 	<script>
 		$.ajaxSetup({
 			headers: {

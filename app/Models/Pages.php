@@ -70,4 +70,10 @@ class Pages extends Model
     {
         return $this->hasMany(PagesPrice::class, 'pages_id', 'id');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_pages', 'pages_id', 'user_id')
+            ->withTimestamps();
+    }
 }

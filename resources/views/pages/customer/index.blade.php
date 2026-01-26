@@ -143,32 +143,34 @@
                                 <button class="table-sort d-flex justify-content-between desc">No</button>
                             </th>
                             <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-id">ID Pelanggan</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-type">Type Pelanggan</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nama">Nama Pelanggan</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-email">Email</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-telp">No Telephone</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mac">Mac Address</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-router">Jenis Router</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kampung">Kampung</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-desa">Desa</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rt">RT</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rw">RW</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kecamatan">Kecamatan</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kabupaten">Kabupaten/Kota</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-vlan">Vlan</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odc">Alamat ODC</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odp">Alamat ODP</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-olt">Alamat OLT</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-wifi">Nama Wifi</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-passwifi">Password Wifi</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoeuser">PPOE Username</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoepsw">PPOE Password</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-paket">Tipe Paket</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mixradius">Mix Radius</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-pembayaran">Tipe Pembayaran</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-lokasi">Lokasi</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-input">Di Input Oleh</button></th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">Created</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-type">Type Pelanggan</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nik">NIK</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nama">Nama Pelanggan</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-email">Email</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-telp">No Telephone</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mac">Mac Address</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-router">Jenis Router</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kampung">Kampung</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-desa">Desa</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rt">RT</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rw">RW</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kecamatan">Kecamatan</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kabupaten">Kabupaten/Kota</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-vlan">Vlan</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odc">Alamat ODC</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odp">Alamat ODP</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-olt">Alamat OLT</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-wifi">Nama Wifi</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-passwifi">Password Wifi</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoeuser">PPOE Username</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoepsw">PPOE Password</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-paket">Tipe Paket</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mixradius">Mix Radius</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-pembayaran">Tipe Pembayaran</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-lokasi">Lokasi</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ktp">Foto KTP</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-input">Di Input Oleh</button></th>
+                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">Created</button></th>
                             @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                                 <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-action">Action</button></th>
                             @endif
@@ -184,6 +186,7 @@
                                 </td>
                                 <td class="sort-id">{{ $item->uuid ?? '-' }}</td>
                                 <td class="sort-type">{{ $item->type->name }}</td>
+                                <td class="sort-type">{{ $item->nik ?? '-' }}</td>
                                 <td class="sort-nama">{{ $item->name }}</td>
                                 <td class="sort-email">{{ $item->email }}</td>
                                 <td class="sort-telp">{{ $item->telp }}</td>
@@ -216,6 +219,13 @@
                                 <td class="sort-pembayaran">{{ optional($item)->price->name ?? '-' }}</td>
                                 <td class="sort-lokasi">
                                     <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
+                                </td>
+                                <td class="sort-lokasi">
+                                    @if ($item->ktp_photo != null)
+                                        <a href="{{ asset($item->ktp_photo) }}" target="_blank" class="btn btn-primary btn-sm">Lihat Foto KTP</a>
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                                 <td class="sort-input">{{ optional($item)->user->name ?? '-' }}</td>
                                 <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>

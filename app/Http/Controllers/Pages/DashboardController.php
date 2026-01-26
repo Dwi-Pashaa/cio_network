@@ -61,7 +61,9 @@ class DashboardController extends Controller
         $userRouter = Auth::user()->router()->get();
         $userPatchCore = Auth::user()->patchCore()->get();
 
-        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore"));
+        $userPages = Auth::user()->pages()->get();
+
+        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages"));
     }
 
     public function getDetailCount($id, $text)

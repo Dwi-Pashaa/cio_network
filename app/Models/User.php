@@ -102,4 +102,10 @@ class User extends Authenticatable
             'mic_radius_id'          // foreign key di pivot: mix radius
         );
     }
+
+    public function pages()
+    {
+        return $this->belongsToMany(Pages::class, 'user_pages', 'user_id', 'pages_id')
+            ->withTimestamps();
+    }
 }

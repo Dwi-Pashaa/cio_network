@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StorePagesRequest extends FormRequest
+{
+    /**
+     * Tentukan apakah pengguna diizinkan untuk melakukan request ini.
+     */
+    public function authorize(): bool
+    {
+        return true; // Ubah menjadi true agar bisa digunakan
+    }
+
+    /**
+     * Aturan validasi yang akan diterapkan pada request ini.
+     */
+    public function rules(): array
+    {
+        return [
+            'nik' => $this->input('is_ktp') === 'aktif' ? 'required|digits:16|unique:customers,nik' : 'nullable|digits:16',
+            'types_id'    => 'required',
+            'name'        => 'required|string|max:255',
+            'email'       => 'required',
+            'telp'        => 'required|numeric|digits_between:10,15',
+            'mac_address' => 'required|string',
+            'routers_id'  => 'required',
+            'hometowns_id' => 'required',
+            'villages_id'  => 'required',
+            'rts_id'       => 'required',
+            'rws_id'       => 'required',
+            'districts_id' => 'required',
+            'regencies_id' => 'required',
+            'vlans_id'     => 'required',
+            'odcs_id'      => 'required',
+            'odps_id'      => 'required',
+            'olts_id'      => 'required',
+            'status'       => "required",
+            'latitude'       => "required",
+            'longitude'       => "required",
+            'uuid'         => 'required',
+            'paket_id' => 'nullable',
+            'price_id' => 'nullable',
+            'name_wifi' => 'nullable',
+            'password_wifi' => 'nullable',
+            'type_name' => 'nullable',
+            'mic_radius_id' => 'nullable',
+            'patch_core_id' => 'required',
+        ];
+    }
+
+    /**
+     * Pesan error kustom untuk setiap aturan.
+     */
+    public function messages(): array
+    {
+        return [
+            'types_id.required'   => 'Type pelanggan wajib dipilih.',
+            'name.required'       => 'Nama pelanggan wajib diisi.',
+            'email.required'      => 'Email pelanggan wajib diisi.',
+            'email.email'         => 'Format email tidak valid.',
+            'email.unique'        => 'Email sudah terdaftar.',
+            'telp.required'       => 'Nomor telepon wajib diisi.',
+            'telp.numeric'        => 'Nomor telepon harus berupa angka.',
+            'mac_address.regex'   => 'Format MAC Address tidak valid.',
+            'routers_id.required' => 'Jenis router wajib dipilih.',
+            'hometowns_id.required' => 'Kampung wajib dipilih.',
+            'villages_id.required'  => 'Desa wajib dipilih.',
+            'rts_id.required'       => 'RT wajib dipilih.',
+            'rws_id.required'       => 'RW wajib dipilih.',
+            'districts_id.required' => 'Kecamatan wajib dipilih.',
+            'regencies_id.required' => 'Kabupaten/Kota wajib dipilih.',
+            'latitude.required' => 'Latitude Lokasi Harus Di Isi.',
+            'longitude.required' => 'Longitude Lokasi Harus Di Isi.',
+            'uuid.required' => 'ID Pelanggan Harus Di Isi.',
+            'vlans_id.required'     => 'VLAN wajib dipilih.',
+            'odcs_id.required'      => 'ODC wajib dipilih.',
+            'odps_id.required'      => 'ODP wajib dipilih.',
+            'olts_id.required'      => 'OLT wajib dipilih.',
+            'patch_core_id.required' => 'Patch Core wajib dipilih.',
+            'nik.required' => 'NIK wajib diisi ketika fitur KTP aktif.',
+            'nik.digits'   => 'NIK harus terdiri dari 16 digit.',
+            'nik.unique'   => 'NIK sudah terdaftar di pelanggan lain.',
+        ];
+    }
+}

@@ -75,6 +75,36 @@
             color: #6d3adb !important;
         }
     </style>
+    <style>
+        .hover-shadow-sm {
+            transition: all 0.3s ease;
+        }
+
+        .hover-shadow-sm:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+            transform: translateY(-2px);
+        }
+
+        .card-sm {
+            min-height: 80px;
+        }
+
+        .card-sm .card-body {
+            overflow: hidden;
+        }
+
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+            min-width: 0;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -175,6 +205,7 @@
                 @endif
             </div>
         </div>
+        
         <div class="col-lg-6">
             {{-- Patch Core Section --}}
             <div class="card mb-4">
@@ -254,6 +285,87 @@
                             </div>
                             <p class="empty-title">Tidak ada stock patch core</p>
                             <p class="empty-subtitle text-muted">Silahkan minta admin untuk menambahkan stock patch core</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+        
+        <div class="col-12">
+            {{-- Pages Access Section - Modern Grid Layout --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                            stroke-linejoin="round" class="icon me-2">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                            <path d="M9 17h6" />
+                            <path d="M9 13h6" />
+                        </svg>
+                        Data Halaman Yang Dapat Di Akses
+                    </h3>
+                    <div class="card-actions">
+                        <span class="badge bg-primary text text-white">{{ $userPages->count() }} Halaman</span>
+                    </div>
+                </div>
+                @if($userPages->count() > 0)
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach ($userPages as $upg)
+                                @php
+                                    $bgColor = $colors[$loop->index % count($colors)];
+                                @endphp
+                                <div class="col-lg-3 col-md-4 col-sm-6">
+                                    <div class="card card-sm border hover-shadow-sm h-100">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex align-items-center">
+                                                <span class="{{ $bgColor }} text-white avatar avatar-sm me-3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                                    </svg>
+                                                </span>
+                                                <div class="flex-fill overflow-hidden">
+                                                    <div class="fw-bold text-truncate" title="{{ $upg->name }}" style="max-width: 100%;">
+                                                        {{ $upg->name }}
+                                                    </div>
+                                                    <div class="text-muted small text-nowrap">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" 
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <path d="M5 12l5 5l10 -10" />
+                                                        </svg>
+                                                        Aktif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="card-body">
+                        <div class="empty">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                                    stroke-linejoin="round" class="icon">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                </svg>
+                            </div>
+                            <p class="empty-title">Tidak ada halaman yang dapat diakses</p>
+                            <p class="empty-subtitle text-muted">Silahkan minta admin untuk memberikan akses halaman</p>
                         </div>
                     </div>
                 @endif
