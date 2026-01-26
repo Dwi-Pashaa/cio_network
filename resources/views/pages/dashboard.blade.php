@@ -319,35 +319,37 @@
                                     $bgColor = $colors[$loop->index % count($colors)];
                                 @endphp
                                 <div class="col-lg-3 col-md-4 col-sm-6">
-                                    <div class="card card-sm border hover-shadow-sm h-100">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex align-items-center">
-                                                <span class="{{ $bgColor }} text-white avatar avatar-sm me-3">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                                    </svg>
-                                                </span>
-                                                <div class="flex-fill overflow-hidden">
-                                                    <div class="fw-bold text-truncate" title="{{ $upg->name }}" style="max-width: 100%;">
-                                                        {{ $upg->name }}
-                                                    </div>
-                                                    <div class="text-muted small text-nowrap">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" 
+                                    <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" style="text-decoration: none">
+                                        <div class="card card-sm border hover-shadow-sm h-100">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="{{ $bgColor }} text-white avatar avatar-sm me-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
                                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" 
                                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                            <path d="M5 12l5 5l10 -10" />
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
                                                         </svg>
-                                                        Aktif
+                                                    </span>
+                                                    <div class="flex-fill overflow-hidden">
+                                                        <div class="fw-bold text-truncate" title="{{ $upg->name }}" style="max-width: 100%;">
+                                                            {{ $upg->name }}
+                                                        </div>
+                                                        <div class="text-muted small text-nowrap">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" 
+                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                                <path d="M5 12l5 5l10 -10" />
+                                                            </svg>
+                                                            Aktif
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </div>
                             @endforeach
                         </div>
