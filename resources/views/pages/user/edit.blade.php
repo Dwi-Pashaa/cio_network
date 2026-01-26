@@ -153,6 +153,7 @@
                 <label for="username" class="mb-2">Aksess Data Halaman</label>
                 <select name="pages_id[]" id="select-pages" class="form-control @error('pages_id') is-invalid @enderror" multiple>
                     <option value="">Pilih</option>
+                    <option value="keseluruhan">Keseluruhan Aksess Halaman</option>
                     @foreach ($pages as $page)
                         <option value="{{ $page->id }}"
                             {{ in_array($page->id, old('pages_id', $selectedPages)) ? 'selected' : '' }}>
