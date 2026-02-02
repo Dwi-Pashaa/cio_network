@@ -21,6 +21,8 @@
 		@import url('https://rsms.me/inter/inter.css');
 	</style>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+	<link rel="stylesheet" href="http://cdn.datatables.net/2.3.7/css/dataTables.dataTables.min.css">
+	<link href="https://cdn.datatables.net/v/bs5/dt-2.3.7/datatables.min.css" rel="stylesheet" integrity="sha384-MnxpJFHU9dTMYXshJqBDA0d93sG4KKAFEEzynAaDqcPP7BYh11O5HxbJ6iLDWOXS" crossorigin="anonymous">
 	@stack('css')
 </head>
 
@@ -86,6 +88,12 @@
 	<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.15.0/echo.iife.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+	<script src="http://cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/v/dt/dt-2.3.7/datatables.min.js" integrity="sha384-aQ8I1X2x8U0AR8D7C4Ah0OvZlwMslQdN5YDAQBA56jXrrhcECijs/i7H+5DDrlV1" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+	<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
 	<script>
 		$.ajaxSetup({
 			headers: {

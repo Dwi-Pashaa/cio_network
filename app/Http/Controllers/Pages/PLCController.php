@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Stock\PLCDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PLC;
 use Illuminate\Http\Request;
@@ -14,19 +15,11 @@ class PLCController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new PLCDataTable)->get();
+        }
 
-        $plc = PLC::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%")
-                ->orWhere('type', 'like', "%$search%")
-                ->orWhere('serial_number', 'like', "%$search%");
-        })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
-
-        return view("pages.plc.index", compact("plc"));
+        return view("pages.plc.index");
     }
 
     /**

@@ -4,272 +4,150 @@
     Data Stock Router
 @endsection
 
-@push('css')
-    
-@endpush
-
 @section('content')
 <div class="card">
     @can('buat barang')
         <div class="card-header">
-            <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+            <a href="javascript:void(0)" id="addBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-simple">
                 Tambah
             </a>
         </div>
     @endcan
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [
-                                10,25,50,100
-                            ];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+
+    <div class="card-body border-bottom py-3 d-flex justify-content-between">
+        <div>
+            <label>Show</label>
+            <select id="sort" class="form-control d-inline-block" style="width:auto;">
+                @foreach([10,25,50,100] as $opt)
+                    <option value="{{ $opt }}">{{ $opt }}</option>
+                @endforeach
+            </select>
+            <label>entries</label>
+        </div>
+        <div>
+            <div class="input-group" style="width:300px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search…">
+                <button class="btn" id="search-btn" type="button">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                </button>
             </div>
         </div>
     </div>
-    <div id="advanced-table">
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap datatable">
-                <thead>
-                    <tr>
-                        <th class="w-1">No</th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">Nama User</button>
-                        </th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-router">Nama Router</button>
-                        </th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-total">Jumlah</button>
-                        </th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">Created At</button>
-                        </th>
-                        <th>
-                            Action
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="table-tbody">
-                    @forelse ($userRouter as $item)
-                        <tr>
-                            <td>
-                                <span class="text-secondary">
-                                    {{ $loop->iteration }}
-                                </span>
-                            </td>
-                            <td class="sort-name">
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->user->name }}
-                                </a>
-                            </td>
-                            <td class="sort-router">
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->router->name }}
-                                </a>
-                            </td>
-                            <td class="sort-total">
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->total }}
-                                </a>
-                            </td>
-                            <td class="sort-created">
-                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                            </td>
-                            <td>
-                                @can('tambah stock')
-                                    <a href="javascript:void(0)" onclick="return addStock('{{ $item->id }}')" class="btn btn-outline-primary btn-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-unsplash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 11h5v4h6v-4h5v9h-16zm5 -7h6v4h-6z" /></svg>
-                                        Tambah Stock
-                                    </a>
-                                @endcan
-                                @can('edit barang')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus barang')
-                                    <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td> 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center">Tidak Ada Data</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+    <div class="table-responsive">
+        <table id="stock-table" class="table table-vcenter text-nowrap">
+            <thead class="bg-secondary">
+                <tr>
+                    <th class="text-white">No</th>
+                    <th class="text-white">Nama User</th>
+                    <th class="text-white">Nama Router</th>
+                    <th class="text-white">Jumlah</th>
+                    <th class="text-white">Created At</th>
+                    <th class="text-white">Action</th>
+                </tr>
+            </thead>
+        </table>
     </div>
+
     <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span>{{ $userRouter->firstItem() }}</span> 
-            to <span>{{ $userRouter->lastItem() }}</span> of
-            <span>{{ $userRouter->total() }}</span> entries
+        <p class="m-0 text-secondary" id="table-info">
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $userRouter->links() }}
-        </ul>
+        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
     </div>
 </div>
 @endsection
 
 @push('modal')
-    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Barang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
-                    </button>
+<!-- Modal Tambah / Edit Stock Router -->
+<div class="modal fade" id="modal-simple" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah / Edit Stock Router</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="id">
+                <input type="hidden" id="type">
+                
+                <div class="form-group mb-3">
+                    <label>User</label>
+                    <select id="user_id" class="form-control">
+                        <option value="">Pilih User</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_user_id"></span>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" name="type" id="type">
-                    <input type="hidden" name="id" id="id">
-                    <div class="form-group mb-3" id="role_id_show">
-                        <label for="name" class="mb-2">Pilih Level</label>
-                        <select name="role" id="role" class="form-control">
-                            <option value="">Pilih</option>
-                            @foreach ($role as $rl)
-                                <option value="{{ $rl->name }}">{{ $rl->name }}</option>
-                            @endforeach
-                        </select>
-                        <span class="invalid-feedback error_role"></span>
-                    </div>
-                    <div class="form-group mb-3" id="user_id_show">
-                        <label for="name" class="mb-2">Pilih User</label>
-                        <select name="user_id" id="user_id" class="form-control">
-                            <option value="">Pilih</option>
-                        </select>
-                        <span class="invalid-feedback error_user_id"></span>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Pilih Router</label>
-                        <select name="router_id" id="router_id" class="form-control">
-                            <option value="">Pilih</option>
-                            @foreach ($router as $rtr)
-                                <option value="{{ $rtr->id }}">{{ $rtr->code }} - {{ $rtr->name }}</option>
-                            @endforeach
-                        </select>
-                        <span class="invalid-feedback error_router_id"></span>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Jumlah Router</label>
-                        <input type="number" name="total" id="total" class="form-control">
-                        <span class="invalid-feedback error_total"></span>
-                    </div>
+                
+                <div class="form-group mb-3">
+                    <label>Router</label>
+                    <select id="router_id" class="form-control">
+                        <option value="">Pilih Router</option>
+                        @foreach($router as $router)
+                            <option value="{{ $router->id }}">{{ $router->code }} - {{ $router->name }}</option>
+                        @endforeach
+                    </select>
+                    <span class="invalid-feedback error_router_id"></span>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeBtn" class="btn btn-primary">
-                        <span class="btn-text">Simpan</span>
-                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
-                    </button>
+                
+                <div class="form-group mb-3">
+                    <label>Jumlah</label>
+                    <input type="number" id="total" class="form-control">
+                    <span class="invalid-feedback error_total"></span>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" id="saveBtn">
+                    <span class="btn-text">Simpan</span>
+                    <span class="spinner-border spinner-border-sm d-none" id="btnLoading"></span>
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal modal-blur fade" id="modal-add-stock" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Barang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
-                    </button>
+<!-- Modal Tambah Stock -->
+<div class="modal fade" id="modal-add-stock" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Stock Router</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="user_router_id">
+                <div class="form-group mb-3">
+                    <label>User</label>
+                    <input type="text" id="user" class="form-control" disabled>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" name="user_router_id" id="user_router_id">
-                    <div class="form-group mb-3">
-                        <label for="" class="mb-2">User</label>
-                        <input type="text" name="" id="user" class="form-control" disabled>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Jumlah Router</label>
-                        <input type="number" name="total_stock" id="total_stock" class="form-control">
-                        <span class="invalid-feedback error_total"></span>
-                    </div>
+                <div class="form-group mb-3">
+                    <label>Jumlah Stock</label>
+                    <input type="number" id="total_stock" class="form-control">
+                    <span class="invalid-feedback error_total_stock"></span>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeAddStock" class="btn btn-primary">
-                        <span class="btn-text">Simpan</span>
-                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
-                    </button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" id="storeAddStock">
+                    <span class="btn-text">Simpan</span>
+                    <span class="spinner-border spinner-border-sm d-none" id="btnLoadingAddStock"></span>
+                </button>
             </div>
         </div>
     </div>
+</div>
 @endpush
 
 @push('js')
 <script>
-    const advancedTable = {
-        headers: [
-            { "data-sort": "sort-name", name: "Nama User" },
-            { "data-sort": "sort-router", name: "Nama Router" },
-            { "data-sort": "sort-total", name: "Jumlah" },
-            { "data-sort": "sort-created", name: "Created" },
-        ],
-    };
-    const setPageListItems = (e) => {
-        window.tabler_list["advanced-table"].page = parseInt(e.target.dataset.value);
-        window.tabler_list["advanced-table"].update();
-        document.querySelector("#page-count").innerHTML = e.target.dataset.value;
-    };
-    window.tabler_list = window.tabler_list || {};
-    document.addEventListener("DOMContentLoaded", function () {
-        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-            sortClass: "table-sort",
-            listClass: "table-tbody",
-            page: parseInt("20"),
-            pagination: {
-                item: (value) => {
-                    return `<li class="page-item"><a class="page-link cursor-pointer">${value.page}</a></li>`;
-                },
-                innerWindow: 1,
-                outerWindow: 1,
-                left: 0,
-                right: 0,
-            },
-            valueNames: advancedTable.headers.map((header) => header["data-sort"]),
-        }));
-    });
-</script>
-<script>
     const BASE = "{{ route('user.router.index') }}";
-
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
-    });
+    let table;
 
     const Toast = Swal.mixin({
         toast: true,
@@ -283,249 +161,321 @@
         }
     });
 
-    $("#role").change(function() {
-        let role = $(this).val();
+    $(function() {
+        initializeDataTable();
+        initializePaginationAndSearch();
+        initializeModalHandlers();
+    });
 
-        $.ajax({
-            url: BASE + '/get-role', 
-            method: "POST",
-            data: {
-                role: role,
-                _token: $('meta[name="csrf-token"]').attr('content') 
-            },
-            success: function(response) {
-                console.log(response); 
-                let html = '';
-
-                if (response.code == 200) {
-                    $("#user_id_show").removeClass('d-none');
-                    $("#user_id_show").addClass('d-block');
-                    $.each(response.data, function(index, value) {
-                        html += `<option value="${value.id}">${value.name}</option>`;
-                    })
-                } else {
-                    html += '';       
-                    $("#user_id_show").removeClass('d-block');
-                    $("#user_id_show").addClass('d-none');             
+    // ===========================
+    // DataTable Initialization
+    // ===========================
+    function initializeDataTable() {
+        table = $('#stock-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: BASE,
+            order: [[4, 'desc']],
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { 
+                    data: 'DT_RowIndex', 
+                    orderable: false, 
+                    searchable: false 
+                },
+                { 
+                    data: 'user.name' 
+                },
+                { 
+                    data: 'router.name' 
+                },
+                { 
+                    data: 'total' 
+                },
+                { 
+                    data: 'created_at', 
+                    render: function(data) {
+                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                    }
+                },
+                { 
+                    data: 'action', 
+                    orderable: false, 
+                    searchable: false 
                 }
-
-                $("#user_id").html(html)
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("Error:", textStatus, errorThrown);
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
             }
         });
-    });
+    }
 
+    // ===========================
+    // Pagination & Search
+    // ===========================
+    function initializePaginationAndSearch() {
+        // Entries per page
+        $("#sort").on('change', function() {
+            table.page.len($(this).val()).draw();
+        });
 
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Stock Router");
-        $("#role").val("");
-        $("#user_id").val("");
-        $("#router_id").val("");
-        $("#total").val("");
-        $("#type").val("create");
-        $("#id").val("");
-        $("#user_id_show").removeClass('d-block');
-        $("#user_id_show").addClass('d-none');
-        $("#role_id_show").removeClass('d-none');
-        $("#role_id_show").addClass('d-block');
-    });
+        // Search on Enter key
+        $("#search-input").on('keypress', function(e) {
+            if (e.which === 13) {
+                table.search(this.value).draw();
+            }
+        });
 
-    $("#storeBtn").on("click", function () {
-        const btn = $(this);
+        // Search on button click
+        $("#search-btn").on('click', function() {
+            table.search($("#search-input").val()).draw();
+        });
+    }
 
-        if (btn.prop("disabled")) return;
+    function updatePaginationInfo(settings) {
+        const api = new $.fn.dataTable.Api(settings);
+        const info = api.page.info();
+        
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
 
-        const btnText = btn.find(".btn-text");
-        const btnLoading = btn.find(".btn-loading");
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
 
-        btn.prop("disabled", true);
-        btnText.text("Menyimpan...");
-        btnLoading.removeClass("d-none");
+        if (info.pages <= 1) return;
 
-        let id = $("#id").val();
-        let type = $("#type").val();
-        let user_id = $("#user_id").val();
-        let router_id = $("#router_id").val();
-        let total = $("#total").val();
-        let role = $("#role").val();
+        // Previous button
+        pagination.append(`
+            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page - 1}">&laquo;</a>
+            </li>
+        `);
 
-        let url, method;
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
 
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
-        } else {
-            url = BASE + `/${id}/update`;
-            method = "PUT";
+        // First page
+        if (startPage > 0) {
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="0">1</a>
+                </li>
+            `);
+            if (startPage > 1) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
         }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === info.page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+            `);
+        }
+
+        // Last page
+        if (endPage < info.pages - 1) {
+            if (endPage < info.pages - 2) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a>
+                </li>
+            `);
+        }
+
+        // Next button
+        pagination.append(`
+            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page + 1}">&raquo;</a>
+            </li>
+        `);
+
+        // Event handler for pagination links
+        pagination.find('a').on('click', function(e) {
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if (!isNaN(page) && page >= 0 && page < info.pages) {
+                table.page(page).draw('page');
+            }
+        });
+    }
+
+    // ===========================
+    // Modal Handlers
+    // ===========================
+    function initializeModalHandlers() {
+        // Add button - open modal for create
+        $("#addBtn").on('click', function() {
+            resetModal();
+            $(".modal-title").text("Tambah Stock Router");
+            $("#type").val('create');
+        });
+
+        // Save button - handle create/update
+        $("#saveBtn").on('click', function() {
+            handleSaveStock();
+        });
+
+        // Add stock button
+        $("#storeAddStock").on('click', function() {
+            handleAddStock();
+        });
+    }
+
+    function resetModal() {
+        $("#user_id").val('');
+        $("#router_id").val('');
+        $("#total").val('');
+        $("#id").val('');
+        clearValidationErrors();
+    }
+
+    function clearValidationErrors() {
+        $(".form-control").removeClass('is-invalid');
+        $(".invalid-feedback").text('');
+    }
+
+    // ===========================
+    // CRUD Operations
+    // ===========================
+    
+    // Create / Update Stock
+    function handleSaveStock() {
+        const type = $("#type").val();
+        const id = $("#id").val();
+        const data = {
+            user_id: $("#user_id").val(),
+            router_id: $("#router_id").val(),
+            total: $("#total").val(),
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
+        const method = type === 'create' ? 'POST' : 'PUT';
+
+        // Show loading
+        $("#saveBtn").prop('disabled', true);
+        $("#btnLoading").removeClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
-            data: {
-                user_id: user_id,
-                router_id: router_id,
-                total: total,
-                role: role,
-            },
+            data: data
         })
-        .done(function (response) {
+        .done(function(response) {
             if (response.errors) {
-                $.each(response.errors, function (index, value) {
-                    $("#" + index).addClass('is-invalid');
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#" + index).removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                });
-
-                resetBtn();
+                showValidationErrors(response.errors);
             } else {
                 $("#modal-simple").modal('hide');
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => window.location.reload(), 3000);
+                showSuccessMessage(response.message);
+                table.ajax.reload();
             }
         })
-        .fail(function () {
-            console.log("Error request");
-            resetBtn();
+        .fail(function() {
+            showErrorMessage("Terjadi kesalahan");
+        })
+        .always(function() {
+            $("#saveBtn").prop('disabled', false);
+            $("#btnLoading").addClass('d-none');
         });
+    }
 
-        function resetBtn() {
-            btn.prop("disabled", false);
-            btnText.text("Simpan");
-            btnLoading.addClass("d-none");
-        }
-    });
-
+    // Edit Stock - Open modal with data
     function editModal(id) {
-        let url = BASE + `/${id}/show`;
-
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        })
-        .done(function(response) {
-            $(".modal-title").html("Tambah Stock Router");
-
-            let data = response.data;
-
-            $("#modal-simple").modal('show');
-
-            // $("#role_id_show").addClass('d-none').removeClass('d-block');
-            // $("#user_id_show").removeClass('d-none').addClass('d-block');
-
-            $("#id").val(data.id);
-            $("#user_id").val(data.user_id);
-            $("#router_id").val(data.router_id);
-            $("#total").val(data.total);
-
-            $("#role").val(data.role).trigger('change');
-
-            setTimeout(() => {
-                $("#role").val(data.user.roles[0].name);
+        $.get(BASE + '/' + id + '/show')
+            .done(function(response) {
+                const data = response.data;
+                
+                $(".modal-title").text("Edit Stock Router");
+                $("#modal-simple").modal('show');
                 $("#user_id").val(data.user_id);
-            }, 500);
-
-            $("#type").val("update");
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("Error:", textStatus, errorThrown);
-        });
-    }
-
-    function addStock(id) {
-        let url = BASE + `/${id}/show`;
-
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        })
-        .done(function(response) {
-            $(".modal-title").html("Tambah Stock Router");
-
-            let data = response.data;
-
-            $("#modal-add-stock").modal('show');
-            
-            $("#user_router_id").val(data.id);
-            $("#user").val(data.user.name);
-            // $("#total_stock").val(data.total);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("Error:", textStatus, errorThrown);
-        });
-    }
-
-    $("#storeAddStock").on("click", function () {
-        const btn = $(this);
-
-        if (btn.prop("disabled")) return;
-
-        const btnText = btn.find(".btn-text");
-        const btnLoading = btn.find(".btn-loading");
-
-        btn.prop("disabled", true);
-        btnText.text("Menyimpan...");
-        btnLoading.removeClass("d-none");
-
-        let user_router_id = $("#user_router_id").val();
-        let total_stock = $("#total_stock").val();
-
-        $.ajax({
-            url: "{{ route('user.router.addStore') }}",
-            method: "POST",
-            data: {
-                user_router_id: user_router_id,
-                total_stock: total_stock,
-                _token: $('meta[name="csrf-token"]').attr('content')
-            }
-        })
-        .done(function (response) {
-            if (response.errors) {
-                $.each(response.errors, function (index, value) {
-                    $("#" + index).addClass("is-invalid");
-                    $(".error_" + index).html(value);
-                });
-
-                resetButton();
-            } else {
-                $("#modal-add-stock").modal("hide");
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => location.reload(), 1500);
-            }
-        })
-        .fail(function () {
-            Toast.fire({
-                icon: "error",
-                title: "Terjadi kesalahan"
+                $("#router_id").val(data.router_id);
+                $("#total").val(data.total);
+                $("#id").val(data.id);
+                $("#type").val('update');
+            })
+            .fail(function() {
+                showErrorMessage("Terjadi kesalahan");
             });
-            resetButton();
-        });
+    }
 
-        function resetButton() {
-            btn.prop("disabled", false);
-            btnText.text("Simpan");
-            btnLoading.addClass("d-none");
+    // Add Stock - Open modal
+    function addStock(id) {
+        $.get(BASE + '/' + id + '/show')
+            .done(function(response) {
+                const data = response.data;
+                
+                $("#modal-add-stock").modal('show');
+                $("#user_router_id").val(data.id);
+                $("#user").val(data.user.name);
+                $("#total_stock").val('');
+                clearValidationErrors();
+            })
+            .fail(function() {
+                showErrorMessage("Terjadi kesalahan");
+            });
+    }
+
+    // Handle Add Stock
+    function handleAddStock() {
+        const btn = $("#storeAddStock");
+        
+        if (btn.prop('disabled')) return;
+
+        // Show loading
+        btn.prop('disabled', true);
+        btn.find(".btn-text").text("Menyimpan...");
+        btn.find("#btnLoadingAddStock").removeClass('d-none');
+
+        const data = {
+            user_router_id: $("#user_router_id").val(),
+            total_stock: $("#total_stock").val(),
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.post("{{ route('user.router.addStore') }}", data)
+            .done(function(response) {
+                if (response.errors) {
+                    showValidationErrors(response.errors);
+                    resetAddStockButton();
+                } else {
+                    $("#modal-add-stock").modal('hide');
+                    showSuccessMessage(response.message);
+                    resetAddStockButton();
+                    table.ajax.reload();
+                }
+            })
+            .fail(function() {
+                showErrorMessage("Terjadi kesalahan");
+                resetAddStockButton();
+            });
+
+        function resetAddStockButton() {
+            btn.prop('disabled', false);
+            btn.find(".btn-text").text("Simpan");
+            btn.find("#btnLoadingAddStock").addClass('d-none');
         }
-    });
+    }
 
-
-    function deleteType(id) {
+    function deleteStock(id) {
         Swal.fire({
             title: "Peringatan !",
             text: "Anda yakin ingin menghapus data ini?",
@@ -535,30 +485,50 @@
             cancelButtonColor: "#d33",
             confirmButtonText: "Hapus",
             cancelButtonText: "Batal"
-        }).then((result) => {
+        }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
                     url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
-                        Toast.fire({
-                            icon: response.status,
-                            title: response.message
-                        });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     }
                 })
+                .done(function(response) {
+                    showSuccessMessage(response.message);
+                    table.ajax.reload();
+                })
+                .fail(function() {
+                    showErrorMessage("Server Error");
+                });
             }
+        });
+    }
+
+    function showValidationErrors(errors) {
+        clearValidationErrors();
+        
+        Object.keys(errors).forEach(function(field) {
+            $("#" + field).addClass('is-invalid');
+            $(".error_" + field).text(errors[field]);
+        });
+
+        setTimeout(function() {
+            clearValidationErrors();
+        }, 3000);
+    }
+
+    function showSuccessMessage(message) {
+        Toast.fire({
+            icon: "success",
+            title: message
+        });
+    }
+
+    function showErrorMessage(message) {
+        Toast.fire({
+            icon: "error",
+            title: message
         });
     }
 </script>

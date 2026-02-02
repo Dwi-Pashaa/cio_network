@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Stock\PatchCoreDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PatchCore;
 use Illuminate\Http\Request;
@@ -14,17 +15,11 @@ class PatchCoreController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new PatchCoreDataTable)->get();
+        }
 
-        $patchCore = PatchCore::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%");
-        })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
-
-        return view("pages.patch-core.index", compact("patchCore"));
+        return view("pages.patch-core.index");
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Stock\UserRouterDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Router;
 use App\Models\User;
@@ -19,33 +20,19 @@ class UserRouterController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $userRouter = UserRouter::with('user', 'router')
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    })
-                        ->orWhereHas('router', function ($q3) use ($search) {
-                            $q3->where('name', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new UserRouterDataTable)->get();
+        }
 
         $router = Router::all();
-        $role = Role::all();
+        $users = User::all();
 
-        return view("pages.user-router.index", compact("userRouter", "router", "role"));
+        return view("pages.user-router.index", compact("router", "users"));
     }
 
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "role" => "required|string",
             "user_id" => "required|integer",
             "router_id" => "required|integer",
             "total" => "required|integer|min:1",
@@ -56,7 +43,7 @@ class UserRouterController extends Controller
         }
 
         $user = Auth::user();
-        $userRole = strtolower($user->getRoleNames()->first());
+        $userRole = strtolower($user->roles->first()->name ?? '');
 
         DB::beginTransaction();
 
@@ -210,7 +197,7 @@ class UserRouterController extends Controller
         }
 
         $user = Auth::user();
-        $userRole = strtolower($user->getRoleNames()->first());
+        $userRole = strtolower($user->roles->first()->name ?? '');
 
         DB::beginTransaction();
 

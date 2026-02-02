@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\UserDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\MicRadius;
 use App\Models\MixRadiusUser;
@@ -23,18 +24,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new UserDataTable)->get();
+        }
 
-        $users = User::with(['mixRadius', 'olts', 'regencie', 'pages'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
-
-        return view("pages.user.index", compact("users"));
+        return view("pages.user.index");
     }
 
     /**

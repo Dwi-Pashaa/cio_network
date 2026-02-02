@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Stock\UserPLCDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PLC;
 use App\Models\User;
@@ -19,27 +20,14 @@ class UserPLCController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $userPLC = UserPLC::with('user', 'plc')
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    })
-                        ->orWhereHas('plc', function ($q3) use ($search) {
-                            $q3->where('name', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new UserPLCDataTable)->get();
+        }
 
         $plc = PLC::all();
         $role = Role::all();
 
-        return view("pages.user-plc.index", compact("userPLC", "plc", "role"));
+        return view("pages.user-plc.index", compact("plc", "role"));
     }
 
     public function store(Request $request)

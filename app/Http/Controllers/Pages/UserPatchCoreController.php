@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Stock\UserPatchCoreDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PatchCore;
 use App\Models\User;
@@ -19,27 +20,14 @@ class UserPatchCoreController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $userPatchCore = UserPatchCore::with('user', 'patchCore')
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    })
-                        ->orWhereHas('patchCore', function ($q3) use ($search) {
-                            $q3->where('name', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new UserPatchCoreDataTable)->get();
+        }
 
         $patchCore = PatchCore::all();
         $role = Role::all();
 
-        return view("pages.user-patch-core.index", compact("userPatchCore", "patchCore", "role"));
+        return view("pages.user-patch-core.index", compact("patchCore", "role"));
     }
 
     public function store(Request $request)

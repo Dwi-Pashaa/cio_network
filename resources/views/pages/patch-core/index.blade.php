@@ -1,161 +1,183 @@
 @extends('layouts.app')
 
-@section('title')
-    Data Patch Core
-@endsection
-
-@push('css')
-    
-@endpush
+@section('title') Data Patch Core @endsection
 
 @section('content')
 <div class="card">
     @can('tambah patch core')
-        <div class="card-header">
-            <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                Tambah
-            </a>
-        </div>
+    <div class="card-header">
+        <a href="javascript:void(0)" id="addBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-patch">Tambah</a>
+    </div>
     @endcan
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [
-                                10,25,50,100
-                            ];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+
+    <div class="card-body border-bottom py-3 d-flex justify-content-between">
+        <div>
+            <label>Show</label>
+            <select id="sort" class="form-control d-inline-block" style="width:auto;">
+                @foreach([10,25,50,100] as $opt)
+                    <option value="{{ $opt }}">{{ $opt }}</option>
+                @endforeach
+            </select>
+            <label>entries</label>
+        </div>
+        <div>
+            <div class="input-group" style="width:300px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search…">
+                <button class="btn" id="search-btn" type="button">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                </button>
             </div>
         </div>
     </div>
-    <div id="advanced-table" class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
+
+    <div class="table-responsive">
+        <table id="patch-core-table" class="table card-table table-vcenter text-nowrap datatable">
+            <thead class="bg-secondary">
                 <tr>
-                    <th class="w-1">No</th>
-                    <th><button class="table-sort" data-sort="sort-name">Nama Patch Core</button></th>
-                    <th><button class="table-sort" data-sort="sort-created">Created</button></th>
-                    @if(auth()->user()->can('ubah patch core') || auth()->user()->can('hapus patch core'))
-                        <th>Action</th>
-                    @endif
+                    <th class="text-white">No</th>
+                    <th class="text-white">Nama Patch Core</th>
+                    <th class="text-white">Created</th>
+                    <th class="text-white">Updated</th>
+                    <th class="text-white">Action</th>
                 </tr>
             </thead>
-            <tbody class="table-tbody">
-                @forelse ($patchCore as $item)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td class="sort-name">{{ $item->name }}</td>
-                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
-                        @if(auth()->user()->can('edit patch core') || auth()->user()->can('hapus patch core'))
-                            <td>
-                                @can('edit patch core')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus patch core')
-                                    <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td> 
-                        @endif
-                    </tr>
-                @empty
-                    <tr><td colspan="4" class="text-center">Tidak Ada Data</td></tr>
-                @endforelse
-            </tbody>
         </table>
     </div>
     <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span>{{ $patchCore->firstItem() }}</span> 
-            to <span>{{ $patchCore->lastItem() }}</span> of
-            <span>{{ $patchCore->total() }}</span> entries
+        <p class="m-0 text-secondary" id="table-info">
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $patchCore->links() }}
-        </ul>
+        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
     </div>
 </div>
 @endsection
 
 @push('modal')
-<div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Patch Core</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama Patch Core</label>
-                    <input type="text" name="name" id="name" class="form-control">
-                    <span class="invalid-feedback error_name"></span>
+    <!-- Modal Tambah / Edit -->
+    <div class="modal fade" id="modal-patch" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Patch Core</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">
-                    <span class="btn-text">Simpan</span>
-                    <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
-                </button>
+                <div class="modal-body">
+                    <input type="hidden" id="patch-id">
+                    <input type="hidden" id="modal-type">
+                    <div class="form-group mb-3">
+                        <label>Nama Patch Core</label>
+                        <input type="text" id="patch-name" class="form-control">
+                        <span class="invalid-feedback error_name"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" id="saveBtn">
+                        <span class="btn-text">Simpan</span>
+                        <span class="spinner-border spinner-border-sm d-none" id="btnLoading"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endpush
 
 @push('js')
 <script>
     const BASE = "{{ route('patch.core.index') }}";
 
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
+    let table;
+
+    $(function () {
+        table = $('#patch-core-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: BASE,
+            order: [[4, 'desc']], // Kolom 'Created'
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { data: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'name' },
+                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
+                { data: 'updated_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
+                { data: 'action', orderable: false, searchable: false },
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
+            }
+        });
+
+        // Pagination length
+        $("#sort").change(function() {
+            table.page.len($(this).val()).draw();
+        });
+
+        // Search
+        $("#search-input").on('keyup', function(e){
+            if(e.which === 13) table.search(this.value).draw();
+        });
+        $("#search-btn").click(function(){
+            table.search($("#search-input").val()).draw();
+        });
     });
 
-    const advancedTable = {
-        headers: [
-            { "data-sort": "sort-name", name: "Nama RT" },
-            { "data-sort": "sort-created", name: "Created" },
-        ],
-    };
-    window.tabler_list = window.tabler_list || {};
-    document.addEventListener("DOMContentLoaded", function () {
-        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-            sortClass: "table-sort",
-            listClass: "table-tbody",
-            searchClass: "search",
-            page: parseInt("{{ request('sort', 10) }}"),
-            pagination: true,
-            valueNames: advancedTable.headers.map(h => h["data-sort"]),
-        }));
-    });
+    function updatePaginationInfo(settings) {
+        const info = new $.fn.dataTable.Api(settings).page.info();
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
+
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
+
+        if(info.pages <= 1) return;
+
+        pagination.append(`
+            <li class="page-item ${info.page===0?'disabled':''}">
+                <a class="page-link" href="#" data-page="${info.page-1}">&laquo;</a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        if(startPage > 0){
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+            if(startPage > 1) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+        }
+
+        for(let i=startPage; i<=endPage; i++){
+            pagination.append(`
+                <li class="page-item ${i===info.page?'active':''}">
+                    <a class="page-link" href="#" data-page="${i}">${i+1}</a>
+                </li>
+            `);
+        }
+
+        if(endPage < info.pages-1){
+            if(endPage < info.pages-2) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages-1}">${info.pages}</a></li>`);
+        }
+
+        pagination.append(`
+            <li class="page-item ${info.page===info.pages-1?'disabled':''}">
+                <a class="page-link" href="#" data-page="${info.page+1}">&raquo;</a>
+            </li>
+        `);
+
+        pagination.find('a').click(function(e){
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if(!isNaN(page) && page>=0 && page<info.pages) table.page(page).draw('page');
+        });
+    }
 
     const Toast = Swal.mixin({
         toast: true,
@@ -169,136 +191,82 @@
         }
     });
 
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Patch Core");
-        $("#name").val("");
-        $("#type").val("create");
-        $("#id").val("");
+    $("#addBtn").click(function(){
+        $(".modal-title").text("Tambah Patch Core");
+        $("#patch-name").val('');
+        $("#modal-type").val('create');
+        $("#patch-id").val('');
     });
 
-    $("#storeBtn").on("click", function () {
-        const btn = $(this);
+    $("#saveBtn").click(function(){
+        let type = $("#modal-type").val();
+        let id = $("#patch-id").val();
+        let name = $("#patch-name").val();
 
-        if (btn.prop("disabled")) return;
+        let url = type=='create' ? BASE+'/store' : BASE+'/'+id+'/update';
+        let method = type=='create' ? 'POST' : 'PUT';
 
-        const btnText = btn.find(".btn-text");
-        const btnLoading = btn.find(".btn-loading");
-
-        btn.prop("disabled", true);
-        btnText.text("Menyimpan...");
-        btnLoading.removeClass("d-none");
-
-        let id = $("#id").val();
-        let type = $("#type").val();
-        let name = $("#name").val();
-
-        let url, method;
-
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
-        } else {
-            url = BASE + `/${id}/update`;
-            method = "PUT";
-        }
+        $("#saveBtn").prop('disabled',true);
+        $("#btnLoading").removeClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
-            data: {
-                name: name
+            data: {name:name},
+            success: function(res){
+                if(res.errors){
+                    $.each(res.errors,function(i,v){
+                        $("#patch-name").addClass('is-invalid');
+                        $(".error_"+i).text(v);
+                    });
+                    setTimeout(()=>{ $("#patch-name").removeClass('is-invalid'); $(".error_name").text(''); },3000);
+                } else {
+                    $("#modal-patch").modal('hide');
+                    Toast.fire({icon:"success",title:"Berhasil menyimpan patch core"});
+                    table.ajax.reload();
+                }
             },
-        })
-        .done(function (response) {
-            if (response.errors) {
-                $.each(response.errors, function (index, value) {
-                    $("#" + index).addClass('is-invalid');
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#" + index).removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                });
-
-                resetBtn();
-
-            } else {
-                $("#modal-simple").modal('hide');
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+            complete: function(){
+                $("#saveBtn").prop('disabled',false);
+                $("#btnLoading").addClass('d-none');
             }
-        })
-        .fail(function () {
-            console.log("Error request");
-            resetBtn();
         });
-
-        function resetBtn() {
-            btn.prop("disabled", false);
-            btnText.text("Simpan");
-            btnLoading.addClass("d-none");
-        }
     });
 
-    function editModal(id) {
-        let url = BASE + `/${id}/show`
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        }).done(function(response){
-            $(".modal-title").html("Edit Patch Core");
-            let data = response.data;
-            $("#modal-simple").modal('show')
-
-            $("#id").val(data.id);
-            $("#name").val(data.name);
-            $("#type").val("update");
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+    function editModal(id){
+        $.get(BASE+'/'+id+'/show', function(res){
+            let data = res.data;
+            $(".modal-title").text("Edit Patch Core");
+            $("#modal-patch").modal('show');
+            $("#patch-name").val(data.name);
+            $("#patch-id").val(data.id);
+            $("#modal-type").val('update');
         });
     }
 
-    function deleteType(id) {
+    function deletePatchCore(id){
         Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then((result) => {
-            if (result.isConfirmed) {
+            title:"Peringatan!",
+            text:"Apakah anda yakin ingin menghapus patch core ini?",
+            icon:"warning",
+            showCancelButton:true,
+            confirmButtonColor:"#3085d6",
+            cancelButtonColor:"#d33",
+            confirmButtonText:"Hapus",
+            cancelButtonText:"Batal"
+        }).then((result)=>{
+            if(result.isConfirmed){
                 $.ajax({
-                    url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
-                        Toast.fire({
-                            icon: response.status,
-                            title: response.message
-                        });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
+                    url: BASE+'/'+id+'/destroy',
+                    method:'DELETE',
+                    success:function(){
+                        Toast.fire({icon:"success",title:"Berhasil menghapus patch core"});
+                        table.ajax.reload();
                     },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
+                    error:function(){
+                        Swal.fire("Error","Server Error","error");
                     }
-                })
+                });
             }
         });
     }

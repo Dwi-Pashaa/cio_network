@@ -5,7 +5,32 @@
 @endsection
 
 @push('css')
-    
+    <style>
+        #custom-pagination {
+            display: flex;
+            list-style: none;
+            padding-left: 0;
+            gap: 0.25rem;
+        }
+
+        #custom-pagination .page-item .page-link {
+            min-width: 36px;
+            text-align: center;
+            padding: 0.375rem 0.5rem;
+        }
+
+        #custom-pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+
+        #custom-pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+        }
+
+    </style>
 @endpush
 
 @section('content')
@@ -21,147 +46,58 @@
         <div class="d-flex">
             <div class="text-secondary">
                 <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
+                    <label class="me-2">Show</label>
+                    <select name="sort" id="sort" class="form-control d-inline-block" style="width: auto;">
                         @php
-                            $opts = [
-                                10,25,50,100
-                            ];
+                            $opts = [10, 25, 50, 100];
                         @endphp 
                         @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            <option value="{{ $opt }}">{{ $opt }}</option>
                         @endforeach
                     </select>
+                    <label class="ms-2">entries</label>
                 </div>
             </div>
             <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+                <div class="input-group mb-2" style="width: 300px;">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
+                    <button class="btn" type="button" id="search-btn">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
+        <table id="users-table"
+            class="table card-table table-vcenter text-nowrap datatable">
+            <thead class="bg-secondary">
                 <tr>
-                    <th class="w-1">No</th>
-                    <th>Username</th>
-                    <th>Nama Lengkap</th>
-                    <th>Email</th>
-                    <th>Telphone</th>
-                    <th>Level</th>
-                    <th>Penempatan</th>
-                    <th>Aksess Halaman</th>
-                    <th>OLT</th>
-                    <th>Mic Radius</th>
-                    <th>Created</th>
-                    <th>Action</th>
+                    <th class="text-white">No</th>
+                    <th class="text-white">Username</th>
+                    <th class="text-white">Nama Lengkap</th>
+                    <th class="text-white">Email</th>
+                    <th class="text-white">Telp</th>
+                    <th class="text-white">Level</th>
+                    <th class="text-white">Penempatan</th>
+                    <th class="text-white">Akses Halaman</th>
+                    <th class="text-white">OLT</th>
+                    <th class="text-white">Mic Radius</th>
+                    <th class="text-white">Created</th>
+                    <th class="text-white">Updated</th>
+                    <th class="text-white">Action</th>
                 </tr>
             </thead>
-            <tbody>
-                @forelse ($users as $item)
-                    <tr>
-                        <td>
-                            <span class="text-secondary">
-                                {{ $loop->iteration }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="#" class="text-reset" tabindex="-1">
-                                {{ $item->username }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ $item->name }}
-                        </td>
-                        <td>
-                            {{ $item->email }}
-                        </td>
-                        <td>
-                            {{ $item->telp ?? '-' }}
-                        </td>
-                        <td>
-                            {{ optional($item->roles->first())->name ?? '-' }}
-                        </td>
-                        <td>
-                            @forelse ($item->regencie as $regencie)
-                                <span class="badge bg-primary text-white mb-2">
-                                    {{$regencie->name}}
-                                </span>
-                                <br>
-                            @empty
-                                <span class="badge bg-secondary text-white">
-                                    Tidak ada penempatan
-                                </span>
-                            @endforelse
-                        </td>
-                        <td>
-                            @forelse ($item->pages as $page)
-                                <span class="badge bg-primary text-white mb-2">
-                                    {{$page->name}}
-                                </span>
-                                <br>
-                            @empty
-                                <span class="badge bg-secondary text-white">
-                                    Tidak ada penempatan
-                                </span>
-                            @endforelse
-                        </td>
-                        <td>
-                            @forelse ($item->olts as $olt)
-                                <span class="badge bg-primary text-white mb-2">
-                                    {{$olt->name}}
-                                </span>
-                                <br>
-                            @empty
-                                -
-                            @endforelse
-                        </td>
-                        <td>
-                            @forelse ($item->mixRadius as $mc)
-                                <span class="badge bg-primary text-white mb-2">
-                                    {{$mc->name}}
-                                </span>
-                                <br>
-                            @empty
-                                -
-                            @endforelse
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                        </td>
-                        <td>
-                            <a href="{{ route('user.edit', ['id' => $item->id]) }}" class="btn btn-outline-warning btn-md">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                Edit
-                            </a>
-                            <a href="javascript:void(0)" onclick="return deleteUsers('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                Hapus
-                            </a>
-                        </td> 
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="9" class="text-center">Tidak Ada Data</td>
-                    </tr>
-                @endforelse
-            </tbody>
         </table>
     </div>
     <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span>{{ $users->firstItem() }}</span> 
-            to <span>{{ $users->lastItem() }}</span> of
-            <span>{{ $users->total() }}</span> entries
+        <p class="m-0 text-secondary" id="table-info">
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $users->links() }}
+        <ul class="pagination m-0 ms-auto" id="custom-pagination">
+            
         </ul>
     </div>
 </div>
@@ -170,12 +106,121 @@
 @push('js')
     <script>
         const BASE = "{{ route('user.index') }}";
+        let table;
 
-        let params = new URLSearchParams(window.location.search);
-        $("#sort").change(function() {
-            params.set('sort', $(this).val());
-            window.location.href = BASE + '?' + params.toString();
+        $(function () {
+            table = $('#users-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('user.index') }}",
+                order: [[10, 'desc']],
+                pageLength: 10,
+                dom: 'rt', 
+                columns: [
+                    { data: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'username' },
+                    { data: 'name', orderable: true, searchable: true },
+                    { data: 'email', orderable: true, searchable: true },
+                    { data: 'telp', defaultContent: '-' },
+                    { data: 'role', orderable: false },
+                    { data: 'regencie', orderable: false },
+                    { data: 'pages', orderable: false },
+                    { data: 'olt', orderable: false },
+                    { data: 'mix_radius', orderable: false },
+                    {data:'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss')},
+                    {data:'updated_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss')},
+                    { data: 'action', orderable: false, searchable: false },
+                ],
+                drawCallback: function(settings) {
+                    updatePaginationInfo(settings);
+                    updateCustomPagination();
+                }
+            });
+
+            $("#sort").change(function() {
+                table.page.len($(this).val()).draw();
+            });
+
+            $("#search-input").on('keyup', function() {
+                table.search(this.value).draw();
+            });
+
+            $("#search-btn").on('click', function() {
+                table.search($("#search-input").val()).draw();
+            });
+
+            $("#search-input").on('keypress', function(e) {
+                if (e.which === 13) {
+                    table.search(this.value).draw();
+                }
+            });
         });
+
+        function updatePaginationInfo(settings) {
+            const api = new $.fn.dataTable.Api(settings);
+            const info = api.page.info();
+            
+            $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+            $('#end-entry').text(info.end);
+            $('#total-entries').text(info.recordsDisplay);
+        }
+
+        function updateCustomPagination() {
+            const info = table.page.info();
+            const pagination = $('#custom-pagination');
+            pagination.empty();
+
+            if (info.pages <= 1) return; 
+
+            pagination.append(`
+                <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${info.page - 1}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `);
+
+            let startPage = Math.max(0, info.page - 2);
+            let endPage = Math.min(info.pages - 1, info.page + 2);
+
+            if (startPage > 0) {
+                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+                if (startPage > 1) {
+                    pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.append(`
+                    <li class="page-item ${i === info.page ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                    </li>
+                `);
+            }
+
+            if (endPage < info.pages - 1) {
+                if (endPage < info.pages - 2) {
+                    pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
+            }
+
+            pagination.append(`
+                <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${info.page + 1}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `);
+
+            pagination.find('a').on('click', function(e) {
+                e.preventDefault();
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page >= 0 && page < info.pages) {
+                    table.page(page).draw('page');
+                }
+            });
+        }
 
         const Toast = Swal.mixin({
             toast: true,
@@ -212,7 +257,7 @@
                             });
 
                             setTimeout(() => {
-                                window.location.reload();
+                                table.ajax.reload();
                             }, 3000);
                         },
                         error: function(err) {

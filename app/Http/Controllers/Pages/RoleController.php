@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\RoleDataTable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,16 +16,11 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new RoleDataTable)->get();
+        }
 
-        $roles = Role::with('permissions')->when($search, function ($query, $search) {
-                    $query->orWhere('name', 'like', "%$search");
-                })
-                ->orderBy('id', 'DESC')
-                ->paginate($sort);
-
-        return view("pages.role.index", compact("roles"));
+        return view("pages.role.index");
     }
 
     /**
@@ -93,20 +89,20 @@ class RoleController extends Controller
         if (!$roles) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $roles->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
     }
 
-    public function permission(string $id) 
+    public function permission(string $id)
     {
         $role = Role::findOrFail($id);
-        $permissions = Permission::all();    
+        $permissions = Permission::all();
         return view("pages.role.permission", compact("role", "permissions"));
     }
 
-    public function savePermission(Request $request, string $id) 
+    public function savePermission(Request $request, string $id)
     {
         $request->validate([
             "permissions" => "required"
@@ -114,6 +110,6 @@ class RoleController extends Controller
 
         $role = Role::findOrFail($id);
         $role->syncPermissions($request->permissions);
-        return back()->with('success', 'Berhasil menyimpan aksess untuk role ' . $role->name);     
+        return back()->with('success', 'Berhasil menyimpan aksess untuk role ' . $role->name);
     }
 }
