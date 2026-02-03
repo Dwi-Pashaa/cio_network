@@ -314,7 +314,7 @@
                     orderable: false,
                 },
                 { 
-                    data: 'ktp_photo',
+                    data: 'ktp',
                     orderable: false,
                 },
                 { data: 'input_by', defaultContent: '-' },
