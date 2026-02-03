@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Customer\CustomerPriceDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Price;
 use Illuminate\Http\Request;
@@ -14,16 +15,11 @@ class PriceController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new CustomerPriceDataTable)->get();
+        }
 
-        $type = Price::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%");
-        })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
-
-        return view("pages.price.index", compact("type"));
+        return view("pages.price.index");
     }
 
     /**

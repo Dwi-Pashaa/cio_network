@@ -36,7 +36,7 @@
         <table id="roles-table" class="table card-table table-vcenter text-nowrap datatable">
             <thead class="bg-secondary">
                 <tr>
-                    <th class="text-white">No</th>
+                    <th class="text-white w-1">No</th>
                     <th class="text-white">Nama Level</th>
                     <th class="text-white">Created</th>
                     <th class="text-white">Updated</th>

@@ -38,8 +38,8 @@
         <table id="plc-table" class="table table-vcenter text-nowrap">
             <thead class="bg-secondary">
                 <tr>
-                    <th class="text-white">No</th>
-                    <th class="text-white">Serial Number</th>
+                    <th class="text-white w-1">No</th>
+                    <th class="text-white text-start">Serial Number</th>
                     <th class="text-white">Nama PLC Box</th>
                     <th class="text-white">Tipe PLC Box</th>
                     <th class="text-white">Created</th>

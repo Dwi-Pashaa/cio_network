@@ -16,139 +16,82 @@
             Tambah
         </a>
     </div>
+
     <div class="card-body border-bottom py-3">
         <div class="d-flex">
             <div class="text-secondary">
                 <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
+                    <label class="me-2">Show</label>
+                    <select name="sort" id="sort" class="form-control d-inline-block" style="width: auto;">
                         @php
-                            $opts = [
-                                10,25,50,100
-                            ];
+                            $opts = [10, 25, 50, 100];
                         @endphp 
                         @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            <option value="{{ $opt }}">{{ $opt }}</option>
                         @endforeach
                     </select>
+                    <label class="ms-2">entries</label>
                 </div>
             </div>
             <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+                <div class="input-group mb-2" style="width: 300px;">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
+                    <button class="btn" type="button" id="search-btn">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div id="advanced-table">
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap datatable">
-                <thead>
-                    <tr>
-                        <th class="w-1">No</th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">
-                                Tipe Paket
-                            </button>
-                        </th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-name">
-                                User
-                            </button>
-                        </th>
-                        <th>
-                            <button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">
-                                Created
-                            </button>
-                        </th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody class="table-tbody">
-                    @forelse ($type as $item)
-                        <tr>
-                            <td>
-                                <span class="text-secondary">
-                                    {{ $loop->iteration }}
-                                </span>
-                            </td>
-                            <td class="sort-name">
-                                <a href="#" class="text-reset" tabindex="-1">
-                                    {{ $item->name }}
-                                </a>
-                            </td>
-                            <td class="sort-name">
-                                @forelse ($item->user as $usr)
-                                    <span class="badge bg-primary text-white p-1">
-                                        {{ $usr->name }}
-                                    </span>
-                                @empty
-                                    -
-                                @endforelse
-                            </td>
-                            <td class="sort-created">
-                                {{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}
-                            </td>
-                            <td>
-                                <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                                    Edit
-                                </a>
-                                <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                    Hapus
-                                </a>
-                            </td> 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center">Tidak Ada Data</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+    <div class="table-responsive">
+        <table id="paket-table" class="table card-table table-vcenter text-nowrap">
+            <thead class="bg-secondary">
+                <tr>
+                    <th class="text-white w-1">No</th>
+                    <th class="text-white">Tipe Paket</th>
+                    <th class="text-white">User</th>
+                    <th class="text-white">Created At</th>
+                    <th class="text-white">Action</th>
+                </tr>
+            </thead>
+        </table>
     </div>
+
     <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span>{{ $type->firstItem() }}</span> 
-            to <span>{{ $type->lastItem() }}</span> of
-            <span>{{ $type->total() }}</span> entries
+        <p class="m-0 text-secondary" id="table-info">
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $type->links() }}
-        </ul>
+        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
     </div>
 </div>
 @endsection
 
 @push('modal')
 <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Tipe Paket</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" name="type" id="type">
                 <input type="hidden" name="id" id="id">
+                
                 <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Pilih User</label>
+                    <label for="user_id" class="mb-2">Pilih User</label>
                     <select name="user_id[]" id="user_id" class="form-control" multiple>
                         <option value="">Pilih</option>
                         @foreach ($user as $usr)
                             <option value="{{ $usr->id }}">{{ $usr->name }}</option>
                         @endforeach
                     </select>
-                    <span class="invalid-feedback error_name"></span>
+                    <span class="invalid-feedback error_user_id"></span>
                 </div>
+                
                 <div class="form-group mb-3">
                     <label for="name" class="mb-2">Tipe Paket</label>
                     <input type="text" name="name" id="name" class="form-control">
@@ -159,7 +102,7 @@
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
                 <button type="button" id="storeBtn" class="btn btn-primary">
                     <span class="btn-text">Simpan</span>
-                    <span class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                    <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
                 </button>
             </div>
         </div>
@@ -170,174 +113,313 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    const advancedTable = {
-        headers: [
-            { "data-sort": "sort-name", name: "Tipe Paket" },
-            { "data-sort": "sort-created", name: "Created" },
-        ],
-    };
-    const setPageListItems = (e) => {
-        window.tabler_list["advanced-table"].page = parseInt(e.target.dataset.value);
-        window.tabler_list["advanced-table"].update();
-        document.querySelector("#page-count").innerHTML = e.target.dataset.value;
-    };
-    window.tabler_list = window.tabler_list || {};
-    document.addEventListener("DOMContentLoaded", function () {
-        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-            sortClass: "table-sort",
-            listClass: "table-tbody",
-            page: parseInt("20"),
-            pagination: {
-                item: (value) => {
-                    return `<li class="page-item"><a class="page-link cursor-pointer">${value.page}</a></li>`;
-                },
-                innerWindow: 1,
-                outerWindow: 1,
-                left: 0,
-                right: 0,
-            },
-            valueNames: advancedTable.headers.map((header) => header["data-sort"]),
-        }));
-    });
-</script>
-<script>
     const BASE = "{{ route('paket.index') }}";
+    let table;
 
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
+    $(function() {
+        initializeSelect2();
+        initializeDataTable();
+        initializePaginationAndSearch();
+        initializeModalHandlers();
     });
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+    // ===========================
+    // Select2 Initialization
+    // ===========================
+    function initializeSelect2() {
+        $('#user_id').select2({
+            width: '100%',
+            dropdownParent: $('#modal-simple'),
+            placeholder: 'Pilih User',
+            allowClear: true
+        });
+    }
+
+    // ===========================
+    // DataTable Initialization
+    // ===========================
+    function initializeDataTable() {
+        table = $('#paket-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: BASE,
+            order: [[3, 'desc']],
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { 
+                    data: 'DT_RowIndex', 
+                    orderable: false, 
+                    searchable: false 
+                },
+                { 
+                    data: 'name',
+                    orderable: true,
+                    searchable: true,
+                },
+                { 
+                    data: 'user',
+                    orderable: true,
+                    searchable: true,
+                    render: function(data, type, row) {
+                        if (!data || data.length === 0) {
+                            return '-';
+                        }
+                        
+                        let badges = '';
+                        data.forEach(function(user) {
+                            badges += `<span class="badge bg-primary text-white p-1 me-1">${user.name}</span>`;
+                        });
+                        return badges;
+                    }
+                },
+                { 
+                    data: 'created_at',
+                    render: function(data) {
+                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                    }
+                },
+                { 
+                    data: 'action', 
+                    orderable: false, 
+                    searchable: false 
+                }
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
+            }
+        });
+    }
+
+    // ===========================
+    // Pagination & Search
+    // ===========================
+    function initializePaginationAndSearch() {
+        // Entries per page
+        $("#sort").on('change', function() {
+            table.page.len($(this).val()).draw();
+        });
+
+        // Search on Enter key
+        $("#search-input").on('keypress', function(e) {
+            if (e.which === 13) {
+                table.search(this.value).draw();
+            }
+        });
+
+        // Search on button click
+        $("#search-btn").on('click', function() {
+            table.search($("#search-input").val()).draw();
+        });
+    }
+
+    function updatePaginationInfo(settings) {
+        const api = new $.fn.dataTable.Api(settings);
+        const info = api.page.info();
+        
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
+
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
+
+        if (info.pages <= 1) return;
+
+        // Previous button
+        pagination.append(`
+            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page - 1}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    prev
+                </a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        // First page
+        if (startPage > 0) {
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="0">1</a>
+                </li>
+            `);
+            if (startPage > 1) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
         }
-    });
 
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Tipe Paket");
-        $("#user").val("");
-        $("#name").val("");
-        $("#type").val("create");
-        $("#id").val("");
-    });
-
-    $('#user_id').select2({
-        width: '100%',
-        dropdownParent: $('#modal-simple')
-    });
-
-    $("#storeBtn").click(function () {
-        const btn     = $("#storeBtn");
-        const btnText = btn.find(".btn-text");
-        const spinner = btn.find(".spinner-border");
-
-        btn.prop("disabled", true);
-        btnText.text("Menyimpan...");
-        spinner.removeClass("d-none");
-
-        let id   = $("#id").val();
-        let type = $("#type").val();
-
-        let url;
-        let method = "POST";
-
-        if (type === "create") {
-            url = BASE + "/store";
-        } else {
-            url = BASE + `/${id}/update`;
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === info.page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+            `);
         }
 
+        // Last page
+        if (endPage < info.pages - 1) {
+            if (endPage < info.pages - 2) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a>
+                </li>
+            `);
+        }
+
+        // Next button
+        pagination.append(`
+            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page + 1}">
+                    next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </li>
+        `);
+
+        // Event handler for pagination links
+        pagination.find('a').on('click', function(e) {
+            e.preventDefault();
+            if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page >= 0 && page < info.pages) {
+                    table.page(page).draw('page');
+                }
+            }
+        });
+    }
+
+    // ===========================
+    // Modal Handlers
+    // ===========================
+    function initializeModalHandlers() {
+        // Add button - open modal for create
+        $("#addBtn").on('click', function() {
+            resetModal();
+            $(".modal-title").text("Tambah Tipe Paket");
+            $("#type").val('create');
+        });
+
+        // Save button - handle create/update
+        $("#storeBtn").on('click', function() {
+            handleSave();
+        });
+    }
+
+    function resetModal() {
+        $("#name").val('');
+        $("#id").val('');
+        $("#user_id").val(null).trigger('change');
+        clearValidationErrors();
+    }
+
+    function clearValidationErrors() {
+        $(".form-control").removeClass('is-invalid');
+        $(".invalid-feedback").text('');
+    }
+
+    // ===========================
+    // CRUD Operations
+    // ===========================
+    
+    // Create / Update
+    function handleSave() {
+        const type = $("#type").val();
+        const id = $("#id").val();
+        
+        const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
+        const method = 'POST';
+
+        // Prepare FormData
         let formData = new FormData();
         formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
-        formData.append("_method", type === "create" ? "POST" : "PUT");
-
+        formData.append("_method", type === 'create' ? "POST" : "PUT");
         formData.append("name", $("#name").val());
 
+        // Append multiple user_id
         let users = $("#user_id").val() || [];
-        users.forEach(u => formData.append("user_id[]", u));
+        users.forEach(userId => formData.append("user_id[]", userId));
+
+        // Show loading
+        const btn = $("#storeBtn");
+        btn.prop('disabled', true);
+        btn.find(".btn-text").text("Menyimpan...");
+        btn.find(".btn-loading").removeClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
             data: formData,
             processData: false,
-            contentType: false,
+            contentType: false
         })
-        .done(function (response) {
+        .done(function(response) {
             if (response.errors) {
-                resetBtn();
-
-                $.each(response.errors, function (index, value) {
-                    $("#" + index).addClass("is-invalid");
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#" + index).removeClass("is-invalid");
-                        $(".error_" + index).html("");
-                    }, 3000);
-                });
+                showValidationErrors(response.errors);
+                resetButton(btn, "Simpan");
             } else {
-                $("#modal-simple").modal("hide");
-
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => window.location.reload(), 1500);
+                $("#modal-simple").modal('hide');
+                showSuccessMessage(response.message);
+                table.ajax.reload();
+                resetButton(btn, "Simpan");
             }
         })
-        .fail(function (jqXHR) {
-            console.log("Error:", jqXHR.responseText);
-            resetBtn();
-        });
-
-        function resetBtn() {
-            btn.prop("disabled", false);
-            btnText.text("Simpan");
-            spinner.addClass("d-none");
-        }
-    });
-
-    function editModal(id) {
-        let url = BASE + `/${id}/show`;
-
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        }).done(function(response){
-
-            $(".modal-title").html("Edit Tipe Paket");
-
-            let data = response.data;
-
-            $("#modal-simple").modal('show');
-
-            $("#id").val(data.id);
-            $("#name").val(data.name);
-            $("#type").val("update");
-
-            // --- tampilkan relasi users ---
-            let selectedUsers = data.user.map(u => u.id);   // ambil id user yang sudah terhubung
-            $("#user_id").val(selectedUsers).trigger("change");
-            // (trigger change perlu jika pakai select2)
-
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        .fail(function(jqXHR) {
+            console.error("Error:", jqXHR.responseText);
+            showErrorMessage("Terjadi kesalahan");
+            resetButton(btn, "Simpan");
         });
     }
 
+    // Edit - Open modal with data
+    function editModal(id) {
+        $.get(BASE + '/' + id + '/show')
+            .done(function(response) {
+                const data = response.data;
+                
+                $(".modal-title").text("Edit Tipe Paket");
+                $("#modal-simple").modal('show');
+                
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#type").val('update');
 
-    function deleteType(id) {
+                // Set selected users
+                if (data.user && data.user.length > 0) {
+                    let selectedUsers = data.user.map(u => u.id);
+                    $("#user_id").val(selectedUsers).trigger('change');
+                } else {
+                    $("#user_id").val(null).trigger('change');
+                }
+            })
+            .fail(function() {
+                showErrorMessage("Terjadi kesalahan saat mengambil data");
+            });
+    }
+
+    // Delete
+    function deletePaket(id) {
         Swal.fire({
             title: "Peringatan !",
             text: "Anda yakin ingin menghapus data ini?",
@@ -347,31 +429,77 @@
             cancelButtonColor: "#d33",
             confirmButtonText: "Hapus",
             cancelButtonText: "Batal"
-        }).then((result) => {
+        }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
                     url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
-                        Toast.fire({
-                            icon: response.status,
-                            title: response.message
-                        });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     }
                 })
+                .done(function(response) {
+                    showSuccessMessage(response.message);
+                    table.ajax.reload();
+                })
+                .fail(function() {
+                    showErrorMessage("Server Error");
+                });
             }
         });
+    }
+
+    // ===========================
+    // Helper Functions
+    // ===========================
+    function showValidationErrors(errors) {
+        clearValidationErrors();
+        
+        Object.keys(errors).forEach(function(field) {
+            $("#" + field).addClass('is-invalid');
+            $(".error_" + field).text(errors[field]);
+        });
+
+        // Auto clear errors after 3 seconds
+        setTimeout(function() {
+            clearValidationErrors();
+        }, 3000);
+    }
+
+    function showSuccessMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        Toast.fire({
+            icon: "success",
+            title: message
+        });
+    }
+
+    function showErrorMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        Toast.fire({
+            icon: "error",
+            title: message
+        });
+    }
+
+    function resetButton(btn, text) {
+        btn.prop('disabled', false);
+        btn.find(".btn-text").text(text);
+        btn.find(".btn-loading").addClass('d-none');
     }
 </script>
 @endpush

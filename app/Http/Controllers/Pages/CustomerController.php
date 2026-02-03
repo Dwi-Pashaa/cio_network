@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Customer\CustomerDataTable;
 use App\Events\ChatSent;
 use App\Exports\CustomerExport;
 use App\Http\Controllers\Controller;
@@ -36,75 +37,11 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-        $micradius = $request->micradius ?? null;
-        $vlan = $request->vlan ?? null;
-        $village = $request->village ?? null;
-        $olts = $request->olts ?? null;
-        $hometowns = $request->hometown ?? null;
-
         $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
 
-        $customers = Customer::with([
-            'router',
-            'type',
-            'hometown',
-            'rt',
-            'rw',
-            'village',
-            'district',
-            'regencie',
-            'vlan',
-            'odc',
-            'odp',
-            'olt',
-            'price',
-            'paket',
-            'user',
-            'mic_radius'
-        ])
-            ->whereIn('regencies_id', $authUserRegencies)
-            ->where('status', 'active')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%$search%")
-                        ->orWhere('email', 'like', "%$search%")
-                        ->orWhere('mac_address', 'like', "%$search%")
-                        ->orWhere('uuid', 'like', "%$search%")
-                        ->orWhere('telp', 'like', "%$search%")
-                        ->orWhereHas('router', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('type', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('hometown', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('rt', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('rw', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('village', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('district', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('regencie', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('vlan', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('odc', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('odp', fn($sub) => $sub->where('name', 'like', "%$search%"))
-                        ->orWhereHas('olt', fn($sub) => $sub->where('name', 'like', "%$search%"));
-                });
-            })
-            ->when($vlan, function ($query, $vlan) {
-                $query->where('vlans_id', $vlan);
-            })
-            ->when($micradius, function ($query, $micradius) {
-                $query->where('mic_radius_id', $micradius);
-            })
-            ->when($village, function ($query, $village) {
-                $query->where('villages_id', $village);
-            })
-            ->when($olts, function ($query, $olts) {
-                $query->where('olts_id', $olts);
-            })
-            ->when($hometowns, function ($query, $hometowns) {
-                $query->where('hometowns_id', $hometowns);
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new CustomerDataTable)->get();
+        }
 
         $vilage = Village::whereIn('regencie_id', $authUserRegencies)->get();
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
@@ -112,7 +49,7 @@ class CustomerController extends Controller
         $vlan = Vlan::all();
         $micRadius = MicRadius::all();
 
-        return view("pages.customer.index", compact("customers", "hometown", "olts", "vlan", "micRadius", "vilage"));
+        return view("pages.customer.index", compact("hometown", "olts", "vlan", "micRadius", "vilage"));
     }
 
     public function getSelect(Request $request)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Customer\CustomerTypeDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Type;
 use Illuminate\Http\Request;
@@ -14,16 +15,11 @@ class TypeController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new CustomerTypeDataTable)->get();
+        }
 
-        $type = Type::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.type.index", compact("type"));
+        return view("pages.type.index");
     }
 
     /**
@@ -92,7 +88,7 @@ class TypeController extends Controller
         if (!$type) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $type->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);

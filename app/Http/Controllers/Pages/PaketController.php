@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Customer\CustomerPaketDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Paket;
 use App\Models\User;
@@ -16,19 +17,13 @@ class PaketController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $type = Paket::with(['user'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new CustomerPaketDataTable)->get();
+        }
 
         $user = User::all();
 
-        return view("pages.paket.index", compact("type", "user"));
+        return view("pages.paket.index", compact("user"));
     }
 
     /**

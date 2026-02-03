@@ -46,7 +46,7 @@
         <table id="patch-core-table" class="table card-table table-vcenter text-nowrap">
             <thead class="bg-secondary">
                 <tr>
-                    <th class="text-white">No</th>
+                    <th class="text-white w-1">No</th>
                     <th class="text-white">Nama User</th>
                     <th class="text-white">Nama Patch Core</th>
                     <th class="text-white">Jumlah</th>

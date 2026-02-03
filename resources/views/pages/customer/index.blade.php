@@ -5,7 +5,9 @@
 @endsection
 
 @push('css')
-    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 @endpush
 
 @section('content')
@@ -35,234 +37,130 @@
                     <div class="mx-2 d-inline-block">
                         <select name="sort" id="sort" class="form-control">
                             @php
-                                $opts = [
-                                    10,25,50,100
-                                ];
+                                $opts = [10, 25, 50, 100];
                             @endphp 
                             @foreach ($opts as $opt)
-                                <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                <option value="{{ $opt }}">{{ $opt }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                <form id="filterForm" class="d-flex" method="GET">
 
-                    <div class="text-secondary">
-                        <div class="mx-2 d-inline-block">
-                            <select name="village" id="village" class="form-control filter-select">
-                                <option value="">Pilih Desa</option>
-                                @foreach ($vilage as $vlg)
-                                    <option value="{{ $vlg->id }}" {{ request('village') == $vlg->id ? 'selected' : '' }}>
-                                        {{ $vlg->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="text-secondary">
+                    <div class="mx-2 d-inline-block">
+                        <select name="village" id="village" class="form-control filter-select">
+                            <option value="">Pilih Desa</option>
+                            @foreach ($vilage as $vlg)
+                                <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
 
-                    <div class="text-secondary">
-                        <div class="mx-2 d-inline-block">
-                            <select name="hometown" id="hometown" class="form-control filter-select">
-                                <option value="">Pilih Kampung</option>
-                                @foreach ($hometown as $hmt)
-                                    <option value="{{ $hmt->id }}" {{ request('hometown') == $hmt->id ? 'selected' : '' }}>
-                                        {{ $hmt->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="text-secondary">
+                    <div class="mx-2 d-inline-block">
+                        <select name="hometown" id="hometown" class="form-control filter-select">
+                            <option value="">Pilih Kampung</option>
+                            @foreach ($hometown as $hmt)
+                                <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
 
-                    <div class="text-secondary">
-                        <div class="mx-2 d-inline-block">
-                            <select name="vlan" id="vlan" class="form-control filter-select">
-                                <option value="">Pilih Vlan</option>
-                                @foreach ($vlan as $vln)
-                                    <option value="{{ $vln->id }}" {{ request('vlan') == $vln->id ? 'selected' : '' }}>
-                                        {{ $vln->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="text-secondary">
+                    <div class="mx-2 d-inline-block">
+                        <select name="vlan" id="vlan" class="form-control filter-select">
+                            <option value="">Pilih Vlan</option>
+                            @foreach ($vlan as $vln)
+                                <option value="{{ $vln->id }}">{{ $vln->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
 
-                    <div class="text-secondary">
-                        <div class="mx-2 d-inline-block">
-                            <select name="olt" id="olt" class="form-control filter-select">
-                                <option value="">Pilih OLT</option>
-                                @foreach ($olts as $ol)
-                                    <option value="{{ $ol->id }}" {{ request('olt') == $ol->id ? 'selected' : '' }}>
-                                        {{ $ol->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="text-secondary">
+                    <div class="mx-2 d-inline-block">
+                        <select name="olt" id="olt" class="form-control filter-select">
+                            <option value="">Pilih OLT</option>
+                            @foreach ($olts as $ol)
+                                <option value="{{ $ol->id }}">{{ $ol->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
 
-                    <div class="text-secondary">
-                        <div class="mx-2 d-inline-block">
-                            <select name="micradius" id="micradius" class="form-control filter-select">
-                                <option value="">Pilih Mic Radius</option>
-                                @foreach ($micRadius as $mc)
-                                    <option value="{{ $mc->id }}" {{ request('micradius') == $mc->id ? 'selected' : '' }}>
-                                        {{ $mc->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="text-secondary">
+                    <div class="mx-2 d-inline-block">
+                        <select name="micradius" id="micradius" class="form-control filter-select">
+                            <option value="">Pilih Mic Radius</option>
+                            @foreach ($micRadius as $mc)
+                                <option value="{{ $mc->id }}">{{ $mc->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-
-                </form>
-
-                <script>
-                    document.querySelectorAll('.filter-select').forEach((select) => {
-                        select.addEventListener('change', function () {
-                            document.getElementById('filterForm').submit();
-                        });
-                    });
-                </script>
+                </div>
 
                 <div class="ms-auto text-secondary">
-                    <form>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" name="search" placeholder="Search for…">
-                            <button class="btn" type="submit">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                            </button>
-                        </div>
-                    </form>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="search-input" placeholder="Search for…">
+                        <button class="btn" type="button" id="search-btn">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="advanced-table">
-            <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap datatable">
-                    <thead>
-                        <tr>
-                            <th>
-                                <button class="table-sort d-flex justify-content-between desc">No</button>
-                            </th>
-                            <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-id">ID Pelanggan</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-type">Type Pelanggan</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nik">NIK</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-nama">Nama Pelanggan</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-email">Email</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-telp">No Telephone</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mac">Mac Address</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-router">Jenis Router</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kampung">Kampung</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-desa">Desa</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rt">RT</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-rw">RW</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kecamatan">Kecamatan</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-kabupaten">Kabupaten/Kota</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-vlan">Vlan</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odc">Alamat ODC</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-odp">Alamat ODP</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-olt">Alamat OLT</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-wifi">Nama Wifi</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-passwifi">Password Wifi</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoeuser">PPOE Username</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ppoepsw">PPOE Password</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-paket">Tipe Paket</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-mixradius">Mix Radius</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-pembayaran">Tipe Pembayaran</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-lokasi">Lokasi</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-ktp">Foto KTP</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-input">Di Input Oleh</button></th>
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-created">Created</button></th>
-                            @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                                <th><button class="table-sort d-flex justify-content-between desc" data-sort="sort-action">Action</button></th>
-                            @endif
-                        </tr>
-                    </thead>
-
-                    <tbody class="table-tbody">
-                        @forelse ($customers as $item)
-                            <tr>
-                                <td>
-                                    <input class="form-check-input row-check" style="margin-right: 20px" type="checkbox" id="checkbox-user" name="selected[]" value="{{ $item->id }}">
-                                    {{ $loop->iteration }}
-                                </td>
-                                <td class="sort-id">{{ $item->uuid ?? '-' }}</td>
-                                <td class="sort-type">{{ $item->type->name }}</td>
-                                <td class="sort-type">{{ $item->nik ?? '-' }}</td>
-                                <td class="sort-nama">{{ $item->name }}</td>
-                                <td class="sort-email">{{ $item->email }}</td>
-                                <td class="sort-telp">{{ $item->telp }}</td>
-                                <td class="sort-mac">{{ $item->mac_address }}</td>
-                                <td class="sort-router">{{ $item->router->name }}</td>
-                                <td class="sort-kampung">{{ $item->hometown->name }}</td>
-                                <td class="sort-desa">{{ $item->village->name }}</td>
-                                <td class="sort-rt">{{ $item->rt->name }}</td>
-                                <td class="sort-rw">{{ $item->rw->name }}</td>
-                                <td class="sort-kecamatan">{{ $item->district->name }}</td>
-                                <td class="sort-kabupaten">{{ $item->regencie->name }}</td>
-                                <td class="sort-vlan">{{ $item->vlan->name }}</td>
-                                <td class="sort-odc">
-                                    {{ $item->odc->code }} | {{ $item->odc->hometown->name }} |
-                                    {{ $item->odc->rt->name }} | {{ $item->odc->rw->name }} |
-                                    {{ $item->odc->home_odc }}
-                                </td>
-                                <td class="sort-odp">
-                                    {{ $item->odp->code }} | {{ $item->odp->hometown->name }} |
-                                    {{ $item->odp->rt->name }} | {{ $item->odp->rw->name }} |
-                                    {{ $item->odp->home_odc }}
-                                </td>
-                                <td class="sort-olt">{{ $item->olt->hometown->name }} | {{ $item->olt->name }}</td>
-                                <td class="sort-wifi">{{ $item->name_wifi ?? '-' }}</td>
-                                <td class="sort-passwifi">{{ $item->password_wifi ?? '-' }}</td>
-                                <td class="sort-ppoeuser">{{ $item->pppoe_username ?? '-' }}</td>
-                                <td class="sort-ppoepsw">{{ $item->pppoe_password ?? '-' }}</td>
-                                <td class="sort-paket">{{ optional($item)->paket->name ?? '-' }}</td>
-                                <td class="sort-mixradius">{{ optional($item)->mic_radius->code ?? '-' }} - {{ optional($item)->mic_radius->name ?? '-' }}</td>
-                                <td class="sort-pembayaran">{{ optional($item)->price->name ?? '-' }}</td>
-                                <td class="sort-lokasi">
-                                    <a href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>
-                                </td>
-                                <td class="sort-lokasi">
-                                    @if ($item->ktp_photo != null)
-                                        <a href="{{ asset($item->ktp_photo) }}" target="_blank" class="btn btn-primary btn-sm">Lihat Foto KTP</a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="sort-input">{{ optional($item)->user->name ?? '-' }}</td>
-                                <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
-                                
-                                @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                                    <td class="sort-action">
-                                        @can('chatting')
-                                            <a href="javascript:void(0)" onclick="return openChat('{{ $item->id }}')" class="btn btn-outline-primary btn-md">Kirim Pemberitahuan</a>
-                                        @endcan
-                                        @can('ubah pelanggan')
-                                            <a href="{{ route('customer.edit', ['id' => $item->id]) }}" class="btn btn-outline-warning btn-md">Edit</a>
-                                        @endcan
-                                        @can('hapus pelanggan')
-                                            <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">Hapus</a>
-                                        @endcan
-                                    </td>
-                                @endif
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="19" class="text-center">Tidak Ada Data</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap" id="customer-table">
+                <thead class="bg-secondary">
+                    <tr>
+                        <th class="text-white w-1">No</th>
+                        <th class="text-white">ID Pelanggan</th>
+                        <th class="text-white">Type Pelanggan</th>
+                        <th class="text-white">NIK</th>
+                        <th class="text-white">Nama Pelanggan</th>
+                        <th class="text-white">Email</th>
+                        <th class="text-white">No Telephone</th>
+                        <th class="text-white">Mac Address</th>
+                        <th class="text-white">Jenis Router</th>
+                        <th class="text-white">Kampung</th>
+                        <th class="text-white">Desa</th>
+                        <th class="text-white">RT</th>
+                        <th class="text-white">RW</th>
+                        <th class="text-white">Kecamatan</th>
+                        <th class="text-white">Kabupaten/Kota</th>
+                        <th class="text-white">Vlan</th>
+                        <th class="text-white">Alamat ODC</th>
+                        <th class="text-white">Alamat ODP</th>
+                        <th class="text-white">Alamat OLT</th>
+                        <th class="text-white">Nama Wifi</th>
+                        <th class="text-white">Password Wifi</th>
+                        <th class="text-white">PPOE Username</th>
+                        <th class="text-white">PPOE Password</th>
+                        <th class="text-white">Tipe Paket</th>
+                        <th class="text-white">Mix Radius</th>
+                        <th class="text-white">Tipe Pembayaran</th>
+                        <th class="text-white">Lokasi</th>
+                        <th class="text-white">Foto KTP</th>
+                        <th class="text-white">Di Input Oleh</th>
+                        <th class="text-white">Created</th>
+                        @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
+                            <th class="text-white">Action</th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
+
         <div class="card-footer d-flex align-items-center">
             <p class="m-0 text-secondary">
-                Showing <span>{{ $customers->firstItem() }}</span> 
-                to <span>{{ $customers->lastItem() }}</span> of
-                <span>{{ $customers->total() }}</span> entries
+                Showing <span id="start-entry">0</span> 
+                to <span id="end-entry">0</span> of
+                <span id="total-entries">0</span> entries
             </p>
-            <ul class="pagination m-0 ms-auto">
-                {{ $customers->links() }}
-            </ul>
+            <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
         </div>
     </div>
 @endsection
@@ -273,9 +171,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Kirim Pemberitahuan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="text" name="customer_id" id="customer_id" hidden>
@@ -298,27 +194,6 @@
                             @endforeach
                         </select>
                     </div>
-                    {{-- <div class="form-group mb-3">
-                        <label for="" class="mb-2">Pilih Kampung</label>
-                        <select name="home_town_id" id="home_town_id" class="form-control">
-                            <option value="">Pilih</option>
-                            @foreach ($hometown as $ht)
-                                <option value="{{ $ht->id }}">{{ $ht->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="" class="mb-2">Pilih OLT</label>
-                        <select name="olt_id" id="olt_id" class="form-control">
-                            <option value="">Pilih</option>
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="" class="mb-2">Pilih Mic Radius</label>
-                        <select name="mic_radius_id" id="mic_radius_id" class="form-control">
-                            <option value="">Pilih</option>
-                        </select>
-                    </div> --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
@@ -336,9 +211,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Pindah OLT</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="text" name="customer_switch_id" id="customer_switch_id" hidden>
@@ -365,290 +238,476 @@
 @endpush
 
 @push('js')
-    <script>
-        const advancedTable = {
-            headers: [
-                { "data-sort": "sort-no", name: "No" },
-                { "data-sort": "sort-id", name: "ID Pelanggan" },
-                { "data-sort": "sort-type", name: "Type Pelanggan" },
-                { "data-sort": "sort-nama", name: "Nama Pelanggan" },
-                { "data-sort": "sort-email", name: "Email" },
-                { "data-sort": "sort-telp", name: "No Telephone" },
-                { "data-sort": "sort-mac", name: "Mac Address" },
-                { "data-sort": "sort-router", name: "Jenis Router" },
-                { "data-sort": "sort-kampung", name: "Kampung" },
-                { "data-sort": "sort-desa", name: "Desa" },
-                { "data-sort": "sort-rt", name: "RT" },
-                { "data-sort": "sort-rw", name: "RW" },
-                { "data-sort": "sort-kecamatan", name: "Kecamatan" },
-                { "data-sort": "sort-kabupaten", name: "Kabupaten/Kota" },
-                { "data-sort": "sort-vlan", name: "Vlan" },
-                { "data-sort": "sort-odc", name: "Alamat ODC" },
-                { "data-sort": "sort-odp", name: "Alamat ODP" },
-                { "data-sort": "sort-olt", name: "Alamat OLT" },
-                { "data-sort": "sort-wifi", name: "Nama Wifi" },
-                { "data-sort": "sort-passwifi", name: "Password Wifi" },
-                { "data-sort": "sort-ppoeuser", name: "PPOE Username" },
-                { "data-sort": "sort-ppoepsw", name: "PPOE Password" },
-                { "data-sort": "sort-paket", name: "Tipe Paket" },
-                { "data-sort": "sort-mixradius", name: "Mix Radius" },
-                { "data-sort": "sort-pembayaran", name: "Tipe Pembayaran" },
-                { "data-sort": "sort-lokasi", name: "Lokasi" },
-                { "data-sort": "sort-input", name: "Di Input Oleh" },
-                { "data-sort": "sort-created", name: "Created" },
-                { "data-sort": "sort-action", name: "Action" },
-            ],
-        };
+<script>
+    const BASE = "{{ route('customer.index') }}";
+    let table;
 
-        const setPageListItems = (e) => {
-            window.tabler_list["advanced-table"].page = parseInt(e.target.dataset.value);
-            window.tabler_list["advanced-table"].update();
-            document.querySelector("#page-count").innerHTML = e.target.dataset.value;
-        };
+    $(function() {
+        initializeDataTable();
+        initializePaginationAndSearch();
+        initializeModalHandlers();
+        initializeFilterHandlers();
+    });
 
-        window.tabler_list = window.tabler_list || {};
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-                sortClass: "table-sort",
-                listClass: "table-tbody",
-                page: parseInt("20"),
-                pagination: {
-                    item: (value) => {
-                        return `<li class="page-item"><a class="page-link cursor-pointer">${value.page}</a></li>`;
-                    },
-                    innerWindow: 1,
-                    outerWindow: 1,
-                    left: 0,
-                    right: 0,
+    // ===========================
+    // DataTable Initialization
+    // ===========================
+    function initializeDataTable() {
+        table = $('#customer-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: BASE,
+                data: function(d) {
+                    d.village = $('#village').val();
+                    d.hometown = $('#hometown').val();
+                    d.vlan = $('#vlan').val();
+                    d.olt = $('#olt').val();
+                    d.micradius = $('#micradius').val();
+                    d.search = $('#search-input').val();
+                }
+            },
+            order: [[29, 'desc']],
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { 
+                    data: 'checkbox',
+                    orderable: false, 
+                    searchable: false,
                 },
-                valueNames: advancedTable.headers.map((header) => header["data-sort"]),
-            }));
+                { data: 'uuid', defaultContent: '-' },
+                { data: 'type_name' },
+                { data: 'nik', defaultContent: '-' },
+                { data: 'name' },
+                { data: 'email' },
+                { data: 'telp' },
+                { data: 'mac_address' },
+                { data: 'router_name' },
+                { data: 'hometown_name' },
+                { data: 'village_name' },
+                { data: 'rt_name' },
+                { data: 'rw_name' },
+                { data: 'district_name' },
+                { data: 'regencie_name' },
+                { data: 'vlan_name' },
+                { 
+                    data: 'odc_info',
+                },
+                { 
+                    data: 'odp_info',
+                },
+                { 
+                    data: 'olt_info',
+                },
+                { data: 'name_wifi', defaultContent: '-' },
+                { data: 'password_wifi', defaultContent: '-' },
+                { data: 'pppoe_username', defaultContent: '-' },
+                { data: 'pppoe_password', defaultContent: '-' },
+                { data: 'paket_name', defaultContent: '-' },
+                { 
+                    data: 'mic_radius_info',
+                },
+                { data: 'price_name', defaultContent: '-' },
+                { 
+                    data: 'lokasi',
+                    orderable: false,
+                },
+                { 
+                    data: 'ktp_photo',
+                    orderable: false,
+                },
+                { data: 'input_by', defaultContent: '-' },
+                { 
+                    data: 'created_at',
+                    render: function(data) {
+                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                    }
+                },
+                { 
+                    data: 'action', 
+                    orderable: false, 
+                    searchable: false,
+                }
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
+            }
         });
-    </script>
-    <script>
-        const BASE = "{{ route('customer.index') }}";
+    }
 
-        let params = new URLSearchParams(window.location.search);
-        $("#sort").change(function() {
-            params.set('sort', $(this).val());
-            window.location.href = BASE + '?' + params.toString();
+    // ===========================
+    // Pagination & Search
+    // ===========================
+    function initializePaginationAndSearch() {
+        // Entries per page
+        $("#sort").on('change', function() {
+            table.page.len($(this).val()).draw();
         });
 
+        // Search on Enter key
+        $("#search-input").on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                table.ajax.reload();
+            }
+        });
+
+        // Search on button click
+        $("#search-btn").on('click', function(e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+    }
+
+    function updatePaginationInfo(settings) {
+        const api = new $.fn.dataTable.Api(settings);
+        const info = api.page.info();
+        
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
+
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
+
+        if (info.pages <= 1) return;
+
+        // Previous button
+        pagination.append(`
+            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page - 1}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        // First page
+        if (startPage > 0) {
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="0">1</a>
+                </li>
+            `);
+            if (startPage > 1) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === info.page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+            `);
+        }
+
+        // Last page
+        if (endPage < info.pages - 1) {
+            if (endPage < info.pages - 2) {
+                pagination.append(`
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                `);
+            }
+            pagination.append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a>
+                </li>
+            `);
+        }
+
+        // Next button
+        pagination.append(`
+            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page + 1}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </li>
+        `);
+
+        // Event handler for pagination links
+        pagination.find('a').on('click', function(e) {
+            e.preventDefault();
+            if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page >= 0 && page < info.pages) {
+                    table.page(page).draw('page');
+                }
+            }
+        });
+    }
+
+    // ===========================
+    // Filter Handlers
+    // ===========================
+    function initializeFilterHandlers() {
+        // Filter select changes
+        $('.filter-select').on('change', function() {
+            table.ajax.reload();
+        });
+    }
+
+    // ===========================
+    // Modal Handlers
+    // ===========================
+    function initializeModalHandlers() {
+        // Chat notification modal
+        $("#send-notif").on('click', function() {
+            handleSendNotification();
+        });
+
+        // Switch OLT modal
+        $("#btn-switch").on('click', function() {
+            handleSwitchOlt();
+        });
+    }
+
+    // ===========================
+    // CRUD Operations
+    // ===========================
+    
+    // Delete Customer
+    function deleteCustomer(id) {
+        Swal.fire({
+            title: "Peringatan !",
+            text: "Anda yakin ingin menghapus data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Hapus",
+            cancelButtonText: "Batal"
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: BASE + '/' + id + '/destroy',
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    }
+                })
+                .done(function(response) {
+                    showSuccessMessage(response.message);
+                    table.ajax.reload();
+                })
+                .fail(function() {
+                    showErrorMessage("Server Error");
+                });
+            }
+        });
+    }
+
+    // Open Chat Modal
+    function openChat(id) {
+        $("#modal-simple").modal("show");
+        $("#customer_id").val(id);
+    }
+
+    // Send Notification
+    function handleSendNotification() {
+        const btn = $("#send-notif");
+
+        if (btn.prop("disabled")) return;
+
+        const btnText = btn.find(".btn-text");
+        const btnLoading = btn.find(".btn-loading");
+
+        btn.prop("disabled", true);
+        btnText.text("Mengirim...");
+        btnLoading.removeClass("d-none");
+
+        let customer_id = $("#customer_id").val();
+        let notif = $("#notif").val();
+
+        $.ajax({
+            url: "{{ route('customer.notif') }}",
+            method: "POST",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_id: customer_id,
+                notif: notif,
+            },
+            dataType: "JSON",
+        })
+        .done(function(response) {
+            showSuccessMessage(response.message);
+            $("#modal-simple").modal("hide");
+            table.ajax.reload();
+            resetButton(btn, "Kirim");
+        })
+        .fail(function() {
+            showErrorMessage("Server Error");
+            resetButton(btn, "Kirim");
+        });
+    }
+
+    // Open Switch OLT Modal
+    function openSwitch() {
+        let checks = document.querySelectorAll('.row-check:checked');
+
+        if (checks.length === 0) {
+            showInfoMessage("Pilih satu atau lebih pelanggan untuk dipindah OLT");
+            return false;
+        }
+
+        let customerIDs = Array.from(checks).map(c => c.value);
+        document.getElementById('customer_switch_id').value = JSON.stringify(customerIDs);
+
+        $("#modal-switch-olt").modal("show");
+        return true;
+    }
+
+    // Handle Switch OLT
+    function handleSwitchOlt() {
+        const btn = $("#btn-switch");
+
+        btn.prop("disabled", true);
+        btn.find(".btn-text").text("Memproses...");
+        btn.find(".btn-loading").removeClass("d-none");
+
+        let customer_switch_id = $("#customer_switch_id").val();
+        let olt_id = $("#olt_id").val();
+
+        $.ajax({
+            url: "{{ route('customer.switchOlt') }}",
+            method: "POST",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_switch_id: customer_switch_id,
+                olt_id: olt_id
+            },
+            dataType: "JSON"
+        })
+        .done(function(response) {
+            if (response.code == 200) {
+                showSuccessMessage(response.message);
+                $("#modal-switch-olt").modal("hide");
+                table.ajax.reload();
+                resetButton(btn, "Kirim");
+            } else {
+                showErrorMessage(response.message);
+                resetButton(btn, "Kirim");
+            }
+        })
+        .fail(function() {
+            showErrorMessage("Server Error");
+            resetButton(btn, "Kirim");
+        });
+    }
+
+    // Get Select Options for Hometown
+    $("#home_town_id").change(function () {
+        let hometown_id = $(this).val();
+
+        if (hometown_id) {
+            $.ajax({
+                url: "{{ route('customer.getSelect') }}",
+                method: "POST",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    home_town_id: hometown_id
+                },
+                dataType: "JSON"
+            })
+            .done(function(response) {
+                let data = response.data;
+
+                // Populate OLT dropdown
+                let oltOptions = '<option value="">Pilih</option>';
+                if (data.olts && data.olts.length > 0) {
+                    data.olts.forEach(item => {
+                        oltOptions += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                }
+                $("#olt_id").html(oltOptions);
+
+                // Populate Mic Radius dropdown
+                let micOptions = '<option value="">Pilih</option>';
+                if (data.micRadius && data.micRadius.length > 0) {
+                    data.micRadius.forEach(item => {
+                        micOptions += `<option value="${item.id}">${item.code} - ${item.name}</option>`;
+                    });
+                }
+                $("#mic_radius_id").html(micOptions);
+            })
+            .fail(function() {
+                showErrorMessage("Server Error");
+            });
+        }
+    });
+
+    // ===========================
+    // Helper Functions
+    // ===========================
+    function showSuccessMessage(message) {
         const Toast = Swal.mixin({
             toast: true,
             position: "top-end",
             showConfirmButton: false,
             timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-            }
+            timerProgressBar: true
         });
 
-        function deleteType(id) {
-            Swal.fire({
-                title: "Peringatan !",
-                text: "Anda yakin ingin menghapus data ini?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Hapus",
-                cancelButtonText: "Batal"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: BASE + '/' + id + '/destroy',
-                        method: "DELETE",
-                        dataType: "json",
-                        success: function(response) {
-                            Toast.fire({
-                                icon: response.status,
-                                title: response.message
-                            });
+        Toast.fire({
+            icon: "success",
+            title: message
+        });
+    }
 
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 3000);
-                        },
-                        error: function(err) {
-                            Toast.fire({
-                                icon: "error",
-                                title: "Server Error"
-                            });
-                        }
-                    })
-                }
-            });
-        }
-
-        function openChat(id) {
-            $("#modal-simple").modal("show");
-            $("#customer_id").val(id);
-        }
-
-        $("#home_town_id").change(function () {
-            let hometown_id = $(this).val();
-
-            if (hometown_id) {
-                $.ajax({
-                    url: "{{ route('customer.getSelect') }}",
-                    method: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        home_town_id: hometown_id
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        let data = response.data;
-
-                        let oltOptions = '<option value="">Pilih</option>';
-                        if (data.olts && data.olts.length > 0) {
-                            data.olts.forEach(item => {
-                                oltOptions += `<option value="${item.id}">${item.name}</option>`;
-                            });
-                        }
-                        $("#olt_id").html(oltOptions);
-
-                        let micOptions = '<option value="">Pilih</option>';
-                        if (data.micRadius && data.micRadius.length > 0) {
-                            data.micRadius.forEach(item => {
-                                micOptions += `<option value="${item.id}">${item.code} - ${item.name}</option>`;
-                            });
-                        }
-                        $("#mic_radius_id").html(micOptions);
-                    },
-                    error: function () {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
-                    }
-                });
-            }
+    function showErrorMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
         });
 
-        $("#send-notif").on("click", function () {
-            const btn = $(this);
+        Toast.fire({
+            icon: "error",
+            title: message
+        });
+    }
 
-            if (btn.prop("disabled")) return;
-
-            const btnText = btn.find(".btn-text");
-            const btnLoading = btn.find(".btn-loading");
-
-            btn.prop("disabled", true);
-            btnText.text("Mengirim...");
-            btnLoading.removeClass("d-none");
-
-            let customer_id = $("#customer_id").val();
-            let notif = $("#notif").val();
-
-            $.ajax({
-                url: "{{ route('customer.notif') }}",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    customer_id: customer_id,
-                    notif: notif,
-                },
-                dataType: "JSON",
-            })
-            .done(function (response) {
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                $("#modal-simple").modal("hide");
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            })
-            .fail(function () {
-                Toast.fire({
-                    icon: "error",
-                    title: "Server Error"
-                });
-
-                resetBtn();
-            });
-
-            function resetBtn() {
-                btn.prop("disabled", false);
-                btnText.text("Kirim");
-                btnLoading.addClass("d-none");
-            }
+    function showInfoMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
         });
 
-        function openSwitch() {
-            let checks = document.querySelectorAll('.row-check:checked');
-
-            if (checks.length === 0) {
-                Toast.fire({
-                    icon: "info",
-                    title: "Pilih satu atau lebih pelanggan untuk dipindah OLT"
-                });
-                return false;
-            }
-
-            let customerIDs = Array.from(checks).map(c => c.value);
-
-            document.getElementById('customer_switch_id').value = JSON.stringify(customerIDs);
-
-            $("#modal-switch-olt").modal("show");
-
-            return true;
-        }
-
-        $("#btn-switch").click(function () {
-            const btn = $("#btn-switch");
-
-            btn.prop("disabled", true);
-            btn.html("Memproses...");
-
-            let customer_switch_id = $("#customer_switch_id").val();
-            let olt_id = $("#olt_id").val();
-
-            $.ajax({
-                url: "{{ route('customer.switchOlt') }}",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    customer_switch_id: customer_switch_id,
-                    olt_id: olt_id
-                },
-                dataType: "JSON",
-                success: function (response) {
-                    Toast.fire({
-                        icon: response.status,
-                        title: response.message
-                    });
-
-                    if (response.code == 200) {
-                        $("#modal-switch-olt").modal("hide");
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    } else {
-                        // kalau gagal → aktifkan lagi
-                        btn.prop("disabled", false);
-                        btn.html("Kirim");
-                    }
-                },
-                error: function () {
-                    btn.prop("disabled", false);
-                    btn.html("Kirim");
-
-                    Toast.fire({
-                        icon: "error",
-                        title: "Server Error"
-                    });
-                }
-            });
+        Toast.fire({
+            icon: "info",
+            title: message
         });
-    </script>
+    }
+
+    function resetButton(btn, text) {
+        btn.prop('disabled', false);
+        btn.find(".btn-text").text(text);
+        btn.find(".btn-loading").addClass('d-none');
+    }
+</script>
 @endpush

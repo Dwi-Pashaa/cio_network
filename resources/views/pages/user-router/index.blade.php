@@ -38,7 +38,7 @@
         <table id="stock-table" class="table table-vcenter text-nowrap">
             <thead class="bg-secondary">
                 <tr>
-                    <th class="text-white">No</th>
+                    <th class="text-white w-1">No</th>
                     <th class="text-white">Nama User</th>
                     <th class="text-white">Nama Router</th>
                     <th class="text-white">Jumlah</th>

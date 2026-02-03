@@ -46,7 +46,7 @@
         <table id="plc-table" class="table card-table table-vcenter text-nowrap">
             <thead class="bg-secondary">
                 <tr>
-                    <th class="text-white">No</th>
+                    <th class="text-white w-1">No</th>
                     <th class="text-white">Nama User</th>
                     <th class="text-white">Nama PLC</th>
                     <th class="text-white">Jumlah</th>
@@ -69,7 +69,6 @@
 @endsection
 
 @push('modal')
-    <!-- Modal Tambah / Edit Stock PLC -->
     <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -128,7 +127,6 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Stock -->
     <div class="modal modal-blur fade" id="modal-add-stock" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -174,9 +172,6 @@
         initializeRoleHandler();
     });
 
-    // ===========================
-    // DataTable Initialization
-    // ===========================
     function initializeDataTable() {
         table = $('#plc-table').DataTable({
             processing: true,
@@ -221,23 +216,17 @@
         });
     }
 
-    // ===========================
-    // Pagination & Search
-    // ===========================
     function initializePaginationAndSearch() {
-        // Entries per page
         $("#sort").on('change', function() {
             table.page.len($(this).val()).draw();
         });
 
-        // Search on Enter key
         $("#search-input").on('keypress', function(e) {
             if (e.which === 13) {
                 table.search(this.value).draw();
             }
         });
 
-        // Search on button click
         $("#search-btn").on('click', function() {
             table.search($("#search-input").val()).draw();
         });
@@ -259,7 +248,6 @@
 
         if (info.pages <= 1) return;
 
-        // Previous button
         pagination.append(`
             <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page - 1}">
@@ -274,7 +262,6 @@
         let startPage = Math.max(0, info.page - 2);
         let endPage = Math.min(info.pages - 1, info.page + 2);
 
-        // First page
         if (startPage > 0) {
             pagination.append(`
                 <li class="page-item">
@@ -290,7 +277,6 @@
             }
         }
 
-        // Page numbers
         for (let i = startPage; i <= endPage; i++) {
             pagination.append(`
                 <li class="page-item ${i === info.page ? 'active' : ''}">
@@ -299,7 +285,6 @@
             `);
         }
 
-        // Last page
         if (endPage < info.pages - 1) {
             if (endPage < info.pages - 2) {
                 pagination.append(`
@@ -315,7 +300,6 @@
             `);
         }
 
-        // Next button
         pagination.append(`
             <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page + 1}">
@@ -327,7 +311,6 @@
             </li>
         `);
 
-        // Event handler for pagination links
         pagination.find('a').on('click', function(e) {
             e.preventDefault();
             if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
@@ -339,11 +322,7 @@
         });
     }
 
-    // ===========================
-    // Modal Handlers
-    // ===========================
     function initializeModalHandlers() {
-        // Add button - open modal for create
         $("#addBtn").on('click', function() {
             resetModal();
             $(".modal-title").text("Tambah Stock PLC");
@@ -352,12 +331,10 @@
             $("#user_id_show").hide();
         });
 
-        // Save button - handle create/update
         $("#storeBtn").on('click', function() {
             handleSaveStock();
         });
 
-        // Add stock button
         $("#storeAddStock").on('click', function() {
             handleAddStock();
         });
@@ -377,9 +354,6 @@
         $(".invalid-feedback").text('');
     }
 
-    // ===========================
-    // Role Handler
-    // ===========================
     function initializeRoleHandler() {
         $("#role").on('change', function() {
             const role = $(this).val();
@@ -417,12 +391,7 @@
             });
         });
     }
-
-    // ===========================
-    // CRUD Operations
-    // ===========================
     
-    // Create / Update Stock
     function handleSaveStock() {
         const type = $("#type").val();
         const id = $("#id").val();
@@ -465,7 +434,6 @@
         });
     }
 
-    // Edit Stock - Open modal with data
     function editModal(id) {
         $.get(BASE + '/' + id + '/show')
             .done(function(response) {
@@ -480,11 +448,9 @@
                     $("#total").val(data.total);
                     $("#type").val('update');
 
-                    // Trigger role change to load users
                     if (data.user && data.user.roles && data.user.roles[0]) {
                         $("#role").val(data.user.roles[0].name).trigger('change');
                         
-                        // Set user_id after a short delay to ensure users are loaded
                         setTimeout(function() {
                             $("#user_id").val(data.user_id);
                         }, 500);
@@ -498,7 +464,6 @@
             });
     }
 
-    // Add Stock - Open modal
     function addStock(id) {
         $.get(BASE + '/' + id + '/show')
             .done(function(response) {
@@ -519,13 +484,11 @@
             });
     }
 
-    // Handle Add Stock
     function handleAddStock() {
         const btn = $("#storeAddStock");
         
         if (btn.prop('disabled')) return;
 
-        // Show loading
         btn.prop('disabled', true);
         btn.find(".btn-text").text("Menyimpan...");
         btn.find(".btn-loading").removeClass('d-none');
@@ -554,7 +517,6 @@
             });
     }
 
-    // Delete Stock
     function deleteStock(id) {
         Swal.fire({
             title: "Peringatan !",
@@ -585,9 +547,6 @@
         });
     }
 
-    // ===========================
-    // Helper Functions
-    // ===========================
     function showValidationErrors(errors) {
         clearValidationErrors();
         
@@ -596,7 +555,6 @@
             $(".error_" + field).text(errors[field]);
         });
 
-        // Auto clear errors after 3 seconds
         setTimeout(function() {
             clearValidationErrors();
         }, 3000);
