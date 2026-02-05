@@ -18,88 +18,53 @@
             </a>
         </div>
     @endcan
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [
-                                10,25,50,100
-                            ];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+    <div class="card-body border-bottom py-3 d-flex justify-content-between">
+        <div>
+            <label>Show</label>
+            <select id="sort" class="form-control d-inline-block" style="width:auto;">
+                @foreach([10,25,50,100] as $opt)
+                    <option value="{{ $opt }}">{{ $opt }}</option>
+                @endforeach
+            </select>
+            <label>entries</label>
+        </div>
+        <div>
+            <div class="input-group" style="width:300px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search…">
+                <button class="btn" id="search-btn" type="button">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                </button>
             </div>
         </div>
     </div>
      <div id="advanced-table" class="table-responsive-lg">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
+        <table class="table card-table table-vcenter text-nowrap datatable" id="rw-table">
+            <thead class="bg-secondary">
                 <tr>
-                    <th class="w-1">No</th>
-                    <th>
+                    <th class="w-1 text-white">No</th>
+                    <th class="text-white">
                         <button class="table-sort" data-sort="sort-name">Nama RW</button>
                     </th>
-                    <th>
+                    <th class="text-white">
                         <button class="table-sort" data-sort="sort-created">Created</button>
                     </th>
                     @if(auth()->user()->can('ubah rw') || auth()->user()->can('hapus rw'))
-                        <th>Action</th>
+                        <th class="text-white">Action</th>
                     @endif
                 </tr>
             </thead>
             <tbody class="table-tbody">
-                @forelse ($rws as $item)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td class="sort-name">{{ $item->name }}</td>
-                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
-                        @if(auth()->user()->can('ubah rw') || auth()->user()->can('hapus rw'))
-                            <td>
-                                @can('ubah rw')
-                                    <a href="javascript:void(0)" onclick="editModal('{{ $item->id }}')" class="btn btn-outline-warning">
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus rw')
-                                    <a href="javascript:void(0)" onclick="deleteType('{{ $item->id }}')" class="btn btn-outline-danger">
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td>
-                        @endif
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center">Tidak Ada Data</td>
-                    </tr>
-                @endforelse
+               
             </tbody>
         </table>
     </div>
     <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span>{{ $rws->firstItem() }}</span> 
-            to <span>{{ $rws->lastItem() }}</span> of
-            <span>{{ $rws->total() }}</span> entries
+        <p class="m-0 text-secondary" id="table-info">
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $rws->links() }}
-        </ul>
+        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
     </div>
 </div>
 @endsection
@@ -139,31 +104,93 @@
 <script>
     const BASE = "{{ route('rw.index') }}";
 
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
+    let table;
+
+    $(function () {
+        table = $('#rw-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: BASE,
+            order: [[4, 'desc']],
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { data: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'name' },
+                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
+                { data: 'action', orderable: false, searchable: false },
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
+            }
+        });
+
+        $("#sort").change(function() {
+            table.page.len($(this).val()).draw();
+        });
+
+        $("#search-input").on('keyup', function(e){
+            if(e.which === 13) table.search(this.value).draw();
+        });
+        $("#search-btn").click(function(){
+            table.search($("#search-input").val()).draw();
+        });
     });
 
-    const advancedTable = {
-        headers: [
-            { "data-sort": "sort-name", name: "Nama RW" },
-            { "data-sort": "sort-created", name: "Created" },
-        ],
-    };
+    function updatePaginationInfo(settings) {
+        const info = new $.fn.dataTable.Api(settings).page.info();
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
 
-    window.tabler_list = window.tabler_list || {};
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-            sortClass: "table-sort",
-            listClass: "table-tbody",
-            searchClass: "search",
-            page: parseInt("{{ request('sort', 10) }}"),
-            pagination: true,
-            valueNames: advancedTable.headers.map(h => h["data-sort"]),
-        }));
-    });
+        if(info.pages <= 1) return;
+
+        pagination.append(`
+            <li class="page-item ${info.page===0?'disabled':''}">
+                <a class="page-link" href="#" data-page="${info.page-1}">&laquo;</a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        if(startPage > 0){
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+            if(startPage > 1) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+        }
+
+        for(let i=startPage; i<=endPage; i++){
+            pagination.append(`
+                <li class="page-item ${i===info.page?'active':''}">
+                    <a class="page-link" href="#" data-page="${i}">${i+1}</a>
+                </li>
+            `);
+        }
+
+        if(endPage < info.pages-1){
+            if(endPage < info.pages-2) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages-1}">${info.pages}</a></li>`);
+        }
+
+        pagination.append(`
+            <li class="page-item ${info.page===info.pages-1?'disabled':''}">
+                <a class="page-link" href="#" data-page="${info.page+1}">&raquo;</a>
+            </li>
+        `);
+
+        pagination.find('a').click(function(e){
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if(!isNaN(page) && page>=0 && page<info.pages) table.page(page).draw('page');
+        });
+    }
 
     const Toast = Swal.mixin({
         toast: true,
@@ -177,133 +204,85 @@
         }
     });
 
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah RW");
-        $("#name").val("");
-        $("#type").val("create");
-        $("#id").val("");
+    $("#addBtn").click(function(){
+        $(".modal-title").text("Tambah RT");
+        $("#name").val('');
+        $("#type").val('create');
+        $("#id").val('');
     });
 
-    $("#storeBtn").click(function () {
-        $("#storeBtn").prop("disabled", true);
-        $("#btnText").addClass("d-none");
-        $("#btnLoading").removeClass("d-none");
-
-        let id = $("#id").val();
+    $("#storeBtn").click(function(){
         let type = $("#type").val();
+        let id = $("#id").val();
         let name = $("#name").val();
 
-        let url;
-        let method;
+        let url = type === 'create'
+            ? BASE + '/store'
+            : BASE + '/' + id + '/update';
 
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
-        } else {
-            url = BASE + `/${id}/update`;
-            method = "PUT";
-        }
+        let method = type === 'create' ? 'POST' : 'PUT';
+
+        $("#storeBtn").prop('disabled', true);
+        $("#btnLoading").removeClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
-            data: {
-                name: name
-            },
-        })
-        .done(function (response) {
-
-            if (response.errors) {
-
-                resetBtn();
-
-                $.each(response.errors, function (index, value) {
+            data: { name: name },
+            success: function(res){
+                if(res.errors){
+                    $(".error_name").text(res.errors.name ?? '');
                     $("#name").addClass('is-invalid');
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#name").removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                });
-
-            } else {
-                $("#modal-simple").modal('hide');
-
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                } else {
+                    $("#modal-simple").modal('hide');
+                    Toast.fire({
+                        icon: "success",
+                        title: "Berhasil Menyimpan Data"
+                    });
+                    table.ajax.reload();
+                }
+            },
+            complete: function(){
+                $("#storeBtn").prop('disabled', false);
+                $("#btnLoading").addClass('d-none');
+                $("#name").removeClass('is-invalid');
+                $(".error_name").text('');
             }
-        })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-            resetBtn();
-            console.log("Error:", textStatus, errorThrown);
         });
-
-        function resetBtn() {
-            $("#storeBtn").prop("disabled", false);
-            $("#btnText").removeClass("d-none");
-            $("#btnLoading").addClass("d-none");
-        }
     });
 
-    function editModal(id) {
-        let url = BASE + `/${id}/show`
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        }).done(function(response){
-            $(".modal-title").html("Edit RW");
-            let data = response.data;
-            $("#modal-simple").modal('show')
-
-            $("#id").val(data.id);
+    function editModal(id){
+        $.get(BASE + '/' + id + '/show', function(res){
+            let data = res.data;
+            $(".modal-title").text("Edit RT");
+            $("#modal-simple").modal('show');
             $("#name").val(data.name);
-            $("#type").val("update");
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+            $("#id").val(data.id);
+            $("#type").val('update');
         });
     }
 
-    function deleteType(id) {
+    function deleteRW(id){
         Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
+            title: "Peringatan!",
+            text: "Yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
             confirmButtonText: "Hapus",
             cancelButtonText: "Batal"
-        }).then((result) => {
-            if (result.isConfirmed) {
+        }).then((result)=>{
+            if(result.isConfirmed){
                 $.ajax({
                     url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
+                    method:'DELETE',
+                    success:function(){
                         Toast.fire({
-                            icon: response.status,
-                            title: response.message
+                            icon: "success",
+                            title: "Berhasil Menghapus Data"
                         });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
+                        table.ajax.reload();
                     }
-                })
+                });
             }
         });
     }

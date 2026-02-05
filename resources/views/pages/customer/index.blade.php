@@ -709,5 +709,24 @@
         btn.find(".btn-text").text(text);
         btn.find(".btn-loading").addClass('d-none');
     }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('copy-btn')) {
+
+            const raw = e.target.dataset.copy;
+            if (!raw) return;
+
+            const data = JSON.parse(raw);
+            let text = '';
+
+            Object.entries(data).forEach(([k, v]) => {
+                if (v) text += `${k} : ${v}\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccessMessage('Data copied to clipboard');
+            });
+        }
+    });
 </script>
 @endpush

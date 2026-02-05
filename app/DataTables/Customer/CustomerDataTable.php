@@ -209,6 +209,49 @@ class CustomerDataTable
                 $editId = $row->id;
                 $deleteId = $row->id;
 
+                if (auth()->user()->can('copy pelanggan')) {
+
+                    $copyData = [
+                        'UUID' => $row->uuid,
+                        'TYPE' => $row->type->name ?? null,
+                        'NIK' => $row->nik,
+                        'NAMA' => $row->name,
+                        'EMAIL' => $row->email,
+                        'TELP' => $row->telp,
+                        'MAC ADDRESS' => $row->mac_address,
+
+                        'OLT' => $row->olt->name ?? null,
+                        'ODP' => $row->odp->name ?? null,
+                        'MIC RADIUS' => $row->micRadius->name ?? null,
+
+                        'ROUTER' => $row->router->name ?? null,
+                        'KAMPUNG' => $row->hometown->name ?? null,
+                        'DESA' => $row->village->name ?? null,
+                        'RT' => $row->rt->name ?? null,
+                        'RW' => $row->rw->name ?? null,
+                        'KECAMATAN' => $row->district->name ?? null,
+                        'KAB/KOTA' => $row->regencie->name ?? null,
+                        'VLAN' => $row->vlan->name ?? null,
+
+                        'WIFI' => $row->name_wifi,
+                        'PASSWORD WIFI' => $row->password_wifi,
+                        'PPPOE USER' => $row->pppoe_username,
+                        'PPPOE PASS' => $row->pppoe_password,
+
+                        'PAKET' => $row->paket->name ?? null,
+                        'PEMBAYARAN' => $row->price->name ?? null,
+                        'INPUT OLEH' => $row->user->name ?? null,
+                    ];
+
+                    $btn .= sprintf(
+                        '<button class="btn btn-outline-secondary mb-1 copy-btn"
+                            data-copy=\'%s\'>
+                            Copy
+                        </button> ',
+                        json_encode($copyData, JSON_HEX_APOS | JSON_HEX_QUOT)
+                    );
+                }
+
                 if (auth()->user()->can('chatting')) {
                     $btn .= sprintf(
                         '<button class="btn btn-outline-primary mb-1" onclick="openChat(' . $editId . ')">Kirim Pemberitahuan</button> ',

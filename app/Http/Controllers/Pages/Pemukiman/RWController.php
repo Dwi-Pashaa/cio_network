@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Pemukiman;
 
+use App\DataTables\Wilayah\RWDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\RW;
 use Illuminate\Http\Request;
@@ -15,16 +16,11 @@ class RWController extends Controller
     public function index(Request $request)
     {
 
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new RWDataTable)->get();
+        }
 
-        $rws = RW::when($search, function ($query, $search) {
-            return $query->where('name', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.rw.index", compact("rws"));
+        return view("pages.rw.index");
     }
 
     /**
@@ -93,7 +89,7 @@ class RWController extends Controller
         if (!$rws) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $rws->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);

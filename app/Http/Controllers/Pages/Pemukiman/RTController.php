@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Pemukiman;
 
+use App\DataTables\Wilayah\RTDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\RT;
 use Illuminate\Http\Request;
@@ -15,16 +16,11 @@ class RTController extends Controller
     public function index(Request $request)
     {
 
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new RTDataTable)->get();
+        }
 
-        $rts = RT::when($search, function ($query, $search) {
-            return $query->where('name', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.rt.index", compact("rts"));
+        return view("pages.rt.index");
     }
 
     /**
@@ -93,7 +89,7 @@ class RTController extends Controller
         if (!$rts) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $rts->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
