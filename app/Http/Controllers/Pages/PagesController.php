@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Pages\PagesDataTable;
 use App\Events\ChatSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
@@ -45,37 +46,12 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-        $hometown = $request->filter_hometown ?? null;
-        $village = $request->filter_village ?? null;
 
         $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
         $authUserPages = Auth::user()->pages->pluck('id')->toArray();
 
-        if (empty($hometown) && empty($village)) {
-            $pages = Pages::whereIn('id', $authUserPages)
-                ->whereRaw('1 = 0')
-                ->paginate($sort);
-        } else {
-            $pages = Pages::with(['hometown'])
-                ->whereIn('id', $authUserPages)
-                ->when($search, function ($query, $search) {
-                    $query->where('name', 'like', "%$search%")
-                        ->orWhereHas('hometown', function ($q) use ($search) {
-                            $q->where('name', 'like', "%$search%");
-                        });
-                })
-                ->when($hometown, function ($query, $hometown) {
-                    $query->where('hometowns_id', $hometown);
-                })
-                ->when($village, function ($query, $village) {
-                    $query->where('villages_id', $village);
-                })
-                ->where('type', 'pages')
-                ->orderBy('id', 'DESC')
-                ->paginate($sort)
-                ->appends($request->query());
+        if ($request->ajax()) {
+            return (new PagesDataTable)->get();
         }
 
         $regencies = Regency::all();
@@ -92,7 +68,6 @@ class PagesController extends Controller
         $price = Price::all();
 
         return view("pages.pages.index", compact(
-            "pages",
             "hometown",
             "regencies",
             "districts",

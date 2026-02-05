@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Pages\SpamDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\SwitchDevice;
@@ -19,50 +20,9 @@ class SpamController extends Controller
 
         $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
 
-        $customers = Customer::with(['router', 'type', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie', 'vlan', 'odc', 'odp', 'olt'])
-            ->whereIn('regencies_id', $authUserRegencies)
-            ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%")
-                    ->orWhereHas('router', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('type', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('hometown', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('rt', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('rw', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('village', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('district', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('regencie', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('vlan', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('odc', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('odp', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('olt', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    });
-            })
-            ->where('status', 'spam')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new SpamDataTable)->get();
+        }
 
         $switchs = SwitchDevice::with(['customer', 'typeOld', 'routerOld', 'typeNew', 'routerNew'])
             ->when($request->search, function ($q) use ($request) {
@@ -89,7 +49,7 @@ class SpamController extends Controller
             ->paginate($sort);
 
 
-        return view("pages.spam.index", compact("customers", "switchs"));
+        return view("pages.spam.index", compact("switchs"));
     }
 
     public function outSpam($id)
