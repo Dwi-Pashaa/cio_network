@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Jaringan;
 
+use App\DataTables\Network\OLTDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\OLT;
@@ -15,23 +16,13 @@ class OLTController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $olts = OLT::with(['hometown'])
-            ->when($search, function ($query, $search) {
-                $query->where('code', 'like', "%$search%")
-                    ->orWhereHas('hometown', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhere('name', 'like', "%$search");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new OLTDataTable)->get();
+        }
 
         $hometown = HomeTown::select(['id', 'name'])->get();
 
-        return view("pages.olt.index", compact("olts", "hometown"));
+        return view("pages.olt.index", compact("hometown"));
     }
 
     /**

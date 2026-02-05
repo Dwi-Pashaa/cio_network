@@ -13,7 +13,11 @@
     @can('buat kabupaten')
         <div class="card-header">
             <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
                 Tambah
             </a>
         </div>
@@ -24,81 +28,52 @@
                 <div class="mx-2 d-inline-block">
                     <select name="sort" id="sort" class="form-control">
                         @php
-                            $opts = [
-                                10,25,50,100
-                            ];
+                            $opts = [10, 25, 50, 100];
                         @endphp 
                         @foreach ($opts as $opt)
-                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            <option value="{{ $opt }}">{{ $opt }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
             <div class="ms-auto text-secondary">
-                <form>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search for…">
-                        <button class="btn" type="submit">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                        </button>
-                    </div>
-                </form>
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
+                    <button class="btn" type="button" id="search-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                            <path d="M21 21l-6 -6" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div id="advanced-table" class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-            <thead>
+    <div id="kabupaten-table-wrapper" class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap" id="kabupaten-table">
+            <thead class="bg-secondary">
                 <tr>
-                    <th class="w-1">No</th>
-                    <th><button class="table-sort" data-sort="sort-code">Kode</button></th>
-                    <th><button class="table-sort" data-sort="sort-name">Nama Kabupaten</button></th>
-                    <th><button class="table-sort" data-sort="sort-created">Created</button></th>
+                    <th class="w-1 text-white">No</th>
+                    <th class="text-white">Kode</th>
+                    <th class="text-white">Nama Kabupaten</th>
+                    <th class="text-white">Created</th>
                     @if(auth()->user()->can('ubah kabupaten') || auth()->user()->can('hapus kabupaten'))
-                        <th>Action</th>
+                        <th class="text-white">Action</th>
                     @endif
                 </tr>
             </thead>
-            <tbody class="table-tbody">
-                @forelse ($regencies as $item)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td class="sort-code">{{ $item->code }}</td>
-                        <td class="sort-name">{{ $item->name }}</td>
-                        <td class="sort-created">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
-                        @if(auth()->user()->can('ubah kabupaten') || auth()->user()->can('hapus kabupaten'))
-                            <td>
-                                @can('ubah kabupaten')
-                                    <a href="javascript:void(0)" onclick="return editModal('{{ $item->id }}')" class="btn btn-outline-warning btn-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3z"/><path d="M16 5l3 3"/></svg>
-                                        Edit
-                                    </a>
-                                @endcan
-                                @can('hapus kabupaten')
-                                    <a href="javascript:void(0)" onclick="return deleteType('{{ $item->id }}')" class="btn btn-outline-danger btn-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z"/><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
-                                        Hapus
-                                    </a>
-                                @endcan
-                            </td>
-                        @endif
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="text-center">Tidak Ada Data</td></tr>
-                @endforelse
+            <tbody>
             </tbody>
         </table>
     </div>
     <div class="card-footer d-flex align-items-center">
         <p class="m-0 text-secondary">
-            Showing <span>{{ $regencies->firstItem() }}</span> 
-            to <span>{{ $regencies->lastItem() }}</span> of
-            <span>{{ $regencies->total() }}</span> entries
+            Showing <span id="start-entry">0</span> 
+            to <span id="end-entry">0</span> of
+            <span id="total-entries">0</span> entries
         </p>
-        <ul class="pagination m-0 ms-auto">
-            {{ $regencies->links() }}
+        <ul class="pagination m-0 ms-auto" id="custom-pagination">
         </ul>
     </div>
 </div>
@@ -106,13 +81,11 @@
 
 @push('modal')
 <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Kabupaten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" name="type" id="type">
@@ -138,139 +111,244 @@
 @push('js')
 <script>
     const BASE = "{{ route('kabupaten.index') }}";
+    let table;
 
-    let params = new URLSearchParams(window.location.search);
-    $("#sort").change(function() {
-        params.set('sort', $(this).val());
-        window.location.href = BASE + '?' + params.toString();
+    $(function() {
+        initializeDataTable();
+        initializePaginationAndSearch();
+        initializeModalHandlers();
     });
 
-    const advancedTable = {
-        headers: [
-            { "data-sort": "sort-code", name: "Kode" },
-            { "data-sort": "sort-name", name: "Nama Kabupaten" },
-            { "data-sort": "sort-created", name: "Created" },
-        ],
-    };
-    window.tabler_list = window.tabler_list || {};
-    document.addEventListener("DOMContentLoaded", function () {
-        const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
-            sortClass: "table-sort",
-            listClass: "table-tbody",
-            searchClass: "search",
-            page: parseInt("{{ request('sort', 10) }}"),
-            pagination: true,
-            valueNames: advancedTable.headers.map(h => h["data-sort"]),
-        }));
-    });
+    function initializeDataTable() {
+        table = $('#kabupaten-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: BASE,
+                data: function(d) {
+                    d._token = $('meta[name="csrf-token"]').attr('content');
+                }
+            },
+            order: [[3, 'desc']], // Sort by created_at column
+            pageLength: 10,
+            dom: 'rt',
+            columns: [
+                { 
+                    data: 'DT_RowIndex',
+                    orderable: false, 
+                    searchable: false
+                },
+                { 
+                    data: 'code',
+                    defaultContent: '-'
+                },
+                { 
+                    data: 'name',
+                    defaultContent: '-'
+                },
+                { 
+                    data: 'created_at',
+                    render: function(data) {
+                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                    }
+                },
+                { 
+                    data: 'action', 
+                    orderable: false, 
+                    searchable: false,
+                    visible: {{ auth()->user()->can('ubah kabupaten') || auth()->user()->can('hapus kabupaten') ? 'true' : 'false' }}
+                }
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
+            },
+            language: {
+                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>',
+                emptyTable: "Tidak Ada Data",
+                zeroRecords: "Tidak Ada Data yang Cocok"
+            }
+        });
+    }
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+    function initializePaginationAndSearch() {
+        $("#sort").on('change', function() {
+            table.page.len($(this).val()).draw();
+        });
+
+        $("#search-input").on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                table.search(this.value).draw();
+            }
+        });
+
+        $("#search-btn").on('click', function(e) {
+            e.preventDefault();
+            table.search($("#search-input").val()).draw();
+        });
+    }
+
+    function updatePaginationInfo(settings) {
+        const api = new $.fn.dataTable.Api(settings);
+        const info = api.page.info();
+        
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
+
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
+
+        if (info.pages <= 1) return;
+
+        // Previous button
+        pagination.append(`
+            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page - 1}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        // First page
+        if (startPage > 0) {
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+            if (startPage > 1) {
+                pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            }
         }
-    });
 
-    $("#addBtn").click(function() {
-        $(".modal-title").html("Tambah Kabupaten");
-        $("#name").val("");
-        $("#type").val("create");
-        $("#id").val("");
-    });
-
-    $("#storeBtn").click(function () {
-        $("#storeBtn").prop("disabled", true);
-        $("#btnText").addClass("d-none");
-        $("#btnLoading").removeClass("d-none");
-
-        let id = $("#id").val();
-        let type = $("#type").val();
-        let name = $("#name").val();
-
-        let url;
-        let method;
-
-        if (type === 'create') {
-            url = BASE + '/store';
-            method = "POST";
-        } else {
-            url = BASE + `/${id}/update`;
-            method = "PUT";
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === info.page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+            `);
         }
+
+        // Last page
+        if (endPage < info.pages - 1) {
+            if (endPage < info.pages - 2) {
+                pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            }
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
+        }
+
+        // Next button
+        pagination.append(`
+            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page + 1}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </li>
+        `);
+
+        // Pagination click handler
+        pagination.find('a').on('click', function(e) {
+            e.preventDefault();
+            if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page >= 0 && page < info.pages) {
+                    table.page(page).draw('page');
+                }
+            }
+        });
+    }
+
+    function initializeModalHandlers() {
+        $("#addBtn").on('click', function() {
+            resetModal();
+            $(".modal-title").text("Tambah Kabupaten");
+            $("#type").val('create');
+        });
+
+        $("#storeBtn").on('click', function() {
+            handleSave();
+        });
+    }
+
+    function resetModal() {
+        $("#id").val('');
+        $("#name").val('');
+        clearValidationErrors();
+    }
+
+    function clearValidationErrors() {
+        $(".form-control").removeClass('is-invalid');
+        $(".invalid-feedback").text('');
+    }
+
+    function handleSave() {
+        const type = $("#type").val();
+        const id = $("#id").val();
+        
+        const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
+        const method = type === 'create' ? 'POST' : 'PUT';
+
+        const btn = $("#storeBtn");
+        btn.prop('disabled', true);
+        $("#btnText").addClass('d-none');
+        $("#btnLoading").removeClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
             data: {
-                name: name
-            },
-        })
-        .done(function (response) {
-
-            if (response.errors) {
-
-                resetBtn();
-
-                $.each(response.errors, function (index, value) {
-                    $("#name").addClass('is-invalid');
-                    $(".error_" + index).html(value);
-
-                    setTimeout(() => {
-                        $("#name").removeClass('is-invalid');
-                        $(".error_" + index).html('');
-                    }, 3000);
-                });
-
-            } else {
-                $("#modal-simple").modal('hide');
-
-                Toast.fire({
-                    icon: response.status,
-                    title: response.message
-                });
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                name: $("#name").val()
             }
         })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-            resetBtn();
-            console.log("Error:", textStatus, errorThrown);
-        });
-
-        function resetBtn() {
-            $("#storeBtn").prop("disabled", false);
-            $("#btnText").removeClass("d-none");
-            $("#btnLoading").addClass("d-none");
-        }
-    });
-
-    function editModal(id) {
-        let url = BASE + `/${id}/show`
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: "json"
-        }).done(function(response){
-            $(".modal-title").html("Edit Kabupaten");
-            let data = response.data;
-            $("#modal-simple").modal('show')
-
-            $("#id").val(data.id);
-            $("#name").val(data.name);
-            $("#type").val("update");
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Error:", textStatus, errorThrown);
+        .done(function(response) {
+            if (response.errors) {
+                showValidationErrors(response.errors);
+                resetButton(btn);
+            } else {
+                $("#modal-simple").modal('hide');
+                showSuccessMessage(response.message);
+                table.ajax.reload();
+                resetButton(btn);
+            }
+        })
+        .fail(function(jqXHR) {
+            if (jqXHR.status === 422) {
+                showValidationErrors(jqXHR.responseJSON.errors);
+            } else {
+                showErrorMessage("Terjadi kesalahan");
+            }
+            resetButton(btn);
         });
     }
 
-    function deleteType(id) {
+    function editModal(id) {
+        $.get(BASE + '/' + id + '/show')
+            .done(function(response) {
+                const data = response.data;
+                
+                $(".modal-title").text("Edit Kabupaten");
+                $("#modal-simple").modal('show');
+                
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#type").val('update');
+            })
+            .fail(function() {
+                showErrorMessage("Terjadi kesalahan saat mengambil data");
+            });
+    }
+
+    function deleteCity(id) {
         Swal.fire({
             title: "Peringatan !",
             text: "Anda yakin ingin menghapus data ini?",
@@ -280,31 +358,81 @@
             cancelButtonColor: "#d33",
             confirmButtonText: "Hapus",
             cancelButtonText: "Batal"
-        }).then((result) => {
+        }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
                     url: BASE + '/' + id + '/destroy',
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function(response) {
-                        Toast.fire({
-                            icon: response.status,
-                            title: response.message
-                        });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    },
-                    error: function(err) {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Server Error"
-                        });
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     }
                 })
+                .done(function(response) {
+                    showSuccessMessage(response.message);
+                    table.ajax.reload();
+                })
+                .fail(function() {
+                    showErrorMessage("Server Error");
+                });
             }
         });
+    }
+
+    function showValidationErrors(errors) {
+        clearValidationErrors();
+        
+        Object.keys(errors).forEach(function(field) {
+            $("#" + field).addClass('is-invalid');
+            $(".error_" + field).text(errors[field][0]);
+        });
+
+        setTimeout(function() {
+            clearValidationErrors();
+        }, 3000);
+    }
+
+    function showSuccessMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        Toast.fire({
+            icon: "success",
+            title: message
+        });
+    }
+
+    function showErrorMessage(message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        Toast.fire({
+            icon: "error",
+            title: message
+        });
+    }
+
+    function resetButton(btn) {
+        btn.prop('disabled', false);
+        $("#btnText").removeClass('d-none');
+        $("#btnLoading").addClass('d-none');
     }
 </script>
 @endpush

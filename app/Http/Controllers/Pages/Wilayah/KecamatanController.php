@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Wilayah;
 
+use App\DataTables\Wilayah\DistrictDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Regency;
@@ -15,21 +16,13 @@ class KecamatanController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $districts = District::with(['regencie'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new DistrictDataTable)->get();
+        }
 
         $regencie = Regency::all();
 
-        return view("pages.kecamatan.index", compact("districts", "regencie"));
+        return view("pages.kecamatan.index", compact("regencie"));
     }
 
     /**

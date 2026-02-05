@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Pemukiman;
 
+use App\DataTables\Wilayah\SettlementDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\HomeTown;
@@ -16,22 +17,14 @@ class KampungController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $hometowns = HomeTown::with(['regencie', 'district'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new SettlementDataTable)->get();
+        }
 
         $regencie = Regency::all();
         $district = District::all();
 
-        return view("pages.kampung.index", compact("hometowns", "regencie", "district"));
+        return view("pages.kampung.index", compact("regencie", "district"));
     }
 
     /**

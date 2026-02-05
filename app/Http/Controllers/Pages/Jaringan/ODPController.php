@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Jaringan;
 
+use App\DataTables\Network\ODPDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\ODP;
@@ -23,26 +24,9 @@ class ODPController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $odps = ODP::with(['hometown', 'rt', 'rw', 'patchCore', 'plc'])
-            ->when($search, function ($query, $search) {
-                $query->where('code', 'like', "%$search%")
-                    ->orWhereHas('hometown', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('rt', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('rw', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhere('home_odc', 'like', "%$search");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new ODPDataTable)->get();
+        }
 
         $hometown = HomeTown::select(['id', 'name'])->get();
         $rts = RT::select(['id', 'name'])->get();
@@ -50,7 +34,7 @@ class ODPController extends Controller
         $plcs = PLC::select(['id', 'name'])->get();
         $patchCores = PatchCore::select(['id', 'name'])->get();
 
-        return view("pages.odp.index", compact("odps", "hometown", "rts", "rws", "plcs", "patchCores"));
+        return view("pages.odp.index", compact("hometown", "rts", "rws", "plcs", "patchCores"));
     }
 
     /**

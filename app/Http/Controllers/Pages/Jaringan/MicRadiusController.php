@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Jaringan;
 
+use App\DataTables\Network\MicRadiusDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\MicRadius;
@@ -16,22 +17,15 @@ class MicRadiusController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $micRadius = MicRadius::with(['hometown', 'user'])
-            ->when($search, function ($query, $search) {
-                $query->where('code', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort);
+        if ($request->ajax()) {
+            return (new MicRadiusDataTable)->get();
+        }
 
         $hometown = HomeTown::all();
 
         $user = User::all();
 
-        return view("pages.mic-radius.index", compact("micRadius", "hometown", "user"));
+        return view("pages.mic-radius.index", compact("hometown", "user"));
     }
 
     /**

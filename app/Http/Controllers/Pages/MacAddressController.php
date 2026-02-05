@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages;
 
+use App\DataTables\Network\MacAddressDataTable;
 use App\Exports\MacAddressLabelExport;
 use App\Http\Controllers\Controller;
 use App\Models\MacAddress;
@@ -16,36 +17,41 @@ class MacAddressController extends Controller
 {
     public function index(Request $request)
     {
-        $authUser = Auth()->user();
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-        $filterUserId = $request->user ?? null;
-        $date = $request->filled('date') && strtotime($request->date)
-            ? $request->date
-            : null;
-
-        $macAdress = MacAddress::with(['customer', 'user', 'router'])
-            ->when($search, function ($query, $search) {
-                $query->where('mac_address', 'like', "%{$search}%");
-            })
-            ->when($date, function ($query) use ($date) {
-                $query->whereDate('created_at', $date);
-            })
-            ->when(!$authUser->hasRole('Admin'), function ($query) use ($authUser) {
-                $query->where('user_id', $authUser->id);
-            })
-            ->when($filterUserId, function ($query) use ($filterUserId) {
-                $query->where('user_id', $filterUserId);
-            })
-            ->orderByDesc('id')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new MacAddressDataTable)->get();
+        }
 
         $user = User::all();
         $router = Router::all();
 
-        return view('pages.mac-address.index', compact('macAdress', 'user', 'router'));
+        return view('pages.mac-address.index', compact('user', 'router'));
     }
+
+    public function statistic(Request $request)
+    {
+        $authUser = auth()->user();
+
+        $query = MacAddress::query();
+
+        if ($request->filled('filter_user')) {
+            $query->where('user_id', $request->filter_user);
+        }
+
+        if ($request->filled('filter_date')) {
+            $query->whereDate('created_at', $request->filter_date);
+        }
+
+        if (!$authUser->hasRole('Admin')) {
+            $query->where('user_id', $authUser->id);
+        }
+
+        return response()->json([
+            'total'     => (clone $query)->count(),
+            'available' => (clone $query)->where('status', 'available')->count(),
+            'used'      => (clone $query)->where('status', 'used')->count(),
+        ]);
+    }
+
 
     /**
      * Store a newly created resource in storage.

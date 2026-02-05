@@ -352,6 +352,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/print-label', [MacAddressController::class, 'cetakLabel'])->name('mac.address.cetakLabel');
         Route::get('/{id}/get-customer', [MacAddressController::class, 'getCustomer'])->name('mac.address.getCustomer');
         Route::post('/switch-used', [MacAddressController::class, 'switchUsed'])->name('mac.address.switchUsed');
+        Route::get('/statistics', [MacAddressController::class, 'statistic'])->name('mac.address.statistic');
     });
 });
 

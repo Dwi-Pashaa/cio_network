@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Pemukiman;
 
+use App\DataTables\Wilayah\VillageDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Pages;
@@ -17,22 +18,14 @@ class DesaController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
-
-        $villages = Village::with(['regencie', 'district'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%");
-            })
-            ->orderBy('id', 'DESC')
-            ->paginate($sort)
-            ->appends($request->query());
+        if ($request->ajax()) {
+            return (new VillageDataTable)->get();
+        }
 
         $regencie = Regency::all();
         $district = District::all();
 
-        return view("pages.desa.index", compact("villages", "regencie", "district"));
+        return view("pages.desa.index", compact("regencie", "district"));
     }
 
     /**

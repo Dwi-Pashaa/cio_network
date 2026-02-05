@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Jaringan;
 
+use App\DataTables\Network\RouterDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Router;
 use Illuminate\Http\Request;
@@ -14,17 +15,11 @@ class RouterController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new RouterDataTable)->get();
+        }
 
-        $routers = Router::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%")
-            ->orWhere('code', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.router.index", compact("routers"));
+        return view("pages.router.index");
     }
 
     /**
@@ -93,7 +88,7 @@ class RouterController extends Controller
         if (!$routers) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $routers->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);

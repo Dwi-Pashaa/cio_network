@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Wilayah;
 
+use App\DataTables\Wilayah\CityDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Regency;
 use Illuminate\Http\Request;
@@ -14,17 +15,11 @@ class KabupatenController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new CityDataTable)->get();
+        }
 
-        $regencies = Regency::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%")
-            ->orWhere('code', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.kabupaten.index", compact("regencies"));
+        return view("pages.kabupaten.index");
     }
 
     /**
@@ -93,7 +88,7 @@ class KabupatenController extends Controller
         if (!$regencies) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $regencies->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);

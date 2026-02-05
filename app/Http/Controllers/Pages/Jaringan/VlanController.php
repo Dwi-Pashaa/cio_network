@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pages\Jaringan;
 
+use App\DataTables\Network\VlanDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Router;
 use App\Models\Vlan;
@@ -15,17 +16,11 @@ class VlanController extends Controller
      */
     public function index(Request $request)
     {
-        $sort = $request->sort ?? 10;
-        $search = $request->search ?? null;
+        if ($request->ajax()) {
+            return (new VlanDataTable)->get();
+        }
 
-        $vlans = Vlan::when($search, function ($query, $search) {
-            $query->where('name', 'like', "%$search%")
-            ->orWhere('code', 'like', "%$search%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate($sort);
-
-        return view("pages.vlan.index", compact("vlans"));
+        return view("pages.vlan.index");
     }
 
     /**
@@ -94,7 +89,7 @@ class VlanController extends Controller
         if (!$vlans) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
-        
+
         $vlans->delete();
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
