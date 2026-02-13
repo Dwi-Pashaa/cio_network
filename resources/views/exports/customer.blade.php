@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th>No</th>
+            <th>ID Pelanggan</th>
             <th>Type Pelanggan</th>
             <th>Nama Pelanggan</th>
             <th>Email</th>
@@ -32,6 +33,7 @@
         @forelse ($customers as $item)
             <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td>{{ $item->uuid ?? '-' }}</td>
                 <td>{{ $item->type->name }}</td>
                 <td>{{ $item->name }}</td>
                 <td>{{ $item->email }}</td>
