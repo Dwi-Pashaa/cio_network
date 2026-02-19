@@ -371,8 +371,6 @@
 
 @section('content')
 <div class="rpt-card">
-
-    {{-- HEADER --}}
     <div class="rpt-header">
         <div class="rpt-header-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
@@ -387,10 +385,7 @@
         </div>
     </div>
 
-    {{-- TOOLBAR --}}
     <div class="rpt-toolbar">
-
-        {{-- SHOW ENTRIES --}}
         <div class="d-flex align-items-center gap-2">
             <span class="show-label">Tampilkan</span>
             <select id="sort">
@@ -401,7 +396,6 @@
             <span class="show-label">entri</span>
         </div>
 
-        {{-- SEARCH --}}
         <div class="rpt-search">
             <input type="text" id="search-input" placeholder="Cari nama, nomor, pesan…">
             <i class="ti ti-search search-icon" id="search-btn"></i>
@@ -409,7 +403,6 @@
 
     </div>
 
-    {{-- FILTER TANGGAL --}}
     <div class="rpt-filter">
         <div>
             <label class="form-label">Dari Tanggal</label>
@@ -431,7 +424,6 @@
         </div>
     </div>
 
-    {{-- TABLE --}}
     <div class="rpt-table-wrap">
         <table id="report-table">
             <thead>
@@ -450,7 +442,6 @@
         </table>
     </div>
 
-    {{-- FOOTER --}}
     <div class="rpt-footer">
         <p class="rpt-info">
             Menampilkan <b id="start-entry">0</b>–<b id="end-entry">0</b>
@@ -463,7 +454,6 @@
 @endsection
 
 @push('modal')
-    {{-- MODAL PESAN --}}
 <div id="modal-pesan" style="
     display:none; position:fixed; inset:0; z-index:9999;
     background:rgba(0,0,0,.45); backdrop-filter:blur(4px);
@@ -473,7 +463,6 @@
         max-height:80vh; display:flex; flex-direction:column;
         box-shadow:0 20px 60px rgba(0,0,0,.2); overflow:hidden;">
 
-        {{-- Modal Header --}}
         <div style="
             padding:1.1rem 1.5rem; border-bottom:1px solid #e8e8f0;
             display:flex; align-items:center; justify-content:space-between;
@@ -500,7 +489,6 @@
             font-family:'Plus Jakarta Sans',sans-serif;">
         </div>
 
-        {{-- Modal Footer --}}
         <div style="
             padding:.85rem 1.5rem; border-top:1px solid #e8e8f0;
             display:flex; justify-content:flex-end; background:#f8f8fc;">
@@ -539,8 +527,6 @@
             dom       : 'rt',
 
             columns: [
-
-                // NO
                 {
                     data      : null,
                     orderable : false,
@@ -549,8 +535,6 @@
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
                 },
-
-                // TANGGAL
                 {
                     data  : 'date',
                     render: function (data) {
@@ -558,8 +542,6 @@
                         return `<span class="cell-date">${moment(data).format('DD/MM/YYYY HH:mm')}</span>`;
                     }
                 },
-
-                // TIPE PESAN
                 {
                     data  : 'message_type',
                     render: function (data) {
@@ -576,24 +558,18 @@
                         return `<span class="rpt-badge ${cls}"><i class="ti ${icon}"></i>${data}</span>`;
                     }
                 },
-
-                // ID PELANGGAN
                 {
                     data  : 'recipient_id',
                     render: function (data) {
                         return data ? `<span class="cell-id">${data}</span>` : '-';
                     }
                 },
-
-                // WA PELANGGAN
                 {
                     data  : 'recipient',
                     render: function (data) {
                         return data ? `<span class="cell-wa">${data}</span>` : '-';
                     }
                 },
-
-                // NAMA PELANGGAN
                 {
                     data  : 'recipient_name',
                     render: function (data) {
@@ -608,8 +584,6 @@
                             </div>`;
                     }
                 },
-
-                // PESAN
                 {
                     data  : 'message',
                     render: function (data) {
@@ -632,8 +606,6 @@
                             </span>`;
                     }
                 },
-
-                // ACTION
                 {
                     data      : null,
                     orderable : false,
@@ -672,13 +644,11 @@
             }
         });
 
-        // SHOW ENTRIES
         $('#sort').val(10);
         $('#sort').change(function () {
             table.page.len(parseInt($(this).val())).draw();
         });
 
-        // SEARCH
         $('#search-input').on('keyup', function (e) {
             if (e.which === 13) table.search(this.value).draw();
         });
@@ -686,7 +656,6 @@
             table.search($('#search-input').val()).draw();
         });
 
-        // FILTER
         $('#btn-filter').click(function () {
             const from = $('#date-from').val();
             const to   = $('#date-to').val();

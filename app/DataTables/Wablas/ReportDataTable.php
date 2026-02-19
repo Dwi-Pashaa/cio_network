@@ -28,7 +28,7 @@ class ReportDataTable
 
             $client->asForm()->post($this->baseUrl . '/rad-admin/post', [
                 'username' => 'dwi12345',
-                'password' => 'dwi12345',
+                'password' => 'dwi34121',
             ]);
 
             Cache::put('mix_cookie', $cookieJar, now()->addMinutes(5));
