@@ -65,4 +65,5 @@ Route::prefix('history')->group(function () {
 // report wablass
 Route::prefix('report')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('report.index');
+    Route::put('/{id}/update', [ReportController::class, 'update'])->name('report.update');
 });

@@ -12,10 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-
         $schedule->command('backup:monthly')->monthlyOn(1, '02:00')->withoutOverlapping();
-        // $schedule->command('backup:monthly')->everyMinute()->withoutOverlapping();
+        $schedule->command('wablas:fetch')->everyTenMinutes();
     }
 
     /**
