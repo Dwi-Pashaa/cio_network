@@ -245,6 +245,11 @@
                                                 History Pemasangan
                                             </a>
                                         @endcan
+                                        @can('lihat log wablas')
+                                            <a class="dropdown-item {{ Route::is("report*") ? 'active' : '' }}" href="{{ route('report.index') }}" rel="noopener">
+                                                Log Wablas
+                                            </a>
+                                        @endcan
                                     </div>
                                 </li>
                             @endcanany
