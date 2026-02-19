@@ -430,10 +430,7 @@
                 <tr>
                     <th style="width:50px;">#</th>
                     <th>Tanggal</th>
-                    <th>Tipe Pesan</th>
-                    <th>ID Pelanggan</th>
                     <th>WA Pelanggan</th>
-                    <th>Nama Pelanggan</th>
                     <th>Pesan</th>
                     <th style="width:120px;">Action</th>
                 </tr>
@@ -543,45 +540,9 @@
                     }
                 },
                 {
-                    data  : 'message_type',
-                    render: function (data) {
-                        if (!data) return '-';
-
-                        const map = {
-                            'Invoice'   : ['rpt-badge-invoice',   'ti-file-invoice'],
-                            'Reminder'  : ['rpt-badge-reminder',  'ti-bell'],
-                            'Broadcast' : ['rpt-badge-broadcast', 'ti-speakerphone'],
-                            'Isolir'    : ['rpt-badge-isolir',    'ti-lock'],
-                        };
-
-                        const [cls, icon] = map[data] ?? ['rpt-badge-default', 'ti-message'];
-                        return `<span class="rpt-badge ${cls}"><i class="ti ${icon}"></i>${data}</span>`;
-                    }
-                },
-                {
-                    data  : 'recipient_id',
-                    render: function (data) {
-                        return data ? `<span class="cell-id">${data}</span>` : '-';
-                    }
-                },
-                {
-                    data  : 'recipient',
+                    data  : 'to',
                     render: function (data) {
                         return data ? `<span class="cell-wa">${data}</span>` : '-';
-                    }
-                },
-                {
-                    data  : 'recipient_name',
-                    render: function (data) {
-                        if (!data) return '-';
-                        const initials = data.trim().split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-                        const colors   = ['#6366f1','#f59e0b','#22c55e','#ef4444','#3b82f6','#8b5cf6'];
-                        const color    = colors[initials.charCodeAt(0) % colors.length];
-                        return `
-                            <div style="display:flex;align-items:center;gap:.55rem;">
-                                <div style="width:28px;height:28px;border-radius:50%;background:${color};color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials}</div>
-                                <span style="font-weight:500;">${data}</span>
-                            </div>`;
                     }
                 },
                 {
@@ -611,7 +572,7 @@
                     orderable : false,
                     searchable: false,
                     render    : function (data, type, row) {
-                        const phone = row.recipient;
+                        const phone = row.to;
                         if (!phone) return '-';
 
                         let normalized = phone.replace(/\D/g, '');
