@@ -47,16 +47,22 @@ class FetchWablasReport extends Command
 
                 foreach ($messages as $row) {
 
+                    // Cek dulu apakah data sudah ada dan sent_at belum null
+                    $existing = WablasReport::where('wablas_id', $row['id'])->first();
+
+                    if ($existing && $existing->sent_at !== null) {
+                        // Jika sudah ada dan sent_at ada, skip update
+                        continue;
+                    }
+
                     WablasReport::updateOrCreate(
                         ['wablas_id' => $row['id']],
                         [
-                            'from'   => $row['phone']['from'] ?? null,
-                            'to'     => $row['phone']['to'] ?? null,
-                            'status' => $row['status'] ?? null,
-                            'type'   => $row['type'] ?? null,
-                            'ref_id' => $row['ref_id'] ?? null,
+                            'from'    => $row['phone']['from'] ?? null,
+                            'to'      => $row['phone']['to'] ?? null,
+                            'status'  => $row['status'] ?? null,
                             'message' => $row['text'] ?? null,
-                            'date'   => $row['date']['created_at'] ?? null,
+                            'date'    => $row['date']['created_at'] ?? null,
                         ]
                     );
 

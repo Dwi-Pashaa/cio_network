@@ -12,8 +12,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('backup:monthly')->monthlyOn(1, '02:00')->withoutOverlapping();
-        $schedule->command('wablas:fetch')->everyTenMinutes();
+        // Backup bulanan
+        $schedule->command('backup:monthly')
+            ->monthlyOn(1, '02:00')
+            ->withoutOverlapping();
+
+        // Fetch Wablas tiap 10 menit
+        $schedule->command('wablas:fetch')
+            ->everyTenMinutes()
+            ->withoutOverlapping();
     }
 
     /**

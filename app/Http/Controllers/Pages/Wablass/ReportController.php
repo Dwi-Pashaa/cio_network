@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages\Wablass;
 use App\DataTables\Wablas\ReportDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\WablasReport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -30,6 +31,7 @@ class ReportController extends Controller
         }
 
         $report->status = 'sent';
+        $report->sent_at = Carbon::now();
         $report->save();
 
         return response()->json([

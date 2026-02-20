@@ -182,9 +182,7 @@
             <select id="filter-status" class="form-select" style="width:160px;">
                 <option value="">Semua Status</option>
                 <option value="sent">Sent</option>
-                <option value="delivered">Delivered</option>
                 <option value="pending">Pending</option>
-                <option value="cancel">Cancel</option>
             </select>
         </div>
 
@@ -384,28 +382,31 @@
                             </span>`;
                     }
                 },
-
                 // STATUS
                 {
                     data: 'status',
-                    render: function (data) {
-                        if (!data) return '-';
+                    render: function (data, type, row) {
 
-                        const key = data.toLowerCase();
+                        // Jika sent_at null → pending, apapun nilai status-nya
+                        const key = !row.sent_at ? 'pending' : (data?.toLowerCase() || 'pending');
+
                         const map = {
                             'success'  : ['badge-success',   'Sukses'],
-                            'sent'     : ['badge-sent',      'Terkirim'],
-                            'delivered': ['badge-delivered', 'Diterima'],
-                            'pending'  : ['badge-pending',   'Pending'],
-                            'failed'   : ['badge-failed',    'Gagal'],
+                            'sent'     : ['badge-sent',       'Terkirim'],
+                            'delivered': ['badge-delivered',  'Diterima'],
+                            'pending'  : ['badge-pending',    'Pending'],
+                            'failed'   : ['badge-failed',     'Gagal'],
                         };
-
-                        const [cls, label] = map[key] ?? ['badge-default', data];
 
                         const dots = {
-                            'success': '#15803d', 'sent': '#15803d',
-                            'delivered': '#1d4ed8', 'pending': '#a16207', 'failed': '#b91c1c'
+                            'success'  : '#15803d',
+                            'sent'     : '#15803d',
+                            'delivered': '#1d4ed8',
+                            'pending'  : '#a16207',
+                            'failed'   : '#b91c1c',
                         };
+
+                        const [cls, label] = map[key] ?? ['badge-default', data ?? '-'];
                         const dot = dots[key] ?? '#6b7280';
 
                         return `
@@ -417,20 +418,24 @@
                             </span>`;
                     }
                 },
+
+                // ACTION
                 {
-                    data: null,
-                    orderable: false,
+                    data      : null,
+                    orderable : false,
                     searchable: false,
-                    render: function (data, type, row) {
+                    render    : function (data, type, row) {
 
-                        const phone  = row.to;
-                        const status = row.status?.toLowerCase();
-
-                        if (!phone || !['pending', 'cancel'].includes(status)) {
-                            return '-';
+                        // Jika sent_at sudah terisi → sudah dikirim, sembunyikan tombol
+                        if (row.sent_at) {
+                            const waktu = moment(row.sent_at).format('DD/MM/YYYY HH:mm');
+                            return `<span style="font-family:'JetBrains Mono',monospace; font-size:.75rem; color:#6b7280;">
+                                        ✓ ${waktu}
+                                    </span>`;
                         }
 
-                        let normalized = phone.replace(/\D/g, '');
+                        // sent_at null → belum dikirim, tampilkan tombol
+                        let normalized = (row.phone ?? '').replace(/\D/g, '');
                         if (normalized.startsWith('0')) {
                             normalized = '62' + normalized.slice(1);
                         }
@@ -438,17 +443,20 @@
                         const message = encodeURIComponent(row.message ?? '');
 
                         return `
-                            <button 
-                                class="btn btn-success btn-send-wa"
+                            <button
+                                class="btn-wa btn-send-wa"
                                 data-id="${row.id}"
                                 data-phone="${normalized}"
                                 data-message="${message}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
                                 Kirim Pemberitahuan
-                            </button>
-                        `;
+                            </button>`;
                     }
-                }
-
+                },
             ],
 
             drawCallback: function (settings) {

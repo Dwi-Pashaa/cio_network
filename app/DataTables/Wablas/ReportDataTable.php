@@ -67,6 +67,7 @@ class ReportDataTable
                 'message'      => $row->message,
                 'status'       => $row->status,
                 'date'         => $row->date,
+                'sent_at'      => $row->sent_at,
             ];
         });
 
