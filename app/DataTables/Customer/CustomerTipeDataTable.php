@@ -3,11 +3,9 @@
 namespace App\DataTables\Customer;
 
 use App\Models\Type;
-use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
-use Carbon\Carbon;
 
-class CustomerTypeDataTable
+class CustomerTipeDataTable
 {
     public function get()
     {
@@ -36,7 +34,7 @@ class CustomerTypeDataTable
      */
     private function query()
     {
-        return Type::where('status', '0');
+        return Type::where('status', '1');
     }
 
     /**

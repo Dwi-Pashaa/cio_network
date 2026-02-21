@@ -16,6 +16,9 @@ class SpamDataTable
             ->addColumn('uuid', function ($row) {
                 return $row->uuid ?? '-';
             })
+            ->addColumn('tipe_pelanggan', function ($row) {
+                return $row->tipePelanggan->name ?? '-';
+            })
             ->addColumn('type_name', function ($row) {
                 return $row->type->name ?? '-';
             })
@@ -237,7 +240,8 @@ class SpamDataTable
             'paket',
             'mic_radius',
             'price',
-            'user'
+            'user',
+            'tipePelanggan'
         ])
             ->where('status', 'spam')
             ->select('customers.*');

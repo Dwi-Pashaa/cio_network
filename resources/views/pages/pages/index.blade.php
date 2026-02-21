@@ -146,6 +146,18 @@
                                 <span class="invalid-feedback error_desc"></span>
                             </div>
                         </div>
+                        <div class="col-lg-12">
+                            <div class="form-group mb-3">
+                                <label for="tipe_pelanggan_id" class="mb-2">Tipe Pelanggan</label>
+                                <select name="tipe_pelanggan_id[]" id="tipe_pelanggan_id" class="form-select" multiple>
+                                    <option value="">-- Pilih --</option>
+                                    @foreach ($tipePelanggan as $tp)
+                                        <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="invalid-feedback error_tipe_pelanggan_id"></span>
+                            </div>
+                        </div>
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
                                 <label for="regencies_id" class="mb-2">Kabupaten/Kota</label>
@@ -568,7 +580,7 @@
             const selectIds = [
                 'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
                 'routers_id', 'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
-                'paket_id', 'mic_radius_id', 'price'
+                'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
             ];
 
             selectIds.forEach(id => {
@@ -603,7 +615,7 @@
             const selectIds = [
                 'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
                 'routers_id', 'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
-                'paket_id', 'mic_radius_id', 'price'
+                'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
             ];
 
             selectIds.forEach(id => {
@@ -648,6 +660,7 @@
             formData.append('paket_id', $('#paket_id').val());
             formData.append('mic_radius_id', $('#mic_radius_id').val());
             formData.append('price', $('#price').val());
+            formData.append('tipe_pelanggan_id', $('#tipe_pelanggan_id').val());
             formData.append('telp', $('#telp').val());
             formData.append('password', $('#password').val());
             formData.append('is_ktp', $('#is_ktp').val());

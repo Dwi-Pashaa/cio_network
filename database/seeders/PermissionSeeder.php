@@ -26,7 +26,11 @@ class PermissionSeeder extends Seeder
             // 'edit plc',
             // 'hapus plc',
             // 'copy pelanggan',
-            'lihat log wablas',
+            // 'lihat log wablas',
+            'lihat tipe pelanggan',
+            'tambah tipe pelanggan',
+            'edit tipe pelanggan',
+            'hapus tipe pelanggan',
         ];
 
         foreach ($permissions as $permission) {

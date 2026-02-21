@@ -4,9 +4,18 @@ use App\Http\Controllers\Pages\CustomerController;
 use App\Http\Controllers\Pages\PaketController;
 use App\Http\Controllers\Pages\PriceController;
 use App\Http\Controllers\Pages\TypeController;
+use App\Http\Controllers\Pages\TypeCustomerController;
 use Illuminate\Support\Facades\Route;
 
 // data type pelanggan
+Route::prefix('tipe=customer')->group(function () {
+    Route::get('/', [TypeCustomerController::class, 'index'])->name('type.customer.index');
+    Route::post('/store', [TypeCustomerController::class, 'store'])->name('type.customer.store');
+    Route::get('/{id}/show', [TypeCustomerController::class, 'show'])->name('type.customer.show');
+    Route::put('/{id}/update', [TypeCustomerController::class, 'update'])->name('type.customer.update');
+    Route::delete('/{id}/destroy', [TypeCustomerController::class, 'destroy'])->name('type.customer.destroy');
+});
+
 Route::prefix('types')->group(function () {
     Route::get('/', [TypeController::class, 'index'])->name('type.index');
     Route::post('/store', [TypeController::class, 'store'])->name('type.store');

@@ -77,7 +77,7 @@
                                     </div>
                                 </li>
                             @endcanany
-                            @canany(['lihat tipe paket', 'lihat tipe pembayaran', 'lihat pelanggan'])
+                            @canany(['lihat tipe paket', 'lihat tipe pembayaran', 'lihat pelanggan', 'lihat tipe pelanggan'])
                                 <li class="nav-item dropdown {{ request()->is('type*') || request()->is('customer*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -90,9 +90,14 @@
                                     <div class="dropdown-menu">
                                         @role('Admin')
                                             <a class="dropdown-item {{ Route::is('type*') ? 'active' : '' }}" href="{{ route('type.index') }}" rel="noopener">
-                                                Data Tipe Pelanggan
+                                                Data Tipe Layanan
                                             </a>
                                         @endrole
+                                        @can('lihat tipe pelanggan')
+                                            <a class="dropdown-item {{ Route::is("type.customer*") ? 'active' : '' }}" href="{{ route('type.customer.index') }}" rel="noopener">
+                                                Data Tipe Pelanggan
+                                            </a>
+                                        @endcan
                                         @can('lihat tipe paket')
                                             <a class="dropdown-item {{ Route::is("paket*") ? 'active' : '' }}" href="{{ route('paket.index') }}" rel="noopener">
                                                 Data Tipe Paket

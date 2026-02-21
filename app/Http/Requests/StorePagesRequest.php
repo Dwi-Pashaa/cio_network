@@ -48,6 +48,7 @@ class StorePagesRequest extends FormRequest
             'type_name' => 'nullable',
             'mic_radius_id' => 'nullable',
             'patch_core_id' => 'required',
+            'tipe_pelanggan_id' => 'required',
         ];
     }
 
@@ -83,6 +84,7 @@ class StorePagesRequest extends FormRequest
             'nik.required' => 'NIK wajib diisi ketika fitur KTP aktif.',
             'nik.digits'   => 'NIK harus terdiri dari 16 digit.',
             'nik.unique'   => 'NIK sudah terdaftar di pelanggan lain.',
+            'tipe_pelanggan_id.required' => 'Tipe pelanggan wajib dipilih.',
         ];
     }
 }

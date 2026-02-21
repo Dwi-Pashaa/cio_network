@@ -3,6 +3,7 @@
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,52 +23,94 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/check-report', function () {
+Route::post('/olt/login', function () {
 
-    $url = config('wablas.api_url') . '/api/report/message';
+    $baseUrl = 'http://42.62.176.6:206';
+    $username = 'dwi12345';
+    $password = 'dwi12345';
 
-    $token = config('wablas.token');
-    $secret_key = config('wablas.secret_key');
+    $session = Http::withOptions([
+        'verify' => false,
+    ])->get($baseUrl);
 
-    $response = Http::withHeaders([
-        'Authorization' => $token . '.' . $secret_key,
-    ])->get($url, [
-        'date'       => request('date', '2022-04-11'),
-        'perPage'    => request('perPage', 100),
-        'phone'      => request('phone'),
-        'page'       => request('page', 1),
-        'message_id' => request('message_id'),
-        'type'       => request('type'),
-        'status'     => request('status'),
+    $cookies = collect($session->cookies()->toArray())
+        ->pluck('Value', 'Name')
+        ->toArray();
+
+    $key = md5($username . ':' . $password);
+    $value = base64_encode($password);
+
+    $login = Http::withOptions([
+        'verify' => false,
+    ])
+        ->withHeaders([
+            'Origin' => $baseUrl,
+            'Referer' => $baseUrl . '/',
+            'Content-Type' => 'application/json',
+        ])
+        ->withCookies($cookies, parse_url($baseUrl, PHP_URL_HOST))
+        ->post($baseUrl . '/userlogin?form=login', [
+            'method' => 'set',
+            'param' => [
+                'name' => $username,
+                'key' => $key,
+                'value' => $value,
+                'captcha_v' => '',
+                'captcha_f' => ''
+            ]
+        ]);
+
+    $token = $login->header('X-Token');
+
+    if (!$token) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Login gagal',
+            'response' => $login->json()
+        ]);
+    }
+
+    session([
+        'olt_token' => $token,
+        'olt_cookies' => $cookies
     ]);
 
-    return $response->json();
+    return response()->json([
+        'status' => true,
+        'token' => $token
+    ]);
 });
 
-Route::get('/mix-auto', function () {
+Route::get('/olt/ports', function () {
 
-    $baseUrl = 'https://mixcio.topsetting.com:973';
+    $baseUrl = 'http://42.62.176.6:206';
 
-    // Buat CookieJar
-    $cookieJar = new CookieJar();
+    $token = session('olt_token');
+    $cookies = session('olt_cookies');
 
-    // LOGIN
-    $login = Http::withOptions([
-        'verify'  => false,
-        'cookies' => $cookieJar, // ✅ bukan true
-    ])->asForm()->post($baseUrl . '/rad-admin/post', [
-        'username' => 'dwi12345',
-        'password' => 'dwi12345',
+    return response()->json([
+        'token' => $token,
+        'cookies' => $cookies
     ]);
 
-    // REQUEST DATA (pakai cookie yang sama)
-    $response = Http::withOptions([
-        'verify'  => false,
-        'cookies' => $cookieJar, // ✅ pakai jar yang sama
-    ])->post($baseUrl . '/rad-get-data/wablastlog', [
-        'page'    => 1,
-        'perPage' => 10,
-    ]);
+    if (!$token) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Belum login'
+        ]);
+    }
 
-    return $response->body();
+    $ports = Http::withOptions([
+        'verify' => false,
+    ])
+        ->withHeaders([
+            'X-Token' => $token,
+        ])
+        ->withCookies($cookies, parse_url($baseUrl, PHP_URL_HOST))
+        ->get($baseUrl . '/switch_port', [
+            'form' => 'portlist_info',
+            't' => now()->timestamp * 1000
+        ]);
+
+    return response()->json($ports->json());
 });

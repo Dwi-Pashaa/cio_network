@@ -105,6 +105,20 @@
 									<input type="text" value="{{ $newCode }}" class="form-control" readonly>
 									<input type="hidden" name="uuid" id="uuid" value="{{ $newCode }}">
 								</div>
+								<div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+									<label class="form-label">Tipe Pelanggan <span class="text-danger">*</span></label>
+									<select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="form-control select-tom @error('tipe_pelanggan_id') is-invalid @enderror">
+										<option value="">Pilih Tipe Pelanggan</option>
+										@foreach ($tipePelanggan as $tpl)
+											<option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}" {{ old('tipe_pelanggan_id') == $tpl->id ? 'selected' : '' }}>
+												{{ $tpl->name }}
+											</option>
+										@endforeach
+									</select>
+									@error('tipe_pelanggan_id')
+										<span class="invalid-feedback">{{ $message }}</span>
+									@enderror
+								</div>
 								<div class="col-lg-6 mb-3">
 									<label class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
 									<input value="{{ old('name') }}" type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Masukkan nama lengkap">
@@ -146,9 +160,9 @@
 						<div class="card-body">
 							<div class="row">
 								<div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-									<label class="form-label">Type Pelanggan <span class="text-danger">*</span></label>
+									<label class="form-label">Tipe Layanan <span class="text-danger">*</span></label>
 									<select name="types_id" id="types_id" class="form-control select-tom @error('types_id') is-invalid @enderror">
-										<option value="">Pilih Type Pelanggan</option>
+										<option value="">Pilih Tipe Layanan</option>
 										@foreach ($types as $tp)
 											<option data-label="{{ $tp->name }}" value="{{ $tp->id }}" {{ old('types_id') == $tp->id ? 'selected' : '' }}>
 												{{ $tp->name }}

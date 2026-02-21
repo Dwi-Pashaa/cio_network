@@ -117,7 +117,8 @@
                     <tr>
                         <th class="text-white w-1">No</th>
                         <th class="text-white">ID Pelanggan</th>
-                        <th class="text-white">Type Pelanggan</th>
+                        <th class="text-white">Tipe Pelanggan</th>
+                        <th class="text-white">Tipe Layanan</th>
                         <th class="text-white">NIK</th>
                         <th class="text-white">Nama Pelanggan</th>
                         <th class="text-white">Email</th>
@@ -277,6 +278,7 @@
                     searchable: false,
                 },
                 { data: 'uuid', defaultContent: '-' },
+                { data: 'tipe_pelanggan', defaultContent: '-' },
                 { data: 'type_name' },
                 { data: 'nik', defaultContent: '-' },
                 { data: 'name' },

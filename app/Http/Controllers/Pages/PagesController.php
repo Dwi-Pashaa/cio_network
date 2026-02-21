@@ -66,6 +66,7 @@ class PagesController extends Controller
         $paket = Paket::all();
         $micRadius = MicRadius::all();
         $price = Price::all();
+        $tipePelanggan = Type::where('status', '1')->get();
 
         return view("pages.pages.index", compact(
             "hometown",
@@ -80,6 +81,7 @@ class PagesController extends Controller
             "paket",
             "micRadius",
             "price",
+            "tipePelanggan"
         ));
     }
 
@@ -104,6 +106,7 @@ class PagesController extends Controller
             "mic_radius_id" => "required",
             "price" => "required",
             "is_ktp" => "required|in:aktif,tidak",
+            "tipe_pelanggan_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -182,6 +185,14 @@ class PagesController extends Controller
             ]);
         }
 
+        $tipePelanggan = is_array($request->tipe_pelanggan_id) ? $request->tipe_pelanggan_id : explode(',', $request->tipe_pelanggan_id);
+        foreach ($tipePelanggan as $tp) {
+            DB::table('tipe_pelanggan_pages')->insert([
+                "pages_id" => $pages->id,
+                "tipe_pelanggan_id" => $tp
+            ]);
+        }
+
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
     }
 
@@ -220,6 +231,7 @@ class PagesController extends Controller
             "mic_radius_id" => "required",
             "price" => "required",
             "is_ktp" => "required|in:aktif,tidak",
+            "tipe_pelanggan_id" => "required",
         ]);
 
         if ($validation->fails()) {
@@ -247,6 +259,7 @@ class PagesController extends Controller
         $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
         $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
         $price = is_array($request->price) ? $request->price : explode(',', $request->price);
+        $tipePelanggan = is_array($request->tipe_pelanggan_id) ? $request->tipe_pelanggan_id : explode(',', $request->tipe_pelanggan_id);
 
         $pages->router()->delete();
         foreach ($routers as $rtr) {
@@ -286,6 +299,11 @@ class PagesController extends Controller
         $pages->price()->delete();
         foreach ($price as $pc) {
             $pages->price()->create(["price_id" => $pc]);
+        }
+
+        $pages->tipePelanggan()->delete();
+        foreach ($tipePelanggan as $tp) {
+            $pages->tipePelanggan()->create(["tipe_pelanggan_id" => $tp]);
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -332,7 +350,7 @@ class PagesController extends Controller
 
         $rts = RT::select(['id', 'name'])->get();
         $rws = RW::select(['id', 'name'])->get();
-        $types = Type::select(['id', 'name'])->get();
+        $types = Type::where('status', '0')->get();
         $routers = DB::table('pages_routers')
             ->join('router_networks', 'pages_routers.routers_id', '=', 'router_networks.id')
             ->where('pages_routers.pages_id', $pages->id)
@@ -422,9 +440,16 @@ class PagesController extends Controller
             ->select('pages_price.*', 'price.*')
             ->get();
 
+        $tipePelanggan = DB::table('tipe_pelanggan_pages')
+            ->join('pages', 'tipe_pelanggan_pages.pages_id', '=', 'pages.id')
+            ->join('customer_types', 'tipe_pelanggan_pages.tipe_pelanggan_id', '=', 'customer_types.id')
+            ->where('tipe_pelanggan_pages.pages_id', $pages->id)
+            ->select('tipe_pelanggan_pages.*', 'customer_types.*')
+            ->get();
+
         $pathCore = Auth::user()->patchCore;
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore"));
+        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore", "tipePelanggan"));
     }
 
     private function handleKtpBase64($base64Image)
@@ -586,6 +611,7 @@ class PagesController extends Controller
             $userName = Auth::user()->name;
 
             $type      = Type::find($request->types_id);
+            $tipePelanggan      = Type::find($request->tipe_pelanggan_id);
             $router    = Router::find($request->routers_id);
             $hometown  = HomeTown::find($request->hometowns_id);
             $rt        = RT::find($request->rts_id);
@@ -600,6 +626,7 @@ class PagesController extends Controller
 
             $message = "*Di Input Oleh : {$userName}*\n"
                 . "*ID Pelanggan*: {$customer->uuid}\n"
+                . "*Tipe Pelanggan*: {$tipePelanggan->name}\n"
                 . "*Nama Pelanggan*: {$customer->name}\n"
                 . "*Mac Address*: {$customer->mac_address}\n"
                 . "*Jenis Router*: {$router->name}\n"

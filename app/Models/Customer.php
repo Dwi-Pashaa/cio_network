@@ -90,4 +90,9 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function tipePelanggan()
+    {
+        return $this->belongsTo(Type::class, 'tipe_pelanggan_id', 'id');
+    }
 }

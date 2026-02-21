@@ -18,6 +18,10 @@ class CustomerDataTable
                 return $row->uuid ?? '-';
             })
 
+            ->addColumn('tipe_pelanggan', function ($row) {
+                return $row->tipePelanggan->name ?? '-';
+            })
+
             // Kolom Type Pelanggan
             ->addColumn('type_name', function ($row) {
                 return $row->type->name ?? '-';
@@ -213,7 +217,8 @@ class CustomerDataTable
 
                     $copyData = [
                         'UUID' => $row->uuid,
-                        'TYPE' => $row->type->name ?? null,
+                        'Tipe Pelanggan' => $row->tipePelanggan->name ?? null,
+                        'Tipe Layanan' => $row->type->name ?? null,
                         'NIK' => $row->nik,
                         'NAMA' => $row->name,
                         'EMAIL' => $row->email,
@@ -318,7 +323,8 @@ class CustomerDataTable
             'price',
             'paket',
             'user',
-            'mic_radius'
+            'mic_radius',
+            'tipePelanggan'
         ])
             ->whereIn('regencies_id', $authUserRegencies)
             ->where('status', 'active')
@@ -353,6 +359,7 @@ class CustomerDataTable
             ->when($request->hometown, fn($q, $v) => $q->where('hometowns_id', $v))
             ->when($request->vlan, fn($q, $v) => $q->where('vlans_id', $v))
             ->when($request->olt, fn($q, $v) => $q->where('olts_id', $v))
-            ->when($request->micradius, fn($q, $v) => $q->where('mic_radius_id', $v));
+            ->when($request->micradius, fn($q, $v) => $q->where('mic_radius_id', $v))
+            ->orderBy('created_at', 'desc');
     }
 }

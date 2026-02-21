@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Tipe Layanan
+    Data Tipe Pelanggan
 @endsection
 
 @section('content')
@@ -45,7 +45,7 @@
             <thead class="bg-secondary">
                 <tr>
                     <th class="text-white w-1">No</th>
-                    <th class="text-white">Tipe Layanan</th>
+                    <th class="text-white">Tipe Pelanggan</th>
                     <th class="text-white">Created At</th>
                     <th class="text-white">Action</th>
                 </tr>
@@ -69,7 +69,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Tipe Layana</h5>
+                <h5 class="modal-title">Tambah Tipe Pelanggan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -77,7 +77,7 @@
                 <input type="hidden" name="id" id="id">
                 
                 <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Type Pelanggan</label>
+                    <label for="name" class="mb-2">Tipe Pelanggan</label>
                     <input type="text" name="name" id="name" class="form-control">
                     <span class="invalid-feedback error_name"></span>
                 </div>
@@ -96,7 +96,7 @@
 
 @push('js')
 <script>
-    const BASE = "{{ route('type.index') }}";
+    const BASE = "{{ route('type.customer.index') }}";
     let table;
 
     $(function() {
@@ -105,9 +105,6 @@
         initializeModalHandlers();
     });
 
-    // ===========================
-    // DataTable Initialization
-    // ===========================
     function initializeDataTable() {
         table = $('#type-table').DataTable({
             processing: true,
@@ -144,23 +141,17 @@
         });
     }
 
-    // ===========================
-    // Pagination & Search
-    // ===========================
     function initializePaginationAndSearch() {
-        // Entries per page
         $("#sort").on('change', function() {
             table.page.len($(this).val()).draw();
         });
 
-        // Search on Enter key
         $("#search-input").on('keypress', function(e) {
             if (e.which === 13) {
                 table.search(this.value).draw();
             }
         });
 
-        // Search on button click
         $("#search-btn").on('click', function() {
             table.search($("#search-input").val()).draw();
         });
@@ -182,7 +173,6 @@
 
         if (info.pages <= 1) return;
 
-        // Previous button
         pagination.append(`
             <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page - 1}">
@@ -197,7 +187,6 @@
         let startPage = Math.max(0, info.page - 2);
         let endPage = Math.min(info.pages - 1, info.page + 2);
 
-        // First page
         if (startPage > 0) {
             pagination.append(`
                 <li class="page-item">
@@ -213,7 +202,6 @@
             }
         }
 
-        // Page numbers
         for (let i = startPage; i <= endPage; i++) {
             pagination.append(`
                 <li class="page-item ${i === info.page ? 'active' : ''}">
@@ -222,7 +210,6 @@
             `);
         }
 
-        // Last page
         if (endPage < info.pages - 1) {
             if (endPage < info.pages - 2) {
                 pagination.append(`
@@ -238,7 +225,6 @@
             `);
         }
 
-        // Next button
         pagination.append(`
             <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page + 1}">
@@ -250,7 +236,6 @@
             </li>
         `);
 
-        // Event handler for pagination links
         pagination.find('a').on('click', function(e) {
             e.preventDefault();
             if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
@@ -262,18 +247,13 @@
         });
     }
 
-    // ===========================
-    // Modal Handlers
-    // ===========================
     function initializeModalHandlers() {
-        // Add button - open modal for create
         $("#addBtn").on('click', function() {
             resetModal();
             $(".modal-title").text("Tambah Type Pelanggan");
             $("#type").val('create');
         });
 
-        // Save button - handle create/update
         $("#storeBtn").on('click', function() {
             handleSave();
         });
@@ -290,11 +270,6 @@
         $(".invalid-feedback").text('');
     }
 
-    // ===========================
-    // CRUD Operations
-    // ===========================
-    
-    // Create / Update
     function handleSave() {
         const type = $("#type").val();
         const id = $("#id").val();
@@ -306,7 +281,6 @@
         const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
         const method = type === 'create' ? 'POST' : 'PUT';
 
-        // Show loading
         const btn = $("#storeBtn");
         btn.prop('disabled', true);
         btn.find(".btn-text").text("Menyimpan...");
@@ -334,7 +308,6 @@
         });
     }
 
-    // Edit - Open modal with data
     function editModal(id) {
         $.get(BASE + '/' + id + '/show')
             .done(function(response) {
@@ -352,7 +325,6 @@
             });
     }
 
-    // Delete
     function deleteType(id) {
         Swal.fire({
             title: "Peringatan !",
@@ -383,9 +355,6 @@
         });
     }
 
-    // ===========================
-    // Helper Functions
-    // ===========================
     function showValidationErrors(errors) {
         clearValidationErrors();
         
@@ -394,7 +363,6 @@
             $(".error_" + field).text(errors[field]);
         });
 
-        // Auto clear errors after 3 seconds
         setTimeout(function() {
             clearValidationErrors();
         }, 3000);
