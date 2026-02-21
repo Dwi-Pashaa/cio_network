@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -42,8 +43,8 @@ class MonthlyDatabaseBackup extends Command
         }
 
         try {
-            Mail::raw('Berikut backup database bulan ini.', function ($message) use ($path, $fileName) {
-                $message->to('dwi.putra.si.22@cic.ac.id')
+            Mail::raw("Berikut backup database bulan. " . Carbon::now()->format('d-M-Y H:i:s') . "", function ($message) use ($path, $fileName) {
+                $message->to('dwipasha336@gmail.com')
                     ->subject('Backup Database Web Data CIO Network Bulanan')
                     ->attach($path);
             });
