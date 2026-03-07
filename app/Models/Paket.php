@@ -10,7 +10,7 @@ class Paket extends Model
 {
     use HasFactory;
     protected $table = 'paket';
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'organization_id'];
 
     public function user(): BelongsToMany
     {

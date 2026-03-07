@@ -6,6 +6,7 @@ use App\DataTables\Customer\CustomerTypeDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class TypeController extends Controller
@@ -36,6 +37,7 @@ class TypeController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         Type::create($post);
 
@@ -70,6 +72,7 @@ class TypeController extends Controller
         }
 
         $put = $request->only('name');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $type = Type::find($id);
 

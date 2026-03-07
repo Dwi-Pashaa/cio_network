@@ -1,6 +1,9 @@
 <table class="table card-table table-vcenter text-nowrap datatable">
     <thead>
         <tr>
+            <th colspan="26">DATA PELANGGAN {{ strtoupper($orgName) }}</th>
+        </tr>
+        <tr>
             <th>No</th>
             <th>ID Pelanggan</th>
             <th>Type Pelanggan</th>
@@ -34,54 +37,53 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $item->uuid ?? '-' }}</td>
-                <td>{{ $item->type->name }}</td>
+                <td>{{ optional($item->type)->name ?? '-' }}</td>
                 <td>{{ $item->name }}</td>
                 <td>{{ $item->email }}</td>
                 <td>{{ $item->telp }}</td>
                 <td>{{ $item->mac_address }}</td>
-                <td>{{ $item->router->name }}</td>
-                <td>{{ $item->hometown->name }}</td>
-                <td>{{ $item->village->name }}</td>
-                <td>{{ $item->rt->name }}</td>
-                <td>{{ $item->rw->name }}</td>
-                <td>{{ $item->district->name }}</td>
-                <td>{{ $item->regencie->name }}</td>
-                <td>{{ $item->vlan->name }}</td>
+                <td>{{ optional($item->router)->name ?? '-' }}</td>
+                <td>{{ optional($item->hometown)->name ?? '-' }}</td>
+                <td>{{ optional($item->village)->name ?? '-' }}</td>
+                <td>{{ optional($item->rt)->name ?? '-' }}</td>
+                <td>{{ optional($item->rw)->name ?? '-' }}</td>
+                <td>{{ optional($item->district)->name ?? '-' }}</td>
+                <td>{{ optional($item->regencie)->name ?? '-' }}</td>
+                <td>{{ optional($item->vlan)->name ?? '-' }}</td>
                 <td>
-                    {{ $item->odc->code }} | {{ $item->odc->hometown->name }} 
-                    | {{ $item->odc->rt->name }} | {{ $item->odc->rw->name }} |
-                    {{ $item->odc->home_odc }}
+                    @if ($item->odc)
+                        {{ $item->odc->code }} | {{ optional($item->odc->hometown)->name ?? '-' }}
+                        | {{ optional($item->odc->rt)->name ?? '-' }} | {{ optional($item->odc->rw)->name ?? '-' }} |
+                        {{ $item->odc->home_odc }}
+                    @else
+                        -
+                    @endif
                 </td>
                 <td>
-                    {{ $item->odp->code }} | {{ $item->odp->hometown->name }} 
-                    | {{ $item->odp->rt->name }} | {{ $item->odp->rw->name }} |
-                    {{ $item->odp->home_odc }}
-                </td>
-                <td>{{ $item->olt->hometown->name }} | {{ $item->olt->name }}</td>
-                <td>
-                    {{ $item->name_wifi ?? '-' }}
-                </td>
-                <td>
-                    {{ $item->password_wifi ?? '-' }}
+                    @if ($item->odp)
+                        {{ $item->odp->code }} | {{ optional($item->odp->hometown)->name ?? '-' }}
+                        | {{ optional($item->odp->rt)->name ?? '-' }} | {{ optional($item->odp->rw)->name ?? '-' }} |
+                        {{ $item->odp->home_odc }}
+                    @else
+                        -
+                    @endif
                 </td>
                 <td>
-                    {{ $item->pppoe_username ?? '-' }}
+                    @if ($item->olt)
+                        {{ optional($item->olt->hometown)->name ?? '-' }} | {{ $item->olt->name }}
+                    @else
+                        -
+                    @endif
                 </td>
-                <td>
-                    {{ $item->pppoe_password ?? '-' }}
+                <td>{{ $item->name_wifi ?? '-' }}</td>
+                <td>{{ $item->password_wifi ?? '-' }}</td>
+                <td>{{ $item->pppoe_username ?? '-' }}</td>
+                <td>{{ $item->pppoe_password ?? '-' }}</td>
+                <td>{{ optional($item->paket)->name ?? '-' }}</td>
+                <td>{{ optional($item->price)->name ?? '-' }}</td>
+                <td>{{ $item->latitude && $item->longitude ? 'https://www.google.com/maps?q=' . $item->latitude . ',' . $item->longitude : '-' }}
                 </td>
-                <td>
-                    {{ optional($item)->paket->name ?? '-' }}
-                </td>
-                <td>
-                    {{ optional($item)->price->name ?? '-' }}
-                </td>
-                <td>
-                    https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}
-                </td>
-                <td>
-                    {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}
-                </td>
+                <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i:s') }}</td>
             </tr>
         @empty
             <tr>

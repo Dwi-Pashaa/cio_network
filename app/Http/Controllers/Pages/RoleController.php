@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
@@ -23,9 +23,6 @@ class RoleController extends Controller
         return view("pages.role.index");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -33,14 +30,24 @@ class RoleController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response()->json(['code' => 400, 'errors' => $validation->errors()]);
+            return response()->json([
+                'code' => 400,
+                'errors' => $validation->errors()
+            ]);
         }
 
-        $post = $request->all();
+        $role = Role::findOrCreate(
+            $request->name,
+            'web',
+            auth()->user()->organization_id
+        );
 
-        Role::create($post);
-
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'message' => 'Berhasil membuat data.',
+            'data' => $role
+        ]);
     }
 
     /**
@@ -57,9 +64,6 @@ class RoleController extends Controller
         return response()->json(['code' => 200, 'status' => 'success', 'data' => $roles]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
@@ -67,16 +71,32 @@ class RoleController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response()->json(['code' => 400, 'errors' => $validation->errors()]);
+            return response()->json([
+                'code' => 400,
+                'errors' => $validation->errors()
+            ]);
         }
 
-        $put = $request->all();
+        $role = Role::where('id', $id)
+            ->where('organization_id', auth()->user()->organization_id)
+            ->first();
 
-        $roles = Role::find($id);
+        if (!$role) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Role tidak ditemukan.'
+            ]);
+        }
 
-        $roles->update($put);
+        $role->update([
+            'name' => $request->name
+        ]);
 
-        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'message' => 'Berhasil memperbarui data.'
+        ]);
     }
 
     /**
@@ -97,9 +117,14 @@ class RoleController extends Controller
 
     public function permission(string $id)
     {
-        $role = Role::findOrFail($id);
+        $role = Role::withoutGlobalScopes()
+            ->where('id', $id)
+            ->where('organization_id', auth()->user()->organization_id)
+            ->firstOrFail();
+
         $permissions = Permission::all();
-        return view("pages.role.permission", compact("role", "permissions"));
+        $organizationPermissions = $role->permissions()->pluck('name')->toArray();
+        return view("pages.role.permission", compact("role", "permissions", "organizationPermissions"));
     }
 
     public function savePermission(Request $request, string $id)

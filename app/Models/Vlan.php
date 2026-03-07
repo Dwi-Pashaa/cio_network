@@ -9,7 +9,7 @@ class Vlan extends Model
 {
     use HasFactory;
     protected $table = 'vlan_networks';
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'organization_id'];
 
     public function customer()
     {

@@ -9,7 +9,7 @@ class Regency extends Model
 {
     use HasFactory;
     protected $table = 'regencies';
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['organization_id', 'code', 'name'];
 
     public function customer()
     {

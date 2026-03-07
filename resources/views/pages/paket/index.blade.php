@@ -9,229 +9,266 @@
 @endpush
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-            Tambah
-        </a>
-    </div>
+    <div class="org-container mt-4">
+        <div class="org-card">
+            <div class="org-header">
+                <div class="org-title-wrap">
+                    <div class="org-header-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-box">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                            <path d="M12 12l8 -4.5" />
+                            <path d="M12 12l0 9" />
+                            <path d="M12 12l-8 -4.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="org-title">Data Tipe Paket</h2>
+                        <p class="org-subtitle mb-0">Kelola dan atur tipe paket beserta peruntukannya.</p>
+                    </div>
+                </div>
 
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <label class="me-2">Show</label>
-                    <select name="sort" id="sort" class="form-control d-inline-block" style="width: auto;">
-                        @php
-                            $opts = [10, 25, 50, 100];
-                        @endphp 
+                <div class="org-header-action">
+                    <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple"
+                        class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="14.5" y2="12"></line>
+                        </svg>
+                        Tambah Data
+                    </a>
+                </div>
+            </div>
+
+            <div class="org-toolbar">
+                <div class="d-flex align-items-center gap-2">
+                    <select name="sort" id="sort" class="org-input" style="width: 80px;">
+                        @php $opts = [10, 25, 50, 100]; @endphp
                         @foreach ($opts as $opt)
                             <option value="{{ $opt }}">{{ $opt }}</option>
                         @endforeach
                     </select>
-                    <label class="ms-2">entries</label>
+                    <span class="text-muted small fw-bold d-none d-sm-inline">ENTRIES</span>
+                </div>
+
+                <div class="search-wrapper w-100 w-sm-auto mt-3 mt-sm-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari tipe paket...">
                 </div>
             </div>
-            <div class="ms-auto text-secondary">
-                <div class="input-group mb-2" style="width: 300px;">
-                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
-                    <button class="btn" type="button" id="search-btn">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+
+            <div class="table-responsive">
+                <table id="paket-table" class="org-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">NO</th>
+                            <th>TIPE PAKET</th>
+                            <th>USER</th>
+                            <th>TANGGAL DIBUAT</th>
+                            <th class="text-center" style="width: 100px;">ACTION</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <div class="org-footer flex-column flex-sm-row">
+                <div class="org-info mb-3 mb-sm-0 text-center text-sm-start">
+                    Menampilkan <span id="start-entry">0</span> - <span id="end-entry">0</span> dari <span
+                        id="total-entries">0</span> data
+                </div>
+                <ul class="pagination mb-0" id="custom-pagination"></ul>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('modal')
+    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">📦 Tambah Tipe Paket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
+
+                    <div class="mb-3">
+                        <label class="form-label" for="user_id">Pilih User</label>
+                        <select name="user_id[]" id="user_id" class="form-select" multiple>
+                            <option value="">Pilih</option>
+                            @foreach ($user as $usr)
+                                <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="invalid-feedback error_user_id"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Tipe Paket</label>
+                        <input type="text" name="name" id="name" class="form-control"
+                            placeholder="Masukkan tipe paket">
+                        <span class="invalid-feedback error_name"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary d-flex align-items-center gap-2">
+                        <span class="btn-text">Simpan Data</span>
+                        <div class="btn-loading spinner-border spinner-border-sm d-none" role="status"></div>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="table-responsive">
-        <table id="paket-table" class="table card-table table-vcenter text-nowrap">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="text-white w-1">No</th>
-                    <th class="text-white">Tipe Paket</th>
-                    <th class="text-white">User</th>
-                    <th class="text-white">Created At</th>
-                    <th class="text-white">Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary" id="table-info">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
-    </div>
-</div>
-@endsection
-
-@push('modal')
-<div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Tipe Paket</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                
-                <div class="form-group mb-3">
-                    <label for="user_id" class="mb-2">Pilih User</label>
-                    <select name="user_id[]" id="user_id" class="form-control" multiple>
-                        <option value="">Pilih</option>
-                        @foreach ($user as $usr)
-                            <option value="{{ $usr->id }}">{{ $usr->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_user_id"></span>
-                </div>
-                
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Tipe Paket</label>
-                    <input type="text" name="name" id="name" class="form-control">
-                    <span class="invalid-feedback error_name"></span>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">
-                    <span class="btn-text">Simpan</span>
-                    <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 @endpush
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    const BASE = "{{ route('paket.index') }}";
-    let table;
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        const BASE = "{{ route('paket.index') }}";
+        let table;
 
-    $(function() {
-        initializeSelect2();
-        initializeDataTable();
-        initializePaginationAndSearch();
-        initializeModalHandlers();
-    });
-
-    // ===========================
-    // Select2 Initialization
-    // ===========================
-    function initializeSelect2() {
-        $('#user_id').select2({
-            width: '100%',
-            dropdownParent: $('#modal-simple'),
-            placeholder: 'Pilih User',
-            allowClear: true
+        $(function() {
+            initializeSelect2();
+            initializeDataTable();
+            initializePaginationAndSearch();
+            initializeModalHandlers();
         });
-    }
 
-    // ===========================
-    // DataTable Initialization
-    // ===========================
-    function initializeDataTable() {
-        table = $('#paket-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: BASE,
-            order: [[3, 'desc']],
-            pageLength: 10,
-            dom: 'rt',
-            columns: [
-                { 
-                    data: 'DT_RowIndex', 
-                    orderable: false, 
-                    searchable: false 
-                },
-                { 
-                    data: 'name',
-                    orderable: true,
-                    searchable: true,
-                },
-                { 
-                    data: 'user',
-                    orderable: true,
-                    searchable: true,
-                    render: function(data, type, row) {
-                        if (!data || data.length === 0) {
-                            return '-';
+        // ===========================
+        // Select2 Initialization
+        // ===========================
+        function initializeSelect2() {
+            $('#user_id').select2({
+                width: '100%',
+                dropdownParent: $('#modal-simple'),
+                placeholder: 'Pilih User',
+                allowClear: true
+            });
+        }
+
+        // ===========================
+        // DataTable Initialization
+        // ===========================
+        function initializeDataTable() {
+            table = $('#paket-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: BASE,
+                order: [
+                    [3, 'desc']
+                ],
+                pageLength: 10,
+                dom: 'rt',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data) {
+                            return `<span class="badge-tipe align-middle fw-bold">${data}</span>`;
                         }
-                        
-                        let badges = '';
-                        data.forEach(function(user) {
-                            badges += `<span class="badge bg-primary text-white p-1 me-1">${user.name}</span>`;
-                        });
-                        return badges;
+                    },
+                    {
+                        data: 'user',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row) {
+                            if (!data || data.length === 0) {
+                                return `<span class="text-muted fst-italic">-</span>`;
+                            }
+
+                            let badges = '';
+                            // Menggunakan avatar-initial modern-layout
+                            data.forEach(function(usr) {
+                                let initial = usr.name.charAt(0).toUpperCase();
+                                badges += `
+                                <div class="d-inline-flex align-items-center gap-2 me-3 mb-1">
+                                    <span class="avatar-initial rounded bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px;">${initial}</span>
+                                    <span class="fw-medium">${usr.name}</span>
+                                </div>`;
+                            });
+                            return badges;
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        render: function(data) {
+                            return `<div class="text-muted small fw-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 0 0 1 -2 2h-12a2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                            ${moment(data).format('DD MMM YYYY')}
+                        </div>`;
+                        }
+                    },
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
                     }
-                },
-                { 
-                    data: 'created_at',
-                    render: function(data) {
-                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                    }
-                },
-                { 
-                    data: 'action', 
-                    orderable: false, 
-                    searchable: false 
+                ],
+                drawCallback: function(settings) {
+                    updatePaginationInfo(settings);
+                    updateCustomPagination();
                 }
-            ],
-            drawCallback: function(settings) {
-                updatePaginationInfo(settings);
-                updateCustomPagination();
-            }
-        });
-    }
+            });
+        }
 
-    // ===========================
-    // Pagination & Search
-    // ===========================
-    function initializePaginationAndSearch() {
-        // Entries per page
-        $("#sort").on('change', function() {
-            table.page.len($(this).val()).draw();
-        });
+        // ===========================
+        // Pagination & Search
+        // ===========================
+        function initializePaginationAndSearch() {
+            // Entries per page
+            $("#sort").on('change', function() {
+                table.page.len($(this).val()).draw();
+            });
 
-        // Search on Enter key
-        $("#search-input").on('keypress', function(e) {
-            if (e.which === 13) {
-                table.search(this.value).draw();
-            }
-        });
+            // Search on Enter key
+            $("#search-input").on('keypress', function(e) {
+                if (e.which === 13) {
+                    table.search(this.value).draw();
+                }
+            });
 
-        // Search on button click
-        $("#search-btn").on('click', function() {
-            table.search($("#search-input").val()).draw();
-        });
-    }
+            // Search on button click
+            $("#search-btn").on('click', function() {
+                table.search($("#search-input").val()).draw();
+            });
+        }
 
-    function updatePaginationInfo(settings) {
-        const api = new $.fn.dataTable.Api(settings);
-        const info = api.page.info();
-        
-        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
-        $('#end-entry').text(info.end);
-        $('#total-entries').text(info.recordsDisplay);
-    }
+        function updatePaginationInfo(settings) {
+            const api = new $.fn.dataTable.Api(settings);
+            const info = api.page.info();
 
-    function updateCustomPagination() {
-        const info = table.page.info();
-        const pagination = $('#custom-pagination');
-        pagination.empty();
+            $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+            $('#end-entry').text(info.end);
+            $('#total-entries').text(info.recordsDisplay);
+        }
 
-        if (info.pages <= 1) return;
+        function updateCustomPagination() {
+            const info = table.page.info();
+            const pagination = $('#custom-pagination');
+            pagination.empty();
 
-        // Previous button
-        pagination.append(`
+            if (info.pages <= 1) return;
+
+            // Previous button
+            pagination.append(`
             <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page - 1}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -242,52 +279,52 @@
             </li>
         `);
 
-        let startPage = Math.max(0, info.page - 2);
-        let endPage = Math.min(info.pages - 1, info.page + 2);
+            let startPage = Math.max(0, info.page - 2);
+            let endPage = Math.min(info.pages - 1, info.page + 2);
 
-        // First page
-        if (startPage > 0) {
-            pagination.append(`
+            // First page
+            if (startPage > 0) {
+                pagination.append(`
                 <li class="page-item">
                     <a class="page-link" href="#" data-page="0">1</a>
                 </li>
             `);
-            if (startPage > 1) {
-                pagination.append(`
+                if (startPage > 1) {
+                    pagination.append(`
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
                 `);
+                }
             }
-        }
 
-        // Page numbers
-        for (let i = startPage; i <= endPage; i++) {
-            pagination.append(`
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.append(`
                 <li class="page-item ${i === info.page ? 'active' : ''}">
                     <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
                 </li>
             `);
-        }
+            }
 
-        // Last page
-        if (endPage < info.pages - 1) {
-            if (endPage < info.pages - 2) {
-                pagination.append(`
+            // Last page
+            if (endPage < info.pages - 1) {
+                if (endPage < info.pages - 2) {
+                    pagination.append(`
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
                 `);
-            }
-            pagination.append(`
+                }
+                pagination.append(`
                 <li class="page-item">
                     <a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a>
                 </li>
             `);
-        }
+            }
 
-        // Next button
-        pagination.append(`
+            // Next button
+            pagination.append(`
             <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
                 <a class="page-link" href="#" data-page="${info.page + 1}">
                     next
@@ -298,208 +335,213 @@
             </li>
         `);
 
-        // Event handler for pagination links
-        pagination.find('a').on('click', function(e) {
-            e.preventDefault();
-            if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
-                const page = parseInt($(this).data('page'));
-                if (!isNaN(page) && page >= 0 && page < info.pages) {
-                    table.page(page).draw('page');
-                }
-            }
-        });
-    }
-
-    // ===========================
-    // Modal Handlers
-    // ===========================
-    function initializeModalHandlers() {
-        // Add button - open modal for create
-        $("#addBtn").on('click', function() {
-            resetModal();
-            $(".modal-title").text("Tambah Tipe Paket");
-            $("#type").val('create');
-        });
-
-        // Save button - handle create/update
-        $("#storeBtn").on('click', function() {
-            handleSave();
-        });
-    }
-
-    function resetModal() {
-        $("#name").val('');
-        $("#id").val('');
-        $("#user_id").val(null).trigger('change');
-        clearValidationErrors();
-    }
-
-    function clearValidationErrors() {
-        $(".form-control").removeClass('is-invalid');
-        $(".invalid-feedback").text('');
-    }
-
-    // ===========================
-    // CRUD Operations
-    // ===========================
-    
-    // Create / Update
-    function handleSave() {
-        const type = $("#type").val();
-        const id = $("#id").val();
-        
-        const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
-        const method = 'POST';
-
-        // Prepare FormData
-        let formData = new FormData();
-        formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
-        formData.append("_method", type === 'create' ? "POST" : "PUT");
-        formData.append("name", $("#name").val());
-
-        // Append multiple user_id
-        let users = $("#user_id").val() || [];
-        users.forEach(userId => formData.append("user_id[]", userId));
-
-        // Show loading
-        const btn = $("#storeBtn");
-        btn.prop('disabled', true);
-        btn.find(".btn-text").text("Menyimpan...");
-        btn.find(".btn-loading").removeClass('d-none');
-
-        $.ajax({
-            url: url,
-            method: method,
-            data: formData,
-            processData: false,
-            contentType: false
-        })
-        .done(function(response) {
-            if (response.errors) {
-                showValidationErrors(response.errors);
-                resetButton(btn, "Simpan");
-            } else {
-                $("#modal-simple").modal('hide');
-                showSuccessMessage(response.message);
-                table.ajax.reload();
-                resetButton(btn, "Simpan");
-            }
-        })
-        .fail(function(jqXHR) {
-            console.error("Error:", jqXHR.responseText);
-            showErrorMessage("Terjadi kesalahan");
-            resetButton(btn, "Simpan");
-        });
-    }
-
-    // Edit - Open modal with data
-    function editModal(id) {
-        $.get(BASE + '/' + id + '/show')
-            .done(function(response) {
-                const data = response.data;
-                
-                $(".modal-title").text("Edit Tipe Paket");
-                $("#modal-simple").modal('show');
-                
-                $("#id").val(data.id);
-                $("#name").val(data.name);
-                $("#type").val('update');
-
-                // Set selected users
-                if (data.user && data.user.length > 0) {
-                    let selectedUsers = data.user.map(u => u.id);
-                    $("#user_id").val(selectedUsers).trigger('change');
-                } else {
-                    $("#user_id").val(null).trigger('change');
-                }
-            })
-            .fail(function() {
-                showErrorMessage("Terjadi kesalahan saat mengambil data");
-            });
-    }
-
-    // Delete
-    function deletePaket(id) {
-        Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: BASE + '/' + id + '/destroy',
-                    method: 'DELETE',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content')
+            // Event handler for pagination links
+            pagination.find('a').on('click', function(e) {
+                e.preventDefault();
+                if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                    const page = parseInt($(this).data('page'));
+                    if (!isNaN(page) && page >= 0 && page < info.pages) {
+                        table.page(page).draw('page');
                     }
+                }
+            });
+        }
+
+        // ===========================
+        // Modal Handlers
+        // ===========================
+        function initializeModalHandlers() {
+            // Add button - open modal for create
+            $("#addBtn").on('click', function() {
+                resetModal();
+                $(".modal-title").text("📦 Tambah Tipe Paket");
+                $("#type").val('create');
+            });
+
+            // Save button - handle create/update
+            $("#storeBtn").on('click', function() {
+                handleSave();
+            });
+        }
+
+        function resetModal() {
+            $("#name").val('');
+            $("#id").val('');
+            $("#user_id").val(null).trigger('change');
+            clearValidationErrors();
+        }
+
+        function clearValidationErrors() {
+            $(".form-control").removeClass('is-invalid');
+            $(".invalid-feedback").text('');
+        }
+
+        // ===========================
+        // CRUD Operations
+        // ===========================
+
+        // Create / Update
+        function handleSave() {
+            const type = $("#type").val();
+            const id = $("#id").val();
+
+            const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
+            const method = 'POST';
+
+            // Prepare FormData
+            let formData = new FormData();
+            formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+            formData.append("_method", type === 'create' ? "POST" : "PUT");
+            formData.append("name", $("#name").val());
+
+            // Append multiple user_id
+            let users = $("#user_id").val() || [];
+            users.forEach(userId => formData.append("user_id[]", userId));
+
+            // Show loading
+            const btn = $("#storeBtn");
+            btn.prop('disabled', true);
+            btn.find(".btn-text").text("Menyimpan...");
+            btn.find(".btn-loading").removeClass('d-none');
+
+            $.ajax({
+                    url: url,
+                    method: method,
+                    data: formData,
+                    processData: false,
+                    contentType: false
                 })
                 .done(function(response) {
-                    showSuccessMessage(response.message);
-                    table.ajax.reload();
+                    if (response.errors) {
+                        showValidationErrors(response.errors);
+                        resetButton(btn, "Simpan Data");
+                    } else {
+                        $("#modal-simple").modal('hide');
+                        showSuccessMessage(response.message);
+                        table.ajax.reload();
+                        resetButton(btn, "Simpan Data");
+                    }
+                })
+                .fail(function(jqXHR) {
+                    console.error("Error:", jqXHR.responseText);
+                    showErrorMessage("Terjadi kesalahan");
+                    resetButton(btn, "Simpan Data");
+                });
+        }
+
+        // Edit - Open modal with data
+        function editModal(id) {
+            $.get(BASE + '/' + id + '/show')
+                .done(function(response) {
+                    const data = response.data;
+
+                    $(".modal-title").text("📦 Edit Tipe Paket");
+                    $("#modal-simple").modal('show');
+
+                    $("#id").val(data.id);
+                    $("#name").val(data.name);
+                    $("#type").val('update');
+
+                    // Set selected users
+                    if (data.user && data.user.length > 0) {
+                        let selectedUsers = data.user.map(u => u.id);
+                        $("#user_id").val(selectedUsers).trigger('change');
+                    } else {
+                        $("#user_id").val(null).trigger('change');
+                    }
                 })
                 .fail(function() {
-                    showErrorMessage("Server Error");
+                    showErrorMessage("Terjadi kesalahan saat mengambil data");
                 });
-            }
-        });
-    }
+        }
 
-    // ===========================
-    // Helper Functions
-    // ===========================
-    function showValidationErrors(errors) {
-        clearValidationErrors();
-        
-        Object.keys(errors).forEach(function(field) {
-            $("#" + field).addClass('is-invalid');
-            $(".error_" + field).text(errors[field]);
-        });
+        // Delete
+        function deletePaket(id) {
+            Swal.fire({
+                title: "Hapus Data?",
+                text: "Tipe paket ini akan dihapus permanen.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ef4444",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: "Ya, Hapus!",
+                cancelButtonText: "Batal",
+                customClass: {
+                    confirmButton: 'btn btn-danger px-4 mx-2',
+                    cancelButton: 'btn btn-link link-secondary px-4'
+                },
+                buttonsStyling: false
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                            url: BASE + '/' + id + '/destroy',
+                            method: 'DELETE',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            }
+                        })
+                        .done(function(response) {
+                            showSuccessMessage(response.message);
+                            table.ajax.reload();
+                        })
+                        .fail(function() {
+                            showErrorMessage("Server Error");
+                        });
+                }
+            });
+        }
 
-        // Auto clear errors after 3 seconds
-        setTimeout(function() {
+        // ===========================
+        // Helper Functions
+        // ===========================
+        function showValidationErrors(errors) {
             clearValidationErrors();
-        }, 3000);
-    }
 
-    function showSuccessMessage(message) {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+            Object.keys(errors).forEach(function(field) {
+                $("#" + field).addClass('is-invalid');
+                $(".error_" + field).text(errors[field]);
+            });
 
-        Toast.fire({
-            icon: "success",
-            title: message
-        });
-    }
+            // Auto clear errors after 3 seconds
+            setTimeout(function() {
+                clearValidationErrors();
+            }, 3000);
+        }
 
-    function showErrorMessage(message) {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+        function showSuccessMessage(message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
 
-        Toast.fire({
-            icon: "error",
-            title: message
-        });
-    }
+            Toast.fire({
+                icon: "success",
+                title: message
+            });
+        }
 
-    function resetButton(btn, text) {
-        btn.prop('disabled', false);
-        btn.find(".btn-text").text(text);
-        btn.find(".btn-loading").addClass('d-none');
-    }
-</script>
+        function showErrorMessage(message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: "error",
+                title: message
+            });
+        }
+
+        function resetButton(btn, text) {
+            btn.prop('disabled', false);
+            btn.find(".btn-text").text(text);
+            btn.find(".btn-loading").addClass('d-none');
+        }
+    </script>
 @endpush

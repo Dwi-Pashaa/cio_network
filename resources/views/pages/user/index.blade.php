@@ -4,271 +4,287 @@
     Data User
 @endsection
 
-@push('css')
-    <style>
-        #custom-pagination {
-            display: flex;
-            list-style: none;
-            padding-left: 0;
-            gap: 0.25rem;
-        }
-
-        #custom-pagination .page-item .page-link {
-            min-width: 36px;
-            text-align: center;
-            padding: 0.375rem 0.5rem;
-        }
-
-        #custom-pagination .page-item.active .page-link {
-            background-color: #0d6efd;
-            color: #fff;
-            border-color: #0d6efd;
-        }
-
-        #custom-pagination .page-item.disabled .page-link {
-            color: #6c757d;
-            pointer-events: none;
-        }
-
-    </style>
-@endpush
-
 @section('content')
-@include('components.alert.success')
-<div class="card">
-    <div class="card-header">
-        <a href="{{ route('user.create') }}" class="btn btn-primary">
-            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-            Tambah
-        </a>
-    </div>
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <label class="me-2">Show</label>
-                    <select name="sort" id="sort" class="form-control d-inline-block" style="width: auto;">
-                        @php
-                            $opts = [10, 25, 50, 100];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}">{{ $opt }}</option>
-                        @endforeach
-                    </select>
-                    <label class="ms-2">entries</label>
+<div class="org-container">
+    @include('components.alert.success')
+    <div class="org-card">
+        {{-- HEADER --}}
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="org-title">Daftar Pengguna</h5>
+                    <div class="org-subtitle">Manajemen daftar seluruh user dan operator </div>
                 </div>
             </div>
-            <div class="ms-auto text-secondary">
-                <div class="input-group mb-2" style="width: 300px;">
-                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
-                    <button class="btn" type="button" id="search-btn">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                    </button>
-                </div>
+            
+            @can('tambah user')
+                <a href="{{ route('user.create') }}" class="btn-add">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Tambah User
+                </a>
+            @endcan
+        </div>
+
+        {{-- TOOLBAR --}}
+        <div class="org-toolbar">
+            <div style="font-size:.85rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:.5rem;">
+                Tampilkan
+                <select id="sort" class="org-input" style="padding: .35rem .6rem;">
+                    @foreach([10,25,50,100] as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                data
+            </div>
+
+            <div class="search-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" class="org-input" placeholder="Cari nama atau email…">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="users-table" class="org-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px; text-align:center;">No</th>
+                        <th>User Info</th>
+                        <th>Telp</th>
+                        <th>Level</th>
+                        <th style="text-align:center;">Penempatan</th>
+                        <th style="text-align:center;">Akses Hal.</th>
+                        <th style="text-align:center;">OLT</th>
+                        <th style="text-align:center;">Mic Radius</th>
+                        <th>Created At</th>
+                        <th style="text-align:right;">Aksi</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        {{-- FOOTER --}}
+        <div class="org-footer">
+            <div class="org-info" id="table-info">
+                Menampilkan <span id="start-entry">0</span>
+                sampai <span id="end-entry">0</span> dari
+                <span id="total-entries">0</span> data
+            </div>
+            <ul class="pagination" id="custom-pagination"></ul>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL DETAIL --}}
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalTitle">Detail Akses</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; align-items: start;">
+                <!-- Content goes here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" style="border-radius: 8px; font-weight: 600;" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
-    <div class="table-responsive">
-        <table id="users-table"
-            class="table card-table table-vcenter text-nowrap datatable">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="text-white">No</th>
-                    <th class="text-white">Username</th>
-                    <th class="text-white">Nama Lengkap</th>
-                    <th class="text-white">Email</th>
-                    <th class="text-white">Telp</th>
-                    <th class="text-white">Level</th>
-                    <th class="text-white">Penempatan</th>
-                    <th class="text-white">Akses Halaman</th>
-                    <th class="text-white">OLT</th>
-                    <th class="text-white">Mic Radius</th>
-                    <th class="text-white">Created</th>
-                    <th class="text-white">Updated</th>
-                    <th class="text-white">Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary" id="table-info">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination">
-            
-        </ul>
-    </div>
 </div>
+
 @endsection
 
 @push('js')
-    <script>
-        const BASE = "{{ route('user.index') }}";
-        let table;
+<script>
+    const BASE = "{{ route('user.index') }}";
+    let table;
 
-        $(function () {
-            table = $('#users-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('user.index') }}",
-                order: [[10, 'desc']],
-                pageLength: 10,
-                dom: 'rt', 
-                columns: [
-                    { data: 'DT_RowIndex', orderable: false, searchable: false },
-                    { data: 'username' },
-                    { data: 'name', orderable: true, searchable: true },
-                    { data: 'email', orderable: true, searchable: true },
-                    { data: 'telp', defaultContent: '-' },
-                    { data: 'role', orderable: false },
-                    { data: 'regencie', orderable: false },
-                    { data: 'pages', orderable: false },
-                    { data: 'olt', orderable: false },
-                    { data: 'mix_radius', orderable: false },
-                    {data:'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss')},
-                    {data:'updated_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss')},
-                    { data: 'action', orderable: false, searchable: false },
-                ],
-                drawCallback: function(settings) {
-                    updatePaginationInfo(settings);
-                    updateCustomPagination();
-                }
-            });
-
-            $("#sort").change(function() {
-                table.page.len($(this).val()).draw();
-            });
-
-            $("#search-input").on('keyup', function() {
-                table.search(this.value).draw();
-            });
-
-            $("#search-btn").on('click', function() {
-                table.search($("#search-input").val()).draw();
-            });
-
-            $("#search-input").on('keypress', function(e) {
-                if (e.which === 13) {
-                    table.search(this.value).draw();
-                }
-            });
-        });
-
-        function updatePaginationInfo(settings) {
-            const api = new $.fn.dataTable.Api(settings);
-            const info = api.page.info();
-            
-            $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
-            $('#end-entry').text(info.end);
-            $('#total-entries').text(info.recordsDisplay);
+    // Fungsi Render Untuk Tombol Detail
+    function renderDetailButton(data, type, row, meta, title) {
+        if (!data || data === '-' || data === '') {
+            return `<span style="color:#9ca3af; font-size:.8rem; font-weight:600;">-</span>`;
         }
+        
+        let safeData = encodeURIComponent(data);
+        return `
+            <button class="btn-look" onclick="showDetailModal('${title}', '${safeData}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                </svg>
+                Lihat
+            </button>
+        `;
+    }
 
-        function updateCustomPagination() {
-            const info = table.page.info();
-            const pagination = $('#custom-pagination');
-            pagination.empty();
-
-            if (info.pages <= 1) return; 
-
-            pagination.append(`
-                <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${info.page - 1}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-            `);
-
-            let startPage = Math.max(0, info.page - 2);
-            let endPage = Math.min(info.pages - 1, info.page + 2);
-
-            if (startPage > 0) {
-                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
-                if (startPage > 1) {
-                    pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                pagination.append(`
-                    <li class="page-item ${i === info.page ? 'active' : ''}">
-                        <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
-                    </li>
-                `);
-            }
-
-            if (endPage < info.pages - 1) {
-                if (endPage < info.pages - 2) {
-                    pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-                }
-                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
-            }
-
-            pagination.append(`
-                <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${info.page + 1}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            `);
-
-            pagination.find('a').on('click', function(e) {
-                e.preventDefault();
-                const page = parseInt($(this).data('page'));
-                if (!isNaN(page) && page >= 0 && page < info.pages) {
-                    table.page(page).draw('page');
-                }
-            });
-        }
-
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
+    $(function () {
+        table = $('#users-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: BASE,
+            order: [[8, 'desc']], // Created At Sorting Default
+            pageLength: 10,
+            dom: 'rt', 
+            language: {
+                emptyTable: "Belum ada data user yang ditambahkan.",
+                zeroRecords: "Data user tidak ditemukan."
+            },
+            columns: [
+                { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+                { 
+                    data: 'name', 
+                    render: function(data, type, row) {
+                        return `
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-weight:700; color:var(--text-primary);">${data}</span>
+                            <span style="font-size:.75rem; color:var(--text-muted);">${row.email} | @${row.username}</span>
+                        </div>
+                        `;
+                    }
+                },
+                { data: 'telp', defaultContent: '-' },
+                { 
+                    data: 'role', 
+                    render: function(data) {
+                        return `<span style="font-weight:700; color:var(--brand);">${data}</span>`;
+                    } 
+                },
+                { data: 'regencie', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Penempatan Wilayah') },
+                { data: 'pages', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Halaman') },
+                { data: 'olt', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses OLT') },
+                { data: 'mix_radius', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Mikrotik / Radius') },
+                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
+                { data: 'action', orderable: false, searchable: false, className: 'text-end' },
+            ],
+            drawCallback: function(settings) {
+                updatePaginationInfo(settings);
+                updateCustomPagination();
             }
         });
 
-        function deleteUsers(id) {
-            Swal.fire({
-                title: "Peringatan !",
-                text: "Anda yakin ingin menghapus data ini?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Hapus",
-                cancelButtonText: "Batal"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: BASE + '/' + id + '/destroy',
-                        method: "DELETE",
-                        dataType: "json",
-                        success: function(response) {
-                            Toast.fire({
-                                icon: response.status,
-                                title: response.message
-                            });
+        $("#sort").change(function() {
+            table.page.len($(this).val()).draw();
+        });
 
-                            setTimeout(() => {
-                                table.ajax.reload();
-                            }, 3000);
-                        },
-                        error: function(err) {
-                            Toast.fire({
-                                icon: "error",
-                                title: "Server Error"
-                            });
-                        }
-                    })
-                }
-            });
+        $("#search-input").on('keyup', function() {
+            table.search(this.value).draw();
+        });
+    });
+
+    // Menampilkan Modal Detail Akses
+    function showDetailModal(title, encodedData) {
+        const decodedData = decodeURIComponent(encodedData);
+        $('#detailModalTitle').text(title);
+        
+        // Membersihkan class badge bg-primary default datatable dari server jika ada agar lebih estetik di modal
+        let prettyData = decodedData.replace(/<br>/g, '');
+        // Set style teks ke text-wrap normal agar teks panjang tidak terpotong (misal nama OLT / router panjang)
+        prettyData = prettyData.replace(/class="badge bg-primary text-white mb-2"/g, 'class="badge" style="background:#eef2ff; color:var(--brand); font-size:.8rem; padding:.55rem .75rem; width:100%; text-align:left; border:1px solid var(--brand-glow); white-space: normal; line-height: 1.4;"');
+
+        $('#detailModalBody').html(prettyData);
+        $('#detailModal').modal('show');
+    }
+
+    function updatePaginationInfo(settings) {
+        const api = new $.fn.dataTable.Api(settings);
+        const info = api.page.info();
+        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+        $('#end-entry').text(info.end);
+        $('#total-entries').text(info.recordsDisplay);
+    }
+
+    function updateCustomPagination() {
+        const info = table.page.info();
+        const pagination = $('#custom-pagination');
+        pagination.empty();
+
+        if (info.pages <= 1) return; 
+
+        pagination.append(`
+            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page - 1}" aria-label="Previous">&laquo;</a>
+            </li>
+        `);
+
+        let startPage = Math.max(0, info.page - 2);
+        let endPage = Math.min(info.pages - 1, info.page + 2);
+
+        if (startPage > 0) {
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+            if (startPage > 1) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
         }
-    </script>
+
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === info.page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+            `);
+        }
+
+        if (endPage < info.pages - 1) {
+            if (endPage < info.pages - 2) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
+        }
+
+        pagination.append(`
+            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${info.page + 1}" aria-label="Next">&raquo;</a>
+            </li>
+        `);
+
+        pagination.find('a').on('click', function(e) {
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if (!isNaN(page) && page >= 0 && page < info.pages) table.page(page).draw('page');
+        });
+    }
+
+    const Toast = Swal.mixin({
+        toast: true, position: "top-end", showConfirmButton: false, timer: 3000, timerProgressBar: true,
+        didOpen: (toast) => { toast.onmouseenter = Swal.stopTimer; toast.onmouseleave = Swal.resumeTimer; }
+    });
+
+    function deleteUsers(id) {
+        Swal.fire({
+            title: "Hapus Pengguna?",
+            text: "Pengguna ini beserta hak aksesnya akan terhapus mandiri.",
+            icon: "warning", showCancelButton: true,
+            confirmButtonColor: "#ef4444", cancelButtonColor: "#c0c0d0",
+            confirmButtonText: "Ya, Hapus!", cancelButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: BASE + '/' + id + '/destroy',
+                    method: "DELETE", dataType: "json",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    success: function(response) {
+                        Toast.fire({ icon: response.status, title: response.message });
+                        setTimeout(() => { table.ajax.reload(); }, 1500);
+                    },
+                    error: function(err) {
+                        Swal.fire("Error","Terjadi kesalahan pada server.","error");
+                    }
+                })
+            }
+        });
+    }
+</script>
 @endpush

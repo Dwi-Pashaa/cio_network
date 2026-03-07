@@ -15,6 +15,7 @@ class MacAddress extends Model
         'status_device',
         'router_id',
         'user_id',
+        'organization_id'
     ];
 
     public function customer()

@@ -95,4 +95,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Type::class, 'tipe_pelanggan_id', 'id');
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
 }

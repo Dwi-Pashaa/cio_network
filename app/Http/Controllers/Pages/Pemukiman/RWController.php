@@ -37,6 +37,7 @@ class RWController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = auth()->user()->organization_id;
 
         RW::create($post);
 
@@ -71,6 +72,7 @@ class RWController extends Controller
         }
 
         $put = $request->only('name');
+        $put['organization_id'] = auth()->user()->organization_id;
 
         $rws = RW::find($id);
 

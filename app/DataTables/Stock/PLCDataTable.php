@@ -42,7 +42,7 @@ class PLCDataTable
      */
     private function query()
     {
-        return PLC::query();
+        return PLC::where('organization_id', Auth::user()->organization_id);
     }
 
     /**

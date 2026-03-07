@@ -31,7 +31,7 @@ class MacAddressController extends Controller
     {
         $authUser = auth()->user();
 
-        $query = MacAddress::query();
+        $query = MacAddress::query()->where('organization_id', $authUser->organization_id);
 
         if ($request->filled('filter_user')) {
             $query->where('user_id', $request->filter_user);
@@ -74,6 +74,7 @@ class MacAddressController extends Controller
 
         $post = $request->all();
         $post['user_id'] = auth()->user()->id;
+        $post['organization_id'] = auth()->user()->organization_id;
 
         MacAddress::create($post);
 
@@ -110,6 +111,7 @@ class MacAddressController extends Controller
         }
 
         $put = $request->all();
+        $put['organization_id'] = auth()->user()->organization_id;
 
         $micRadius = MacAddress::find($id);
 

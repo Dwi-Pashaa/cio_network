@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Stock\UserPLCDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PLC;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserPLC;
-use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +24,8 @@ class UserPLCController extends Controller
             return (new UserPLCDataTable)->get();
         }
 
-        $plc = PLC::all();
-        $role = Role::all();
+        $plc = PLC::where('organization_id', Auth::user()->organization_id)->get();
+        $role = Role::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.user-plc.index", compact("plc", "role"));
     }
@@ -83,6 +83,7 @@ class UserPLCController extends Controller
                     'user_id' => $request->user_id,
                     'plc_id' => $request->plc_id,
                     'total' => $request->total,
+                    'organization_id' => Auth::user()->organization_id,
                 ]);
             } else {
                 $penerimaPlc->total += $request->total;
@@ -145,6 +146,7 @@ class UserPLCController extends Controller
             'user_id' => $request->user_id,
             'plc_id' => $request->plc_id,
             'total' => $request->total,
+            'organization_id' => Auth::user()->organization_id,
         ]);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -169,11 +171,12 @@ class UserPLCController extends Controller
     public function selectRole(Request $request)
     {
         $role = $request->role;
+        $organizationId = Auth::user()->organization_id;
 
         if (empty($role)) {
-            $user = User::all();
+            $user = User::where('organization_id', $organizationId)->get();
         } else {
-            $user = User::role($role)->get();
+            $user = User::role($role)->where('organization_id', $organizationId)->get();
         }
 
         if ($user->isEmpty()) {
@@ -249,6 +252,7 @@ class UserPLCController extends Controller
             }
 
             $data->total += $request->total_stock;
+            $data->organization_id = Auth::user()->organization_id;
             $data->save();
 
             DB::commit();

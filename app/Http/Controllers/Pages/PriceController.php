@@ -6,6 +6,7 @@ use App\DataTables\Customer\CustomerPriceDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Price;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PriceController extends Controller
@@ -36,6 +37,7 @@ class PriceController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         Price::create($post);
 
@@ -70,6 +72,7 @@ class PriceController extends Controller
         }
 
         $put = $request->only('name');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $type = Price::find($id);
 

@@ -1,9 +1,20 @@
 <?php
 
+use App\Http\Controllers\Pages\OrganizationController;
 use App\Http\Controllers\Pages\RoleController;
 use App\Http\Controllers\Pages\UserController;
 use Illuminate\Support\Facades\Route;
 
+
+// data organization/mitra
+Route::prefix('organization')->group(function () {
+    Route::get('/', [OrganizationController::class, 'index'])->name('organization.index');
+    Route::get('/create', [OrganizationController::class, 'create'])->name('organization.create');
+    Route::post('/store', [OrganizationController::class, 'store'])->name('organization.store');
+    Route::get('/{id}/show', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::put('/{id}/update', [OrganizationController::class, 'update'])->name('organization.update');
+    Route::delete('/{id}/destroy', [OrganizationController::class, 'destroy'])->name('organization.destroy');
+});
 
 // data role
 Route::prefix('role')->group(function () {

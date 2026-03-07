@@ -92,6 +92,7 @@ class ODPController extends Controller
             $userPatchCore->save();
 
             $post = $request->all();
+            $post['organization_id'] = $user->organization_id;
             ODP::create($post);
 
             DB::commit();
@@ -222,6 +223,7 @@ class ODPController extends Controller
             }
 
             $put = $request->all();
+            $put['organization_id'] = $user->organization_id;
             $odcs->update($put);
 
             DB::commit();

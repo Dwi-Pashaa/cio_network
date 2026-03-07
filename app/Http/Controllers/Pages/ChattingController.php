@@ -14,19 +14,26 @@ class ChattingController extends Controller
     {
         $userId = $request->user_id ?? null;
 
-        $auth = auth()->user();
+        $auth   = auth()->user();
         $authId = $auth->id;
+        $orgId  = $auth->organization_id;
+
+        // Basis query: hanya user di organisasi yang sama, kecuali diri sendiri
+        $baseQuery = User::where('id', '!=', $authId)
+            ->where('organization_id', $orgId);
 
         if ($auth->can('view all chatting')) {
-            $userQuery = User::where('id', '!=', $authId);
+            // Lihat semua user dalam organisasi yang sama
+            $userQuery = $baseQuery;
         } elseif ($auth->can('view inbox chatting')) {
-            $userQuery = User::whereIn('id', function ($q) use ($authId) {
+            // Hanya tampilkan user yang pernah mengirim pesan ke kita (dalam org yang sama)
+            $userQuery = $baseQuery->whereIn('id', function ($q) use ($authId) {
                 $q->select('sender_id')
                     ->from('chat')
                     ->where('receiver_id', $authId);
             });
         } else {
-            $userQuery = User::where('id', '!=', $authId);
+            $userQuery = $baseQuery;
         }
 
         $users = $userQuery->get()

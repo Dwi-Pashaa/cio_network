@@ -5,127 +5,115 @@
 @endsection
 
 @push('css')
-    <style>
-        .empty-state {
-            padding: 3rem 1rem;
-        }
-        
-        .empty-state-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .empty-state-icon svg {
-            opacity: 0.3;
-        }
-        
-        .empty-state-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .empty-state-subtitle {
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/modern-layout.css') }}">
 @endpush
 
 @section('content')
     @include('components.alert.success')
-    <div class="card">
-        @can('buat desa')
-            <div class="card-header">
-                <a href="{{ route('customer.create') }}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
+    <div class="org-card">
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M18 8a3 3 0 0 1 0 6" />
+                        <path d="M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5" />
+                        <path
+                            d="M12 8h0l4.524 -3.77a0.9 .9 0 0 1 1.476 .692v12.156a0.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8" />
                     </svg>
-                    Tambah
-                </a>
+                </div>
+                <div>
+                    <h3 class="org-title">Data Spam</h3>
+                    <p class="org-subtitle mb-0">Kelola data pelanggan yang masuk antrian spam</p>
+                </div>
             </div>
-        @endcan
-        <div class="card-body border-bottom py-3">
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <div class="text-secondary">
-                    <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [10, 25, 50, 100];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}">{{ $opt }}</option>
-                        @endforeach
-                    </select>
+            @can('buat desa')
+                <div class="org-actions">
+                    <a href="{{ route('customer.create') }}" class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14m-7-7h14" />
+                        </svg>
+                        Tambah
+                    </a>
                 </div>
-                <div class="ms-auto">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="search-input" placeholder="Search for…">
-                        <button class="btn" type="button" id="search-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                <path d="M21 21l-6 -6" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+            @endcan
+        </div>
+
+        <div class="org-toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
+                <select name="sort" id="sort" class="org-input" style="width: 80px; padding: 0.35rem 0.8rem;">
+                    @php $opts = [10, 25, 50, 100]; @endphp
+                    @foreach ($opts as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                <span class="text-muted" style="font-size: 0.88rem;">entri</span>
+            </div>
+            <div class="search-wrapper ms-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" class="org-input" id="search-input" placeholder="Cari data spam..."
+                    autocomplete="off">
             </div>
         </div>
+
         <div id="spam-table-wrapper" class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap" id="spam-table">
-                <thead class="bg-secondary">
+            <table class="table org-table table-vcenter text-nowrap" id="spam-table">
+                <thead>
                     <tr>
-                        <th class="w-1 text-white">No</th>
-                        <th class="text-white">ID Pelanggan</th>
-                        <th class="text-white">Tipe Pelanggan</th>
-                        <th class="text-white">Tipe Layanan</th>
-                        <th class="text-white">NIK</th>
-                        <th class="text-white">Nama Pelanggan</th>
-                        <th class="text-white">Email</th>
-                        <th class="text-white">No Telephone</th>
-                        <th class="text-white">Mac Address</th>
-                        <th class="text-white">Jenis Router</th>
-                        <th class="text-white">Kampung</th>
-                        <th class="text-white">Desa</th>
-                        <th class="text-white">RT</th>
-                        <th class="text-white">RW</th>
-                        <th class="text-white">Kecamatan</th>
-                        <th class="text-white">Kabupaten/Kota</th>
-                        <th class="text-white">Vlan</th>
-                        <th class="text-white">Alamat ODC</th>
-                        <th class="text-white">Alamat ODP</th>
-                        <th class="text-white">Alamat OLT</th>
-                        <th class="text-white">Nama Wifi</th>
-                        <th class="text-white">Password Wifi</th>
-                        <th class="text-white">PPOE Username</th>
-                        <th class="text-white">PPOE Password</th>
-                        <th class="text-white">Tipe Paket</th>
-                        <th class="text-white">Mix Radius</th>
-                        <th class="text-white">Tipe Pembayaran</th>
-                        <th class="text-white">Lokasi</th>
-                        <th class="text-white">Foto KTP</th>
-                        <th class="text-white">Di Input Oleh</th>
-                        <th class="text-white">Created</th>
-                        @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                            <th class="text-white">Action</th>
+                        <th class="w-1">No</th>
+                        <th>ID Pelanggan</th>
+                        <th>Tipe Pelanggan</th>
+                        <th>Tipe Layanan</th>
+                        <th>NIK</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Email</th>
+                        <th>No Telephone</th>
+                        <th>Mac Address</th>
+                        <th>Jenis Router</th>
+                        <th>Kampung</th>
+                        <th>Desa</th>
+                        <th>RT</th>
+                        <th>RW</th>
+                        <th>Kecamatan</th>
+                        <th>Kabupaten/Kota</th>
+                        <th>Vlan</th>
+                        <th>Alamat ODC</th>
+                        <th>Alamat ODP</th>
+                        <th>Alamat OLT</th>
+                        <th>Nama Wifi</th>
+                        <th>Password Wifi</th>
+                        <th>PPOE Username</th>
+                        <th>PPOE Password</th>
+                        <th>Tipe Paket</th>
+                        <th>Mix Radius</th>
+                        <th>Tipe Pembayaran</th>
+                        <th>Lokasi</th>
+                        <th>Foto KTP</th>
+                        <th>Di Input Oleh</th>
+                        <th>Created</th>
+                        @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
+                            <th>Action</th>
                         @endif
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
-            <p class="m-0 text-secondary">
-                Showing <span id="start-entry">0</span> 
-                to <span id="end-entry">0</span> of
-                <span id="total-entries">0</span> entries
+
+        <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between">
+            <p class="m-0 text-muted" style="font-size: 0.88rem;">
+                Showing <span id="start-entry" class="fw-medium">0</span>
+                to <span id="end-entry" class="fw-medium">0</span> of
+                <span id="total-entries" class="fw-medium">0</span> entries
             </p>
-            <ul class="pagination m-0 ms-auto" id="custom-pagination">
-            </ul>
+            <ul class="pagination m-0" id="custom-pagination"></ul>
         </div>
     </div>
 @endsection
@@ -150,145 +138,146 @@
                         d._token = $('meta[name="csrf-token"]').attr('content');
                     }
                 },
-                order: [[29, 'desc']], // Sort by created_at column
+                order: [
+                    [29, 'desc']
+                ], // Sort by created_at column
                 pageLength: 10,
                 dom: 'rt',
-                columns: [
-                    { 
+                columns: [{
                         data: 'DT_RowIndex',
-                        orderable: false, 
+                        orderable: false,
                         searchable: false
                     },
-                    { 
+                    {
                         data: 'uuid',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'tipe_pelanggan',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'type_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'nik',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'email',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'telp',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'mac_address',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'router_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'hometown_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'village_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'rt_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'rw_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'district_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'regencie_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'vlan_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'odc_address',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'odp_address',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'olt_address',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'name_wifi',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'password_wifi',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'pppoe_username',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'pppoe_password',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'paket_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'mic_radius',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'price_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'location',
                         orderable: false,
                         searchable: false
                     },
-                    { 
+                    {
                         data: 'ktp_photo',
                         orderable: false,
                         searchable: false
                     },
-                    { 
+                    {
                         data: 'user_name',
                         defaultContent: '-'
                     },
-                    { 
+                    {
                         data: 'created_at',
                         render: function(data) {
                             return moment(data).format('DD/MM/YYYY HH:mm:ss');
                         }
                     },
-                    @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                    { 
-                        data: 'action', 
-                        orderable: false, 
-                        searchable: false
-                    }
+                    @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
+                        {
+                            data: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
                     @endif
                 ],
                 drawCallback: function(settings) {
@@ -325,7 +314,7 @@
         function updatePaginationInfo(settings) {
             const api = new $.fn.dataTable.Api(settings);
             const info = api.page.info();
-            
+
             $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
             $('#end-entry').text(info.end);
             $('#total-entries').text(info.recordsDisplay);
@@ -374,7 +363,9 @@
                 if (endPage < info.pages - 2) {
                     pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
                 }
-                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
+                pagination.append(
+                    `<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`
+                    );
             }
 
             // Next button
@@ -403,13 +394,13 @@
         function handleEmptyState(settings) {
             const api = new $.fn.dataTable.Api(settings);
             const info = api.page.info();
-            
+
             if (info.recordsDisplay === 0) {
                 // Sembunyikan table header dan tampilkan empty state
                 $('#spam-table thead').hide();
-                
+
                 const isFiltered = $('#search-input').val();
-                
+
                 const emptyStateHTML = `
                     <tr class="empty-state-row">
                         <td colspan="31" class="text-center py-5">
@@ -430,26 +421,26 @@
                                         'Tidak ada data pelanggan spam saat ini.<br>Data akan muncul di sini ketika ada pelanggan yang masuk ke spam.'}
                                 </p>
                                 ${isFiltered ? `
-                                    <button type="button" class="btn btn-primary" id="resetSearchBtn">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M18 6l-12 12" />
-                                            <path d="M6 6l12 12" />
-                                        </svg>
-                                        Hapus Pencarian
-                                    </button>
-                                ` : ''}
+                                        <button type="button" class="btn btn-primary" id="resetSearchBtn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M18 6l-12 12" />
+                                                <path d="M6 6l12 12" />
+                                            </svg>
+                                            Hapus Pencarian
+                                        </button>
+                                    ` : ''}
                             </div>
                         </td>
                     </tr>
                 `;
-                
+
                 // Hapus row empty state yang lama jika ada
                 $('#spam-table tbody .empty-state-row').remove();
-                
+
                 // Tambahkan empty state
                 $('#spam-table tbody').html(emptyStateHTML);
-                
+
                 // Event handler untuk reset search
                 $('#resetSearchBtn').on('click', function() {
                     $('#search-input').val('');

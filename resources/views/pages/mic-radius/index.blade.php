@@ -1,642 +1,660 @@
 @extends('layouts.app')
 
-@section('title')
-    Data Mic Radius
-@endsection
+@section('title', 'Data Mic Radius')
 
 @push('css')
+    <link href="{{ asset('css/modern-layout.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+    <style>
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .map-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            border-color: #e2e8f0;
+            border-radius: 10px;
+            padding: 0.25rem 0.5rem;
+            min-height: 42px;
+        }
+
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+    </style>
 @endpush
 
 @section('content')
-<div class="card">
-    @can('buat mic radius')
-        <div class="card-header">
-            <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" />
-                </svg>
-                Tambah
-            </a>
-        </div>
-    @endcan
-    <div class="card-body border-bottom py-3">
-        <div class="d-flex">
-            <div class="text-secondary">
-                <div class="mx-2 d-inline-block">
-                    <select name="sort" id="sort" class="form-control">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-            </div>
-            <div class="ms-auto text-secondary">
-                <div class="input-group mb-2">
-                    <input type="text" class="form-control" id="search-input" placeholder="Search for…">
-                    <button class="btn" type="button" id="search-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" />
+    <div class="org-container mt-4">
+        <div class="org-card">
+
+            {{-- Header --}}
+            <div class="org-header">
+                <div class="org-title-wrap">
+                    <div class="org-header-icon" style="background:linear-gradient(135deg,#cffafe,#a5f3fc);color:#0891b2;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="12" cy="12" r="9" />
+                            <circle cx="12" cy="12" r="1" />
+                            <path d="M12 4v2" />
+                            <path d="M12 18v2" />
+                            <path d="M4 12h2" />
+                            <path d="M18 12h2" />
                         </svg>
-                    </button>
+                    </div>
+                    <div>
+                        <h2 class="org-title">Data Mic Radius</h2>
+                        <p class="org-subtitle mb-0">Kelola master data perangkat MikroTik Radius Anda.</p>
+                    </div>
+                </div>
+
+                @can('buat mic radius')
+                    <div class="org-header-action">
+                        <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple"
+                            class="btn-add">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Tambah Radius
+                        </a>
+                    </div>
+                @endcan
+            </div>
+
+            {{-- Toolbar --}}
+            <div class="org-toolbar">
+                <div class="d-flex align-items-center gap-2">
+                    <select name="sort" id="sort" class="org-input" style="width:80px;">
+                        @foreach ([10, 25, 50, 100] as $opt)
+                            <option value="{{ $opt }}" {{ request('sort') == $opt ? 'selected' : '' }}>
+                                {{ $opt }}</option>
+                        @endforeach
+                    </select>
+                    <span class="text-muted small fw-bold d-none d-sm-inline">ENTRIES</span>
+                </div>
+                <div class="search-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari Radius...">
                 </div>
             </div>
+
+            {{-- Table --}}
+            <div class="table-responsive">
+                <table class="org-table" id="micradius-table">
+                    <thead>
+                        <tr>
+                            <th style="width:56px;">NO</th>
+                            <th>KODE</th>
+                            <th>NAMA RADIUS</th>
+                            <th>KAMPUNG</th>
+                            <th>USER</th>
+                            <th class="text-center">LOKASI</th>
+                            <th>CREATED</th>
+                            @if (auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius'))
+                                <th class="text-center">ACTION</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            {{-- Footer --}}
+            <div class="org-footer flex-column flex-sm-row">
+                <div class="org-info mb-3 mb-sm-0 text-center text-sm-start">
+                    Menampilkan <span id="start-entry">0</span> - <span id="end-entry">0</span> dari
+                    <span id="total-entries">0</span> data
+                </div>
+                <ul class="pagination mb-0" id="custom-pagination"></ul>
+            </div>
+
         </div>
     </div>
-    <div id="micradius-table-wrapper" class="table-responsive">
-        <table id="micradius-table" class="table card-table table-vcenter text-nowrap datatable">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="w-1 text-white">No</th>
-                    <th class="text-white">Code</th>
-                    <th class="text-white">Nama Mic Radius</th>
-                    <th class="text-white">Kampung</th>
-                    <th class="text-white">User</th>
-                    <th class="text-white">Lokasi</th>
-                    <th class="text-white">Created</th>
-                    @if(auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius'))
-                        <th class="text-white">Action</th>
-                    @endif
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
-    </div>
-</div>
 @endsection
 
 @push('modal')
-<div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Mic Radius</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                
-                <div class="form-group mb-3">
-                    <label for="user_id" class="mb-2">Pilih User <span class="text-danger">*</span></label>
-                    <select name="user_id[]" id="user_id" class="form-control" multiple>
-                        @foreach ($user as $usr)
-                            <option value="{{ $usr->id }}">{{ $usr->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_user_id"></span>
-                    <small class="form-hint">Pilih satu atau lebih user</small>
-                </div>
+    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;">
 
-                <div class="form-group mb-3">
-                    <label for="code" class="mb-2">Kode Mic Radius <span class="text-danger">*</span></label>
-                    <input type="text" name="code" id="code" class="form-control" placeholder="Masukkan kode">
-                    <span class="invalid-feedback error_code"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama Mic Radius <span class="text-danger">*</span></label>
-                    <input type="text" name="name" id="name" class="form-control" placeholder="Masukkan nama">
-                    <span class="invalid-feedback error_name"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="hometowns_id" class="mb-2">Kampung <span class="text-danger">*</span></label>
-                    <select name="hometowns_id" id="hometowns_id" class="form-control">
-                        <option value="">Pilih Kampung</option>
-                        @foreach ($hometown as $hmt)
-                            <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="invalid-feedback error_hometowns_id"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="mb-2">Lokasi GPS</label>
-                    <div class="mt-2" id="map-container" style="display:none;">
-                        <iframe id="map-frame"
-                            width="100%" 
-                            height="300" 
-                            style="border:0; border-radius: 10px;"
-                            loading="lazy" 
-                            allowfullscreen 
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+                {{-- Modal Header --}}
+                <div class="modal-header"
+                    style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border:none;padding:1.25rem 1.5rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <circle cx="12" cy="12" r="9" />
+                                <circle cx="12" cy="12" r="1" />
+                                <path d="M12 4v2" />
+                                <path d="M12 18v2" />
+                                <path d="M4 12h2" />
+                                <path d="M18 12h2" />
+                            </svg>
+                        </div>
+                        <h5 class="modal-title mb-0" style="color:white;font-weight:700;font-size:.95rem;">Tambah Mic
+                            Radius</h5>
                     </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                {{-- Modal Body --}}
+                <div class="modal-body" style="padding:1.5rem;">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
                     <input type="hidden" name="latitude" id="latitude">
                     <input type="hidden" name="longitude" id="longitude">
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label mb-2" for="user_id">Pilih User <span
+                                    class="text-danger">*</span></label>
+                            <select name="user_id[]" id="user_id" class="form-select" multiple>
+                                @foreach ($user as $usr)
+                                    <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_user_id"></span>
+                            <div class="text-muted small mt-1"><i class="ti ti-info-circle"></i> Anda bisa memilih lebih
+                                dari satu user.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="code">Kode Radius <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" name="code" id="code" class="form-control"
+                                placeholder="Contoh: MR-01">
+                            <span class="invalid-feedback error_code"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="name">Nama Radius <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" name="name" id="name" class="form-control"
+                                placeholder="Nama Perangkat">
+                            <span class="invalid-feedback error_name"></span>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label" for="hometowns_id">Kampung <span
+                                    class="text-danger">*</span></label>
+                            <select name="hometowns_id" id="hometowns_id" class="form-select">
+                                <option value="">-- Pilih Kampung --</option>
+                                @foreach ($hometown as $hmt)
+                                    <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_hometowns_id"></span>
+                        </div>
+                    </div>
+
+                    {{-- Map Area --}}
+                    <div class="map-container" id="map-container">
+                        <iframe id="map-frame" loading="lazy" allowfullscreen
+                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <div class="mt-2 text-muted small px-1 d-flex gap-1 align-items-center" id="loc-status"
+                        style="display:none !important">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="text-success">
+                            <path d="M12 21a9 9 0 0 0 9 -9H3a9 9 0 0 0 9 9z" />
+                            <path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9 -9z" />
+                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                        </svg>
+                        <span>Lokasi berhasil dideteksi otomatis.</span>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">
-                    <span id="btnText">Simpan</span>
-                    <span id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                </button>
+
+                {{-- Modal Footer --}}
+                <div class="modal-footer" style="border-top:1px solid #f1f5f9;padding:1rem 1.5rem;gap:.75rem;">
+                    <button type="button" class="btn btn-link link-secondary px-4"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary px-4">
+                        <span id="btnText">Simpan</span>
+                        <span id="btnLoading" class="spinner-border spinner-border-sm d-none ms-1" role="status"></span>
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
 @endpush
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    const BASE = "{{ route('mic.radius.index') }}";
-    let table;
-    let select2User;
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        const BASE = "{{ route('mic.radius.index') }}";
+        let table;
+        let select2User;
 
-    $(function() {
-        initializeDataTable();
-        initializePaginationAndSearch();
-        initializeModalHandlers();
-        initializeGeolocation();
-        initializeSelect2();
-    });
+        $(function() {
+            initializeDataTable();
+            initializePaginationAndSearch();
+            initializeModalHandlers();
+            initializeGeolocation();
+            initializeSelect2();
+        });
 
-    function initializeDataTable() {
-        table = $('#micradius-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: BASE,
-                data: function(d) {
-                    d._token = $('meta[name="csrf-token"]').attr('content');
-                }
-            },
-            order: [[6, 'desc']], // Sort by created column
-            pageLength: 10,
-            dom: 'rt', // Remove default search and pagination
-            columns: [
-                { 
-                    data: 'DT_RowIndex',
-                    orderable: false, 
-                    searchable: false,
-                },
-                { 
-                    data: 'code',
-                    defaultContent: '-',
-                    render: function(data) {
-                        return `<a href="#" class="text-reset" tabindex="-1">${data || '-'}</a>`;
+        function initializeDataTable() {
+            table = $('#micradius-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: BASE,
+                    data: function(d) {
+                        d._token = $('meta[name="csrf-token"]').attr('content');
                     }
                 },
-                { 
-                    data: 'name',
-                    defaultContent: '-',
-                    render: function(data) {
-                        return `<a href="#" class="text-reset" tabindex="-1">${data || '-'}</a>`;
-                    }
-                },
-                { 
-                    data: 'hometown',
-                    render: function(data) {
-                        return `<a href="#" class="text-reset" tabindex="-1">${data ? data.name : '-'}</a>`;
+                order: [
+                    [6, 'desc']
+                ],
+                pageLength: 10,
+                dom: 'rt',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
-                    defaultContent: '-'
-                },
-                { 
-                    data: 'user',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data) {
-                        if (data && data.length > 0) {
-                            return data.map(u => `<span class="badge bg-primary text-white p-1">${u.name}</span>`).join(' ');
+                    {
+                        data: 'code',
+                        render: function(data) {
+                            return `<span class="fw-bold" style="color:var(--brand);">${data || '-'}</span>`;
                         }
-                        return '-';
                     },
-                    defaultContent: '-'
-                },
-                { 
-                    data: 'location',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        if (row.latitude && row.longitude) {
-                            return `<a href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" class="btn btn-primary btn-sm">Lihat Lokasi</a>`;
+                    {
+                        data: 'name',
+                        defaultContent: '<span class="text-muted">-</span>'
+                    },
+                    {
+                        data: 'hometown',
+                        render: function(data) {
+                            return data ? data.name : '<span class="text-muted">-</span>';
                         }
-                        return '-';
+                    },
+                    {
+                        data: 'user',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            if (data && data.length > 0) {
+                                return `<div class="d-flex flex-wrap gap-1">` +
+                                    data.map(u =>
+                                        `<span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">${u.name}</span>`
+                                        ).join('') +
+                                    `</div>`;
+                            }
+                            return '<span class="text-muted">-</span>';
+                        }
+                    },
+                    {
+                        data: 'location',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            if (row.latitude && row.longitude) {
+                                return `<a href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" class="btn-action d-inline-flex" style="background:#ecfdf5;color:#10b981;border:none;" title="Lihat Peta">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
+                                    <path d="M9 4v13" /><path d="M15 7v5" />
+                                    <path d="M21 15v4.5a1.5 1.5 0 0 1 -3 0v-4.5a1.5 1.5 0 0 1 3 0" />
+                                </svg>
+                            </a>`;
+                            }
+                            return '<span class="text-muted">-</span>';
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        render: function(data) {
+                            if (!data) return '-';
+                            const d = moment(data);
+                            return `<span style="color:#64748b;font-size:.82rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="margin-right:3px;vertical-align:middle;">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            ${d.format('DD MMM YYYY')}
+                            <span style="color:#94a3b8;margin-left:4px;">${d.format('HH:mm')}</span>
+                        </span>`;
+                        }
+                    },
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        visible: {{ auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius') ? 'true' : 'false' }}
                     }
-                },
-                { 
-                    data: 'created_at',
-                    render: function(data) {
-                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                    }
-                },
-                { 
-                    data: 'action', 
-                    orderable: false, 
-                    searchable: false,
-                    visible: {{ auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius') ? 'true' : 'false' }}
+                ],
+                drawCallback: function(settings) {
+                    updatePaginationInfo(settings);
+                    updateCustomPagination();
                 }
-            ],
-            drawCallback: function(settings) {
-                updatePaginationInfo(settings);
-                updateCustomPagination();
-            },
-            language: {
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>',
-                emptyTable: "Tidak Ada Data",
-                zeroRecords: "Tidak Ada Data yang Cocok"
-            }
-        });
-    }
-
-    function initializePaginationAndSearch() {
-        // Entries per page
-        $("#sort").on('change', function() {
-            table.page.len($(this).val()).draw();
-        });
-
-        // Search on Enter key
-        $("#search-input").on('keypress', function(e) {
-            if (e.which === 13) {
-                e.preventDefault();
-                table.search(this.value).draw();
-            }
-        });
-
-        // Search on button click
-        $("#search-btn").on('click', function(e) {
-            e.preventDefault();
-            table.search($("#search-input").val()).draw();
-        });
-    }
-
-    function updatePaginationInfo(settings) {
-        const api = new $.fn.dataTable.Api(settings);
-        const info = api.page.info();
-        
-        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
-        $('#end-entry').text(info.end);
-        $('#total-entries').text(info.recordsDisplay);
-    }
-
-    function updateCustomPagination() {
-        const info = table.page.info();
-        const pagination = $('#custom-pagination');
-        pagination.empty();
-
-        if (info.pages <= 1) return;
-
-        // Previous button
-        pagination.append(`
-            <li class="page-item ${info.page === 0 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${info.page - 1}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                </a>
-            </li>
-        `);
-
-        let startPage = Math.max(0, info.page - 2);
-        let endPage = Math.min(info.pages - 1, info.page + 2);
-
-        // First page
-        if (startPage > 0) {
-            pagination.append(`
-                <li class="page-item">
-                    <a class="page-link" href="#" data-page="0">1</a>
-                </li>
-            `);
-            if (startPage > 1) {
-                pagination.append(`
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                `);
-            }
-        }
-
-        // Page numbers
-        for (let i = startPage; i <= endPage; i++) {
-            pagination.append(`
-                <li class="page-item ${i === info.page ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
-                </li>
-            `);
-        }
-
-        // Last page
-        if (endPage < info.pages - 1) {
-            if (endPage < info.pages - 2) {
-                pagination.append(`
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                `);
-            }
-            pagination.append(`
-                <li class="page-item">
-                    <a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a>
-                </li>
-            `);
-        }
-
-        // Next button
-        pagination.append(`
-            <li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${info.page + 1}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                </a>
-            </li>
-        `);
-
-        // Event handler for pagination links
-        pagination.find('a').on('click', function(e) {
-            e.preventDefault();
-            if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
-                const page = parseInt($(this).data('page'));
-                if (!isNaN(page) && page >= 0 && page < info.pages) {
-                    table.page(page).draw('page');
-                }
-            }
-        });
-    }
-
-    function initializeModalHandlers() {
-        // Add button - open modal for create
-        $("#addBtn").on('click', function() {
-            resetModal();
-            $(".modal-title").text("Tambah Mic Radius");
-            $("#type").val('create');
-        });
-
-        // Save button - handle create/update
-        $("#storeBtn").on('click', function() {
-            handleSave();
-        });
-    }
-
-    function initializeSelect2() {
-        // Initialize Select2 for user selection
-        select2User = $('#user_id').select2({
-            width: '100%',
-            placeholder: 'Pilih User',
-            allowClear: true,
-            dropdownParent: $('#modal-simple'),
-            theme: 'bootstrap-5',
-            language: {
-                noResults: function() {
-                    return "Tidak ada hasil ditemukan";
-                },
-                searching: function() {
-                    return "Mencari...";
-                }
-            }
-        });
-
-        // Event handler when selection changes
-        select2User.on('select2:select', function(e) {
-            console.log('User selected:', e.params.data);
-        });
-
-        select2User.on('select2:unselect', function(e) {
-            console.log('User unselected:', e.params.data);
-        });
-    }
-
-    function initializeGeolocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    let latitude = position.coords.latitude;
-                    let longitude = position.coords.longitude;
-
-                    document.getElementById("latitude").value = latitude;
-                    document.getElementById("longitude").value = longitude;
-
-                    document.getElementById("map-container").style.display = "block";
-                    document.getElementById("map-frame").src =
-                        `https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`;
-                },
-                function(error) {
-                    console.error("Error mendapatkan lokasi:", error.message);
-                }
-            );
-        } else {
-            console.error("Browser tidak mendukung geolocation.");
-        }
-    }
-
-    function resetModal() {
-        $("#id").val('');
-        
-        // Reset Select2
-        if (select2User) {
-            select2User.val(null).trigger('change');
-        }
-        
-        $("#code").val('');
-        $("#name").val('');
-        $("#hometowns_id").val('');
-        $("#latitude").val('');
-        $("#longitude").val('');
-        
-        clearValidationErrors();
-    }
-
-    function clearValidationErrors() {
-        $(".form-control").removeClass('is-invalid');
-        $(".invalid-feedback").text('');
-        
-        // Clear Select2 validation
-        $("#user_id").next('.select2-container').find('.select2-selection').removeClass('is-invalid');
-    }
-
-    function handleSave() {
-        const type = $("#type").val();
-        const id = $("#id").val();
-        
-        const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
-        const method = type === 'create' ? 'POST' : 'PUT';
-
-        // Show loading
-        const btn = $("#storeBtn");
-        btn.prop('disabled', true);
-        $("#btnText").addClass('d-none');
-        $("#btnLoading").removeClass('d-none');
-
-        let formData = new FormData();
-        formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
-        formData.append("name", $("#name").val());
-        formData.append("code", $("#code").val());
-        formData.append("hometowns_id", $("#hometowns_id").val());
-        formData.append("latitude", $("#latitude").val());
-        formData.append("longitude", $("#longitude").val());
-
-        // Get selected users from Select2
-        let users = $("#user_id").val() || [];
-        users.forEach(u => formData.append("user_id[]", u));
-
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-HTTP-Method-Override': method
-            }
-        })
-        .done(function(response) {
-            if (response.errors) {
-                showValidationErrors(response.errors);
-                resetButton(btn);
-            } else {
-                $("#modal-simple").modal('hide');
-                showSuccessMessage(response.message);
-                table.ajax.reload();
-                resetButton(btn);
-            }
-        })
-        .fail(function(jqXHR) {
-            if (jqXHR.status === 422) {
-                showValidationErrors(jqXHR.responseJSON.errors);
-            } else {
-                showErrorMessage("Terjadi kesalahan");
-            }
-            resetButton(btn);
-        });
-    }
-
-    function editModal(id) {
-        $.get(BASE + '/' + id + '/show')
-            .done(function(response) {
-                const data = response.data;
-                
-                $(".modal-title").text("Edit Mic Radius");
-                $("#modal-simple").modal('show');
-                
-                $("#id").val(data.id);
-                $("#code").val(data.code);
-                $("#name").val(data.name);
-                $("#hometowns_id").val(data.hometowns_id);
-                $("#latitude").val(data.latitude);
-                $("#longitude").val(data.longitude);
-
-                // Set selected users in Select2
-                let selectedUsers = data.user.map(u => u.id);
-                if (select2User) {
-                    select2User.val(selectedUsers).trigger("change");
-                }
-                
-                $("#type").val('update');
-
-                // Update map if coordinates exist
-                if (data.latitude && data.longitude) {
-                    document.getElementById("map-container").style.display = "block";
-                    document.getElementById("map-frame").src =
-                        `https://www.google.com/maps?q=${data.latitude},${data.longitude}&hl=id&z=15&output=embed`;
-                }
-            })
-            .fail(function() {
-                showErrorMessage("Terjadi kesalahan saat mengambil data");
             });
-    }
+        }
 
-    function deleteMicRadius(id) {
-        Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: BASE + '/' + id + '/destroy',
-                    method: 'DELETE',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content')
+        function initializePaginationAndSearch() {
+            $("#sort").on('change', function() {
+                table.page.len($(this).val()).draw();
+            });
+            $("#search-input").on('input', function() {
+                table.search(this.value).draw();
+            });
+        }
+
+        function updatePaginationInfo(settings) {
+            const api = new $.fn.dataTable.Api(settings);
+            const info = api.page.info();
+            $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+            $('#end-entry').text(info.end);
+            $('#total-entries').text(info.recordsDisplay);
+        }
+
+        function updateCustomPagination() {
+            const info = table.page.info();
+            const pagination = $('#custom-pagination');
+            pagination.empty();
+            if (info.pages <= 1) return;
+
+            const prevDisabled = info.page === 0 ? 'disabled' : '';
+            pagination.append(`<li class="page-item ${prevDisabled}">
+            <a class="page-link" href="#" data-page="${info.page - 1}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </a></li>`);
+
+            let startPage = Math.max(0, info.page - 2);
+            let endPage = Math.min(info.pages - 1, info.page + 2);
+            if (startPage > 0) {
+                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+                if (startPage > 1) pagination.append(
+                `<li class="page-item disabled"><span class="page-link">…</span></li>`);
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.append(`<li class="page-item ${i === info.page ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i + 1}</a></li>`);
+            }
+            if (endPage < info.pages - 1) {
+                if (endPage < info.pages - 2) pagination.append(
+                    `<li class="page-item disabled"><span class="page-link">…</span></li>`);
+                pagination.append(
+                    `<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`
+                    );
+            }
+
+            const nextDisabled = info.page === info.pages - 1 ? 'disabled' : '';
+            pagination.append(`<li class="page-item ${nextDisabled}">
+            <a class="page-link" href="#" data-page="${info.page + 1}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>`);
+
+            pagination.find('a').on('click', function(e) {
+                e.preventDefault();
+                if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                    table.page(parseInt($(this).data('page'))).draw('page');
+                }
+            });
+        }
+
+        function initializeModalHandlers() {
+            $("#addBtn").on('click', function() {
+                resetModal();
+                $(".modal-title").text("Tambah Mic Radius");
+                $("#type").val('create');
+
+                // Re-trigger loc if needed
+                if (!$("#latitude").val() && navigator.geolocation) {
+                    initializeGeolocation();
+                }
+            });
+
+            $("#storeBtn").on('click', handleSave);
+        }
+
+        function initializeSelect2() {
+            select2User = $('#user_id').select2({
+                width: '100%',
+                placeholder: '  -- Pilih User --',
+                allowClear: true,
+                dropdownParent: $('#modal-simple'),
+                theme: 'bootstrap-5',
+                language: {
+                    noResults: () => "Tidak ada user ditemukan",
+                    searching: () => "Mencari..."
+                }
+            });
+        }
+
+        function initializeGeolocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let latitude = position.coords.latitude;
+                        let longitude = position.coords.longitude;
+                        $("#latitude").val(latitude);
+                        $("#longitude").val(longitude);
+                        $("#map-container").css("display", "block");
+                        $("#loc-status").attr("style", "display: flex !important;");
+                        $("#map-frame").attr("src",
+                            `https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`);
+                    },
+                    function(error) {
+                        console.error("Error mendapatkan lokasi:", error.message);
+                    }
+                );
+            }
+        }
+
+        function resetModal() {
+            $("#id").val('');
+            if (select2User) select2User.val(null).trigger('change');
+            $("#code").val('');
+            $("#name").val('');
+            $("#hometowns_id").val('');
+            clearValidationErrors();
+        }
+
+        function clearValidationErrors() {
+            $(".is-invalid").removeClass('is-invalid');
+            $(".invalid-feedback").text('');
+            $("#user_id").next('.select2-container').find('.select2-selection').removeClass('is-invalid');
+        }
+
+        function handleSave() {
+            const type = $("#type").val();
+            const id = $("#id").val();
+            const url = type === 'create' ? BASE + '/store' : BASE + '/' + id + '/update';
+            const method = type === 'create' ? 'POST' : 'PUT';
+
+            const btn = $("#storeBtn");
+            btn.prop('disabled', true);
+            $("#btnText").addClass('d-none');
+            $("#btnLoading").removeClass('d-none');
+
+            let formData = new FormData();
+            formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+            formData.append("name", $("#name").val());
+            formData.append("code", $("#code").val());
+            formData.append("hometowns_id", $("#hometowns_id").val());
+            formData.append("latitude", $("#latitude").val());
+            formData.append("longitude", $("#longitude").val());
+
+            let users = $("#user_id").val() || [];
+            users.forEach(u => formData.append("user_id[]", u));
+
+            $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-HTTP-Method-Override': method
                     }
                 })
                 .done(function(response) {
-                    showSuccessMessage(response.message);
-                    table.ajax.reload();
+                    if (response.errors) {
+                        showValidationErrors(response.errors);
+                    } else {
+                        $("#modal-simple").modal('hide');
+                        showSuccessMessage(response.message);
+                        table.ajax.reload();
+                    }
+                    resetButton(btn);
+                })
+                .fail(function(jqXHR) {
+                    if (jqXHR.status === 422) {
+                        showValidationErrors(jqXHR.responseJSON.errors);
+                    } else {
+                        showErrorMessage("Terjadi kesalahan");
+                    }
+                    resetButton(btn);
+                });
+        }
+
+        function editModal(id) {
+            $.get(BASE + '/' + id + '/show')
+                .done(function(response) {
+                    const data = response.data;
+                    $(".modal-title").text("Edit Mic Radius");
+                    $("#modal-simple").modal('show');
+
+                    $("#id").val(data.id);
+                    $("#code").val(data.code);
+                    $("#name").val(data.name);
+                    $("#hometowns_id").val(data.hometowns_id);
+                    $("#latitude").val(data.latitude);
+                    $("#longitude").val(data.longitude);
+                    $("#type").val('update');
+
+                    let selectedUsers = data.user.map(u => u.id);
+                    if (select2User) select2User.val(selectedUsers).trigger("change");
+
+                    if (data.latitude && data.longitude) {
+                        $("#map-container").css("display", "block");
+                        $("#loc-status").attr("style", "display: none !important;");
+                        $("#map-frame").attr("src",
+                            `https://www.google.com/maps?q=${data.latitude},${data.longitude}&hl=id&z=15&output=embed`
+                            );
+                    }
                 })
                 .fail(function() {
-                    showErrorMessage("Server Error");
+                    showErrorMessage("Terjadi kesalahan saat mengambil data");
                 });
-            }
-        });
-    }
+        }
 
-    // ===========================
-    // Helper Functions
-    // ===========================
-    function showValidationErrors(errors) {
-        clearValidationErrors();
-        
-        Object.keys(errors).forEach(function(field) {
-            if (field === 'user_id') {
-                // Special handling for Select2
-                $("#" + field).next('.select2-container').find('.select2-selection').addClass('is-invalid');
-                $(".error_" + field).text(errors[field]).show();
-            } else {
-                $("#" + field).addClass('is-invalid');
-                $(".error_" + field).text(errors[field]);
-            }
-        });
+        function deleteMicRadius(id) {
+            Swal.fire({
+                title: "Hapus Radius?",
+                text: "Data akan dihapus permanen.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ef4444",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: "Ya, Hapus!",
+                cancelButtonText: "Batal",
+                customClass: {
+                    confirmButton: 'btn btn-danger px-4 mx-2',
+                    cancelButton: 'btn btn-link link-secondary px-4'
+                },
+                buttonsStyling: false
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                            url: BASE + '/' + id + '/destroy',
+                            method: 'DELETE',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            }
+                        })
+                        .done(function(response) {
+                            showSuccessMessage(response.message);
+                            table.ajax.reload();
+                        })
+                        .fail(function() {
+                            showErrorMessage("Server Error");
+                        });
+                }
+            });
+        }
 
-        // Auto clear errors after 3 seconds
-        setTimeout(function() {
+        function showValidationErrors(errors) {
             clearValidationErrors();
-        }, 3000);
-    }
+            Object.keys(errors).forEach(function(field) {
+                if (field === 'user_id') {
+                    $("#" + field).next('.select2-container').find('.select2-selection').addClass('is-invalid');
+                    $(".error_" + field).text(errors[field]).show();
+                } else {
+                    $("#" + field).addClass('is-invalid');
+                    $(".error_" + field).text(errors[field]);
+                }
+            });
+            setTimeout(clearValidationErrors, 3000);
+        }
 
-    function showSuccessMessage(message) {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+        function showSuccessMessage(message) {
+            Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                })
+                .fire({
+                    icon: "success",
+                    title: message
+                });
+        }
 
-        Toast.fire({
-            icon: "success",
-            title: message
-        });
-    }
+        function showErrorMessage(message) {
+            Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                })
+                .fire({
+                    icon: "error",
+                    title: message
+                });
+        }
 
-    function showErrorMessage(message) {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-
-        Toast.fire({
-            icon: "error",
-            title: message
-        });
-    }
-
-    function resetButton(btn) {
-        btn.prop('disabled', false);
-        $("#btnText").removeClass('d-none');
-        $("#btnLoading").addClass('d-none');
-    }
-</script>
+        function resetButton(btn) {
+            btn.prop('disabled', false);
+            $("#btnText").removeClass('d-none');
+            $("#btnLoading").addClass('d-none');
+        }
+    </script>
 @endpush

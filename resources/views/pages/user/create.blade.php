@@ -5,232 +5,421 @@
 @endsection
 
 @push('css')
+    <link rel="stylesheet" href="{{ asset('css/modern-layout.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        /* ── Form Section Card ── */
+        .form-section {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-section-title {
+            font-size: .88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #4f46e5;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .form-section-title svg {
+            flex-shrink: 0;
+        }
+
+        /* ── Labels ── */
+        .modern-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: .4rem;
+            display: block;
+        }
+
+        /* ── Inputs ── */
+        .modern-input {
+            width: 100%;
+            padding: .6rem 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: .9rem;
+            color: #111827;
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .modern-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+        }
+
+        .modern-input.is-invalid {
+            border-color: #ef4444;
+        }
+
+        /* ── Buttons ── */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .55rem 1.25rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: .88rem;
+            text-decoration: none;
+            transition: background .15s, border-color .15s;
+        }
+
+        .btn-back:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-form-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .65rem 1.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: transform .1s, box-shadow .15s;
+        }
+
+        .btn-form-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, .35);
+        }
+
+        .btn-form-submit:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-form-reset {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .55rem 1.25rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: .88rem;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-form-reset:hover {
+            background: #f3f4f6;
+        }
+
+        /* ── Tom Select Override ── */
+        .ts-wrapper .ts-control {
+            border: 1.5px solid #e5e7eb !important;
+            border-radius: 10px !important;
+            padding: .5rem .75rem !important;
+            min-height: 42px !important;
+            font-size: .9rem !important;
+        }
+
+        .ts-wrapper.focus .ts-control {
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .1) !important;
+        }
+    </style>
 @endpush
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <a href="{{ route('user.index') }}" class="btn btn-primary">
-            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11 7l-5 5l5 5" /><path d="M17 7l-5 5l5 5" /></svg>
-            Kembali
-        </a>
+    <div class="org-card">
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="8.5" cy="7" r="4" />
+                        <line x1="20" y1="8" x2="20" y2="14" />
+                        <line x1="23" y1="11" x2="17" y2="11" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="org-title">Tambah User Baru</h3>
+                    <p class="org-subtitle mb-0">Lengkapi data di bawah untuk membuat akun user baru</p>
+                </div>
+            </div>
+            <div class="org-actions">
+                <a href="{{ route('user.index') }}" class="btn-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Kembali
+                </a>
+            </div>
+        </div>
+
+        <div style="padding: 1.5rem;">
+            <form action="{{ route('user.store') }}" method="POST" id="createForm">
+                @csrf
+
+                {{-- ── Informasi Akun ── --}}
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        Informasi Akun
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="modern-label">Username</label>
+                        <input value="{{ old('username') }}" type="text" name="username" id="username"
+                            class="modern-input @error('username') is-invalid @enderror" placeholder="Masukkan username">
+                        @error('username')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label for="name" class="modern-label">Nama Lengkap</label>
+                            <input value="{{ old('name') }}" type="text" name="name" id="name"
+                                class="modern-input @error('name') is-invalid @enderror"
+                                placeholder="Masukkan nama lengkap">
+                            @error('name')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label for="email" class="modern-label">Email</label>
+                            <input value="{{ old('email') }}" type="email" name="email" id="email"
+                                class="modern-input @error('email') is-invalid @enderror" placeholder="contoh@email.com">
+                            @error('email')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="telp" class="modern-label">No Telephone</label>
+                        <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
+                            class="modern-input @error('telp') is-invalid @enderror" placeholder="08xxxxxxxxxx">
+                        @error('telp')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- ── Level & Akses ── --}}
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Level & Akses
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="modern-label">Level Akses</label>
+                        <select name="role" id="role" class="modern-input @error('role') is-invalid @enderror">
+                            <option value="">-- Pilih Level --</option>
+                            @foreach ($role as $item)
+                                <option value="{{ $item->name }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('role')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3" id="mic-radius-group" style="display: none">
+                        <label for="select-mic-radius" class="modern-label">Mic Radius</label>
+                        <select name="mic_radius_id[]" id="select-mic-radius"
+                            class="form-select @error('mic_radius_id') is-invalid @enderror" multiple>
+                            @foreach ($micRadius as $mc)
+                                <option value="{{ $mc->id }}">{{ $mc->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('mic_radius_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3" id="olt-group" style="display: none">
+                        <label for="select-olt" class="modern-label">OLT</label>
+                        <select name="olt_id[]" id="select-olt" class="form-select @error('olt_id') is-invalid @enderror"
+                            multiple>
+                            @foreach ($olts as $olt)
+                                <option value="{{ $olt->id }}">{{ $olt->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('olt_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="select-regencie" class="modern-label">Penempatan Kabupaten/Kota</label>
+                        <select name="regencie_id[]" id="select-regencie"
+                            class="form-select @error('regencie_id') is-invalid @enderror" multiple>
+                            @foreach ($regencie as $regency)
+                                <option value="{{ $regency->id }}">{{ $regency->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('regencie_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="select-pages" class="modern-label">Akses Data Halaman</label>
+                        <select name="pages_id[]" id="select-pages"
+                            class="form-select @error('pages_id') is-invalid @enderror" multiple>
+                            @foreach ($pages as $page)
+                                <option value="{{ $page->id }}">{{ $page->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('pages_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- ── Password ── --}}
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                        </svg>
+                        Keamanan
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label for="password" class="modern-label">Password</label>
+                            <input type="password" name="password" id="password"
+                                class="modern-input @error('password') is-invalid @enderror"
+                                placeholder="Minimal 8 karakter">
+                            @error('password')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label for="password_confirmation" class="modern-label">Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation"
+                                class="modern-input @error('password_confirmation') is-invalid @enderror"
+                                placeholder="Ulangi password">
+                            @error('password_confirmation')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── Action Buttons ── --}}
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <button type="reset" class="btn-form-reset">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                            <path d="M3 3v5h5" />
+                        </svg>
+                        Reset
+                    </button>
+                    <button type="submit" id="btn" class="btn-form-submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        <span id="btn-text">Simpan User</span>
+                        <span id="btn-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="card-body">
-        <form action="{{ route('user.store') }}" method="POST">
-            @csrf
-            <div class="form-group mb-3">
-                <label for="username" class="mb-2">Username</label>
-                <input value="{{ old('username') }}" type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror">
-                @error('username')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="form-group mb-3">
-                        <label for="name" class="mb-2">Nama Lengkap</label>
-                        <input value="{{ old('name') }}" type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror">
-                        @error('name')
-                            <span class="invalid-feedback">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="form-group mb-3">
-                        <label for="email" class="mb-2">Email</label>
-                        <input value="{{ old('email') }}" type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror">
-                        @error('email')
-                            <span class="invalid-feedback">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-            <div class="form-group mb-3">
-                <label for="telp" class="mb-2">No Telephone</label>
-                <input value="{{ old('telp') }}" type="telp" name="telp" id="telp" class="form-control @error('telp') is-invalid @enderror">
-                @error('telp')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="username" class="mb-2">Level</label>
-                <select name="role" id="role" class="form-control @error('role') is-invalid @enderror">
-                    <option value="">Pilih</option>
-                    @foreach ($role as $item)
-                        <option value="{{ $item->name }}">{{ $item->name }}</option>
-                    @endforeach
-                </select>
-                @error('role')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="form-group mb-3" style="display: none">
-                <label for="select-mic-radius" class="mb-2">Mic Radius</label>
-
-                <select name="mic_radius_id[]" id="select-mic-radius" 
-                    class="form-select @error('mic_radius_id') is-invalid @enderror" 
-                    multiple>
-                    @foreach ($micRadius as $mc)
-                        <option value="{{ $mc->id }}">{{ $mc->name }}</option>
-                    @endforeach
-                </select>
-
-                @error('mic_radius_id')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="form-group mb-3" style="display: none">
-                <label for="username" class="mb-2">OLT</label>
-                <select name="olt_id[]" id="select-olt" class="form-control @error('olt_id') is-invalid @enderror" multiple>
-                    <option value="">Pilih</option>
-                    @foreach ($olts as $olt)
-                        <option value="{{ $olt->id }}">{{ $olt->name }}</option>
-                    @endforeach
-                </select>
-                @error('olt_id')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="username" class="mb-2">Penempatan Kabupaten/Kota</label>
-                <select name="regencie_id[]" id="select-regencie" class="form-control @error('regencie_id') is-invalid @enderror" multiple>
-                    <option value="">Pilih</option>
-                    @foreach ($regencie as $regency)
-                        <option value="{{ $regency->id }}">{{ $regency->name }}</option>
-                    @endforeach
-                </select>
-                @error('regencie_id')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="form-group mb-3">
-                <label for="username" class="mb-2">Aksess Data Halaman</label>
-                <select name="pages_id[]" id="select-pages" class="form-control @error('pages_id') is-invalid @enderror" multiple>
-                    <option value="">Pilih</option>
-                    @foreach ($pages as $page)
-                        <option value="{{ $page->id }}">{{ $page->name }}</option>
-                    @endforeach
-                </select>
-                @error('pages_id')
-                    <span class="invalid-feedback">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="form-group mb-3">
-                        <label for="password" class="mb-2">Password</label>
-                        <input value="{{ old('password') }}" type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror">
-                        @error('password')
-                            <span class="invalid-feedback">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="form-group mb-3">
-                        <label for="password_confirmation" class="mb-2">Konfirmasi Password</label>
-                        <input value="{{ old('password_confirmation') }}" type="password" name="password_confirmation" id="password_confirmation" class="form-control @error('password_confirmation') is-invalid @enderror">
-                        @error('password_confirmation')
-                            <span class="invalid-feedback">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-3">
-                <button type="reset" class="btn btn-secondary float-start">Reset</button>
-                <button type="submit" id="btn" class="btn btn-primary float-end">
-                    <span id="btn-text">Tambah</span>
-                    <span id="btn-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 @endsection
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
+            const tsConfig = {
+                plugins: ['remove_button'],
+                persist: false,
+                maxItems: null,
+                create: false
+            };
+
             new TomSelect("#select-mic-radius", {
-                plugins: ['remove_button'],
-                placeholder: "Pilih Mic Radius",
-                persist: false,
-                maxItems: null, // unlimited
-                create: false
+                ...tsConfig,
+                placeholder: "Pilih Mic Radius"
             });
-        });
-        document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#select-olt", {
-                plugins: ['remove_button'],
-                placeholder: "Pilih OLT",
-                persist: false,
-                maxItems: null, // unlimited
-                create: false
+                ...tsConfig,
+                placeholder: "Pilih OLT"
             });
-        });
-        document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#select-regencie", {
-                plugins: ['remove_button'],
-                placeholder: "Pilih Penempatan Kabupaten/Kota",
-                persist: false,
-                maxItems: null, // unlimited
-                create: false
+                ...tsConfig,
+                placeholder: "Pilih Kabupaten/Kota"
             });
-        });
-        document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#select-pages", {
-                plugins: ['remove_button'],
-                placeholder: "Pilih Aksess Data Halaman",
-                persist: false,
-                maxItems: null, // unlimited
-                create: false
+                ...tsConfig,
+                placeholder: "Pilih Akses Halaman"
             });
-        });
-        $("#role").change(function() {
-            var role = $(this).val();
-            if (role == "Operator OLT") {
-                $("#select-mic-radius").parent().hide();
-                $("#select-olt").parent().show();
-            } else if(role == "Operator Mic Radius") {
-                $("#select-mic-radius").parent().show();
-                $("#select-olt").parent().hide();
-            } else {
-                $("#select-mic-radius").parent().hide();
-                $("#select-olt").parent().hide();
-            }
+
+            // Role → show/hide conditional fields
+            $("#role").on('change', function() {
+                const role = $(this).val();
+                if (role === "Operator OLT") {
+                    $("#mic-radius-group").hide();
+                    $("#olt-group").show();
+                } else if (role === "Operator Mic Radius") {
+                    $("#mic-radius-group").show();
+                    $("#olt-group").hide();
+                } else {
+                    $("#mic-radius-group").hide();
+                    $("#olt-group").hide();
+                }
+            });
+
+            // Submit loading state
+            document.getElementById('createForm').addEventListener('submit', function() {
+                const btn = document.getElementById('btn');
+                const text = document.getElementById('btn-text');
+                const loading = document.getElementById('btn-loading');
+                btn.disabled = true;
+                text.textContent = 'Menyimpan...';
+                loading.classList.remove('d-none');
+            });
         });
     </script>
-    <script>
-		document.querySelector('form').addEventListener('submit', function () {
-			const btn = document.getElementById('btn');
-			const text = document.getElementById('btn-text');
-			const loading = document.getElementById('btn-loading');
-
-			btn.disabled = true;            // disable button
-			text.textContent = 'Loading...';
-			loading.classList.remove('d-none');
-		});
-	</script>
 @endpush

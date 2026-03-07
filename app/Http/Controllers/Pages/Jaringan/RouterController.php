@@ -36,6 +36,7 @@ class RouterController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = auth()->user()->organization_id;
 
         Router::create($post);
 

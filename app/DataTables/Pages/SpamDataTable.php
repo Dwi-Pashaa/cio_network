@@ -3,6 +3,7 @@
 namespace App\DataTables\Pages;
 
 use App\Models\Customer;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SpamDataTable
@@ -220,7 +221,10 @@ class SpamDataTable
      */
     private function baseQuery()
     {
-        return Customer::with([
+        $user = Auth::user();
+        $orgType = optional($user->organization)->type;
+
+        $query = Customer::with([
             'router',
             'type',
             'hometown',
@@ -241,9 +245,15 @@ class SpamDataTable
             'mic_radius',
             'price',
             'user',
-            'tipePelanggan'
+            'tipePelanggan',
         ])
             ->where('status', 'spam')
             ->select('customers.*');
+
+        if ($orgType !== 'internal') {
+            $query->where('customers.organization_id', $user->organization_id);
+        }
+
+        return $query;
     }
 }

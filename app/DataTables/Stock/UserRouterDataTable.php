@@ -46,7 +46,7 @@ class UserRouterDataTable
      */
     private function query()
     {
-        return UserRouter::with('user', 'router')->select('user_router.*');
+        return UserRouter::with('user', 'router')->where('organization_id', Auth::user()->organization_id)->select('user_router.*');
     }
 
     /**

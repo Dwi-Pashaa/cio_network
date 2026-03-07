@@ -45,9 +45,9 @@ class CustomerController extends Controller
 
         $vilage = Village::whereIn('regencie_id', $authUserRegencies)->get();
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
-        $olts = OLT::all();
-        $vlan = Vlan::all();
-        $micRadius = MicRadius::all();
+        $olts = OLT::where('organization_id', Auth::user()->organization_id)->get();
+        $vlan = Vlan::where('organization_id', Auth::user()->organization_id)->get();
+        $micRadius = MicRadius::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.customer.index", compact("hometown", "olts", "vlan", "micRadius", "vilage"));
     }
@@ -72,19 +72,19 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        $type = Type::select(['id', 'name'])->get();
-        $router = Router::select(['id', 'name'])->get();
+        $type = Type::where('organization_id', Auth::user()->organization_id)->get();
+        $router = Router::where('organization_id', Auth::user()->organization_id)->get();
         $hometown = HomeTown::select(['id', 'name'])->get();
         $village = Village::select(['id', 'name'])->get();
         $rt = RT::select(['id', 'name'])->get();
         $rw = RW::select(['id', 'name'])->get();
         $district = District::select(['id', 'name'])->get();
         $regencie = Regency::select(['id', 'name'])->get();
-        $vlan = Vlan::select(['id', 'name'])->get();
-        $odc = ODC::with(['hometown', 'rt', 'rw'])->get();
-        $odp = ODP::with(['hometown', 'rt', 'rw'])->get();
-        $olt = OLT::with(['hometown'])->get();
-        $micRadius = MicRadius::all();
+        $vlan = Vlan::where('organization_id', Auth::user()->organization_id)->get();
+        $odc = ODC::where('organization_id', Auth::user()->organization_id)->with(['hometown', 'rt', 'rw'])->get();
+        $odp = ODP::where('organization_id', Auth::user()->organization_id)->with(['hometown', 'rt', 'rw'])->get();
+        $olt = OLT::where('organization_id', Auth::user()->organization_id)->with(['hometown'])->get();
+        $micRadius = MicRadius::where('organization_id', Auth::user()->organization_id)->get();
 
         $last = Customer::whereNotNull('uuid')
             ->orderBy('uuid', 'desc')
@@ -99,8 +99,8 @@ class CustomerController extends Controller
 
         $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        $paket = Paket::all();
-        $price = Price::all();
+        $paket = Paket::where('organization_id', Auth::user()->organization_id)->get();
+        $price = Price::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.customer.create", compact("type", "router", "hometown", "village", "rt", "rw", "district", "regencie", "vlan", "odc", "odp", "olt", "newCode", "price", "paket", "micRadius"));
     }

@@ -5,282 +5,322 @@
 @endsection
 
 @push('css')
-    
 @endpush
 
 @section('content')
-<div class="card">
-    @can('buat rt')
-        <div class="card-header">
-            <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                Tambah
-            </a>
+    <div class="org-card">
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M9 11l3 3l8 -8" />
+                        <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="org-title">Data RT</h3>
+                    <p class="org-subtitle mb-0">Kelola master data Rukun Tetangga</p>
+                </div>
+            </div>
+            @can('buat rt')
+                <div class="org-actions">
+                    <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple"
+                        class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14m-7-7h14" />
+                        </svg>
+                        Tambah
+                    </a>
+                </div>
+            @endcan
         </div>
-    @endcan
-    <div class="card-body border-bottom py-3 d-flex justify-content-between">
-        <div>
-            <label>Show</label>
-            <select id="sort" class="form-control d-inline-block" style="width:auto;">
-                @foreach([10,25,50,100] as $opt)
-                    <option value="{{ $opt }}">{{ $opt }}</option>
-                @endforeach
-            </select>
-            <label>entries</label>
-        </div>
-        <div>
-            <div class="input-group" style="width:300px;">
-                <input type="text" id="search-input" class="form-control" placeholder="Search…">
-                <button class="btn" id="search-btn" type="button">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                </button>
+
+        <div class="org-toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
+                <select id="sort" class="org-input" style="width: 80px; padding: 0.35rem 0.8rem;">
+                    @foreach ([10, 25, 50, 100] as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                <span class="text-muted" style="font-size: 0.88rem;">entri</span>
+            </div>
+            <div class="search-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" class="org-input" id="search-input" placeholder="Cari RT..." autocomplete="off">
             </div>
         </div>
+
+        <div id="advanced-table" class="table-responsive">
+            <table class="table org-table table-vcenter text-nowrap datatable" id="rt-table">
+                <thead>
+                    <tr>
+                        <th class="w-1">No</th>
+                        <th>Nama RT</th>
+                        <th>Created</th>
+                        @if (auth()->user()->can('ubah rt') || auth()->user()->can('hapus rt'))
+                            <th>Action</th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody class="table-tbody"></tbody>
+            </table>
+        </div>
+
+        <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between">
+            <p class="m-0 text-muted" style="font-size: 0.88rem;" id="table-info">
+                Showing <span id="start-entry" class="fw-medium">0</span>
+                to <span id="end-entry" class="fw-medium">0</span> of
+                <span id="total-entries" class="fw-medium">0</span> entries
+            </p>
+            <ul class="pagination m-0" id="custom-pagination"></ul>
+        </div>
     </div>
-    <div id="advanced-table" class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable" id="rt-table">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="w-1 text-white">No</th>
-                    <th class="text-white"><button class="table-sort" data-sort="sort-name">Nama RT</button></th>
-                    <th class="text-white"><button class="table-sort" data-sort="sort-created">Created</button></th>
-                    @if(auth()->user()->can('ubah rt') || auth()->user()->can('hapus rt'))
-                        <th class="text-white">Action</th>
-                    @endif
-                </tr>
-            </thead>
-            <tbody class="table-tbody">
-                
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary" id="table-info">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
-    </div>
-</div>
 @endsection
 
 @push('modal')
-<div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah RT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="type" id="type">
-                <input type="hidden" name="id" id="id">
-                <div class="form-group mb-3">
-                    <label for="name" class="mb-2">Nama RT</label>
-                    <input type="text" name="name" id="name" class="form-control">
-                    <span class="invalid-feedback error_name"></span>
+    <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah RT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="storeBtn" class="btn btn-primary">
-                    <span id="btnText">Simpan</span>
-                    <span id="btnLoading" class="spinner-border spinner-border-sm d-none"></span>
-                </button>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type">
+                    <input type="hidden" name="id" id="id">
+                    <div class="form-group mb-4">
+                        <label for="name" class="form-label fw-medium text-muted">Nama RT</label>
+                        <input type="text" name="name" id="name" class="org-input w-100"
+                            placeholder="Masukkan nama RT...">
+                        <span class="invalid-feedback error_name mt-1" style="font-size:0.85rem;"></span>
+                    </div>
+                </div>
+                <div class="modal-footer px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary me-auto"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary px-4">
+                        <span id="btnText">Simpan</span>
+                        <span id="btnLoading" class="spinner-border spinner-border-sm d-none"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endpush
 
 @push('js')
-<script>
-    const BASE = "{{ route('rt.index') }}";
+    <script>
+        const BASE = "{{ route('rt.index') }}";
 
-    let table;
+        let table;
 
-    $(function () {
-        table = $('#rt-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: BASE,
-            order: [[4, 'desc']],
-            pageLength: 10,
-            dom: 'rt',
-            columns: [
-                { data: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'name' },
-                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
-                { data: 'action', orderable: false, searchable: false },
-            ],
-            drawCallback: function(settings) {
-                updatePaginationInfo(settings);
-                updateCustomPagination();
-            }
+        $(function() {
+            table = $('#rt-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: BASE,
+                order: [
+                    [4, 'desc']
+                ],
+                pageLength: 10,
+                dom: 'rt',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name'
+                    },
+                    {
+                        data: 'created_at',
+                        render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss')
+                    },
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                drawCallback: function(settings) {
+                    updatePaginationInfo(settings);
+                    updateCustomPagination();
+                }
+            });
+
+            $("#sort").change(function() {
+                table.page.len($(this).val()).draw();
+            });
+
+            $("#search-input").on('keyup', function(e) {
+                if (e.which === 13) table.search(this.value).draw();
+            });
+            $("#search-btn").click(function() {
+                table.search($("#search-input").val()).draw();
+            });
         });
 
-        $("#sort").change(function() {
-            table.page.len($(this).val()).draw();
-        });
+        function updatePaginationInfo(settings) {
+            const info = new $.fn.dataTable.Api(settings).page.info();
+            $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
+            $('#end-entry').text(info.end);
+            $('#total-entries').text(info.recordsDisplay);
+        }
 
-        $("#search-input").on('keyup', function(e){
-            if(e.which === 13) table.search(this.value).draw();
-        });
-        $("#search-btn").click(function(){
-            table.search($("#search-input").val()).draw();
-        });
-    });
+        function updateCustomPagination() {
+            const info = table.page.info();
+            const pagination = $('#custom-pagination');
+            pagination.empty();
 
-    function updatePaginationInfo(settings) {
-        const info = new $.fn.dataTable.Api(settings).page.info();
-        $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
-        $('#end-entry').text(info.end);
-        $('#total-entries').text(info.recordsDisplay);
-    }
+            if (info.pages <= 1) return;
 
-    function updateCustomPagination() {
-        const info = table.page.info();
-        const pagination = $('#custom-pagination');
-        pagination.empty();
-
-        if(info.pages <= 1) return;
-
-        pagination.append(`
+            pagination.append(`
             <li class="page-item ${info.page===0?'disabled':''}">
                 <a class="page-link" href="#" data-page="${info.page-1}">&laquo;</a>
             </li>
         `);
 
-        let startPage = Math.max(0, info.page - 2);
-        let endPage = Math.min(info.pages - 1, info.page + 2);
+            let startPage = Math.max(0, info.page - 2);
+            let endPage = Math.min(info.pages - 1, info.page + 2);
 
-        if(startPage > 0){
-            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
-            if(startPage > 1) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-        }
+            if (startPage > 0) {
+                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
+                if (startPage > 1) pagination.append(
+                    `<li class="page-item disabled"><span class="page-link">...</span></li>`);
+            }
 
-        for(let i=startPage; i<=endPage; i++){
-            pagination.append(`
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.append(`
                 <li class="page-item ${i===info.page?'active':''}">
                     <a class="page-link" href="#" data-page="${i}">${i+1}</a>
                 </li>
             `);
-        }
+            }
 
-        if(endPage < info.pages-1){
-            if(endPage < info.pages-2) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages-1}">${info.pages}</a></li>`);
-        }
+            if (endPage < info.pages - 1) {
+                if (endPage < info.pages - 2) pagination.append(
+                    `<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                pagination.append(
+                    `<li class="page-item"><a class="page-link" href="#" data-page="${info.pages-1}">${info.pages}</a></li>`
+                    );
+            }
 
-        pagination.append(`
+            pagination.append(`
             <li class="page-item ${info.page===info.pages-1?'disabled':''}">
                 <a class="page-link" href="#" data-page="${info.page+1}">&raquo;</a>
             </li>
         `);
 
-        pagination.find('a').click(function(e){
-            e.preventDefault();
-            const page = parseInt($(this).data('page'));
-            if(!isNaN(page) && page>=0 && page<info.pages) table.page(page).draw('page');
-        });
-    }
-
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+            pagination.find('a').click(function(e) {
+                e.preventDefault();
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page >= 0 && page < info.pages) table.page(page).draw('page');
+            });
         }
-    });
 
-    $("#addBtn").click(function(){
-        $(".modal-title").text("Tambah RT");
-        $("#name").val('');
-        $("#type").val('create');
-        $("#id").val('');
-    });
-
-    $("#storeBtn").click(function(){
-        let type = $("#type").val();
-        let id = $("#id").val();
-        let name = $("#name").val();
-
-        let url = type === 'create'
-            ? BASE + '/store'
-            : BASE + '/' + id + '/update';
-
-        let method = type === 'create' ? 'POST' : 'PUT';
-
-        $("#storeBtn").prop('disabled', true);
-        $("#btnLoading").removeClass('d-none');
-
-        $.ajax({
-            url: url,
-            method: method,
-            data: { name: name },
-            success: function(res){
-                if(res.errors){
-                    $(".error_name").text(res.errors.name ?? '');
-                    $("#name").addClass('is-invalid');
-                } else {
-                    $("#modal-simple").modal('hide');
-                    Toast.fire({
-                        icon: "success",
-                        title: "Data RT berhasil disimpan"
-                    });
-                    table.ajax.reload();
-                }
-            },
-            complete: function(){
-                $("#storeBtn").prop('disabled', false);
-                $("#btnLoading").addClass('d-none');
-                $("#name").removeClass('is-invalid');
-                $(".error_name").text('');
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
             }
         });
-    });
 
-    function editModal(id){
-        $.get(BASE + '/' + id + '/show', function(res){
-            let data = res.data;
-            $(".modal-title").text("Edit RT");
-            $("#modal-simple").modal('show');
-            $("#name").val(data.name);
-            $("#id").val(data.id);
-            $("#type").val('update');
+        $("#addBtn").click(function() {
+            $(".modal-title").text("Tambah RT");
+            $("#name").val('');
+            $("#type").val('create');
+            $("#id").val('');
         });
-    }
 
-    function deleteRT(id){
-        Swal.fire({
-            title: "Peringatan!",
-            text: "Yakin ingin menghapus RT ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then((result)=>{
-            if(result.isConfirmed){
-                $.ajax({
-                    url: BASE + '/' + id + '/destroy',
-                    method:'DELETE',
-                    success:function(){
+        $("#storeBtn").click(function() {
+            let type = $("#type").val();
+            let id = $("#id").val();
+            let name = $("#name").val();
+
+            let url = type === 'create' ?
+                BASE + '/store' :
+                BASE + '/' + id + '/update';
+
+            let method = type === 'create' ? 'POST' : 'PUT';
+
+            $("#storeBtn").prop('disabled', true);
+            $("#btnLoading").removeClass('d-none');
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: {
+                    name: name
+                },
+                success: function(res) {
+                    if (res.errors) {
+                        $(".error_name").text(res.errors.name ?? '');
+                        $("#name").addClass('is-invalid');
+                    } else {
+                        $("#modal-simple").modal('hide');
                         Toast.fire({
                             icon: "success",
-                            title: "RT berhasil dihapus"
+                            title: "Data RT berhasil disimpan"
                         });
                         table.ajax.reload();
                     }
-                });
-            }
+                },
+                complete: function() {
+                    $("#storeBtn").prop('disabled', false);
+                    $("#btnLoading").addClass('d-none');
+                    $("#name").removeClass('is-invalid');
+                    $(".error_name").text('');
+                }
+            });
         });
-    }
-</script>
+
+        function editModal(id) {
+            $.get(BASE + '/' + id + '/show', function(res) {
+                let data = res.data;
+                $(".modal-title").text("Edit RT");
+                $("#modal-simple").modal('show');
+                $("#name").val(data.name);
+                $("#id").val(data.id);
+                $("#type").val('update');
+            });
+        }
+
+        function deleteRT(id) {
+            Swal.fire({
+                title: "Peringatan!",
+                text: "Yakin ingin menghapus RT ini?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Hapus",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: BASE + '/' + id + '/destroy',
+                        method: 'DELETE',
+                        success: function() {
+                            Toast.fire({
+                                icon: "success",
+                                title: "RT berhasil dihapus"
+                            });
+                            table.ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 @endpush

@@ -9,7 +9,7 @@ class UserRouter extends Model
 {
     use HasFactory;
     protected $table = 'user_router';
-    protected $fillable = ['user_id', 'router_id', 'total'];
+    protected $fillable = ['user_id', 'router_id', 'total', 'organization_id'];
 
     public function user()
     {

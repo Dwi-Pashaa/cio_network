@@ -15,7 +15,7 @@ use Google\Service\Analytics\RemarketingAudienceAudienceDefinition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class UserController extends Controller
 {
@@ -36,11 +36,11 @@ class UserController extends Controller
      */
     public function create()
     {
-        $role = Role::all();
-        $olts = OLT::all();
-        $micRadius = MicRadius::all();
-        $regencie = Regency::all();
-        $pages = Pages::all();
+        $role = Role::where('organization_id', auth()->user()->organization_id)->get();
+        $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
+        $micRadius = MicRadius::where('organization_id', auth()->user()->organization_id)->get();
+        $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
+        $pages = Pages::where('organization_id', auth()->user()->organization_id)->get();
 
         return view("pages.user.create", compact("role", "olts", "micRadius", "regencie", "pages"));
     }
@@ -69,6 +69,7 @@ class UserController extends Controller
 
         $data = $request->except(['password_confirmation', 'mic_radius_id', 'olt_id']);
         $data['password'] = Hash::make($request->password);
+        $data['organization_id'] = auth()->user()->organization_id;
 
         $user = User::create($data);
 
@@ -96,11 +97,11 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::find($id);
-        $role = Role::all();
-        $olts = OLT::all();
-        $micRadius = MicRadius::all();
-        $regencie = Regency::all();
-        $pages = Pages::all();
+        $role = Role::where('organization_id', auth()->user()->organization_id)->get();
+        $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
+        $micRadius = MicRadius::where('organization_id', auth()->user()->organization_id)->get();
+        $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
+        $pages = Pages::where('organization_id', auth()->user()->organization_id)->get();
 
         return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie", "pages"));
     }
@@ -139,6 +140,7 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        $data['organization_id'] = auth()->user()->organization_id;
         $user->update($data);
 
         $user->syncRoles([$request->role]);

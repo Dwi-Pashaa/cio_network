@@ -9,7 +9,7 @@ class Router extends Model
 {
     use HasFactory;
     protected $table = 'router_networks';
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'organization_id'];
 
     protected static function boot()
     {

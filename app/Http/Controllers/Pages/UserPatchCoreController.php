@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Stock\UserPatchCoreDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PatchCore;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserPatchCore;
-use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +24,8 @@ class UserPatchCoreController extends Controller
             return (new UserPatchCoreDataTable)->get();
         }
 
-        $patchCore = PatchCore::all();
-        $role = Role::all();
+        $patchCore = PatchCore::where('organization_id', Auth::user()->organization_id)->get();
+        $role = Role::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.user-patch-core.index", compact("patchCore", "role"));
     }
@@ -81,6 +81,7 @@ class UserPatchCoreController extends Controller
                     'user_id' => $request->user_id,
                     'patch_core_id' => $request->patch_core_id,
                     'total' => $request->total,
+                    'organization_id' => Auth::user()->organization_id,
                 ]);
             } else {
                 $penerimaRouter->total += $request->total;
@@ -144,6 +145,7 @@ class UserPatchCoreController extends Controller
             'user_id' => $request->user_id,
             'patch_core_id' => $request->patch_core_id,
             'total' => $request->total,
+            'organization_id' => Auth::user()->organization_id,
         ]);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -168,11 +170,12 @@ class UserPatchCoreController extends Controller
     public function selectRole(Request $request)
     {
         $role = $request->role;
+        $organizationId = Auth::user()->organization_id;
 
         if (empty($role)) {
-            $user = User::all();
+            $user = User::where('organization_id', $organizationId)->get();
         } else {
-            $user = User::role($role)->get();
+            $user = User::role($role)->where('organization_id', $organizationId)->get();
         }
 
         if ($user->isEmpty()) {
@@ -249,6 +252,7 @@ class UserPatchCoreController extends Controller
             }
 
             $data->total += $request->total_stock;
+            $data->organization_id = Auth::user()->organization_id;
             $data->save();
 
             DB::commit();

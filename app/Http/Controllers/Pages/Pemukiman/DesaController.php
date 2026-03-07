@@ -9,6 +9,7 @@ use App\Models\Pages;
 use App\Models\Regency;
 use App\Models\Village;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DesaController extends Controller
@@ -22,8 +23,8 @@ class DesaController extends Controller
             return (new VillageDataTable)->get();
         }
 
-        $regencie = Regency::all();
-        $district = District::all();
+        $regencie = Regency::where('organization_id', Auth::user()->organization_id)->get();
+        $district = District::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.desa.index", compact("regencie", "district"));
     }
@@ -44,6 +45,7 @@ class DesaController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         Village::create($post);
 
@@ -80,6 +82,7 @@ class DesaController extends Controller
         }
 
         $put = $request->only('name', 'regencie_id', 'district_id');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $villages = Village::find($id);
 

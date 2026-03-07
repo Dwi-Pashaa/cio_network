@@ -1,57 +1,89 @@
 @extends('layouts.app')
 
 @section('title')
-    Data Level
+    Data Level / Role
 @endsection
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <a href="javascript:void(0)" id="addBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-level">
-            Tambah
-        </a>
-    </div>
+<div class="org-container">
 
-    <div class="card-body border-bottom py-3 d-flex justify-content-between">
-        <div>
-            <label>Show</label>
-            <select id="sort" class="form-control d-inline-block" style="width:auto;">
-                @foreach([10,25,50,100] as $opt)
-                    <option value="{{ $opt }}">{{ $opt }}</option>
-                @endforeach
-            </select>
-            <label>entries</label>
+    @include('components.alert.success')
+
+    <div class="org-card">
+        {{-- HEADER --}}
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 9v4l2 2"/>
+                        <path d="M16.5 16.5L18 18"/>
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="org-title">Daftar Level / Role</h5>
+                    <div class="org-subtitle">Manajemen peran dan hak akses mitra</div>
+                </div>
+            </div>
+
+            @can('tambah level')
+            <button id="addBtn" class="btn-add" data-bs-toggle="modal" data-bs-target="#modal-level">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Tambah Role
+            </button>
+            @endcan
         </div>
-        <div>
-            <div class="input-group" style="width:300px;">
-                <input type="text" id="search-input" class="form-control" placeholder="Search…">
-                <button class="btn" id="search-btn" type="button">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                </button>
+
+        {{-- TOOLBAR --}}
+        <div class="org-toolbar">
+            <div style="font-size:.85rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:.5rem;">
+                Tampilkan
+                <select id="sort" class="org-input" style="padding: .35rem .6rem;">
+                    @foreach([10,25,50,100] as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                data
+            </div>
+
+            <div class="search-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" class="org-input" placeholder="Cari nama role…">
             </div>
         </div>
-    </div>
 
-    <div class="table-responsive">
-        <table id="roles-table" class="table card-table table-vcenter text-nowrap datatable">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="text-white w-1">No</th>
-                    <th class="text-white">Nama Level</th>
-                    <th class="text-white">Created</th>
-                    <th class="text-white">Updated</th>
-                    <th class="text-white">Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary" id="table-info">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
+        {{-- TABLE --}}
+        <div class="table-responsive">
+            <table id="roles-table" class="org-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px; text-align:center;">No</th>
+                        <th>Nama Level</th>
+                        <th>Created At</th>
+                        <th style="text-align:right;">Aksi</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        {{-- FOOTER --}}
+        <div class="org-footer">
+            <div class="org-info" id="table-info">
+                Menampilkan <span id="start-entry">0</span>
+                sampai <span id="end-entry">0</span> dari
+                <span id="total-entries">0</span> data
+            </div>
+            <ul class="pagination" id="custom-pagination"></ul>
+        </div>
     </div>
 </div>
 @endsection
@@ -61,21 +93,21 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Level</h5>
+                    <h5 class="modal-title">Tambah Level / Role</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="level-id">
                     <input type="hidden" id="modal-type">
-                    <div class="form-group mb-3">
-                        <label>Nama Level</label>
-                        <input type="text" id="level-name" class="form-control">
-                        <span class="invalid-feedback error_name"></span>
+                    <div class="form-group">
+                        <label class="form-label">Nama Level <span class="text-danger">*</span></label>
+                        <input type="text" id="level-name" class="form-control" placeholder="Contoh: Staff Lapangan">
+                        <span class="invalid-feedback error_name" style="font-size: .8rem; font-weight: 500;"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button class="btn btn-primary" id="saveBtn">
+                    <button class="btn btn-secondary" style="border-radius: 8px; font-weight: 600;" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" style="background: #6366f1; border: none; border-radius: 8px; font-weight: 600;" id="saveBtn">
                         <span class="btn-text">Simpan</span>
                         <span class="spinner-border spinner-border-sm d-none" id="btnLoading"></span>
                     </button>
@@ -96,15 +128,18 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[4, 'desc']], // Kolom 'Created'
+            order: [[2, 'desc']], // Kolom 'Created At' default ordering
             pageLength: 10,
-            dom: 'rt',
+            dom: 'rt', // Menghilangkan default filter dan info
+            language: {
+                emptyTable: "Belum ada data level/role yang ditambahkan.",
+                zeroRecords: "Data level tidak ditemukan."
+            },
             columns: [
-                { data: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'name' },
-                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
-                { data: 'updated_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm:ss') },
-                { data: 'action', orderable: false, searchable: false },
+                { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'name', className: 'fw-bold text-dark' },
+                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
+                { data: 'action', orderable: false, searchable: false, className: 'text-end' },
             ],
             drawCallback: function(settings) {
                 updatePaginationInfo(settings);
@@ -116,12 +151,9 @@
             table.page.len($(this).val()).draw();
         });
 
-        // Search
-        $("#search-input").on('keyup', function(e){
-            if(e.which === 13) table.search(this.value).draw();
-        });
-        $("#search-btn").click(function(){
-            table.search($("#search-input").val()).draw();
+        // Search trigger
+        $("#search-input").on('keyup', function(){
+            table.search(this.value).draw();
         });
     });
 
@@ -139,6 +171,7 @@
 
         if(info.pages <= 1) return;
 
+        // Custom Pagination Loop (Prev, Pages, Next)
         pagination.append(`
             <li class="page-item ${info.page===0?'disabled':''}">
                 <a class="page-link" href="#" data-page="${info.page-1}">&laquo;</a>
@@ -172,6 +205,7 @@
             </li>
         `);
 
+        // Pagination Click Event
         pagination.find('a').click(function(e){
             e.preventDefault();
             const page = parseInt($(this).data('page'));
@@ -180,21 +214,22 @@
     }
 
     const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-    }
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
     });
 
-
     $("#addBtn").click(function(){
-        $(".modal-title").text("Tambah Level");
+        $(".modal-title").text("Tambah Level / Role");
         $("#level-name").val('');
+        $("#level-name").removeClass('is-invalid');
+        $(".error_name").text('');
         $("#modal-type").val('create');
         $("#level-id").val('');
     });
@@ -209,10 +244,12 @@
 
         $("#saveBtn").prop('disabled',true);
         $("#btnLoading").removeClass('d-none');
+        $("#btn-text").addClass('d-none');
 
         $.ajax({
             url: url,
             method: method,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             data: {name:name},
             success: function(res){
                 if(res.errors){
@@ -225,19 +262,25 @@
                     $("#modal-level").modal('hide');
                     Toast.fire({
                         icon: "success",
-                        title: "Berhasil menyimpan level."
+                        title: "Berhasil menyimpan role."
                     });
                     table.ajax.reload();
                 }
             },
-            complete: function(){ $("#saveBtn").prop('disabled',false); $("#btnLoading").addClass('d-none'); }
+            complete: function(){ 
+                $("#saveBtn").prop('disabled',false); 
+                $("#btnLoading").addClass('d-none'); 
+                $("#btn-text").removeClass('d-none');
+            }
         });
     });
 
     function editModal(id){
         $.get(BASE+'/'+id+'/show', function(res){
             let data = res.data;
-            $(".modal-title").text("Edit Level");
+            $(".modal-title").text("Edit Level / Role");
+            $("#level-name").removeClass('is-invalid');
+            $(".error_name").text('');
             $("#modal-level").modal('show');
             $("#level-name").val(data.name);
             $("#level-id").val(data.id);
@@ -247,28 +290,29 @@
 
     function deleteRole(id){
         Swal.fire({
-            title: "Peringatan!",
-            text: "Apakah anda yakin ingin menghapus level ini?",
+            title: "Hapus Role?",
+            text: "Apakah anda yakin ingin menghapus level ini secara permanen?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#c0c0d0",
+            confirmButtonText: "Ya, Hapus!",
             cancelButtonText: "Batal"
         }).then((result)=>{
             if(result.isConfirmed){
                 $.ajax({
                     url: BASE+'/'+id+'/destroy',
                     method:'DELETE',
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     success:function(res){
                         Toast.fire({
                             icon: "success",
-                            title: "Berhasil menghapus level."
+                            title: "Berhasil menghapus level/role."
                         });
                         table.ajax.reload();
                     },
                     error:function(){
-                        Swal.fire("Error","Server Error","error");
+                        Swal.fire("Error","Terjadi kesalahan pada server.","error");
                     }
                 });
             }

@@ -12,7 +12,8 @@ class UserPatchCore extends Model
     protected $fillable = [
         'user_id',
         'patch_core_id',
-        'total'
+        'total',
+        'organization_id'
     ];
 
     public function user()

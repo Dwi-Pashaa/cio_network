@@ -8,6 +8,7 @@ use App\Models\Paket;
 use App\Models\User;
 use App\Models\UserPaket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PaketController extends Controller
@@ -21,7 +22,7 @@ class PaketController extends Controller
             return (new CustomerPaketDataTable)->get();
         }
 
-        $user = User::all();
+        $user = User::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.paket.index", compact("user"));
     }
@@ -40,7 +41,9 @@ class PaketController extends Controller
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $paket = Paket::create($request->only("name"));
+        $paketData = $request->only("name");
+        $paketData['organization_id'] = Auth::user()->organization_id;
+        $paket = Paket::create($paketData);
 
         $paket->user()->attach($request->user_id);
 

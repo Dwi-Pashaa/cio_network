@@ -17,7 +17,7 @@ class HistoryController extends Controller
             return (new HistoryDataTable)->get();
         }
 
-        $user = User::all();
+        $user = User::where('organization_id', Auth::user()->organization_id)->get();
 
         return view('pages.history.index', compact('user'));
     }

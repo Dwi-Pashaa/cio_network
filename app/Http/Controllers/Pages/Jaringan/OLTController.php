@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\OLT;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class OLTController extends Controller
@@ -41,6 +42,7 @@ class OLTController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         OLT::create($post);
 
@@ -77,6 +79,7 @@ class OLTController extends Controller
         }
 
         $put = $request->all();
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $olts = OLT::find($id);
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Router;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class VlanController extends Controller
@@ -37,6 +38,7 @@ class VlanController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         Vlan::create($post);
 

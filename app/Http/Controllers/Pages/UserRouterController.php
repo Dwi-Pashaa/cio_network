@@ -24,8 +24,8 @@ class UserRouterController extends Controller
             return (new UserRouterDataTable)->get();
         }
 
-        $router = Router::all();
-        $users = User::all();
+        $router = Router::where('organization_id', Auth::user()->organization_id)->get();
+        $users = User::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.user-router.index", compact("router", "users"));
     }
@@ -80,6 +80,7 @@ class UserRouterController extends Controller
                     'user_id' => $request->user_id,
                     'router_id' => $request->router_id,
                     'total' => $request->total,
+                    'organization_id' => Auth::user()->organization_id,
                 ]);
             } else {
                 $penerimaRouter->total += $request->total;
@@ -133,6 +134,7 @@ class UserRouterController extends Controller
         }
 
         $put = $request->all();
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $roles = UserRouter::find($id);
 
@@ -160,11 +162,12 @@ class UserRouterController extends Controller
     public function selectRole(Request $request)
     {
         $role = $request->role;
+        $organizationId = Auth::user()->organization_id;
 
         if (empty($role)) {
-            $user = User::all();
+            $user = User::where('organization_id', $organizationId)->get();
         } else {
-            $user = User::role($role)->get();
+            $user = User::role($role)->where('organization_id', $organizationId)->get();
         }
 
         if ($user->isEmpty()) {
@@ -233,6 +236,7 @@ class UserRouterController extends Controller
             }
 
             $data->total += $request->total_stock;
+            $data->organization_id = Auth::user()->organization_id;
             $data->save();
 
             DB::commit();

@@ -20,7 +20,7 @@ class KecamatanController extends Controller
             return (new DistrictDataTable)->get();
         }
 
-        $regencie = Regency::all();
+        $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
 
         return view("pages.kecamatan.index", compact("regencie"));
     }
@@ -40,6 +40,7 @@ class KecamatanController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = auth()->user()->organization_id;
 
         District::create($post);
 
@@ -75,6 +76,7 @@ class KecamatanController extends Controller
         }
 
         $put = $request->only('name', 'regencie_id');
+        $put['organization_id'] = auth()->user()->organization_id;
 
         $districts = District::find($id);
 

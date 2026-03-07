@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PLC;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class PLCController extends Controller
 {
@@ -39,6 +40,7 @@ class PLCController extends Controller
 
         $post = $request->all();
         $post['type'] = $request->type_plc;
+        $post['organization_id'] = Auth::user()->organization_id;
 
         PLC::create($post);
 
@@ -76,6 +78,7 @@ class PLCController extends Controller
 
         $put = $request->only('name', 'type_plc', 'serial_number');
         $put['type'] = $request->type_plc;
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $plc = PLC::find($id);
 

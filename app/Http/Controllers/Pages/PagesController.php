@@ -54,19 +54,19 @@ class PagesController extends Controller
             return (new PagesDataTable)->get();
         }
 
-        $regencies = Regency::all();
-        $districts = District::all();
+        $regencies = Regency::whereIn('id', $authUserRegencies)->get();
+        $districts = District::whereIn('regencie_id', $authUserRegencies)->get();
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
         $villages = Village::whereIn('regencie_id', $authUserRegencies)->get();
-        $vlans = Vlan::all();
-        $routers = Router::all();
-        $odps = ODP::all();
-        $odcs = ODC::all();
-        $olts = OLT::all();
-        $paket = Paket::all();
-        $micRadius = MicRadius::all();
-        $price = Price::all();
-        $tipePelanggan = Type::where('status', '1')->get();
+        $vlans = Vlan::where('organization_id', auth()->user()->organization_id)->get();
+        $routers = Router::where('organization_id', auth()->user()->organization_id)->get();
+        $odps = ODP::where('organization_id', auth()->user()->organization_id)->get();
+        $odcs = ODC::where('organization_id', auth()->user()->organization_id)->get();
+        $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
+        $paket = Paket::where('organization_id', auth()->user()->organization_id)->get();
+        $micRadius = MicRadius::where('organization_id', auth()->user()->organization_id)->get();
+        $price = Price::where('organization_id', auth()->user()->organization_id)->get();
+        $tipePelanggan = Type::where('organization_id', auth()->user()->organization_id)->where('status', '1')->get();
 
         return view("pages.pages.index", compact(
             "hometown",
@@ -118,6 +118,7 @@ class PagesController extends Controller
         $post['password'] = Hash::make($request->password);
         $post['password_show'] = $request->password;
         $post['is_ktp'] = $request->is_ktp;
+        $post['organization_id'] = Auth::user()->organization_id;
 
         $pages = Pages::create($post);
 
@@ -242,7 +243,8 @@ class PagesController extends Controller
 
         $updateData = $request->only("name", "hometowns_id", "telp", "desc", "regencies_id", "districts_id", "villages_id", "is_ktp");
         $updateData['slug'] = Str::slug($request->name);
-        $post['is_ktp'] = $request->is_ktp;
+        $updateData['is_ktp'] = $request->is_ktp;
+        $updateData['organization_id'] = Auth::user()->organization_id;
 
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
@@ -327,35 +329,35 @@ class PagesController extends Controller
 
     public function getPagesBySlug(Request $request, $slug)
     {
-        $pages = Pages::with(['hometown', 'village', 'regencie', 'district'])->where('slug', $slug)->first();
+        $pages = Pages::with(['hometown', 'village', 'regencie', 'district'])
+            ->where('slug', $slug)
+            ->first();
 
         if (!$pages) {
             return back()->with('warning', 'Data halaman tidak ditemukan.');
         }
 
-        $page = $request->attributes->get('page');
+        $page   = $request->attributes->get('page');
+        $userId = Auth::id();
+        $orgId  = Auth::user()->organization_id;
 
-        $last = Customer::whereNotNull('uuid')
-            ->orderBy('uuid', 'desc')
-            ->first();
-        if (!$last) {
-            $nextNumber = 1;
-        } else {
-            preg_match('/\d+/', $last->uuid, $matches);
-            $lastNumber = $matches ? (int) $matches[0] : 0;
-            $nextNumber = $lastNumber + 1;
-        }
+        // Generate kode pelanggan berikutnya
+        $last = Customer::whereNotNull('uuid')->orderBy('uuid', 'desc')->first();
+        $lastNumber = $last ? ((int) (preg_match('/\d+/', $last->uuid, $m) ? $m[0] : 0)) : 0;
+        $newCode = 'CSTMR' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
 
-        $newCode = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        // Data master wilayah & tipe
+        $rts   = RT::where('organization_id', $orgId)->get();
+        $rws   = RW::where('organization_id', $orgId)->get();
+        $types = Type::where('organization_id', $orgId)->where('status', '0')->get();
 
-        $rts = RT::select(['id', 'name'])->get();
-        $rws = RW::select(['id', 'name'])->get();
-        $types = Type::where('status', '0')->get();
+        // Jaringan yang terkait halaman ini
         $routers = DB::table('pages_routers')
             ->join('router_networks', 'pages_routers.routers_id', '=', 'router_networks.id')
             ->where('pages_routers.pages_id', $pages->id)
             ->select('pages_routers.*', 'router_networks.*')
             ->get();
+
         $vlans = DB::table('pages_vlans')
             ->join('vlan_networks', 'pages_vlans.vlans_id', '=', 'vlan_networks.id')
             ->where('pages_vlans.pages_id', $pages->id)
@@ -378,7 +380,6 @@ class PagesController extends Controller
                 'rws.name as rw_number'
             )
             ->get();
-
 
         $odps = DB::table('pages_odps')
             ->join('odp_networks', 'pages_odps.odps_id', '=', 'odp_networks.id')
@@ -410,28 +411,20 @@ class PagesController extends Controller
             )
             ->get();
 
-        $userId = Auth::id();
-
         $paket = DB::table('pages_paket')
             ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
             ->join('user_paket', 'paket.id', '=', 'user_paket.paket_id')
             ->where('pages_paket.pages_id', $pages->id)
-            ->where('user_paket.user_id', $userId)   // ⬅ hanya paket milik user login
+            ->where('user_paket.user_id', $userId)
             ->select('paket.id', 'paket.name')
             ->get();
-
-        $userId = Auth::id();
 
         $micRadius = DB::table('pages_mic_radius')
             ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
             ->join('user_mic_radius', 'mic_radius.id', '=', 'user_mic_radius.mic_radius_id')
             ->where('pages_mic_radius.pages_id', $pages->id)
-            ->where('user_mic_radius.user_id', $userId)   // ⬅ hanya yang di-assign ke user login
-            ->select(
-                'mic_radius.id',
-                'mic_radius.code',
-                'mic_radius.name'
-            )
+            ->where('user_mic_radius.user_id', $userId)
+            ->select('mic_radius.id', 'mic_radius.code', 'mic_radius.name')
             ->get();
 
         $price = DB::table('pages_price')
@@ -449,7 +442,24 @@ class PagesController extends Controller
 
         $pathCore = Auth::user()->patchCore;
 
-        return view("pages.pages.show", compact("pages", "page", "rts", "rws", "types", "routers", "vlans", "odps", "odcs", "olts", "newCode", "price", "paket", "micRadius", "pathCore", "tipePelanggan"));
+        return view('pages.pages.show', compact(
+            'pages',
+            'page',
+            'rts',
+            'rws',
+            'types',
+            'routers',
+            'vlans',
+            'odcs',
+            'odps',
+            'olts',
+            'newCode',
+            'paket',
+            'micRadius',
+            'price',
+            'tipePelanggan',
+            'pathCore'
+        ));
     }
 
     private function handleKtpBase64($base64Image)
@@ -606,6 +616,7 @@ class PagesController extends Controller
                     ->update(['status' => 'used']);
             }
 
+            $data['organization_id'] = Auth::user()->organization_id;
             $customer = Customer::create($data);
 
             $userName = Auth::user()->name;

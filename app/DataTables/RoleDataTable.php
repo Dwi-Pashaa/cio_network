@@ -22,11 +22,19 @@ class RoleDataTable
                 $deleteId = $row->id;
                 $urlAkses = route('role.permission', ['id' => $row->id]);
 
-                return '
-                    <a href="' . $urlAkses . '" class="btn btn-outline-primary me-1">Aksess</a>
-                    <a href="javascript:void(0)" onclick="editModal(' . $editId . ')" class="btn btn-outline-warning me-1">Edit</a>
-                    <button onclick="deleteRole(' . $deleteId . ')" class="btn btn-outline-danger">Hapus</button>
-                ';
+                $buttons = '';
+
+                $buttons .= '<a href="' . $urlAkses . '" class="btn btn-outline-primary me-1">Aksess</a>';
+
+                if (auth()->user()->can('edit level')) {
+                    $buttons .= '<a href="javascript:void(0)" onclick="editModal(' . $editId . ')" class="btn btn-outline-warning me-1">Edit</a>';
+                }
+
+                if (auth()->user()->can('hapus level')) {
+                    $buttons .= '<button onclick="deleteRole(' . $deleteId . ')" class="btn btn-outline-danger">Hapus</button>';
+                }
+
+                return $buttons ?: '-';
             })
             ->rawColumns(['action'])
             ->make(true);
@@ -37,7 +45,7 @@ class RoleDataTable
      */
     private function query()
     {
-        return Role::query();
+        return Role::where('organization_id', auth()->user()->organization_id);
     }
 
     /**

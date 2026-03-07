@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\HomeTown;
 use App\Models\Regency;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class KampungController extends Controller
@@ -21,8 +22,8 @@ class KampungController extends Controller
             return (new SettlementDataTable)->get();
         }
 
-        $regencie = Regency::all();
-        $district = District::all();
+        $regencie = Regency::where('organization_id', Auth::user()->organization_id)->get();
+        $district = District::where('organization_id', Auth::user()->organization_id)->get();
 
         return view("pages.kampung.index", compact("regencie", "district"));
     }
@@ -43,6 +44,7 @@ class KampungController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         HomeTown::create($post);
 
@@ -79,6 +81,7 @@ class KampungController extends Controller
         }
 
         $put = $request->only('name', 'regencie_id', 'district_id');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $hometowns = HomeTown::find($id);
 

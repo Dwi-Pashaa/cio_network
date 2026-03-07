@@ -13,5 +13,6 @@ class PLC extends Model
         'name',
         'type',
         'serial_number',
+        'organization_id'
     ];
 }

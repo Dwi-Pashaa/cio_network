@@ -63,15 +63,18 @@ class HistoryDataTable
      */
     private function baseQuery()
     {
-        $role = Auth::user()->getRoleNames()->first();
+        $user  = Auth::user();
+        $role  = $user->getRoleNames()->first();
+        $orgId = $user->organization_id;
 
         $query = Customer::with(['user', 'hometown', 'village'])
             ->select('customers.*')
+            ->where('customers.organization_id', $orgId)  // scope per organisasi
             ->orderByDesc('created_at');
 
-        // Non Admin hanya lihat data sendiri
+        // Non-Admin hanya lihat data yang ia sendiri input
         if ($role !== 'Admin') {
-            $query->where('user_id', Auth::id());
+            $query->where('user_id', $user->id);
         }
 
         return $query;

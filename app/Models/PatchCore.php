@@ -11,6 +11,7 @@ class PatchCore extends Model
     protected $table = 'patch_core';
     protected $fillable = [
         'name',
+        'organization_id'
     ];
 
     public function user()

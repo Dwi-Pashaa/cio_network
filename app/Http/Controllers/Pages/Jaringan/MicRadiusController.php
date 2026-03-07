@@ -8,6 +8,7 @@ use App\Models\HomeTown;
 use App\Models\MicRadius;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class MicRadiusController extends Controller
@@ -45,6 +46,7 @@ class MicRadiusController extends Controller
         }
 
         $post = $request->except('user_id');
+        $post['organization_id'] = Auth::user()->organization_id;
 
         $micRadius = MicRadius::create($post);
 
@@ -84,6 +86,7 @@ class MicRadiusController extends Controller
         }
 
         $put = $request->except('user_id');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $micRadius = MicRadius::find($id);
 

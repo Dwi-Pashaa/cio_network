@@ -13,6 +13,7 @@ class UserPLC extends Model
         'user_id',
         'plc_id',
         'total',
+        'organization_id',
     ];
 
     public function user()

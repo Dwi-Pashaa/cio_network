@@ -6,6 +6,7 @@ use App\DataTables\Wilayah\RTDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\RT;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class RTController extends Controller
@@ -37,6 +38,7 @@ class RTController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         RT::create($post);
 
@@ -71,6 +73,7 @@ class RTController extends Controller
         }
 
         $put = $request->only('name');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $rts = RT::find($id);
 

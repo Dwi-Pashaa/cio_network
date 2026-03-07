@@ -435,7 +435,7 @@
                         }
 
                         // sent_at null → belum dikirim, tampilkan tombol
-                        let normalized = (row.phone ?? '').replace(/\D/g, '');
+                        let normalized = (row.to ?? '').replace(/\D/g, '');
                         if (normalized.startsWith('0')) {
                             normalized = '62' + normalized.slice(1);
                         }

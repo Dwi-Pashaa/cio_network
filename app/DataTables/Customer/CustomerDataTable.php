@@ -198,6 +198,11 @@ class CustomerDataTable
             })
 
             // Kolom Di Input Oleh
+            ->addColumn('organization', function ($row) {
+                return $row->organization->name ?? '-';
+            })
+
+            // Kolom Di Input Oleh
             ->addColumn('input_by', function ($row) {
                 return $row->user->name ?? '-';
             })
@@ -245,6 +250,7 @@ class CustomerDataTable
 
                         'PAKET' => $row->paket->name ?? null,
                         'PEMBAYARAN' => $row->price->name ?? null,
+                        'ORGANISASI/MITRA' => $row->organization->name ?? null,
                         'INPUT OLEH' => $row->user->name ?? null,
                     ];
 
@@ -297,13 +303,14 @@ class CustomerDataTable
     private function query()
     {
         $request = request();
+        $user    = Auth::user();
 
-        $authUserRegencies = Auth::user()
-            ->regencie
-            ->pluck('id')
-            ->toArray();
+        // Cek tipe organisasi user yang sedang login
+        $orgType = optional($user->organization)->type; // 'mitra' atau 'internal'
 
-        return Customer::with([
+        $authUserRegencies = $user->regencie->pluck('id')->toArray();
+
+        $query = Customer::with([
             'router',
             'type',
             'hometown',
@@ -324,11 +331,17 @@ class CustomerDataTable
             'paket',
             'user',
             'mic_radius',
-            'tipePelanggan'
+            'tipePelanggan',
+            'organization'
         ])
             ->whereIn('regencies_id', $authUserRegencies)
-            ->where('status', 'active')
+            ->where('status', 'active');
 
+        if ($orgType === 'mitra') {
+            $query->where('customers.organization_id', $user->organization_id);
+        }
+
+        return $query
             ->when($request->search ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('customers.name', 'like', "%{$search}%")

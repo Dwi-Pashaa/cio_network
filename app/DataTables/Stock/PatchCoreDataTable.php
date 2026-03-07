@@ -42,7 +42,7 @@ class PatchCoreDataTable
      */
     private function query()
     {
-        return PatchCore::query();
+        return PatchCore::where('organization_id', Auth::user()->organization_id);
     }
 
     /**

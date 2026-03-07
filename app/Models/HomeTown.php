@@ -9,7 +9,7 @@ class HomeTown extends Model
 {
     use HasFactory;
     protected $table = 'home_towns';
-    protected $fillable = ['code', 'name', 'regencie_id', 'district_id'];
+    protected $fillable = ['code', 'name', 'regencie_id', 'district_id', 'organization_id'];
 
     public function customer()
     {

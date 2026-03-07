@@ -21,6 +21,7 @@ class User extends Authenticatable
         'password',
         'olt_id',
         'mic_radius_id',
+        'organization_id',
     ];
 
     protected $hidden = [
@@ -32,6 +33,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    protected $guard_name = 'web';
 
     public function router()
     {
@@ -107,5 +110,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Pages::class, 'user_pages', 'user_id', 'pages_id')
             ->withTimestamps();
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
 }

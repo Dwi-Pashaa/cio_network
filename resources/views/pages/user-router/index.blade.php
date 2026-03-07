@@ -1,61 +1,89 @@
 @extends('layouts.app')
 
-@section('title')
-    Data Stock Router
-@endsection
+@section('title') Data Stock Router @endsection
 
 @section('content')
-<div class="card">
-    @can('buat barang')
-        <div class="card-header">
-            <a href="javascript:void(0)" id="addBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-simple">
-                Tambah
-            </a>
-        </div>
-    @endcan
+<div class="org-container">
+    @include('components.alert.success')
 
-    <div class="card-body border-bottom py-3 d-flex justify-content-between">
-        <div>
-            <label>Show</label>
-            <select id="sort" class="form-control d-inline-block" style="width:auto;">
-                @foreach([10,25,50,100] as $opt)
-                    <option value="{{ $opt }}">{{ $opt }}</option>
-                @endforeach
-            </select>
-            <label>entries</label>
+    <div class="org-card">
+        {{-- HEADER --}}
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <rect x="3" y="4" width="18" height="8" rx="2" />
+                        <rect x="3" y="12" width="18" height="8" rx="2" />
+                        <line x1="7" y1="8" x2="7" y2="8.01" />
+                        <line x1="7" y1="16" x2="7" y2="16.01" />
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="org-title">Daftar Stock Router User</h5>
+                    <div class="org-subtitle">Manajemen alokasi stock router milik user/cabang</div>
+                </div>
+            </div>
+
+            @can('buat barang')
+            <button id="addBtn" class="btn-add" data-bs-toggle="modal" data-bs-target="#modal-simple">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Alokasi Router Baru
+            </button>
+            @endcan
         </div>
-        <div>
-            <div class="input-group" style="width:300px;">
-                <input type="text" id="search-input" class="form-control" placeholder="Search…">
-                <button class="btn" id="search-btn" type="button">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                </button>
+
+        {{-- TOOLBAR --}}
+        <div class="org-toolbar">
+            <div style="font-size:.85rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:.5rem;">
+                Tampilkan
+                <select id="sort" class="org-input" style="padding: .35rem .6rem;">
+                    @foreach([10,25,50,100] as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                data
+            </div>
+
+            <div class="search-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" class="org-input" placeholder="Cari nama user atau router…">
             </div>
         </div>
-    </div>
 
-    <div class="table-responsive">
-        <table id="stock-table" class="table table-vcenter text-nowrap">
-            <thead class="bg-secondary">
-                <tr>
-                    <th class="text-white w-1">No</th>
-                    <th class="text-white">Nama User</th>
-                    <th class="text-white">Nama Router</th>
-                    <th class="text-white">Jumlah</th>
-                    <th class="text-white">Created At</th>
-                    <th class="text-white">Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+        {{-- TABLE --}}
+        <div class="table-responsive">
+            <table id="stock-table" class="org-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px; text-align:center;">No</th>
+                        <th>Nama User</th>
+                        <th>Nama Router</th>
+                        <th>Jumlah Alokasi</th>
+                        <th>Created At</th>
+                        <th style="text-align:right;">Aksi</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
 
-    <div class="card-footer d-flex align-items-center">
-        <p class="m-0 text-secondary" id="table-info">
-            Showing <span id="start-entry">0</span> 
-            to <span id="end-entry">0</span> of
-            <span id="total-entries">0</span> entries
-        </p>
-        <ul class="pagination m-0 ms-auto" id="custom-pagination"></ul>
+        {{-- FOOTER --}}
+        <div class="org-footer">
+            <div class="org-info" id="table-info">
+                Menampilkan <span id="start-entry">0</span>
+                sampai <span id="end-entry">0</span> dari
+                <span id="total-entries">0</span> data
+            </div>
+            <ul class="pagination" id="custom-pagination"></ul>
+        </div>
     </div>
 </div>
 @endsection
@@ -66,7 +94,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah / Edit Stock Router</h5>
+                <h5 class="modal-title">Alokasi Stock Router</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -74,37 +102,37 @@
                 <input type="hidden" id="type">
                 
                 <div class="form-group mb-3">
-                    <label>User</label>
+                    <label class="form-label">Tujuan User <span class="text-danger">*</span></label>
                     <select id="user_id" class="form-control">
-                        <option value="">Pilih User</option>
+                        <option value="">-- Pilih User --</option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </select>
-                    <span class="invalid-feedback error_user_id"></span>
+                    <span class="invalid-feedback error_user_id" style="font-size: .8rem; font-weight: 500;"></span>
                 </div>
                 
                 <div class="form-group mb-3">
-                    <label>Router</label>
+                    <label class="form-label">Router <span class="text-danger">*</span></label>
                     <select id="router_id" class="form-control">
-                        <option value="">Pilih Router</option>
+                        <option value="">-- Pilih Router --</option>
                         @foreach($router as $router)
                             <option value="{{ $router->id }}">{{ $router->code }} - {{ $router->name }}</option>
                         @endforeach
                     </select>
-                    <span class="invalid-feedback error_router_id"></span>
+                    <span class="invalid-feedback error_router_id" style="font-size: .8rem; font-weight: 500;"></span>
                 </div>
                 
-                <div class="form-group mb-3">
-                    <label>Jumlah</label>
-                    <input type="number" id="total" class="form-control">
-                    <span class="invalid-feedback error_total"></span>
+                <div class="form-group mb-0">
+                    <label class="form-label">Jumlah Alokasi <span class="text-danger">*</span></label>
+                    <input type="number" id="total" class="form-control" placeholder="Masukkan jumlah unit (pcs)">
+                    <span class="invalid-feedback error_total" style="font-size: .8rem; font-weight: 500;"></span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button class="btn btn-primary" id="saveBtn">
-                    <span class="btn-text">Simpan</span>
+                <button class="btn btn-secondary" style="border-radius: 8px; font-weight: 600;" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" style="background: #6366f1; border: none; border-radius: 8px; font-weight: 600;" id="saveBtn">
+                    <span class="btn-text" id="btn-text">Simpan</span>
                     <span class="spinner-border spinner-border-sm d-none" id="btnLoading"></span>
                 </button>
             </div>
@@ -112,30 +140,30 @@
     </div>
 </div>
 
-<!-- Modal Tambah Stock -->
+<!-- Modal Penambahan Stock Lanjutan -->
 <div class="modal fade" id="modal-add-stock" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Stock Router</h5>
+                <h5 class="modal-title">Tambah Stock Router (Restock)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="user_router_id">
                 <div class="form-group mb-3">
-                    <label>User</label>
-                    <input type="text" id="user" class="form-control" disabled>
+                    <label class="form-label">User Tujuan</label>
+                    <input type="text" id="user" class="form-control" disabled style="background:#f1f5f9; cursor:not-allowed;">
                 </div>
-                <div class="form-group mb-3">
-                    <label>Jumlah Stock</label>
-                    <input type="number" id="total_stock" class="form-control">
-                    <span class="invalid-feedback error_total_stock"></span>
+                <div class="form-group mb-0">
+                    <label class="form-label">Tambahan Stock Baru <span class="text-danger">*</span></label>
+                    <input type="number" id="total_stock" class="form-control" placeholder="Berapa pcs yang ingin ditambahkan?">
+                    <span class="invalid-feedback error_total_stock" style="font-size: .8rem; font-weight: 500;"></span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                <button class="btn btn-primary" id="storeAddStock">
-                    <span class="btn-text">Simpan</span>
+                <button class="btn btn-secondary" style="border-radius: 8px; font-weight: 600;" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" style="background: #10b981; border: none; border-radius: 8px; font-weight: 600;" id="storeAddStock">
+                    <span class="btn-text" id="btn-text-add-stock">Tambahkan Stock</span>
                     <span class="spinner-border spinner-border-sm d-none" id="btnLoadingAddStock"></span>
                 </button>
             </div>
@@ -177,33 +205,18 @@
             ajax: BASE,
             order: [[4, 'desc']],
             pageLength: 10,
-            dom: 'rt',
+            dom: 'rt', // Menghilangkan default filter dan info
+            language: {
+                emptyTable: "Belum ada alokasi stock router ke user.",
+                zeroRecords: "Pencarian tidak ditemukan."
+            },
             columns: [
-                { 
-                    data: 'DT_RowIndex', 
-                    orderable: false, 
-                    searchable: false 
-                },
-                { 
-                    data: 'user.name' 
-                },
-                { 
-                    data: 'router.name' 
-                },
-                { 
-                    data: 'total' 
-                },
-                { 
-                    data: 'created_at', 
-                    render: function(data) {
-                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                    }
-                },
-                { 
-                    data: 'action', 
-                    orderable: false, 
-                    searchable: false 
-                }
+                { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'user.name', className: 'fw-bold text-dark' },
+                { data: 'router.name', render: data => `<div style="font-family: inherit; font-size: 0.82rem; font-weight: bold; background: #eef2ff; color:#6366f1; padding: 4px 10px; border-radius: 6px; display: inline-block;">${data}</div>` },
+                { data: 'total', render: data => `<div style="font-family: monospace; font-size: 0.9rem; font-weight: bold; background: #fffbeb; color:#d97706; padding: 5px 12px; border-radius: 8px; display: inline-block;">${data} Unit</div>` },
+                { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
+                { data: 'action', orderable: false, searchable: false, className: 'text-end' }
             ],
             drawCallback: function(settings) {
                 updatePaginationInfo(settings);
@@ -221,16 +234,9 @@
             table.page.len($(this).val()).draw();
         });
 
-        // Search on Enter key
-        $("#search-input").on('keypress', function(e) {
-            if (e.which === 13) {
-                table.search(this.value).draw();
-            }
-        });
-
-        // Search on button click
-        $("#search-btn").on('click', function() {
-            table.search($("#search-input").val()).draw();
+        // Search trigger
+        $("#search-input").on('keyup', function() {
+            table.search(this.value).draw();
         });
     }
 
@@ -325,7 +331,7 @@
         // Add button - open modal for create
         $("#addBtn").on('click', function() {
             resetModal();
-            $(".modal-title").text("Tambah Stock Router");
+            $(".modal-title").text("Alokasi Stock Router");
             $("#type").val('create');
         });
 
@@ -374,6 +380,9 @@
         // Show loading
         $("#saveBtn").prop('disabled', true);
         $("#btnLoading").removeClass('d-none');
+        $("#btn-text").addClass('d-none');
+        
+        clearValidationErrors();
 
         $.ajax({
             url: url,
@@ -385,16 +394,17 @@
                 showValidationErrors(response.errors);
             } else {
                 $("#modal-simple").modal('hide');
-                showSuccessMessage(response.message);
+                showSuccessMessage("Alokasi router berhasil disimpan.");
                 table.ajax.reload();
             }
         })
         .fail(function() {
-            showErrorMessage("Terjadi kesalahan");
+            showErrorMessage("Terjadi kesalahan sistem.");
         })
         .always(function() {
             $("#saveBtn").prop('disabled', false);
             $("#btnLoading").addClass('d-none');
+            $("#btn-text").removeClass('d-none');
         });
     }
 
@@ -404,6 +414,7 @@
             .done(function(response) {
                 const data = response.data;
                 
+                resetModal();
                 $(".modal-title").text("Edit Stock Router");
                 $("#modal-simple").modal('show');
                 $("#user_id").val(data.user_id);
@@ -413,7 +424,7 @@
                 $("#type").val('update');
             })
             .fail(function() {
-                showErrorMessage("Terjadi kesalahan");
+                showErrorMessage("Data tidak ditemukan.");
             });
     }
 
@@ -430,7 +441,7 @@
                 clearValidationErrors();
             })
             .fail(function() {
-                showErrorMessage("Terjadi kesalahan");
+                showErrorMessage("Data tidak ditemukan.");
             });
     }
 
@@ -442,8 +453,10 @@
 
         // Show loading
         btn.prop('disabled', true);
-        btn.find(".btn-text").text("Menyimpan...");
-        btn.find("#btnLoadingAddStock").removeClass('d-none');
+        $("#btn-text-add-stock").addClass('d-none');
+        $("#btnLoadingAddStock").removeClass('d-none');
+
+        clearValidationErrors();
 
         const data = {
             user_router_id: $("#user_router_id").val(),
@@ -458,32 +471,32 @@
                     resetAddStockButton();
                 } else {
                     $("#modal-add-stock").modal('hide');
-                    showSuccessMessage(response.message);
+                    showSuccessMessage("Penambahan stock berhasil.");
                     resetAddStockButton();
                     table.ajax.reload();
                 }
             })
             .fail(function() {
-                showErrorMessage("Terjadi kesalahan");
+                showErrorMessage("Terjadi kesalahan sistem.");
                 resetAddStockButton();
             });
 
         function resetAddStockButton() {
             btn.prop('disabled', false);
-            btn.find(".btn-text").text("Simpan");
-            btn.find("#btnLoadingAddStock").addClass('d-none');
+            $("#btn-text-add-stock").removeClass('d-none');
+            $("#btnLoadingAddStock").addClass('d-none');
         }
     }
 
     function deleteStock(id) {
         Swal.fire({
-            title: "Peringatan !",
-            text: "Anda yakin ingin menghapus data ini?",
+            title: "Tarik / Hapus Alokasi?",
+            text: "Apakah anda yakin ingin menghapus data alokasi router user ini?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus",
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#c0c0d0",
+            confirmButtonText: "Ya, Hapus!",
             cancelButtonText: "Batal"
         }).then(function(result) {
             if (result.isConfirmed) {
@@ -495,11 +508,11 @@
                     }
                 })
                 .done(function(response) {
-                    showSuccessMessage(response.message);
+                    showSuccessMessage("Berhasil menghapus alokasi.");
                     table.ajax.reload();
                 })
                 .fail(function() {
-                    showErrorMessage("Server Error");
+                    showErrorMessage("Server Kesalahan atau data tidak bisa dihapus.");
                 });
             }
         });

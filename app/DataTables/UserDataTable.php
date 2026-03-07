@@ -51,10 +51,18 @@ class UserDataTable
             ->addColumn('action', function ($row) {
                 $editUrl  = route('user.edit', $row->id);
                 $deleteId = $row->id;
-                return '
-                    <a href="' . $editUrl . '" class="btn btn-outline-warning me-1">Edit</a>
-                    <button onclick="deleteUsers(' . $deleteId . ')" class="btn btn-outline-danger">Hapus</button>
-                ';
+                $buttons = '';
+
+                if (auth()->user()->can('edit user')) {
+                    $editUrl = route('user.edit', $row->id);
+                    $buttons .= '<a href="' . $editUrl . '" class="btn btn-outline-warning me-1">Edit</a>';
+                }
+
+                if (auth()->user()->can('hapus user')) {
+                    $buttons .= '<button onclick="deleteUsers(' . $row->id . ')" class="btn btn-outline-danger">Hapus</button>';
+                }
+
+                return $buttons ?: '-';
             })
             ->rawColumns(['mix_radius', 'olt', 'regencie', 'pages', 'action'])
             ->make(true);
@@ -66,6 +74,7 @@ class UserDataTable
     private function query()
     {
         return User::with(['mixRadius', 'olts', 'regencie', 'pages', 'roles'])
+            ->where('organization_id', auth()->user()->organization_id)
             ->select('users.*'); // default sorting
     }
 

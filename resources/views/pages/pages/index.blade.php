@@ -6,29 +6,30 @@
 
 @push('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+
     <style>
         .empty-state {
             padding: 3rem 1rem;
         }
-        
+
         .empty-state-icon {
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
+
         .empty-state-icon svg {
             opacity: 0.3;
         }
-        
+
         .empty-state-title {
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        
+
         .empty-state-subtitle {
             font-size: 0.95rem;
             line-height: 1.6;
@@ -37,85 +38,98 @@
 @endpush
 
 @section('content')
-    <div class="card">
-        @can('buat halaman')
-            <div class="card-header">
-                <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
+    <div class="org-card">
+        <div class="org-header">
+            <div class="org-title-wrap">
+                <div class="org-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                        <path d="M9 17h6" />
+                        <path d="M9 13h6" />
                     </svg>
-                    Tambah
-                </a>
+                </div>
+                <div>
+                    <h3 class="org-title">Data Halaman</h3>
+                    <p class="org-subtitle mb-0">Kelola konfigurasi halaman layanan pelanggan</p>
+                </div>
             </div>
-        @endcan
-        <div class="card-body border-bottom py-3">
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <div class="text-secondary">
-                    <select name="sort" id="sort" class="form-control">
-                        @php
-                            $opts = [10, 25, 50, 100];
-                        @endphp 
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}">{{ $opt }}</option>
-                        @endforeach
-                    </select>
+            @can('buat halaman')
+                <div class="org-actions">
+                    <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple"
+                        class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14m-7-7h14" />
+                        </svg>
+                        Tambah
+                    </a>
                 </div>
-                <div>
-                    <select name="filter_hometown" id="filter_hometown" class="form-control" style="min-width: 200px;">
-                        <option value="">Semua Kampung</option>
-                        @foreach ($hometown as $ht)
-                            <option value="{{ $ht->id }}">{{ $ht->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <select name="filter_village" id="filter_village" class="form-control" style="min-width: 200px;">
-                        <option value="">Semua Desa</option>
-                        @foreach ($villages as $vlg)
-                            <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="ms-auto">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="search-input" placeholder="Search for…">
-                        <button class="btn" type="button" id="search-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                <path d="M21 21l-6 -6" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+            @endcan
+        </div>
+
+        <div class="org-toolbar flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
+                <select name="sort" id="sort" class="org-input" style="width: 80px; padding: 0.35rem 0.8rem;">
+                    @php $opts = [10, 25, 50, 100]; @endphp
+                    @foreach ($opts as $opt)
+                        <option value="{{ $opt }}">{{ $opt }}</option>
+                    @endforeach
+                </select>
+                <span class="text-muted" style="font-size: 0.88rem;">entri</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <select name="filter_hometown" id="filter_hometown" class="org-input"
+                    style="min-width: 180px; padding: 0.35rem 0.8rem;">
+                    <option value="">Semua Kampung</option>
+                    @foreach ($hometown as $ht)
+                        <option value="{{ $ht->id }}">{{ $ht->name }}</option>
+                    @endforeach
+                </select>
+                <select name="filter_village" id="filter_village" class="org-input"
+                    style="min-width: 180px; padding: 0.35rem 0.8rem;">
+                    <option value="">Semua Desa</option>
+                    @foreach ($villages as $vlg)
+                        <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="search-wrapper ms-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" class="org-input" id="search-input" placeholder="Cari halaman..." autocomplete="off">
             </div>
         </div>
+
         <div id="halaman-table-wrapper" class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap" id="halaman-table">
-                <thead class="bg-secondary">
+            <table class="table org-table table-vcenter text-nowrap" id="halaman-table">
+                <thead>
                     <tr>
-                        <th class="w-1 text-white">No</th>
-                        <th class="text-white">Nama</th>
-                        <th class="text-white">No Telephone</th>
-                        <th class="text-white">Fitur KTP</th>
-                        <th class="text-white">Created</th>
-                        <th class="text-white">Action</th>
+                        <th class="w-1">No</th>
+                        <th>Nama</th>
+                        <th>No Telephone</th>
+                        <th>Fitur KTP</th>
+                        <th>Created</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
-            <p class="m-0 text-secondary">
-                Showing <span id="start-entry">0</span> 
-                to <span id="end-entry">0</span> of
-                <span id="total-entries">0</span> entries
+
+        <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between">
+            <p class="m-0 text-muted" style="font-size: 0.88rem;">
+                Showing <span id="start-entry" class="fw-medium">0</span>
+                to <span id="end-entry" class="fw-medium">0</span> of
+                <span id="total-entries" class="fw-medium">0</span> entries
             </p>
-            <ul class="pagination m-0 ms-auto" id="custom-pagination">
-            </ul>
+            <ul class="pagination m-0" id="custom-pagination"></ul>
         </div>
     </div>
 @endsection
@@ -131,195 +145,163 @@
                 <div class="modal-body">
                     <input type="hidden" name="type" id="type">
                     <input type="hidden" name="id" id="id">
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="name" class="mb-2">Judul Halaman</label>
-                                <input type="text" name="name" id="name" class="form-control">
-                                <span class="invalid-feedback error_name"></span>
-                            </div>
+                            <label for="name" class="form-label fw-medium text-muted">Judul Halaman</label>
+                            <input type="text" name="name" id="name" class="form-control org-input w-100"
+                                placeholder="Masukkan judul halaman...">
+                            <span class="invalid-feedback error_name" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="desc" class="mb-2">Sub Judul Halaman</label>
-                                <input type="text" name="desc" id="desc" class="form-control">
-                                <span class="invalid-feedback error_desc"></span>
-                            </div>
+                            <label for="desc" class="form-label fw-medium text-muted">Sub Judul Halaman</label>
+                            <input type="text" name="desc" id="desc" class="form-control org-input w-100"
+                                placeholder="Masukkan sub judul...">
+                            <span class="invalid-feedback error_desc" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="tipe_pelanggan_id" class="mb-2">Tipe Pelanggan</label>
-                                <select name="tipe_pelanggan_id[]" id="tipe_pelanggan_id" class="form-select" multiple>
-                                    <option value="">-- Pilih --</option>
-                                    @foreach ($tipePelanggan as $tp)
-                                        <option value="{{ $tp->id }}">{{ $tp->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_tipe_pelanggan_id"></span>
-                            </div>
+                            <label for="tipe_pelanggan_id" class="form-label fw-medium text-muted">Tipe Pelanggan</label>
+                            <select name="tipe_pelanggan_id[]" id="tipe_pelanggan_id" class="form-select" multiple>
+                                <option value="">-- Pilih --</option>
+                                @foreach ($tipePelanggan as $tp)
+                                    <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_tipe_pelanggan_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="regencies_id" class="mb-2">Kabupaten/Kota</label>
-                                <select name="regencies_id" id="regencies_id" class="form-select">
-                                    <option value="">-- Pilih --</option>
-                                    @foreach ($regencies as $rgs)
-                                        <option value="{{ $rgs->id }}">{{ $rgs->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_regencies_id"></span>
-                            </div>
+                            <label for="regencies_id" class="form-label fw-medium text-muted">Kabupaten/Kota</label>
+                            <select name="regencies_id" id="regencies_id" class="form-select">
+                                <option value="">-- Pilih --</option>
+                                @foreach ($regencies as $rgs)
+                                    <option value="{{ $rgs->id }}">{{ $rgs->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_regencies_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="districts_id" class="mb-2">Kecamatan</label>
-                                <select name="districts_id" id="districts_id" class="form-select">
-                                    <option value="">-- Pilih --</option>
-                                    @foreach ($districts as $dst)
-                                        <option value="{{ $dst->id }}">{{ $dst->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_districts_id"></span>
-                            </div>
+                            <label for="districts_id" class="form-label fw-medium text-muted">Kecamatan</label>
+                            <select name="districts_id" id="districts_id" class="form-select">
+                                <option value="">-- Pilih --</option>
+                                @foreach ($districts as $dst)
+                                    <option value="{{ $dst->id }}">{{ $dst->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_districts_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="hometowns_id" class="mb-2">Kampung</label>
-                                <select name="hometowns_id" id="hometowns_id" class="form-select">
-                                    <option value="">-- Pilih --</option>
-                                    @foreach ($hometown as $ht)
-                                        <option value="{{ $ht->id }}">{{ $ht->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_hometowns_id"></span>
-                            </div>
+                            <label for="hometowns_id" class="form-label fw-medium text-muted">Kampung</label>
+                            <select name="hometowns_id" id="hometowns_id" class="form-select">
+                                <option value="">-- Pilih --</option>
+                                @foreach ($hometown as $ht)
+                                    <option value="{{ $ht->id }}">{{ $ht->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_hometowns_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="villages_id" class="mb-2">Desa</label>
-                                <select name="villages_id" id="villages_id" class="form-select">
-                                    <option value="">-- Pilih --</option>
-                                    @foreach ($villages as $vlg)
-                                        <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_villages_id"></span>
-                            </div>
+                            <label for="villages_id" class="form-label fw-medium text-muted">Desa</label>
+                            <select name="villages_id" id="villages_id" class="form-select">
+                                <option value="">-- Pilih --</option>
+                                @foreach ($villages as $vlg)
+                                    <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_villages_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="routers_id" class="mb-2">Jenis Router</label>
-                                <select name="routers_id[]" id="routers_id" class="form-select" multiple>
-                                    @foreach ($routers as $rtr)
-                                        <option value="{{ $rtr->id }}">{{ $rtr->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_routers_id"></span>
-                            </div>
+                            <label for="routers_id" class="form-label fw-medium text-muted">Jenis Router</label>
+                            <select name="routers_id[]" id="routers_id" class="form-select" multiple>
+                                @foreach ($routers as $rtr)
+                                    <option value="{{ $rtr->id }}">{{ $rtr->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_routers_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="vlans_id" class="mb-2">Vlan</label>
-                                <select name="vlans_id[]" id="vlans_id" class="form-select" multiple>
-                                    @foreach ($vlans as $vln)
-                                        <option value="{{ $vln->id }}">{{ $vln->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_vlans_id"></span>
-                            </div>
+                            <label for="vlans_id" class="form-label fw-medium text-muted">Vlan</label>
+                            <select name="vlans_id[]" id="vlans_id" class="form-select" multiple>
+                                @foreach ($vlans as $vln)
+                                    <option value="{{ $vln->id }}">{{ $vln->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_vlans_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="odcs_id" class="mb-2">Alamat ODC</label>
-                                <select name="odcs_id[]" id="odcs_id" class="form-select" multiple>
-                                    @foreach ($odcs as $odc)
-                                        <option value="{{ $odc->id }}">
-                                            {{ $odc->code }} | {{ $odc->hometown->name }} 
-                                            | {{ $odc->rt->name }} | {{ $odc->rw->name }} |
-                                            {{ $odc->home_odc }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_odcs_id"></span>
-                            </div>
+                            <label for="odcs_id" class="form-label fw-medium text-muted">Alamat ODC</label>
+                            <select name="odcs_id[]" id="odcs_id" class="form-select" multiple>
+                                @foreach ($odcs as $odc)
+                                    <option value="{{ $odc->id }}">{{ $odc->code }} | {{ $odc->hometown->name }}
+                                        | {{ $odc->rt->name }} | {{ $odc->rw->name }} | {{ $odc->home_odc }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_odcs_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group mb-3">
-                                <label for="odps_id" class="mb-2">Alamat ODP</label>
-                                <select name="odps_id[]" id="odps_id" class="form-select" multiple>
-                                    @foreach ($odps as $odp)
-                                        <option value="{{ $odp->id }}">
-                                            {{ $odp->code }} | {{ $odp->hometown->name }} 
-                                            | {{ $odp->rt->name }} | {{ $odp->rw->name }} |
-                                            {{ $odp->home_odc }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_odps_id"></span>
-                            </div>
+                            <label for="odps_id" class="form-label fw-medium text-muted">Alamat ODP</label>
+                            <select name="odps_id[]" id="odps_id" class="form-select" multiple>
+                                @foreach ($odps as $odp)
+                                    <option value="{{ $odp->id }}">{{ $odp->code }} | {{ $odp->hometown->name }}
+                                        | {{ $odp->rt->name }} | {{ $odp->rw->name }} | {{ $odp->home_odc }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_odps_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="olts_id" class="mb-2">Alamat OLT</label>
-                                <select name="olts_id[]" id="olts_id" class="form-select" multiple>
-                                    @foreach ($olts as $olt)
-                                        <option value="{{ $olt->id }}">{{ $olt->hometown->name }} | {{ $olt->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_olts_id"></span>
-                            </div>
+                            <label for="olts_id" class="form-label fw-medium text-muted">Alamat OLT</label>
+                            <select name="olts_id[]" id="olts_id" class="form-select" multiple>
+                                @foreach ($olts as $olt)
+                                    <option value="{{ $olt->id }}">{{ $olt->hometown->name }} | {{ $olt->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_olts_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="paket_id" class="mb-2">Tipe Paket</label>
-                                <select name="paket_id[]" id="paket_id" class="form-select" multiple>
-                                    @foreach ($paket as $okt)
-                                        <option value="{{ $okt->id }}">{{ $okt->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_paket_id"></span>
-                            </div>
+                            <label for="paket_id" class="form-label fw-medium text-muted">Tipe Paket</label>
+                            <select name="paket_id[]" id="paket_id" class="form-select" multiple>
+                                @foreach ($paket as $okt)
+                                    <option value="{{ $okt->id }}">{{ $okt->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_paket_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="mic_radius_id" class="mb-2">Mic Radius</label>
-                                <select name="mic_radius_id[]" id="mic_radius_id" class="form-select" multiple>
-                                    @foreach ($micRadius as $mc)
-                                        <option value="{{ $mc->id }}">{{ $mc->code }} - {{ $mc->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_mic_radius_id"></span>
-                            </div>
+                            <label for="mic_radius_id" class="form-label fw-medium text-muted">Mic Radius</label>
+                            <select name="mic_radius_id[]" id="mic_radius_id" class="form-select" multiple>
+                                @foreach ($micRadius as $mc)
+                                    <option value="{{ $mc->id }}">{{ $mc->code }} - {{ $mc->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_mic_radius_id" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="price" class="mb-2">Tipe Pembayaran</label>
-                                <select name="price[]" id="price" class="form-select" multiple>
-                                    @foreach ($price as $prc)
-                                        <option value="{{ $prc->id }}">{{ $prc->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="invalid-feedback error_price"></span>
-                            </div>
+                            <label for="price" class="form-label fw-medium text-muted">Tipe Pembayaran</label>
+                            <select name="price[]" id="price" class="form-select" multiple>
+                                @foreach ($price as $prc)
+                                    <option value="{{ $prc->id }}">{{ $prc->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback error_price" style="font-size:0.85rem;"></span>
                         </div>
                         <div class="col-lg-12">
-                            <div class="form-group mb-3">
-                                <label for="is_ktp" class="mb-2">Apakah Halaman Menggunakan KTP</label>
-                                <select name="is_ktp" id="is_ktp" class="form-control">
-                                    <option value="">-- Pilih --</option>
-                                    <option value="aktif">Aktif</option>
-                                    <option value="tidak">Tidak</option>
-                                </select>
-                                <span class="invalid-feedback error_is_ktp"></span>
-                            </div>
+                            <label for="is_ktp" class="form-label fw-medium text-muted">Apakah Halaman Menggunakan
+                                KTP</label>
+                            <select name="is_ktp" id="is_ktp" class="form-select">
+                                <option value="">-- Pilih --</option>
+                                <option value="aktif">Aktif</option>
+                                <option value="tidak">Tidak</option>
+                            </select>
+                            <span class="invalid-feedback error_is_ktp" style="font-size:0.85rem;"></span>
                         </div>
                     </div>
-                    <input type="hidden" name="telp" id="telp" class="form-control" value="123">
-                    <input type="hidden" name="password" id="password" class="form-control" value="123">
+                    <input type="hidden" name="telp" id="telp" value="123">
+                    <input type="hidden" name="password" id="password" value="123">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" id="storeBtn" class="btn btn-primary">
+                <div class="modal-footer px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary me-auto"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="storeBtn" class="btn btn-primary px-4">
                         <span id="btnText">Simpan</span>
                         <span id="btnLoading" class="spinner-border spinner-border-sm d-none"></span>
                     </button>
@@ -355,14 +337,25 @@
                         d.filter_village = $('#filter_village').val();
                     }
                 },
-                order: [[4, 'desc']],
+                order: [
+                    [4, 'desc']
+                ],
                 pageLength: 10,
                 dom: 'rt',
-                columns: [
-                    { data: 'DT_RowIndex', orderable: false, searchable: false },
-                    { data: 'name', defaultContent: '-' },
-                    { data: 'telp', defaultContent: '-' },
-                    { 
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'telp',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'is_ktp',
                         render: function(data) {
                             if (data === 'aktif') {
@@ -372,13 +365,17 @@
                             }
                         }
                     },
-                    { 
+                    {
                         data: 'created_at',
                         render: function(data) {
                             return moment(data).format('DD/MM/YYYY HH:mm:ss');
                         }
                     },
-                    { data: 'action', orderable: false, searchable: false }
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
                 drawCallback: function(settings) {
                     updatePaginationInfo(settings);
@@ -396,13 +393,13 @@
         function handleEmptyState(settings) {
             const api = new $.fn.dataTable.Api(settings);
             const info = api.page.info();
-            
+
             if (info.recordsDisplay === 0) {
                 // Sembunyikan table header dan tampilkan empty state
                 $('#halaman-table thead').hide();
-                
+
                 const isFiltered = $('#filter_hometown').val() || $('#filter_village').val() || $('#search-input').val();
-                
+
                 const emptyStateHTML = `
                     <tr class="empty-state-row">
                         <td colspan="6" class="text-center py-5">
@@ -423,26 +420,26 @@
                                         'Belum ada data halaman yang tersedia.<br>Klik tombol "Tambah" untuk membuat data baru.'}
                                 </p>
                                 ${isFiltered ? `
-                                    <button type="button" class="btn btn-primary" id="resetFiltersBtn">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-filter-off">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M3 3l18 18" />
-                                            <path d="M9 5h9.5a1 1 0 0 1 .5 1.5l-4.049 4.454m-.951 3.046v5l-4 -3v-4l-5 -5.5a1 1 0 0 1 .18 -1.316" />
-                                        </svg>
-                                        Reset Filter
-                                    </button>
-                                ` : ''}
+                                        <button type="button" class="btn btn-primary" id="resetFiltersBtn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-filter-off">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M3 3l18 18" />
+                                                <path d="M9 5h9.5a1 1 0 0 1 .5 1.5l-4.049 4.454m-.951 3.046v5l-4 -3v-4l-5 -5.5a1 1 0 0 1 .18 -1.316" />
+                                            </svg>
+                                            Reset Filter
+                                        </button>
+                                    ` : ''}
                             </div>
                         </td>
                     </tr>
                 `;
-                
+
                 // Hapus row empty state yang lama jika ada
                 $('#halaman-table tbody .empty-state-row').remove();
-                
+
                 // Tambahkan empty state
                 $('#halaman-table tbody').html(emptyStateHTML);
-                
+
                 // Event handler untuk reset filter
                 $('#resetFiltersBtn').on('click', function() {
                     $('#filter_hometown').val('');
@@ -484,7 +481,7 @@
         function updatePaginationInfo(settings) {
             const api = new $.fn.dataTable.Api(settings);
             const info = api.page.info();
-            
+
             $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
             $('#end-entry').text(info.end);
             $('#total-entries').text(info.recordsDisplay);
@@ -533,7 +530,9 @@
                 if (endPage < info.pages - 2) {
                     pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
                 }
-                pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
+                pagination.append(
+                    `<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`
+                    );
             }
 
             // Next button
@@ -635,16 +634,16 @@
         function handleSave() {
             const type = $("#type").val();
             const id = $("#id").val();
-            
+
             const url = type === 'create' ? "{{ route('halaman.store') }}" : BASE + '/' + id + '/update';
-            
+
             const btn = $("#storeBtn");
             btn.prop('disabled', true);
             $("#btnText").addClass('d-none');
             $("#btnLoading").removeClass('d-none');
 
             let formData = new FormData();
-            
+
             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
             formData.append('name', $('#name').val());
             formData.append('desc', $('#desc').val());
@@ -670,44 +669,44 @@
             }
 
             $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false
-            })
-            .done(function(response) {
-                if (response.errors) {
-                    showValidationErrors(response.errors);
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false
+                })
+                .done(function(response) {
+                    if (response.errors) {
+                        showValidationErrors(response.errors);
+                        resetButton(btn);
+                    } else {
+                        $("#modal-simple").modal('hide');
+                        showSuccessMessage(response.message);
+                        table.ajax.reload();
+                        resetButton(btn);
+                    }
+                })
+                .fail(function(jqXHR) {
+                    if (jqXHR.status === 422 && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
+                        showValidationErrors(jqXHR.responseJSON.errors);
+                    } else {
+                        showErrorMessage("Terjadi kesalahan");
+                    }
                     resetButton(btn);
-                } else {
-                    $("#modal-simple").modal('hide');
-                    showSuccessMessage(response.message);
-                    table.ajax.reload();
-                    resetButton(btn);
-                }
-            })
-            .fail(function(jqXHR) {
-                if (jqXHR.status === 422 && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
-                    showValidationErrors(jqXHR.responseJSON.errors);
-                } else {
-                    showErrorMessage("Terjadi kesalahan");
-                }
-                resetButton(btn);
-            });
+                });
         }
 
         function editModal(id) {
             $.get(BASE + '/' + id + '/show')
                 .done(function(response) {
                     const data = response.data;
-                    
+
                     $(".modal-title").text("Edit Halaman");
                     $("#modal-simple").modal('show');
-                    
+
                     // Initialize Select2 first
                     initializeSelect2();
-                    
+
                     $("#id").val(data.id);
                     $("#name").val(data.name);
                     $("#telp").val(data.telp);
@@ -780,30 +779,30 @@
             }).then(function(result) {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: BASE + '/' + id + '/destroy',
-                        method: 'DELETE',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        }
-                    })
-                    .done(function(response) {
-                        showSuccessMessage(response.message);
-                        table.ajax.reload();
-                    })
-                    .fail(function() {
-                        showErrorMessage("Server Error");
-                    });
+                            url: BASE + '/' + id + '/destroy',
+                            method: 'DELETE',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            }
+                        })
+                        .done(function(response) {
+                            showSuccessMessage(response.message);
+                            table.ajax.reload();
+                        })
+                        .fail(function() {
+                            showErrorMessage("Server Error");
+                        });
                 }
             });
         }
 
         function showValidationErrors(errors) {
             clearValidationErrors();
-            
+
             Object.keys(errors).forEach(function(field) {
                 const element = $("#" + field);
                 element.addClass('is-invalid');
-                
+
                 const errorText = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
                 $(".error_" + field).text(errorText);
             });
@@ -858,7 +857,7 @@
         }
 
         // Cleanup on modal hide
-        $('#modal-simple').on('hidden.bs.modal', function () {
+        $('#modal-simple').on('hidden.bs.modal', function() {
             destroySelect2();
         });
     </script>

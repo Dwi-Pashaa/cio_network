@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PatchCore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class PatchCoreController extends Controller
 {
@@ -36,6 +37,7 @@ class PatchCoreController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = Auth::user()->organization_id;
 
         PatchCore::create($post);
 
@@ -70,6 +72,7 @@ class PatchCoreController extends Controller
         }
 
         $put = $request->only('name', 'regencie_id', 'district_id');
+        $put['organization_id'] = Auth::user()->organization_id;
 
         $patchCore = PatchCore::find($id);
 

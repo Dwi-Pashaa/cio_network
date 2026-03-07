@@ -36,6 +36,7 @@ class KabupatenController extends Controller
         }
 
         $post = $request->all();
+        $post['organization_id'] = auth()->user()->organization_id;
 
         Regency::create($post);
 
@@ -70,6 +71,7 @@ class KabupatenController extends Controller
         }
 
         $put = $request->only('name');
+        $put['organization_id'] = auth()->user()->organization_id;
 
         $regencies = Regency::find($id);
 
