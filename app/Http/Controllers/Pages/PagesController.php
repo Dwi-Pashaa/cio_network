@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Pages\PagesDataTable;
 use App\Events\ChatSent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\StorePagesRequest;
 use App\Models\Chat;
 use App\Models\Customer;
+use App\Services\MyEmailVerifierService;
+use App\Services\FontePhoneCheckService;
 use App\Models\District;
 use App\Models\HomeTown;
 use App\Models\MicRadius;
@@ -17,7 +18,6 @@ use App\Models\ODP;
 use App\Models\OLT;
 use App\Models\Pages;
 use App\Models\Paket;
-use App\Models\PatchCore;
 use App\Models\Price;
 use App\Models\Regency;
 use App\Models\Router;
@@ -498,6 +498,41 @@ class PagesController extends Controller
         $data['user_id'] = Auth::id();
         $typeName = $data['type_name'] ?? null;
 
+        // ── Validasi email via MyEmailVerifier API ──
+        if (!empty($data['email'])) {
+            $emailVerifier = new MyEmailVerifierService();
+            $result = $emailVerifier->verify($data['email']);
+
+            if (($result['status'] ?? null) !== 'register') {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['email' => 'Email tidak valid atau tidak terdaftar: ' . $result['message']]);
+            }
+
+            $data['email_verify_at'] = 'register';
+        } else {
+            $data['email_verify_at'] = null;
+        }
+
+        // ── Validasi nomor telepon via Fonnte API ──
+        if (!empty($data['telp'])) {
+            $phoneService = new FontePhoneCheckService();
+            $phoneResult  = $phoneService->check($data['telp']);
+
+            if (!$phoneResult['is_valid']) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['telp' => 'Nomor tidak terdaftar di WhatsApp: ' . $phoneResult['message']]);
+            }
+
+            // Tandai WA sudah terverifikasi
+            $data['wa_verifiy_at'] = 'registered';
+        } else {
+            $data['wa_verifiy_at'] = null;
+        }
+
         $ktpUrl = null;
 
         if ($request->is_ktp === 'aktif') {
@@ -695,77 +730,6 @@ class PagesController extends Controller
         });
     }
 
-
-    // public function saveCustomerToSpan(StoreCustomerRequest $request)
-    // {
-    //     $data = $request->validated();
-    //     $data['user_id'] = Auth::id();
-    //     $typeName = $data['type_name'] ?? null;
-
-    //     return DB::transaction(function () use ($request, $data, $typeName) {
-    //         $userRouter = UserRouter::where('user_id', Auth::id())
-    //             ->where('router_id', $data['routers_id'])
-    //             ->lockForUpdate()
-    //             ->first();
-
-    //         if (!$userRouter) {
-    //             return back()->with('error', 'Router tidak ditemukan atau tidak terdaftar untuk user ini.');
-    //         }
-
-    //         if ($userRouter->total <= 0) {
-    //             return back()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
-    //         }
-
-    //         $userRouter->decrement('total');
-
-    //         $last = Customer::whereNotNull('uuid')
-    //             ->where('uuid', 'like', 'CSTMR%')
-    //             ->orderBy('uuid', 'desc')
-    //             ->first();
-
-    //         if (!$last) {
-    //             $nextNumber = 1;
-    //         } else {
-    //             preg_match('/\d+/', $last->uuid, $matches);
-    //             $lastNumber = $matches ? (int) $matches[0] : 0;
-    //             $nextNumber = $lastNumber + 1;
-    //         }
-
-    //         $uuid = 'CSTMR' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-    //         $data['uuid'] = $uuid;
-
-    //         if (!empty($data['email']) && Customer::where('email', $data['email'])->exists()) {
-    //             $emailParts = explode('@', $data['email']);
-    //             $uniqueSuffix = rand(1000, 9999);
-    //             $data['email'] = "{$emailParts[0]}{$uniqueSuffix}@{$emailParts[1]}";
-    //         }
-
-    //         if ($typeName === "PPPOE") {
-    //             $vlan     = Vlan::find($request->vlans_id);
-    //             $vlanName = $vlan?->name ?? 'vlan';
-
-    //             $pppoeUser = "{$vlanName}/{$uuid}";
-    //             $pppoePass = "{$vlanName}/{$uuid}";
-
-    //             $data['pppoe_username'] = $pppoeUser;
-    //             $data['pppoe_password'] = $pppoePass;
-    //             $data['mic_radius_id']  = $request->mic_radius_id;
-    //         } else {
-    //             $data['pppoe_username'] = null;
-    //             $data['pppoe_password'] = null;
-    //             $data['mic_radius_id']  = null;
-    //         }
-
-    //         unset($data['type_name']);
-
-    //         $customer = Customer::create($data);
-
-    //         // $this->sendWablasNotification($request, $customer, $typeName);
-
-    //         return back()->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
-    //     });
-    // }
-
     private function sendWablasNotification($request, $customer, $typeName)
     {
         $token      = config('wablas.token');
@@ -860,6 +824,84 @@ class PagesController extends Controller
             Log::error('Gagal mengirim pesan WhatsApp: ' . $response->body());
             throw new \Exception('Gagal mengirim pesan WhatsApp: ' . $response->body());
         }
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'is_valid' => false,
+                'message'  => 'Format email tidak valid.',
+            ]);
+        }
+
+        // Cek duplikat di database
+        $exists = Customer::where('email', $request->email)->exists();
+        if ($exists) {
+            return response()->json([
+                'is_valid' => false,
+                'message'  => 'Email sudah digunakan oleh pelanggan lain.',
+            ]);
+        }
+
+        // Verifikasi via MyEmailVerifier — API key aman di backend
+        $emailVerifier = new MyEmailVerifierService();
+        $result = $emailVerifier->verify($request->email);
+
+        return response()->json([
+            'is_valid' => $result['is_valid'],
+            'message'  => $result['message'],
+        ]);
+    }
+
+    public function checkPhone(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'telp' => 'required|string',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'is_valid' => false,
+                'message'  => 'Nomor telepon wajib diisi.',
+            ]);
+        }
+
+        $phone = preg_replace('/\D/', '', $request->telp);
+
+        if (strlen($phone) < 9 || strlen($phone) > 15) {
+            return response()->json([
+                'is_valid' => false,
+                'message'  => 'Format nomor telepon tidak valid.',
+            ]);
+        }
+
+        // Cek duplikat di database
+        $phoneService = new FontePhoneCheckService();
+        $normalized   = $phoneService->normalize($request->telp);
+
+        $exists = Customer::where('telp', $request->telp)
+            ->orWhere('telp', $normalized)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'is_valid' => false,
+                'message'  => 'Nomor telepon sudah digunakan oleh pelanggan lain.',
+            ]);
+        }
+
+        // Verifikasi via Fonnte — token aman di backend
+        $result = $phoneService->check($request->telp);
+
+        return response()->json([
+            'is_valid' => $result['is_valid'],
+            'message'  => $result['message'],
+        ]);
     }
 
     public function checkMacAddress(Request $request)

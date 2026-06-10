@@ -22,7 +22,7 @@ class StoreCustomerRequest extends FormRequest
         return [
             'types_id'    => 'required',
             'name'        => 'required|string|max:255',
-            'email'       => 'required',
+            'email'       => 'required|email|unique:customers,email',
             'telp'        => 'required|numeric|digits_between:10,15',
             'mac_address' => 'required|string',
             'routers_id'  => 'required',

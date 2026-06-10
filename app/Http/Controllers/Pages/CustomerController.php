@@ -9,8 +9,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Chat;
 use App\Models\Customer;
+use App\Services\MyEmailVerifierService;
 use App\Models\District;
 use App\Models\HomeTown;
+use App\Models\MacAddress;
 use App\Models\MicRadius;
 use App\Models\ODC;
 use App\Models\ODP;
@@ -112,6 +114,33 @@ class CustomerController extends Controller
     {
         $data = $request->validated();
 
+        // ── Validasi email via MyEmailVerifier API ──
+        if (!empty($data['email'])) {
+            $emailVerifier = new MyEmailVerifierService();
+            $result = $emailVerifier->verify($data['email']);
+
+            $data['email_verify_at'] = $result['status'] ?? ($result['is_valid'] ? 'register' : 'not_register');
+        } else {
+            $data['email_verify_at'] = null;
+        }
+
+        // ── Validasi WA via Fonnte API ──
+        if (!empty($data['telp'])) {
+            $phoneService = new \App\Services\FontePhoneCheckService();
+            $phoneResult = $phoneService->check($data['telp']);
+
+            if (!$phoneResult['is_valid']) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['telp' => $phoneResult['message']]);
+            }
+
+            $data['wa_verifiy_at'] = 'registered';
+        } else {
+            $data['wa_verifiy_at'] = null;
+        }
+
         $data['user_id'] = Auth::id();
         $uuid = $data['uuid'] ?? null;
         $typeName = $data['type_name'] ?? $request->type_name ?? null;
@@ -201,6 +230,31 @@ class CustomerController extends Controller
 
         $data = $request->validated();
 
+        // ── Validasi email jika berubah ──
+        if (!empty($data['email']) && $data['email'] !== $customer->email) {
+            $emailVerifier = new MyEmailVerifierService();
+            $result = $emailVerifier->verify($data['email']);
+
+            $data['email_verify_at'] = $result['status'] ?? ($result['is_valid'] ? 'register' : 'not_register');
+        } elseif (empty($data['email'])) {
+            $data['email_verify_at'] = null;
+        }
+
+        // ── Validasi WA jika berubah ──
+        if (!empty($data['telp']) && $data['telp'] !== $customer->telp) {
+            $phoneService = new \App\Services\FontePhoneCheckService();
+            $phoneResult = $phoneService->check($data['telp']);
+
+            if (!$phoneResult['is_valid']) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['telp' => $phoneResult['message']]);
+            }
+
+            $data['wa_verifiy_at'] = 'registered';
+        }
+
         $uuid = $data['uuid'] ?? null;
         $typeName = $data['type_name'] ?? $request->type_name ?? null;
 
@@ -247,9 +301,32 @@ class CustomerController extends Controller
             return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Data Not Found.']);
         }
 
+        $macAddress = $customer->mac_address;
+        $organizationId = $customer->organization_id;
+
         $customer->delete();
 
+        $this->syncMacAddressStatus($macAddress, $organizationId);
+
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil menghapus data.']);
+    }
+
+    private function syncMacAddressStatus(?string $macAddress, ?int $organizationId): void
+    {
+        $normalizedMac = strtoupper(trim((string) $macAddress));
+
+        if ($normalizedMac === '' || !$organizationId) {
+            return;
+        }
+
+        $isStillUsed = Customer::where('organization_id', $organizationId)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
+            ->exists();
+
+        MacAddress::where('organization_id', $organizationId)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
+            ->where('status', '<>', 'blocked')
+            ->update(['status' => $isStillUsed ? 'used' : 'available']);
     }
 
     public function export()
@@ -582,6 +659,127 @@ class CustomerController extends Controller
             'code' => 200,
             'status' => 'success',
             'message' => 'Berhasil memindahkan pelanggan ke OLT baru.',
+        ]);
+    }
+
+    /**
+     * Realtime email check — dipanggil dari frontend via AJAX.
+     * API key tidak pernah terekspos ke sisi frontend.
+     */
+    public function checkEmail(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'is_valid' => false,
+                'status'   => 'not_register',
+                'message'  => 'Format email tidak valid.',
+            ]);
+        }
+
+        // Cek apakah email sudah dipakai customer lain
+        $exists = Customer::where('email', $request->email)->exists();
+        if ($exists) {
+            return response()->json([
+                'is_valid' => false,
+                'status'   => 'not_register',
+                'message'  => 'Email sudah digunakan oleh customer lain.',
+            ]);
+        }
+
+        // Panggil MyEmailVerifier dari backend — API key tidak terekspos ke frontend
+        $emailVerifier = new MyEmailVerifierService();
+        $result = $emailVerifier->verify($request->email);
+
+        return response()->json([
+            'is_valid' => $result['is_valid'],
+            'status'   => $result['status'],
+            'message'  => $result['message'],
+        ]);
+    }
+
+    public function verifyEmailOnDemand(Request $request)
+    {
+        abort_unless(Auth::user()->can('verifikasi email'), 403);
+
+        // Terima email langsung dari request (untuk form create & edit)
+        $email = $request->input('email');
+
+        // Jika tidak ada email di request, coba cari dari customer by id
+        if (!$email && $request->id) {
+            $customer = Customer::find($request->id);
+            $email = $customer?->email;
+        }
+
+        if (!$email) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Email tidak ditemukan atau tidak dikirimkan.'
+            ], 422);
+        }
+
+        $emailVerifier = new MyEmailVerifierService();
+        $result = $emailVerifier->verify($email);
+
+        $status = $result['is_valid'] ? 'valid' : 'invalid';
+
+        // Jika ada customer id, simpan hasil ke DB
+        if ($request->id) {
+            $customer = Customer::find($request->id);
+            if ($customer) {
+                $customer->update(['email_verify_at' => $result['status'] ?? ($result['is_valid'] ? 'register' : 'not_register')]);
+            }
+        }
+
+        return response()->json([
+            'status'        => $result['status'] ?? $status,
+            'is_valid'      => $result['is_valid'],
+            'message'       => $result['message']
+        ]);
+    }
+
+    public function verifyWaOnDemand(Request $request)
+    {
+        abort_unless(Auth::user()->can('verifikasi whatsapp'), 403);
+
+        // Terima telp langsung dari request (untuk form create & edit)
+        $telp = $request->input('telp');
+
+        // Jika tidak ada telp di request, coba cari dari customer by id
+        if (!$telp && $request->id) {
+            $customer = Customer::find($request->id);
+            $telp = $customer?->telp;
+        }
+
+        if (!$telp) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Nomor telepon tidak ditemukan atau tidak dikirimkan.'
+            ], 422);
+        }
+
+        $phoneService = new \App\Services\FontePhoneCheckService();
+        $result = $phoneService->check($telp);
+
+        $status = $result['status'] ?? ($result['is_valid'] ? 'registered' : 'not_registered');
+
+        // Jika ada customer id, simpan hasil ke DB
+        if ($request->id) {
+            $customer = Customer::find($request->id);
+            if ($customer) {
+                if (in_array($status, ['registered', 'not_registered'], true)) {
+                    $customer->update(['wa_verifiy_at' => $status]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status'   => $status,
+            'is_valid' => $result['is_valid'],
+            'message'  => $result['message']
         ]);
     }
 }

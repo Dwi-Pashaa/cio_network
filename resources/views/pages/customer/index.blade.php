@@ -121,6 +121,24 @@
                             <option value="{{ $mc->id }}">{{ $mc->name }}</option>
                         @endforeach
                     </select>
+
+                    @can('verifikasi email')
+                        <select name="email_verify" id="email_verify" class="org-input filter-select" style="min-width:150px;">
+                            <option value="">Semua Verif Email</option>
+                            <option value="register">Terdaftar</option>
+                            <option value="not_register">Tidak Terdaftar</option>
+                            <option value="belum_dicek">Belum Dicek</option>
+                        </select>
+                    @endcan
+
+                    @can('verifikasi whatsapp')
+                        <select name="wa_verify" id="wa_verify" class="org-input filter-select" style="min-width:150px;">
+                            <option value="">Semua Verif WA</option>
+                            <option value="registered">Terdaftar</option>
+                            <option value="not_registered">Tidak Terdaftar</option>
+                            <option value="belum_dicek">Belum Dicek</option>
+                        </select>
+                    @endcan
                 </div>
 
                 <div class="search-wrapper" style="min-width: 200px;">
@@ -289,6 +307,8 @@
                         d.vlan = $('#vlan').val();
                         d.olt = $('#olt').val();
                         d.micradius = $('#micradius').val();
+                        d.email_verify = $('#email_verify').val();
+                        d.wa_verify = $('#wa_verify').val();
                         d.search = $('#search-input').val();
                     }
                 },
@@ -801,6 +821,68 @@
             btn.prop('disabled', false);
             btn.find(".btn-text").text(text);
             btn.find(".btn-loading").addClass('d-none');
+        }
+
+        function verifyEmailOnDemand(id, element) {
+            const $btn = $(element);
+            if ($btn.hasClass('pe-none')) return;
+            
+            const originalHtml = $btn.html();
+            $btn.addClass('pe-none').html('<div class="spinner-border text-primary" role="status" style="width: 12px; height: 12px; border-width: 2px;"></div>');
+            
+            $.ajax({
+                url: "{{ route('customer.verify-email-on-demand') }}",
+                method: "POST",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id
+                },
+                dataType: "JSON"
+            })
+            .done(function(response) {
+                if (response.status === 'register') {
+                    showSuccessMessage('✅ Email terdaftar: ' + response.message);
+                } else {
+                    showErrorMessage('❌ Email tidak valid: ' + response.message);
+                }
+                table.ajax.reload(null, false);
+            })
+            .fail(function(xhr) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Gagal mengecek email.";
+                showErrorMessage(errorMsg);
+                $btn.removeClass('pe-none').html(originalHtml);
+            });
+        }
+
+        function verifyWaOnDemand(id, element) {
+            const $btn = $(element);
+            if ($btn.hasClass('pe-none')) return;
+            
+            const originalHtml = $btn.html();
+            $btn.addClass('pe-none').html('<div class="spinner-border text-primary" role="status" style="width: 12px; height: 12px; border-width: 2px;"></div>');
+            
+            $.ajax({
+                url: "{{ route('customer.verify-wa-on-demand') }}",
+                method: "POST",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id
+                },
+                dataType: "JSON"
+            })
+            .done(function(response) {
+                if (response.status === 'registered') {
+                    showSuccessMessage('✅ WA terdaftar: ' + response.message);
+                } else {
+                    showErrorMessage('❌ WA tidak terdaftar: ' + response.message);
+                }
+                table.ajax.reload(null, false);
+            })
+            .fail(function(xhr) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Gagal mengecek status WA.";
+                showErrorMessage(errorMsg);
+                $btn.removeClass('pe-none').html(originalHtml);
+            });
         }
 
         document.addEventListener('click', function(e) {

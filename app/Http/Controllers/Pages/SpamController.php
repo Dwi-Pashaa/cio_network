@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Pages\SpamDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\MacAddress;
 use App\Models\SwitchDevice;
 use App\Models\UserPatchCore;
 use App\Models\UserRouter;
@@ -89,9 +90,32 @@ class SpamController extends Controller
             }
         }
 
+        $macAddress = $customer->mac_address;
+        $organizationId = $customer->organization_id;
+
         $customer->delete();
 
+        $this->syncMacAddressStatus($macAddress, $organizationId);
+
         return response()->json(200);
+    }
+
+    private function syncMacAddressStatus(?string $macAddress, ?int $organizationId): void
+    {
+        $normalizedMac = strtoupper(trim((string) $macAddress));
+
+        if ($normalizedMac === '' || !$organizationId) {
+            return;
+        }
+
+        $isStillUsed = Customer::where('organization_id', $organizationId)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
+            ->exists();
+
+        MacAddress::where('organization_id', $organizationId)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
+            ->where('status', '<>', 'blocked')
+            ->update(['status' => $isStillUsed ? 'used' : 'available']);
     }
 
     public function outSwitch($id)

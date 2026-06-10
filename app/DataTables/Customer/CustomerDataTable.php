@@ -39,12 +39,38 @@ class CustomerDataTable
 
             // Kolom Email
             ->addColumn('email', function ($row) {
-                return $row->email ?? '-';
+                if (!$row->email) return '-';
+                if ($row->email_verify_at === 'register') {
+                    $badge = '<span class="badge bg-success text-white" style="font-size: 10px; padding: 2px 6px;">Terdaftar</span>';
+                } elseif ($row->email_verify_at === 'not_register') {
+                    $badge = '<span class="badge bg-danger text-white" style="font-size: 10px; padding: 2px 6px;">Tidak Terdaftar</span>';
+                } else {
+                    $badge = '<span class="badge bg-secondary text-white" style="font-size: 10px; padding: 2px 6px;">Belum Dicek</span>';
+                }
+                
+                $checkBtn = auth()->user()->can('verifikasi email')
+                    ? '<a href="javascript:void(0)" class="text-primary ms-1" onclick="verifyEmailOnDemand(' . $row->id . ', this)" title="Cek Verifikasi Email"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></a>'
+                    : '';
+                
+                return '<div class="d-flex align-items-center justify-content-between"><div>' . e($row->email) . '<br>' . $badge . '</div>' . $checkBtn . '</div>';
             })
 
             // Kolom Telephone
             ->addColumn('telp', function ($row) {
-                return $row->telp ?? '-';
+                if (!$row->telp) return '-';
+                if ($row->wa_verifiy_at === 'registered') {
+                    $badge = '<span class="badge bg-success text-white" style="font-size: 10px; padding: 2px 6px;">Terdaftar</span>';
+                } elseif ($row->wa_verifiy_at === 'not_registered') {
+                    $badge = '<span class="badge bg-danger text-white" style="font-size: 10px; padding: 2px 6px;">Tidak Terdaftar</span>';
+                } else {
+                    $badge = '<span class="badge bg-secondary text-white" style="font-size: 10px; padding: 2px 6px;">Belum Dicek</span>';
+                }
+                
+                $checkBtn = auth()->user()->can('verifikasi whatsapp')
+                    ? '<a href="javascript:void(0)" class="text-primary ms-1" onclick="verifyWaOnDemand(' . $row->id . ', this)" title="Cek Verifikasi WA"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></a>'
+                    : '';
+                
+                return '<div class="d-flex align-items-center justify-content-between"><div>' . e($row->telp) . '<br>' . $badge . '</div>' . $checkBtn . '</div>';
             })
 
             // Kolom Mac Address
@@ -218,8 +244,32 @@ class CustomerDataTable
                 $editId = $row->id;
                 $deleteId = $row->id;
 
-                if (auth()->user()->can('copy pelanggan')) {
+                if (auth()->user()->can('chatting')) {
+                    $btn .= sprintf(
+                        '<button class="btn btn-outline-primary mb-1" onclick="openChat(' . $editId . ')">Kirim Pemberitahuan</button> ',
+                    );
+                }
 
+                if (auth()->user()->can('ubah pelanggan')) {
+                    $btn .= sprintf(
+                        '<a href="%s" class="btn btn-outline-warning mb-1">Edit</a> ',
+                        route('customer.edit', $row->id)
+                    );
+                }
+
+                if (auth()->user()->can('hapus pelanggan')) {
+                    $btn .= '<button class="btn btn-outline-danger mb-1" onclick="deleteCustomer(' . $deleteId . ')">Hapus</button>';
+                }
+
+                return $btn ?: '-';
+            })
+
+            ->addColumn('checkbox', function ($row) {
+                static $counter = 0;
+                $counter++;
+
+                $btn = '';
+                if (auth()->user()->can('copy pelanggan')) {
                     $copyData = [
                         'UUID' => $row->uuid,
                         'Tipe Pelanggan' => $row->tipePelanggan->name ?? null,
@@ -254,46 +304,24 @@ class CustomerDataTable
                         'INPUT OLEH' => $row->user->name ?? null,
                     ];
 
-                    $btn .= sprintf(
-                        '<button class="btn btn-outline-secondary mb-1 copy-btn"
+                    $btn = sprintf(
+                        '<button class="btn btn-sm btn-outline-secondary ms-2 copy-btn"
                             data-copy=\'%s\'>
                             Copy
-                        </button> ',
+                        </button>',
                         json_encode($copyData, JSON_HEX_APOS | JSON_HEX_QUOT)
                     );
                 }
 
-                if (auth()->user()->can('chatting')) {
-                    $btn .= sprintf(
-                        '<button class="btn btn-outline-primary mb-1" onclick="openChat(' . $editId . ')">Kirim Pemberitahuan</button> ',
-                    );
-                }
-
-                if (auth()->user()->can('ubah pelanggan')) {
-                    $btn .= sprintf(
-                        '<a href="%s" class="btn btn-outline-warning mb-1">Edit</a> ',
-                        route('customer.edit', $row->id)
-                    );
-                }
-
-                if (auth()->user()->can('hapus pelanggan')) {
-                    $btn .= '<button class="btn btn-outline-danger mb-1" onclick="deleteCustomer(' . $deleteId . ')">Hapus</button>';
-                }
-
-                return $btn ?: '-';
-            })
-
-            ->addColumn('checkbox', function ($row) {
-                static $counter = 0;
-                $counter++;
                 return sprintf(
-                    '<span class="me-2">%d</span><input class="form-check-input row-check" type="checkbox" name="selected[]" value="%d">',
+                    '<div class="d-flex align-items-center"><span class="me-2">%d</span><input class="form-check-input row-check m-0" type="checkbox" name="selected[]" value="%d">%s</div>',
                     $counter,
-                    $row->id
+                    $row->id,
+                    $btn
                 );
             })
 
-            ->rawColumns(['lokasi', 'ktp', 'action', 'checkbox'])
+            ->rawColumns(['email', 'telp', 'lokasi', 'ktp', 'action', 'checkbox'])
             ->make(true);
     }
 
@@ -373,6 +401,18 @@ class CustomerDataTable
             ->when($request->vlan, fn($q, $v) => $q->where('vlans_id', $v))
             ->when($request->olt, fn($q, $v) => $q->where('olts_id', $v))
             ->when($request->micradius, fn($q, $v) => $q->where('mic_radius_id', $v))
+            ->when($request->email_verify, function ($q, $v) {
+                if ($v === 'belum_dicek') {
+                    return $q->whereNull('email_verify_at');
+                }
+                return $q->where('email_verify_at', $v);
+            })
+            ->when($request->wa_verify, function ($q, $v) {
+                if ($v === 'belum_dicek') {
+                    return $q->whereNull('wa_verifiy_at');
+                }
+                return $q->where('wa_verifiy_at', $v);
+            })
             ->orderBy('created_at', 'desc');
     }
 }

@@ -374,21 +374,63 @@
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Email Pelanggan</label>
-                                    <input value="{{ old('email') }}" type="text" name="email" id="email"
-                                        class="form-control @error('email') is-invalid @enderror"
-                                        placeholder="contoh@email.com">
+                                    <div class="input-group">
+                                        <input value="{{ old('email') }}" type="text" name="email" id="email"
+                                            class="form-control @error('email') is-invalid @enderror"
+                                            placeholder="contoh@email.com"
+                                            autocomplete="off">
+                                        <button type="button" id="btn-check-email"
+                                            class="btn btn-outline-secondary"
+                                            style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
+                                            <span id="check-email-text">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                    <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
+                                                </svg>
+                                                Cek Email
+                                            </span>
+                                            <span id="check-email-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
+                                        </button>
+                                    </div>
                                     @error('email')
-                                        <span class="invalid-feedback">{{ $message }}</span>
+                                        <span class="invalid-feedback" style="display:block;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                                fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                                            </svg>
+                                            {{ $message }}
+                                        </span>
                                     @enderror
+                                    <small id="emailFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">No Telephone <span class="text-danger">*</span></label>
-                                    <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
-                                        class="form-control @error('telp') is-invalid @enderror"
-                                        placeholder="08xxxxxxxxxx">
+                                    <div class="input-group">
+                                        <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
+                                            class="form-control @error('telp') is-invalid @enderror"
+                                            placeholder="08xxxxxxxxxx"
+                                            autocomplete="off">
+                                        <button type="button" id="btn-check-phone"
+                                            class="btn btn-outline-secondary"
+                                            style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
+                                            <span id="check-phone-text">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                    <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
+                                                </svg>
+                                                Cek No HP
+                                            </span>
+                                            <span id="check-phone-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
+                                        </button>
+                                    </div>
                                     @error('telp')
-                                        <span class="invalid-feedback">{{ $message }}</span>
+                                        <span class="invalid-feedback" style="display:block;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                                fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                                            </svg>
+                                            {{ $message }}
+                                        </span>
                                     @enderror
+                                    <small id="phoneFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Mac Address</label>
@@ -462,7 +504,7 @@
                                     <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Tipe Paket</label>
                                         <select name="paket_id" id="paket_id"
-                                            class="form-control @error('paket_id') is-invalid @enderror">
+                                            class="form-control select-tom @error('paket_id') is-invalid @enderror">
                                             <option value="">Pilih Paket</option>
                                             @foreach ($paket as $pkt)
                                                 <option value="{{ $pkt->id }}"
@@ -477,7 +519,7 @@
                                     <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Mix Radius</label>
                                         <select name="mic_radius_id" id="mic_radius_id"
-                                            class="form-control @error('mic_radius_id') is-invalid @enderror">
+                                            class="form-control select-tom @error('mic_radius_id') is-invalid @enderror">
                                             <option value="">Pilih Mix Radius</option>
                                             @foreach ($micRadius as $mc)
                                                 <option value="{{ $mc->id }}"
@@ -492,7 +534,7 @@
                                     <div class="col-lg-4 col-md-12 col-sm-12 mb-3">
                                         <label class="form-label">Tipe Pembayaran</label>
                                         <select name="price_id" id="price_id"
-                                            class="form-control @error('price_id') is-invalid @enderror">
+                                            class="form-control select-tom @error('price_id') is-invalid @enderror">
                                             <option value="">Pilih Tipe Pembayaran</option>
                                             @foreach ($price as $prc)
                                                 <option value="{{ $prc->id }}"
@@ -519,7 +561,7 @@
                                 <div class="col-lg-12 mb-3">
                                     <label class="form-label">Kampung</label>
                                     <select name="hometowns_id" id="hometowns_id"
-                                        class="form-control @error('hometowns_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('hometowns_id') is-invalid @enderror">
                                         <option value="{{ $pages->hometowns_id }}">{{ $pages->hometown->name }}</option>
                                     </select>
                                     @error('hometowns_id')
@@ -529,7 +571,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">RT</label>
                                     <select name="rts_id" id="rts_id"
-                                        class="form-control @error('rts_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('rts_id') is-invalid @enderror">
                                         <option value="">Pilih RT</option>
                                         @foreach ($rts as $rt)
                                             <option value="{{ $rt->id }}"
@@ -544,7 +586,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">RW</label>
                                     <select name="rws_id" id="rws_id"
-                                        class="form-control @error('rws_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('rws_id') is-invalid @enderror">
                                         <option value="">Pilih RW</option>
                                         @foreach ($rws as $rw)
                                             <option value="{{ $rw->id }}"
@@ -559,7 +601,7 @@
                                 <div class="col-lg-12 mb-3">
                                     <label class="form-label">Desa</label>
                                     <select name="villages_id" id="villages_id"
-                                        class="form-control @error('villages_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('villages_id') is-invalid @enderror">
                                         <option value="{{ $pages->villages_id }}">{{ $pages->village->name }}</option>
                                     </select>
                                     @error('villages_id')
@@ -569,7 +611,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Kabupaten/Kota</label>
                                     <select name="regencies_id" id="regencies_id"
-                                        class="form-control @error('regencies_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('regencies_id') is-invalid @enderror">
                                         <option value="{{ $pages->regencies_id }}">{{ $pages->regencie->name }}</option>
                                     </select>
                                     @error('regencies_id')
@@ -579,7 +621,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Kecamatan</label>
                                     <select name="districts_id" id="districts_id"
-                                        class="form-control @error('districts_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('districts_id') is-invalid @enderror">
                                         <option value="{{ $pages->districts_id }}">{{ $pages->district->name }}</option>
                                     </select>
                                     @error('districts_id')
@@ -612,7 +654,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">VLAN</label>
                                     <select name="vlans_id" id="vlans_id"
-                                        class="form-control @error('vlans_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('vlans_id') is-invalid @enderror">
                                         <option value="">Pilih VLAN</option>
                                         @foreach ($vlans as $vln)
                                             <option value="{{ $vln->id }}" data-label="{{ $vln->name }}">
@@ -626,7 +668,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat ODC</label>
                                     <select name="odcs_id" id="odcs_id"
-                                        class="form-control @error('odcs_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('odcs_id') is-invalid @enderror">
                                         <option value="">Pilih ODC</option>
                                         @foreach ($odcs as $odc)
                                             <option value="{{ $odc->id }}">
@@ -642,7 +684,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat ODP</label>
                                     <select name="odps_id" id="odps_id"
-                                        class="form-control @error('odps_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('odps_id') is-invalid @enderror">
                                         <option value="">Pilih ODP</option>
                                         @foreach ($odps as $odp)
                                             <option value="{{ $odp->id }}">
@@ -658,7 +700,7 @@
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat OLT</label>
                                     <select name="olts_id" id="olts_id"
-                                        class="form-control @error('olts_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('olts_id') is-invalid @enderror">
                                         <option value="">Pilih OLT</option>
                                         @foreach ($olts as $olt)
                                             <option value="{{ $olt->id }}">
@@ -673,7 +715,7 @@
                                 <div class="col-lg-12 mb-3">
                                     <label class="form-label">Ukuran Patch Core <span class="text-danger">*</span></label>
                                     <select name="patch_core_id" id="patch_core_id"
-                                        class="form-control @error('patch_core_id') is-invalid @enderror">
+                                        class="form-control select-tom @error('patch_core_id') is-invalid @enderror">
                                         <option value="">Pilih Ukuran Patch Core</option>
                                         @foreach ($pathCore as $pc)
                                             <option value="{{ $pc->id }}">{{ $pc->name }}</option>
@@ -742,13 +784,99 @@
         });
 
         document.querySelector('form').addEventListener('submit', function(e) {
-            const btn = document.getElementById('btn');
-            const text = document.getElementById('btn-text');
-            const loading = document.getElementById('btn-loading');
-            const ktpPhoto = document.getElementById('ktp_photo');
+            const btn           = document.getElementById('btn');
+            const text          = document.getElementById('btn-text');
+            const loading       = document.getElementById('btn-loading');
+            const ktpPhoto      = document.getElementById('ktp_photo');
+            const emailInput    = document.getElementById('email');
+            const emailFeedback = document.getElementById('emailFeedback');
+            const phoneInput    = document.getElementById('telp');
+            const phoneFeedback = document.getElementById('phoneFeedback');
 
-            const isKtpAktif = "{{ $pages->is_ktp }}" === 'aktif';
+            const isKtpAktif  = "{{ $pages->is_ktp }}" === 'aktif';
+            const emailValue  = emailInput  ? emailInput.value.trim()  : '';
+            const phoneValue  = phoneInput  ? phoneInput.value.trim()  : '';
+            const emailStatus = window.__emailChecked ?? null;   // null | true | false
+            const phoneStatus = window.__phoneChecked ?? null;   // null | true | false
 
+            // ── Aturan: KEDUANYA harus dicek DAN valid ──────────────────────────
+            // Jika email diisi tapi belum dicek
+            if (emailValue && emailStatus === null) {
+                e.preventDefault();
+                if (emailFeedback) {
+                    emailFeedback.style.display = 'block';
+                    emailFeedback.style.color   = '#6b7280';
+                    emailFeedback.innerHTML     = '⚠ Klik tombol "Cek Email" terlebih dahulu sebelum mengirim data.';
+                }
+                emailInput && emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // Jika email diisi tapi tidak valid
+            if (emailValue && emailStatus === false) {
+                e.preventDefault();
+                if (emailFeedback) {
+                    emailFeedback.style.display = 'block';
+                    emailFeedback.style.color   = '#dc2626';
+                    emailFeedback.innerHTML     = '✕ Email tidak valid. Perbaiki dan cek ulang sebelum mengirim data.';
+                }
+                emailInput && emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // Jika telepon diisi tapi belum dicek
+            if (phoneValue && phoneStatus === null) {
+                e.preventDefault();
+                if (phoneFeedback) {
+                    phoneFeedback.style.display = 'block';
+                    phoneFeedback.style.color   = '#6b7280';
+                    phoneFeedback.innerHTML     = '⚠ Klik tombol "Cek No HP" terlebih dahulu sebelum mengirim data.';
+                }
+                phoneInput && phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // Jika telepon diisi tapi tidak valid
+            if (phoneValue && phoneStatus === false) {
+                e.preventDefault();
+                if (phoneFeedback) {
+                    phoneFeedback.style.display = 'block';
+                    phoneFeedback.style.color   = '#dc2626';
+                    phoneFeedback.innerHTML     = '✕ Nomor tidak terdaftar di WhatsApp. Perbaiki dan cek ulang sebelum mengirim data.';
+                }
+                phoneInput && phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // ── Jika email valid tapi telepon tidak valid (atau sebaliknya), tolak ──
+            if (emailValue && phoneValue) {
+                if (emailStatus === true && phoneStatus !== true) {
+                    e.preventDefault();
+                    if (phoneFeedback) {
+                        phoneFeedback.style.display = 'block';
+                        phoneFeedback.style.color   = '#dc2626';
+                        phoneFeedback.innerHTML     = phoneStatus === null
+                            ? '⚠ Klik tombol "Cek No HP" — nomor WA wajib diverifikasi juga.'
+                            : '✕ Nomor WA tidak valid. Kedua data harus valid untuk melanjutkan.';
+                    }
+                    phoneInput && phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+                if (phoneStatus === true && emailStatus !== true) {
+                    e.preventDefault();
+                    if (emailFeedback) {
+                        emailFeedback.style.display = 'block';
+                        emailFeedback.style.color   = '#dc2626';
+                        emailFeedback.innerHTML     = emailStatus === null
+                            ? '⚠ Klik tombol "Cek Email" — email wajib diverifikasi juga.'
+                            : '✕ Email tidak valid. Kedua data harus valid untuk melanjutkan.';
+                    }
+                    emailInput && emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+            }
+
+            // ── Cek KTP jika aktif ──────────────────────────────────────────────
             if (isKtpAktif) {
                 if (!ktpPhoto || ktpPhoto.value === '') {
                     e.preventDefault();
@@ -760,6 +888,7 @@
                 }
             }
 
+            // ── Semua valid — tampilkan loading ─────────────────────────────────
             btn.disabled = true;
             text.classList.add('d-none');
             loading.classList.remove('d-none');
@@ -798,6 +927,267 @@
                 $("#type_name").val('')
             }
         });
+    </script>
+
+    {{-- ── Inisialisasi Tom Select untuk semua select ── --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select dengan pilihan sedikit/fixed — tidak perlu search box
+            const noSearchIds = ['rts_id', 'rws_id', 'hometowns_id', 'villages_id', 'regencies_id', 'districts_id'];
+
+            // ODC/ODP/OLT — jaga urutan asli, jangan sort
+            const noSortIds = ['odcs_id', 'odps_id', 'olts_id'];
+
+            document.querySelectorAll('select.select-tom').forEach(function (el) {
+                const useSearch   = !noSearchIds.includes(el.id);
+                const useSort     = !noSortIds.includes(el.id);
+                const placeholder = el.querySelector('option[value=""]')?.textContent?.trim() ?? 'Pilih...';
+
+                const ts = new TomSelect(el, {
+                    allowEmptyOption : true,
+                    placeholder      : placeholder,
+                    create           : false,
+                    sortField        : useSort ? { field: 'text', direction: 'asc' } : false,
+                    // Sembunyikan search box untuk select dengan pilihan terbatas
+                    controlInput     : useSearch ? undefined : null,
+                });
+
+                // Dispatch event 'change' native agar handler jQuery ($('#types_id').change())
+                // tetap berjalan saat nilai dipilih via Tom Select
+                ts.on('change', function () {
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            });
+        });
+    </script>
+
+    {{-- ── Email Check via Tombol — MyEmailVerifier (backend proxy) ── --}}
+    <script>
+        (function () {
+            const emailInput  = document.getElementById('email');
+            const feedback    = document.getElementById('emailFeedback');
+            const submitBtn   = document.getElementById('btn');
+            const checkBtn    = document.getElementById('btn-check-email');
+            const checkText   = document.getElementById('check-email-text');
+            const checkLoader = document.getElementById('check-email-loading');
+
+            // Status disimpan di window agar bisa dibaca handler submit lain
+            // null = belum dicek, true = valid, false = tidak valid
+            window.__emailChecked = @error('email') false @else null @enderror;
+
+            function isValidEmailFormat(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            function setFeedback(message, type) {
+                feedback.style.display = 'block';
+                if (type === 'success') {
+                    feedback.style.color = '#16a34a';
+                    feedback.innerHTML   = '✓ ' + message;
+                } else if (type === 'error') {
+                    feedback.style.color = '#dc2626';
+                    feedback.innerHTML   = '✕ ' + message;
+                } else {
+                    feedback.style.color = '#6b7280';
+                    feedback.innerHTML   = message;
+                }
+            }
+
+            function clearFeedback() {
+                feedback.style.display = 'none';
+                feedback.innerHTML     = '';
+            }
+
+            function setLoading(loading) {
+                checkBtn.disabled       = loading;
+                checkText.classList.toggle('d-none', loading);
+                checkLoader.classList.toggle('d-none', !loading);
+            }
+
+            function resetOnChange() {
+                window.__emailChecked = null;
+                clearFeedback();
+                checkBtn.classList.remove('btn-success', 'btn-danger');
+                checkBtn.classList.add('btn-outline-secondary');
+            }
+
+            // Jika ada error dari server saat load
+            @error('email')
+                checkBtn && checkBtn.classList.replace('btn-outline-secondary', 'btn-danger');
+            @enderror
+
+            if (!emailInput || !checkBtn) return;
+
+            // Reset status saat email diubah
+            emailInput.addEventListener('input', resetOnChange);
+
+            // Klik tombol "Cek Email"
+            checkBtn.addEventListener('click', function () {
+                const email = emailInput.value.trim();
+
+                if (!email) {
+                    setFeedback('Masukkan email terlebih dahulu.', 'error');
+                    return;
+                }
+
+                if (!isValidEmailFormat(email)) {
+                    setFeedback('Format email tidak valid.', 'error');
+                    window.__emailChecked = false;
+                    checkBtn.classList.remove('btn-outline-secondary', 'btn-success');
+                    checkBtn.classList.add('btn-danger');
+                    return;
+                }
+
+                setLoading(true);
+                clearFeedback();
+
+                fetch("{{ route('input.data.checkEmail') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    setLoading(false);
+                    if (data.is_valid) {
+                        setFeedback(data.message, 'success');
+                        window.__emailChecked = true;
+                        checkBtn.classList.remove('btn-outline-secondary', 'btn-danger');
+                        checkBtn.classList.add('btn-success');
+                    } else {
+                        setFeedback(data.message, 'error');
+                        window.__emailChecked = false;
+                        checkBtn.classList.remove('btn-outline-secondary', 'btn-success');
+                        checkBtn.classList.add('btn-danger');
+                    }
+                })
+                .catch(function () {
+                    setLoading(false);
+                    setFeedback('Gagal mengecek email. Silakan coba lagi.', 'error');
+                    window.__emailChecked = false;
+                    checkBtn.classList.remove('btn-success');
+                    checkBtn.classList.add('btn-danger');
+                });
+            });
+        })();
+    </script>
+
+    {{-- ── Phone Check via Tombol — Wablas (backend proxy) ── --}}
+    <script>
+        (function () {
+            const phoneInput  = document.getElementById('telp');
+            const feedback    = document.getElementById('phoneFeedback');
+            const checkBtn    = document.getElementById('btn-check-phone');
+            const checkText   = document.getElementById('check-phone-text');
+            const checkLoader = document.getElementById('check-phone-loading');
+
+            // null = belum dicek, true = valid, false = tidak valid
+            window.__phoneChecked = @error('telp') false @else null @enderror;
+
+            function isValidPhoneFormat(phone) {
+                // minimal 9 digit, maksimal 15 digit, hanya angka dan tanda +
+                return /^[+]?[\d]{9,15}$/.test(phone.replace(/\s/g, ''));
+            }
+
+            function setFeedback(message, type) {
+                feedback.style.display = 'block';
+                if (type === 'success') {
+                    feedback.style.color = '#16a34a';
+                    feedback.innerHTML   = '✓ ' + message;
+                } else if (type === 'error') {
+                    feedback.style.color = '#dc2626';
+                    feedback.innerHTML   = '✕ ' + message;
+                } else {
+                    feedback.style.color = '#6b7280';
+                    feedback.innerHTML   = message;
+                }
+            }
+
+            function clearFeedback() {
+                feedback.style.display = 'none';
+                feedback.innerHTML     = '';
+            }
+
+            function setLoading(loading) {
+                checkBtn.disabled       = loading;
+                checkText.classList.toggle('d-none', loading);
+                checkLoader.classList.toggle('d-none', !loading);
+            }
+
+            function resetOnChange() {
+                window.__phoneChecked = null;
+                clearFeedback();
+                checkBtn.classList.remove('btn-success', 'btn-danger');
+                checkBtn.classList.add('btn-outline-secondary');
+            }
+
+            // Jika ada error dari server saat load
+            @error('telp')
+                checkBtn && checkBtn.classList.replace('btn-outline-secondary', 'btn-danger');
+            @enderror
+
+            if (!phoneInput || !checkBtn) return;
+
+            // Reset status saat nomor diubah
+            phoneInput.addEventListener('input', resetOnChange);
+
+            // Klik tombol "Cek No HP"
+            checkBtn.addEventListener('click', function () {
+                const phone = phoneInput.value.trim();
+
+                if (!phone) {
+                    setFeedback('Masukkan nomor telepon terlebih dahulu.', 'error');
+                    return;
+                }
+
+                if (!isValidPhoneFormat(phone)) {
+                    setFeedback('Format nomor telepon tidak valid.', 'error');
+                    window.__phoneChecked = false;
+                    checkBtn.classList.remove('btn-outline-secondary', 'btn-success');
+                    checkBtn.classList.add('btn-danger');
+                    return;
+                }
+
+                setLoading(true);
+                clearFeedback();
+
+                fetch("{{ route('input.data.checkPhone') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ telp: phone }),
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    setLoading(false);
+                    if (data.is_valid) {
+                        setFeedback(data.message, 'success');
+                        window.__phoneChecked = true;
+                        checkBtn.classList.remove('btn-outline-secondary', 'btn-danger');
+                        checkBtn.classList.add('btn-success');
+                    } else {
+                        setFeedback(data.message, 'error');
+                        window.__phoneChecked = false;
+                        checkBtn.classList.remove('btn-outline-secondary', 'btn-success');
+                        checkBtn.classList.add('btn-danger');
+                    }
+                })
+                .catch(function () {
+                    setLoading(false);
+                    setFeedback('Gagal mengecek nomor. Silakan coba lagi.', 'error');
+                    window.__phoneChecked = false;
+                    checkBtn.classList.remove('btn-success');
+                    checkBtn.classList.add('btn-danger');
+                });
+            });
+        })();
     </script>
 
     @if ($isMacValidationActive == true)

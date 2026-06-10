@@ -49,6 +49,8 @@ Route::prefix('input-datas')->group(function () {
     Route::post('/confirm-password', [PagesController::class, 'confirmPagesPassword'])->name('input.data.confirm.password');
     Route::post('/save', [PagesController::class, 'saveCustomerToSpan'])->name('input.data.saveCustomerToSpan');
     Route::post('/check-mac-address', [PagesController::class, 'checkMacAddress'])->name('input.data.checkMacAddress');
+    Route::post('/check-email', [PagesController::class, 'checkEmail'])->name('input.data.checkEmail');
+    Route::post('/check-phone', [PagesController::class, 'checkPhone'])->name('input.data.checkPhone');
 });
 
 Route::prefix('chatting')->group(function () {

@@ -31,4 +31,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'abstract_email_reputation' => [
+        'key' => env('ABSTRACT_EMAIL_REPUTATION_API_KEY'),
+    ],
+
+    'myemailverifier' => [
+        'key' => env('MYEMAILVERIFIER_API_KEY'),
+    ],
+
+    'fonnte' => [
+        'token' => env('FONTE_TOKEN'),
+    ],
+
 ];

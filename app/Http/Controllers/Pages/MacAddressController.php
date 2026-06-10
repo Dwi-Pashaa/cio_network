@@ -17,6 +17,8 @@ class MacAddressController extends Controller
 {
     public function index(Request $request)
     {
+        $this->syncStatusesForCurrentOrganization();
+
         if ($request->ajax()) {
             return (new MacAddressDataTable)->get();
         }
@@ -29,6 +31,8 @@ class MacAddressController extends Controller
 
     public function statistic(Request $request)
     {
+        $this->syncStatusesForCurrentOrganization();
+
         $authUser = auth()->user();
 
         $query = MacAddress::query()->where('organization_id', $authUser->organization_id);
@@ -175,8 +179,28 @@ class MacAddressController extends Controller
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'No MAC addresses selected.']);
         }
 
-        MacAddress::whereIn('id', $ids)->update(['status' => 'Used']);
+        MacAddress::whereIn('id', $ids)->update(['status' => 'used']);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil mengubah data.']);
+    }
+
+    private function syncStatusesForCurrentOrganization(): void
+    {
+        DB::statement(
+            "UPDATE mac_address ma
+             SET ma.status = CASE
+                 WHEN EXISTS (
+                     SELECT 1
+                     FROM customers c
+                     WHERE UPPER(TRIM(c.mac_address)) = UPPER(TRIM(ma.mac_address))
+                     AND c.organization_id = ma.organization_id
+                 )
+                 THEN 'used'
+                 ELSE 'available'
+             END
+             WHERE ma.organization_id = ?
+             AND ma.status <> 'blocked'",
+            [auth()->user()->organization_id]
+        );
     }
 }

@@ -45,6 +45,7 @@ Route::prefix('customer')->group(function () {
     Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/create', [CustomerController::class, 'create'])->name('customer.create')->can('buat pelanggan');
     Route::post('/store', [CustomerController::class, 'store'])->name('customer.store')->can('buat pelanggan');
+    Route::post('/check-email', [CustomerController::class, 'checkEmail'])->name('customer.check-email');
     Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit')->can('ubah pelanggan');
     Route::put('/{id}/update', [CustomerController::class, 'update'])->name('customer.update')->can('ubah pelanggan');
     Route::delete('/{id}/destroy', [CustomerController::class, 'destroy'])->name('customer.destroy');
@@ -53,4 +54,6 @@ Route::prefix('customer')->group(function () {
     Route::post('/get-select', [CustomerController::class, 'getSelect'])->name('customer.getSelect');
     Route::post('/send-notif', [CustomerController::class, 'notif'])->name('customer.notif');
     Route::post('/switch-olt', [CustomerController::class, 'switchOlt'])->name('customer.switchOlt');
+    Route::post('/verify-email-on-demand', [CustomerController::class, 'verifyEmailOnDemand'])->name('customer.verify-email-on-demand');
+    Route::post('/verify-wa-on-demand', [CustomerController::class, 'verifyWaOnDemand'])->name('customer.verify-wa-on-demand');
 });
