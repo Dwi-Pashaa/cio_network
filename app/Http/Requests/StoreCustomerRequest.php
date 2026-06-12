@@ -22,7 +22,7 @@ class StoreCustomerRequest extends FormRequest
         return [
             'types_id'    => 'required',
             'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:customers,email',
+            'email'       => 'required|email|unique:customers,email,' . $this->route('id'),
             'telp'        => 'required|numeric|digits_between:10,15',
             'mac_address' => 'required|string',
             'routers_id'  => 'required',
