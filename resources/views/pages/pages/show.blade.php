@@ -137,6 +137,10 @@
             color: var(--page-text-muted) !important;
         }
 
+        select.tomselected {
+            display: none !important;
+        }
+
         /* ── Buttons ── */
         .btn-submit {
             background: linear-gradient(135deg, var(--page-primary), var(--page-primary-dark));
