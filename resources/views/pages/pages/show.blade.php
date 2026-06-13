@@ -354,7 +354,7 @@
                                 <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
                                     <label class="form-label">Tipe Pelanggan <span class="text-danger">*</span></label>
                                     <select name="tipe_pelanggan_id" id="tipe_pelanggan_id"
-                                        class="form-control select-tom @error('tipe_pelanggan_id') is-invalid @enderror">
+                                        class="form-control @error('tipe_pelanggan_id') is-invalid @enderror">
                                         <option value="">Pilih Tipe Pelanggan</option>
                                         @foreach ($tipePelanggan as $tpl)
                                             <option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}"
