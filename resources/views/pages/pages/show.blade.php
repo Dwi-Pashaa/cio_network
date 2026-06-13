@@ -719,7 +719,7 @@
                                 <div class="col-lg-12 mb-3">
                                     <label class="form-label">Ukuran Patch Core <span class="text-danger">*</span></label>
                                     <select name="patch_core_id" id="patch_core_id"
-                                        class="form-control select-tom @error('patch_core_id') is-invalid @enderror">
+                                        class="form-control @error('patch_core_id') is-invalid @enderror">
                                         <option value="">Pilih Ukuran Patch Core</option>
                                         @foreach ($pathCore as $pc)
                                             <option value="{{ $pc->id }}">{{ $pc->name }}</option>
