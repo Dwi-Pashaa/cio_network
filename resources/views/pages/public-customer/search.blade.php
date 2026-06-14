@@ -59,6 +59,7 @@
             overflow: hidden;
             transition: all 0.3s;
             margin: auto 0;
+            flex-shrink: 0 !important;
         }
 
         .card-header-gradient {
