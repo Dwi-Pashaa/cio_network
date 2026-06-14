@@ -9,23 +9,22 @@
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background: radial-gradient(circle at 10% 20%, rgba(30, 41, 59, 0.05) 0%, rgba(37, 99, 235, 0.05) 90%), #f8fafc;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
             position: relative;
             overflow-x: hidden;
+            display: block !important;
+            padding: 0;
         }
 
         .page {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            justify-content: center !important;
+            justify-content: flex-start !important;
             min-height: 100vh !important;
-            padding: 1.5rem !important;
+            padding: 2.5rem 1.5rem !important;
             background: transparent !important;
             width: 100% !important;
+            box-sizing: border-box;
         }
 
         .ambient-orb-1 {
@@ -59,6 +58,7 @@
             max-width: 440px;
             overflow: hidden;
             transition: all 0.3s;
+            margin: auto 0;
         }
 
         .card-header-gradient {
@@ -291,6 +291,58 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.97); }
             to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ── RESPONSIVE MEDIA QUERIES ── */
+        @media (max-width: 480px) {
+            .page {
+                padding: 1.5rem 1rem !important;
+            }
+            .search-card {
+                border-radius: 20px;
+            }
+            .card-header-gradient {
+                padding: 3rem 1.5rem 2.5rem;
+            }
+            .brand-badge {
+                font-size: 0.8rem;
+                margin-bottom: 0.5rem;
+            }
+            .card-header-gradient h1 {
+                font-size: 1.45rem;
+                margin-bottom: 0.5rem;
+            }
+            .card-header-gradient p {
+                font-size: 0.85rem;
+                max-width: 250px;
+            }
+            .card-body-content {
+                padding: 1.5rem;
+            }
+            .form-control-custom {
+                padding: 0.75rem 1rem 0.75rem 2.5rem;
+                font-size: 0.9rem;
+            }
+            .input-icon-wrapper {
+                left: 0.85rem;
+            }
+            .btn-search, .btn-login-redirect {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+                padding: 0.75rem 0;
+            }
+            .result-val {
+                max-width: 100%;
+                text-align: left;
+            }
         }
     </style>
 @endpush
