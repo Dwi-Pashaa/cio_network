@@ -13,7 +13,7 @@
 	<link href="{{asset('')}}css/tabler-payments.min.css?1738096682" rel="stylesheet" />
 	<link href="{{asset('')}}css/tabler-vendors.min.css?1738096682" rel="stylesheet" />
 	<link href="{{asset('')}}css/tabler-marketing.min.css?1738096682" rel="stylesheet" />
-	<link href="{{asset('')}}css/demo.min.css?1738096682" rel="stylesheet" />\
+	<link href="{{asset('')}}css/demo.min.css?1738096682" rel="stylesheet" />
     @stack('css')
 	<style>
 		@import url('https://rsms.me/inter/inter.css');

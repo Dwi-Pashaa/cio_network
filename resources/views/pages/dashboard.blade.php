@@ -7,7 +7,7 @@
     <style>
         /* ── WELCOME BANNER ── */
         .dash-welcome {
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #6d28d9 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
             border-radius: 20px;
             padding: 2rem 2.5rem;
             position: relative;
@@ -257,10 +257,10 @@
 
         .filter-pill:hover,
         .filter-pill.active {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            border-color: #7c3aed;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-color: #2563eb;
             color: white;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         /* ── DATA CARDS (customer count) ── */
@@ -507,6 +507,24 @@
                     </svg>
                     {{ now()->setTimezone('Asia/Jakarta')->isoFormat('dddd, D MMMM YYYY') }}
                 </div>
+                @can('download qrcode')
+                    <div style="margin-top: 1rem;">
+                        <button type="button" class="btn btn-dark btn-pill d-inline-flex align-items-center gap-2" id="btn-download-qrcode" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.12); color: #fff; backdrop-filter: blur(8px); padding: 0.5rem 1.25rem; font-size: 0.825rem; font-weight: 700; transition: all 0.2s;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="6" height="6" rx="1" />
+                                <rect x="15" y="3" width="6" height="6" rx="1" />
+                                <rect x="3" y="15" width="6" height="6" rx="1" />
+                                <path d="M16 16h1v1h-1z" />
+                                <path d="M15 15h1v1h-1z" />
+                                <path d="M15 19h1v1h-1z" />
+                                <path d="M19 15h1v1h-1z" />
+                                <path d="M19 19h1v1h-1z" />
+                                <path d="M16 18h3v1h-3z" />
+                            </svg>
+                            Download QR Code Pelanggan
+                        </button>
+                    </div>
+                @endcan
             </div>
             <div class="d-flex gap-3 flex-wrap">
                 <div
@@ -936,7 +954,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
             <div class="modal-content" style="border-radius:18px;overflow:hidden;">
                 <div class="modal-header"
-                    style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border:none;padding:1.2rem 1.5rem;">
+                    style="background:linear-gradient(135deg,#0f172a,#1e3a8a);border:none;padding:1.2rem 1.5rem;">
                     <h5 class="modal-title" style="color:white;font-weight:700;font-size:.95rem;"></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -964,6 +982,66 @@
             </div>
         </div>
     </div>
+
+    @can('download qrcode')
+    <!-- Modal QR Code -->
+    <div class="modal modal-blur fade" id="modal-qrcode" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;" role="document">
+            <div class="modal-content" style="border-radius:24px; overflow:hidden; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);">
+                <div class="modal-header" style="background: linear-gradient(135deg,#0f172a,#1e3a8a); border:none; padding: 1.25rem 1.5rem;">
+                    <h5 class="modal-title" style="color:white; font-weight:800; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="6" height="6" rx="1" />
+                            <rect x="15" y="3" width="6" height="6" rx="1" />
+                            <rect x="3" y="15" width="6" height="6" rx="1" />
+                        </svg>
+                        QR Code Pelanggan
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center" style="padding: 1.75rem; background: #f8fafc;">
+                    <p style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 1.25rem; text-align: left;">
+                        Preview Kartu QR Code yang akan diunduh:
+                    </p>
+
+                    <!-- Beautiful card preview wrapper -->
+                    <div id="qrcode-preview-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); border-radius: 20px; padding: 2rem 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15); margin-bottom: 1.25rem; position: relative;">
+                        <div style="font-size: 1.5rem; font-weight: 900; color: #ffffff; margin-bottom: 0.15rem; letter-spacing: 0.05em; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            Cio Network Solution
+                        </div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 600; margin-bottom: 1.5rem;">
+                            Pencarian & Akses Pelanggan
+                        </div>
+
+                        <div class="d-flex justify-content-center align-items-center" style="background: white; border-radius: 16px; padding: 0.75rem; display: inline-block; margin-bottom: 1.5rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
+                            <div id="qrcode-canvas" style="display: inline-block; background: white;"></div>
+                        </div>
+
+                        <div style="color: #ffffff; font-size: 0.875rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Plus Jakarta Sans', sans-serif;">Pindai QR Code Untuk:</div>
+                        <div style="color: rgba(255,255,255,0.85); font-size: 0.78rem; font-weight: 500; text-align: left; max-width: 250px; margin: 0 auto; line-height: 1.4; padding-bottom: 0.5rem;">
+                            <div>1. Cek Data Keanggotaan Pelanggan</div>
+                            <div>2. Akses Cepat Login ke Client Area</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.25rem; text-align: left;">
+                        <label style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; display: block; margin-bottom: 0.4rem;">Public URL Link</label>
+                        <input type="text" class="form-control" style="font-size: 0.8rem; font-weight: 600; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; color: #475569; cursor: pointer; padding: 0.5rem;" value="{{ route('public.customer.search') }}" readonly onclick="this.select(); document.execCommand('copy'); alertify.success('URL disalin ke clipboard!');">
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100" id="btn-save-qr" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; border-radius: 12px; font-weight: 700; padding: 0.75rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Download Kartu QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endcan
 @endpush
 
 @push('js')
@@ -1021,4 +1099,134 @@
             });
         }
     </script>
+    @can('download qrcode')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let qrCodeGenerated = false;
+            const qrcodeContainer = document.getElementById("qrcode-canvas");
+            const publicUrl = "{{ route('public.customer.search') }}";
+
+            $('#btn-download-qrcode').click(function() {
+                var qrModal = new bootstrap.Modal(document.getElementById('modal-qrcode'));
+                qrModal.show();
+
+                if (!qrCodeGenerated) {
+                    new QRCode(qrcodeContainer, {
+                        text: publicUrl,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#0f172a",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    qrCodeGenerated = true;
+                }
+            });
+
+            $('#btn-save-qr').click(function() {
+                const qrCanvas = qrcodeContainer.querySelector('canvas');
+                const qrImg = qrcodeContainer.querySelector('img');
+
+                // Generate composite card canvas
+                const cardCanvas = document.createElement('canvas');
+                cardCanvas.width = 400;
+                cardCanvas.height = 520;
+                const ctx = cardCanvas.getContext('2d');
+
+                // Function to draw rounded corners on canvas
+                function drawRoundRect(c, x, y, width, height, radius) {
+                    c.beginPath();
+                    c.moveTo(x + radius, y);
+                    c.lineTo(x + width - radius, y);
+                    c.quadraticCurveTo(x + width, y, x + width, y + radius);
+                    c.lineTo(x + width, y + height - radius);
+                    c.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                    c.lineTo(x + radius, y + height);
+                    c.quadraticCurveTo(x, y + height, x, y + height - radius);
+                    c.lineTo(x, y + radius);
+                    c.quadraticCurveTo(x, y, x + radius, y);
+                    c.closePath();
+                }
+
+                // 1. Draw Card Background with beautiful gradient
+                const grad = ctx.createLinearGradient(0, 0, 0, cardCanvas.height);
+                grad.addColorStop(0, '#0f172a'); // dark navy
+                grad.addColorStop(0.5, '#1e3a8a'); // royal blue
+                grad.addColorStop(1, '#2563eb'); // blue
+                ctx.fillStyle = grad;
+                drawRoundRect(ctx, 0, 0, cardCanvas.width, cardCanvas.height, 24);
+                ctx.fill();
+
+                // 2. Draw Header Text
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+
+                // Logo/Title
+                ctx.font = 'bold 24px "Plus Jakarta Sans", "Inter", sans-serif';
+                ctx.fillText('CIO_NETWORK', 200, 50);
+
+                // Subtitle
+                ctx.font = '600 12px "Plus Jakarta Sans", "Inter", sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fillText('Pencarian & Akses Pelanggan', 200, 75);
+
+                // 3. Draw white QR code container box
+                ctx.fillStyle = '#ffffff';
+                drawRoundRect(ctx, 90, 110, 220, 220, 16);
+                ctx.fill();
+
+                // 4. Draw Details and Download
+                function drawDetailsAndDownload() {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign = 'center';
+
+                    // Heading
+                    ctx.font = 'bold 14px "Plus Jakarta Sans", "Inter", sans-serif';
+                    ctx.fillText('Pindai QR Code Untuk:', 200, 365);
+
+                    // Bullet descriptions
+                    ctx.font = '500 12px "Plus Jakarta Sans", "Inter", sans-serif';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                    ctx.fillText('1. Cek Data Keanggotaan Pelanggan', 200, 395);
+                    ctx.fillText('2. Akses Cepat Login ke Client Area', 200, 420);
+
+                    // Footer URL
+                    ctx.font = 'bold 11px monospace';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.fillText('client.cionetwork.id/login', 200, 470);
+
+                    // Trigger the download of the composite canvas
+                    try {
+                        const src = cardCanvas.toDataURL("image/png");
+                        const link = document.createElement('a');
+                        link.href = src;
+                        link.download = 'qrcode-akses-pelanggan.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } catch(e) {
+                        alertify.error('Gagal memproses gambar untuk diunduh');
+                    }
+                }
+
+                // 5. Draw QR code image onto canvas
+                if (qrImg && qrImg.src) {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = function() {
+                        ctx.drawImage(img, 100, 120, 200, 200);
+                        drawDetailsAndDownload();
+                    };
+                    img.src = qrImg.src;
+                } else if (qrCanvas) {
+                    ctx.drawImage(qrCanvas, 100, 120, 200, 200);
+                    drawDetailsAndDownload();
+                } else {
+                    alertify.error('QR Code belum selesai dibuat.');
+                }
+            });
+        });
+    </script>
+    @endcan
 @endpush

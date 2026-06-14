@@ -22,6 +22,7 @@ use App\Http\Controllers\Pages\SwitchPerangkatController;
 use App\Http\Controllers\Pages\Wablass\ReportController;
 use App\Http\Controllers\Pages\Wilayah\KabupatenController;
 use App\Http\Controllers\Pages\Wilayah\KecamatanController;
+use App\Http\Controllers\Pages\PublicCustomerController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -69,3 +70,7 @@ Route::middleware(['auth'])->group(function () {
 //     Route::post('/confirm-switch-password', [SwitchPerangkatController::class, 'confirmPagesPassword'])->name('switch.data.confirm.password');
 //     Route::post('/save-switch-device', [SwitchPerangkatController::class, 'saveSwitchDevice'])->name('switch.data.save');
 // });
+
+Route::get('/search-customer', [PublicCustomerController::class, 'searchPage'])->name('public.customer.search');
+Route::post('/search-customer', [PublicCustomerController::class, 'search'])->name('public.customer.search.post');
+Route::get('/clientarea-login', [PublicCustomerController::class, 'proxyLogin'])->name('public.customer.clientarea_login');
