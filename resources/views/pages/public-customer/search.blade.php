@@ -21,7 +21,7 @@
             align-items: center !important;
             justify-content: flex-start !important;
             min-height: 100vh !important;
-            padding: 2.5rem 1.5rem !important;
+            padding: 3.5rem 1.5rem 5rem !important;
             background: transparent !important;
             width: 100% !important;
             box-sizing: border-box;
@@ -296,13 +296,13 @@
         /* ── RESPONSIVE MEDIA QUERIES ── */
         @media (max-width: 480px) {
             .page {
-                padding: 1.5rem 1rem !important;
+                padding: 2.5rem 1rem 6rem !important;
             }
             .search-card {
                 border-radius: 20px;
             }
             .card-header-gradient {
-                padding: 3rem 1.5rem 2.5rem;
+                padding: 3.75rem 1.5rem 3.5rem;
             }
             .brand-badge {
                 font-size: 0.8rem;
@@ -326,7 +326,7 @@
             .input-icon-wrapper {
                 left: 0.85rem;
             }
-            .btn-search, .btn-login-redirect {
+            .btn-search, .btn-login-redirect, .btn-reset-search {
                 padding: 0.8rem;
                 font-size: 0.9rem;
             }
