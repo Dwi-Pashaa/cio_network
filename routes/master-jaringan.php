@@ -5,6 +5,7 @@ use App\Http\Controllers\Pages\Jaringan\ODCController;
 use App\Http\Controllers\Pages\Jaringan\ODPController;
 use App\Http\Controllers\Pages\Jaringan\OLTController;
 use App\Http\Controllers\Pages\Jaringan\RouterController;
+use App\Http\Controllers\Pages\Jaringan\ServerController;
 use App\Http\Controllers\Pages\Jaringan\VlanController;
 use App\Http\Controllers\Pages\MacAddressController;
 use Illuminate\Support\Facades\Route;
@@ -50,10 +51,21 @@ Route::prefix('master-network')->group(function () {
     // olt
     Route::prefix('olt')->group(function () {
         Route::get('/', [OLTController::class, 'index'])->name('olt.index');
+        Route::get('/generate-code', [OLTController::class, 'generateCode'])->name('olt.generateCode');
         Route::post('/store', [OLTController::class, 'store'])->name('olt.store');
         Route::get('/{id}/show', [OLTController::class, 'show'])->name('olt.show');
         Route::put('/{id}/update', [OLTController::class, 'update'])->name('olt.update');
         Route::delete('/{id}/destroy', [OLTController::class, 'destroy'])->name('olt.destroy');
+    });
+
+    // server
+    Route::prefix('server')->group(function () {
+        Route::get('/', [ServerController::class, 'index'])->name('server.index');
+        Route::get('/generate-code', [ServerController::class, 'generateCode'])->name('server.generateCode');
+        Route::post('/store', [ServerController::class, 'store'])->name('server.store');
+        Route::get('/{id}/show', [ServerController::class, 'show'])->name('server.show');
+        Route::put('/{id}/update', [ServerController::class, 'update'])->name('server.update');
+        Route::delete('/{id}/destroy', [ServerController::class, 'destroy'])->name('server.destroy');
     });
 
     // mic radius

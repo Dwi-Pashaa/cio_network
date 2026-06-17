@@ -5,8 +5,9 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href="." style="text-decoration: none">
-                <img src="{{ asset('img/logo.jpg') }}" alt="Logo">
+            <a href="." style="display: inline-flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="{{ asset('img/logo_2.jpeg') }}" alt="Logo 2" style="height: 30px !important; border-radius: 4px; object-fit: contain;">
+                <img src="{{ asset('img/logo.jpg') }}" alt="Logo 1" style="height: 30px !important; border-radius: 4px; object-fit: contain;">
             </a>
         </div>
         <div class="navbar-nav flex-row order-md-last">

@@ -154,6 +154,26 @@
             color: #3b82f6;
         }
 
+        .form-helper-text {
+            font-size: 0.78rem;
+            color: #475569;
+            margin-top: 0.65rem;
+            line-height: 1.45;
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+            background: #f8fafc;
+            padding: 0.85rem;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .form-helper-text svg {
+            color: #2563eb;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
         .btn-search {
             width: 100%;
             padding: 0.9rem;
@@ -359,7 +379,7 @@
                 Cio Network Solution
             </div>
             <h1>Pencarian Pelanggan</h1>
-            <p>Masukkan ID Pelanggan untuk melihat data & akses cepat</p>
+            <p>Masukkan MAC Address untuk mencari data pelanggan dan melakukan pembayaran</p>
         </div>
 
         <div class="card-body-content">
@@ -375,17 +395,26 @@
 
             <!-- Form Search Panel -->
             <form id="search-form" autocomplete="off">
-                <!-- ID Pelanggan -->
+                <!-- MAC Address -->
                 <div class="input-group-custom">
-                    <label class="form-label-custom">ID Pelanggan</label>
+                    <label class="form-label-custom" for="mac_address">MAC Address</label>
                     <div style="position: relative;">
-                        <input type="text" id="customer_id" class="form-control-custom" placeholder="Contoh: CSTMR0001" required>
+                        <input type="text" id="mac_address" class="form-control-custom" placeholder="Contoh: AA:BB:CC:DD:EE:FF" required>
                         <div class="input-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
                             </svg>
                         </div>
+                    </div>
+                    <div class="form-helper-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span><strong>Petunjuk:</strong> MAC Address adalah identitas fisik unik perangkat router Anda. Biasanya tertera pada stiker di bagian bawah/belakang router. Ini digunakan untuk mencocokkan data ID Pelanggan dan mempermudah proses pembayaran tagihan Anda secara otomatis.</span>
                     </div>
                 </div>
 
@@ -466,10 +495,10 @@
             $searchForm.on('submit', function(e) {
                 e.preventDefault();
 
-                const customerId = $('#customer_id').val().trim();
+                const macAddress = $('#mac_address').val().trim();
 
-                if (!customerId) {
-                    showAlert('Harap isi ID Pelanggan.');
+                if (!macAddress) {
+                    showAlert('Harap isi MAC Address.');
                     return;
                 }
 
@@ -484,7 +513,7 @@
                     method: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        customer_id: customerId
+                        mac_address: macAddress
                     },
                     dataType: "json",
                     success: function(response) {
@@ -527,7 +556,7 @@
 
             $('#btn-reset').on('click', function() {
                 // Reset inputs and values
-                $('#customer_id').val('');
+                $('#mac_address').val('');
                 $searchAlert.hide();
 
                 // Swap views back

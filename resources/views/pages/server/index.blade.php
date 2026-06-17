@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Data OLT')
+@section('title', 'Data Server')
 
 @push('css')
     <link href="{{ asset('css/modern-layout.css') }}" rel="stylesheet">
     <style>
-        #map-olt {
+        #map-server {
             width: 100%;
             height: 320px;
             border-radius: 12px;
@@ -22,22 +22,24 @@
             {{-- Header --}}
             <div class="org-header">
                 <div class="org-title-wrap">
-                    <div class="org-header-icon" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);color:#db2777;">
+                    <div class="org-header-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#2563eb;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
-                            <path d="M9 13h6" />
+                            <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                            <path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                            <path d="M7 8l0 .01" />
+                            <path d="M7 16l0 .01" />
                         </svg>
                     </div>
                     <div>
-                        <h2 class="org-title">Data OLT</h2>
-                        <p class="org-subtitle mb-0">Kelola master data Optical Line Terminal (OLT).</p>
+                        <h2 class="org-title">Data Server</h2>
+                        <p class="org-subtitle mb-0">Kelola master data Server jaringan.</p>
                     </div>
                 </div>
 
-                @can('buat olt')
+                @can('tambah server')
                     <div class="org-header-action">
                         <a href="javascript:void(0)" id="addBtn" data-bs-toggle="modal" data-bs-target="#modal-simple"
                             class="btn-add">
@@ -47,7 +49,7 @@
                                 <line x1="12" y1="5" x2="12" y2="19" />
                                 <line x1="5" y1="12" x2="19" y2="12" />
                             </svg>
-                            Tambah OLT
+                            Tambah Server
                         </a>
                     </div>
                 @endcan
@@ -70,25 +72,25 @@
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari OLT...">
+                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari Server...">
                 </div>
             </div>
 
             {{-- Table --}}
             <div class="table-responsive">
-                <table class="org-table" id="olt-table">
+                <table class="org-table" id="server-table">
                     <thead>
                         <tr>
                             <th style="width:56px;">NO</th>
                             <th>KODE</th>
-                            <th>NAMA OLT</th>
+                            <th>NAMA SERVER</th>
                             <th>KAMPUNG</th>
                             <th>ALAMAT</th>
                             <th class="text-center">FOTO</th>
                             <th class="text-center">LOKASI</th>
-                            <th class="text-center">LINK OLT</th>
+                            <th class="text-center">LINK SERVER</th>
                             <th>CREATED</th>
-                            @if (auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt'))
+                            @if (auth()->user()->can('edit server') || auth()->user()->can('hapus server'))
                                 <th class="text-center">ACTION</th>
                             @endif
                         </tr>
@@ -125,12 +127,13 @@
                                 fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path
-                                    d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
-                                <path d="M9 13h6" />
+                                <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                                <path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                                <path d="M7 8l0 .01" />
+                                <path d="M7 16l0 .01" />
                             </svg>
                         </div>
-                        <h5 class="modal-title mb-0" style="color:white;font-weight:700;font-size:.95rem;">Tambah OLT</h5>
+                        <h5 class="modal-title mb-0" style="color:white;font-weight:700;font-size:.95rem;">Tambah Server</h5>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -144,10 +147,10 @@
                     <div class="row g-3">
                         {{-- Row 1 --}}
                         <div class="col-md-6">
-                            <label class="form-label" for="code">Kode OLT</label>
+                            <label class="form-label" for="code">Kode Server</label>
                             <div class="input-group">
                                 <input type="text" name="code" id="code" class="form-control"
-                                    placeholder="Contoh: OLT-01">
+                                    placeholder="Contoh: SRV-01">
                                 <button type="button" id="generate-code-btn" class="btn btn-primary d-flex align-items-center gap-1" style="font-weight: 600;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
@@ -158,9 +161,9 @@
                             <span class="invalid-feedback error_code"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" for="name">Nama OLT</label>
+                            <label class="form-label" for="name">Nama Server</label>
                             <input type="text" name="name" id="name" class="form-control"
-                                placeholder="Masukkan Nama OLT">
+                                placeholder="Masukkan Nama Server">
                             <span class="invalid-feedback error_name"></span>
                         </div>
 
@@ -176,7 +179,7 @@
                             <span class="invalid-feedback error_hometowns_id"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" for="link">Link OLT</label>
+                            <label class="form-label" for="link">Link Server</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -212,14 +215,14 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" for="foto_ktp_pemilik_tempat">Foto KTP Pemilik Tempat <span style="color:#ef4444;">*</span></label>
-                            <input type="file" name="foto_ktp_pemilik_tempat" id="foto_ktp_pemilik_tempat" class="form-control" accept="image/*">
-                            <span class="invalid-feedback error_foto_ktp_pemilik_tempat"></span>
-                            <div id="preview_foto_ktp_pemilik_tempat" class="mt-2" style="display:none;">
+                            <label class="form-label" for="foto_pemilik">Foto Pemilik Tempat <span style="color:#ef4444;">*</span></label>
+                            <input type="file" name="foto_pemilik" id="foto_pemilik" class="form-control" accept="image/*">
+                            <span class="invalid-feedback error_foto_pemilik"></span>
+                            <div id="preview_foto_pemilik" class="mt-2" style="display:none;">
                                 <div class="d-flex flex-column border rounded bg-white shadow-sm p-1" style="border-radius: 12px; width: 100%; max-width: 280px;">
                                     <img src="" class="rounded" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
                                     <div class="d-flex align-items-center justify-content-between px-2 py-2 mt-1 bg-light rounded-bottom" style="font-size: 0.75rem;">
-                                        <span class="preview-status-text fw-bold text-secondary">KTP Pemilik Terunggah</span>
+                                        <span class="preview-status-text fw-bold text-secondary">Foto Pemilik Terunggah</span>
                                         <a href="" target="_blank" class="detail-link text-primary fw-bold" style="text-decoration: none;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                                 <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -232,14 +235,14 @@
 
                         {{-- Row 4 --}}
                         <div class="col-md-12">
-                            <label class="form-label" for="foto_ktp_penanggung_jawab">Foto KTP Penanggung Jawab <span style="color:#ef4444;">*</span></label>
-                            <input type="file" name="foto_ktp_penanggung_jawab" id="foto_ktp_penanggung_jawab" class="form-control" accept="image/*">
-                            <span class="invalid-feedback error_foto_ktp_penanggung_jawab"></span>
-                            <div id="preview_foto_ktp_penanggung_jawab" class="mt-2" style="display:none;">
+                            <label class="form-label" for="foto_penanggung_jawab">Foto Penanggung Jawab <span style="color:#ef4444;">*</span></label>
+                            <input type="file" name="foto_penanggung_jawab" id="foto_penanggung_jawab" class="form-control" accept="image/*">
+                            <span class="invalid-feedback error_foto_penanggung_jawab"></span>
+                            <div id="preview_foto_penanggung_jawab" class="mt-2" style="display:none;">
                                 <div class="d-flex flex-column border rounded bg-white shadow-sm p-1" style="border-radius: 12px; width: 100%; max-width: 280px;">
                                     <img src="" class="rounded" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
                                     <div class="d-flex align-items-center justify-content-between px-2 py-2 mt-1 bg-light rounded-bottom" style="font-size: 0.75rem;">
-                                        <span class="preview-status-text fw-bold text-secondary">KTP PJ Terunggah</span>
+                                        <span class="preview-status-text fw-bold text-secondary">Foto PJ Terunggah</span>
                                         <a href="" target="_blank" class="detail-link text-primary fw-bold" style="text-decoration: none;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                                 <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -250,8 +253,8 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label" for="address">Alamat OLT <span style="color:#ef4444;">*</span></label>
-                            <textarea name="address" id="address" class="form-control" rows="2" placeholder="Masukkan alamat lengkap OLT..."></textarea>
+                            <label class="form-label" for="address">Alamat Server <span style="color:#ef4444;">*</span></label>
+                            <textarea name="address" id="address" class="form-control" rows="2" placeholder="Masukkan alamat lengkap Server..."></textarea>
                             <span class="invalid-feedback error_address"></span>
                         </div>
 
@@ -260,7 +263,7 @@
                             <hr class="my-2 text-muted" style="opacity: 0.15;">
                             <label class="form-label">Lokasi Geografis (Klik peta / seret penanda untuk memilih secara manual)</label>
                             <div class="position-relative mt-2">
-                                <div id="map-olt"></div>
+                                <div id="map-server"></div>
                                 <div class="map-search-container" style="position: absolute; top: 10px; left: 55px; z-index: 999; width: calc(100% - 70px); max-width: 320px;">
                                     <div class="input-group bg-white border shadow-sm" style="border-radius: 30px; padding: 3px; overflow: hidden;">
                                         <span class="input-group-text bg-transparent border-0 text-muted ps-3 pe-2" style="background: transparent !important; border: none !important;">
@@ -318,7 +321,7 @@
                                 <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
                             </svg>
                         </div>
-                        <h5 class="modal-title mb-0" id="modal-detail-title" style="color:white;font-weight:700;font-size:.95rem;">Detail Foto OLT</h5>
+                        <h5 class="modal-title mb-0" id="modal-detail-title" style="color:white;font-weight:700;font-size:.95rem;">Detail Foto Server</h5>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -351,18 +354,18 @@
                         <div class="col-md-4">
                             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
                                 <div class="card-header py-2 px-3 bg-light border-0 text-center">
-                                    <span class="fw-bold small text-secondary">Foto KTP Pemilik Lokasi</span>
+                                    <span class="fw-bold small text-secondary">Foto Pemilik Lokasi</span>
                                 </div>
                                 <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;">
-                                    <a href="" id="detail_foto_ktp_pemilik_link" target="_blank" class="w-100 mb-2">
-                                        <img src="" id="detail_foto_ktp_pemilik" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                    <a href="" id="detail_foto_pemilik_link" target="_blank" class="w-100 mb-2">
+                                        <img src="" id="detail_foto_pemilik" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
                                     </a>
-                                    <a href="" id="download_foto_ktp_pemilik" download class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
+                                    <a href="" id="download_foto_pemilik" download class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                                         </svg> Unduh Foto
                                     </a>
-                                    <div id="detail_foto_ktp_pemilik_empty" class="text-muted small py-4">
+                                    <div id="detail_foto_pemilik_empty" class="text-muted small py-4">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-muted">
                                             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                                         </svg>
@@ -374,18 +377,18 @@
                         <div class="col-md-4">
                             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
                                 <div class="card-header py-2 px-3 bg-light border-0 text-center">
-                                    <span class="fw-bold small text-secondary">Foto KTP Penanggung Jawab</span>
+                                    <span class="fw-bold small text-secondary">Foto Penanggung Jawab</span>
                                 </div>
                                 <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;">
-                                    <a href="" id="detail_foto_ktp_pj_link" target="_blank" class="w-100 mb-2">
-                                        <img src="" id="detail_foto_ktp_pj" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                    <a href="" id="detail_foto_penanggung_jawab_link" target="_blank" class="w-100 mb-2">
+                                        <img src="" id="detail_foto_penanggung_jawab" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
                                     </a>
-                                    <a href="" id="download_foto_ktp_pj" download class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
+                                    <a href="" id="download_foto_penanggung_jawab" download class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                                         </svg> Unduh Foto
                                     </a>
-                                    <div id="detail_foto_ktp_pj_empty" class="text-muted small py-4">
+                                    <div id="detail_foto_penanggung_jawab_empty" class="text-muted small py-4">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-muted">
                                             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                                         </svg>
@@ -406,7 +409,7 @@
 
 @push('js')
     <script>
-        const BASE = "{{ route('olt.index') }}";
+        const BASE = "{{ route('server.index') }}";
         let table;
 
         $(function() {
@@ -414,8 +417,8 @@
             initializePaginationAndSearch();
             initializeModalHandlers();
             setupFilePreview("#foto_lokasi", "#preview_foto_lokasi", "Foto Lokasi Terunggah");
-            setupFilePreview("#foto_ktp_pemilik_tempat", "#preview_foto_ktp_pemilik_tempat", "KTP Pemilik Terunggah");
-            setupFilePreview("#foto_ktp_penanggung_jawab", "#preview_foto_ktp_penanggung_jawab", "KTP PJ Terunggah");
+            setupFilePreview("#foto_pemilik", "#preview_foto_pemilik", "Foto Pemilik Terunggah");
+            setupFilePreview("#foto_penanggung_jawab", "#preview_foto_penanggung_jawab", "Foto PJ Terunggah");
         });
 
         function setupFilePreview(inputSelector, previewContainerSelector, currentStatusText) {
@@ -446,7 +449,7 @@
         }
 
         function initializeDataTable() {
-            table = $('#olt-table').DataTable({
+            table = $('#server-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -485,7 +488,7 @@
                         data: 'address',
                         render: function(data) {
                             if (!data) return '<span class="text-muted">-</span>';
-                            return `<span class="text-wrap" style="max-width: 180px; display: inline-block; font-size: 0.82rem; line-height: 1.4; white-space: normal;">${data}</span>`;
+                            return `<span class="text-wrap" style="max-width: 250px; display: inline-block; font-size: 0.82rem; line-height: 1.4; white-space: normal;">${data}</span>`;
                         }
                     },
                     {
@@ -494,7 +497,7 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            if (row.foto_lokasi || row.foto_ktp_pemilik_tempat || row.foto_ktp_penanggung_jawab) {
+                            if (row.foto_lokasi || row.foto_pemilik || row.foto_penanggung_jawab) {
                                 return `<button onclick="detailModal(${row.id})" class="btn d-inline-flex align-items-center gap-1 btn-sm px-2 py-1" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:6px;font-size:0.8rem;font-weight:600;" title="Detail Foto">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
@@ -530,7 +533,7 @@
                         className: 'text-center',
                         render: function(data) {
                             if (data) {
-                                return `<a href="${data}" target="_blank" class="btn-action d-inline-flex" style="background:#e0e7ff;color:#4f46e5;border:none;" title="Buka Web OLT">
+                                return `<a href="${data}" target="_blank" class="btn-action d-inline-flex" style="background:#e0e7ff;color:#4f46e5;border:none;" title="Buka Web Server">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" />
                                     <path d="M11 13l9 -9" />
@@ -563,7 +566,7 @@
                         orderable: false,
                         searchable: false,
                         className: 'text-center',
-                        visible: {{ auth()->user()->can('ubah olt') || auth()->user()->can('hapus olt') ? 'true' : 'false' }}
+                        visible: {{ auth()->user()->can('edit server') || auth()->user()->can('hapus server') ? 'true' : 'false' }}
                     }
                 ],
                 drawCallback: function(settings) {
@@ -638,9 +641,9 @@
         function initializeModalHandlers() {
             $("#addBtn").on('click', function() {
                 resetModal();
-                $(".modal-title").text("Tambah OLT");
+                $(".modal-title").text("Tambah Server");
                 $("#type").val('create');
-                
+
                 // Auto generate code on modal open
                 $.get(BASE + '/generate-code')
                     .done(function(response) {
@@ -656,7 +659,7 @@
                 const btn = $(this);
                 const originalHtml = btn.html();
                 btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
-                
+
                 $.get(BASE + '/generate-code')
                     .done(function(response) {
                         if (response.code === 200) {
@@ -684,39 +687,39 @@
             });
         }
 
-        let oltMap, oltMarker;
+        let serverMap, serverMarker;
 
         function initLeafletMap(lat, lng) {
             const defaultLat = parseFloat(lat) || -6.200000;
             const defaultLng = parseFloat(lng) || 106.816666;
 
-            if (!oltMap) {
-                oltMap = L.map('map-olt').setView([defaultLat, defaultLng], 15);
+            if (!serverMap) {
+                serverMap = L.map('map-server').setView([defaultLat, defaultLng], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap contributors'
-                }).addTo(oltMap);
+                }).addTo(serverMap);
 
-                oltMarker = L.marker([defaultLat, defaultLng], {
+                serverMarker = L.marker([defaultLat, defaultLng], {
                     draggable: true
-                }).addTo(oltMap);
+                }).addTo(serverMap);
 
                 // Update input values on dragend
-                oltMarker.on('dragend', function (e) {
-                    const position = oltMarker.getLatLng();
+                serverMarker.on('dragend', function (e) {
+                    const position = serverMarker.getLatLng();
                     $("#latitude").val(position.lat.toFixed(8));
                     $("#longitude").val(position.lng.toFixed(8));
                 });
 
                 // Update input values and marker on map click
-                oltMap.on('click', function (e) {
-                    oltMarker.setLatLng(e.latlng);
+                serverMap.on('click', function (e) {
+                    serverMarker.setLatLng(e.latlng);
                     $("#latitude").val(e.latlng.lat.toFixed(8));
                     $("#longitude").val(e.latlng.lng.toFixed(8));
                 });
             } else {
-                oltMap.setView([defaultLat, defaultLng], 15);
-                oltMarker.setLatLng([defaultLat, defaultLng]);
+                serverMap.setView([defaultLat, defaultLng], 15);
+                serverMarker.setLatLng([defaultLat, defaultLng]);
             }
 
             $("#latitude").val(defaultLat.toFixed(8));
@@ -736,9 +739,9 @@
                     const lat = parseFloat(data[0].lat);
                     const lon = parseFloat(data[0].lon);
 
-                    if (oltMap && oltMarker) {
-                        oltMap.setView([lat, lon], 15);
-                        oltMarker.setLatLng([lat, lon]);
+                    if (serverMap && serverMarker) {
+                        serverMap.setView([lat, lon], 15);
+                        serverMarker.setLatLng([lat, lon]);
                         $("#latitude").val(lat.toFixed(8));
                         $("#longitude").val(lon.toFixed(8));
                     }
@@ -774,24 +777,24 @@
         $('#modal-simple').on('shown.bs.modal', function () {
             let lat = parseFloat($("#latitude").val());
             let lng = parseFloat($("#longitude").val());
-            
+
             if (!lat || !lng) {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
                         initLeafletMap(position.coords.latitude, position.coords.longitude);
-                        if (oltMap) oltMap.invalidateSize();
+                        if (serverMap) serverMap.invalidateSize();
                     }, function () {
                         // Fallback to Jakarta coordinates
                         initLeafletMap(-6.200000, 106.816666);
-                        if (oltMap) oltMap.invalidateSize();
+                        if (serverMap) serverMap.invalidateSize();
                     });
                 } else {
                     initLeafletMap(-6.200000, 106.816666);
-                    if (oltMap) oltMap.invalidateSize();
+                    if (serverMap) serverMap.invalidateSize();
                 }
             } else {
                 initLeafletMap(lat, lng);
-                if (oltMap) oltMap.invalidateSize();
+                if (serverMap) serverMap.invalidateSize();
             }
         });
 
@@ -802,15 +805,15 @@
             $("#hometowns_id").val('');
             $("#link").val('');
             $("#foto_lokasi").val('');
-            $("#foto_ktp_pemilik_tempat").val('');
-            $("#foto_ktp_penanggung_jawab").val('');
+            $("#foto_pemilik").val('');
+            $("#foto_penanggung_jawab").val('');
             $("#latitude").val('');
             $("#longitude").val('');
             $("#map-search-input").val('');
             $("#address").val('');
             $("#preview_foto_lokasi").hide().find('img').attr('src', '').data('existing-src', '');
-            $("#preview_foto_ktp_pemilik_tempat").hide().find('img').attr('src', '').data('existing-src', '');
-            $("#preview_foto_ktp_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
+            $("#preview_foto_pemilik").hide().find('img').attr('src', '').data('existing-src', '');
+            $("#preview_foto_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
             clearValidationErrors();
         }
 
@@ -839,7 +842,7 @@
             formData.append('latitude', $("#latitude").val());
             formData.append('longitude', $("#longitude").val());
             formData.append('address', $("#address").val());
-            
+
             if (type === 'update') {
                 formData.append('_method', 'PUT');
             }
@@ -847,11 +850,11 @@
             if ($("#foto_lokasi")[0].files[0]) {
                 formData.append('foto_lokasi', $("#foto_lokasi")[0].files[0]);
             }
-            if ($("#foto_ktp_pemilik_tempat")[0].files[0]) {
-                formData.append('foto_ktp_pemilik_tempat', $("#foto_ktp_pemilik_tempat")[0].files[0]);
+            if ($("#foto_pemilik")[0].files[0]) {
+                formData.append('foto_pemilik', $("#foto_pemilik")[0].files[0]);
             }
-            if ($("#foto_ktp_penanggung_jawab")[0].files[0]) {
-                formData.append('foto_ktp_penanggung_jawab', $("#foto_ktp_penanggung_jawab")[0].files[0]);
+            if ($("#foto_penanggung_jawab")[0].files[0]) {
+                formData.append('foto_penanggung_jawab', $("#foto_penanggung_jawab")[0].files[0]);
             }
 
             $.ajax({
@@ -885,7 +888,7 @@
             $.get(BASE + '/' + id + '/show')
                 .done(function(response) {
                     const data = response.data;
-                    $(".modal-title").text("Edit OLT");
+                    $(".modal-title").text("Edit Server");
                     $("#modal-simple").modal('show');
 
                     $("#id").val(data.id);
@@ -900,8 +903,8 @@
 
                     // Reset file inputs
                     $("#foto_lokasi").val('');
-                    $("#foto_ktp_pemilik_tempat").val('');
-                    $("#foto_ktp_penanggung_jawab").val('');
+                    $("#foto_pemilik").val('');
+                    $("#foto_penanggung_jawab").val('');
                     $("#map-search-input").val('');
 
                     // Render previews
@@ -913,21 +916,21 @@
                     } else {
                         $("#preview_foto_lokasi").hide().find('img').attr('src', '').data('existing-src', '');
                     }
-                    if (data.foto_ktp_pemilik_tempat) {
-                        $("#preview_foto_ktp_pemilik_tempat").show();
-                        $("#preview_foto_ktp_pemilik_tempat").find('img').attr('src', `/${data.foto_ktp_pemilik_tempat}`).data('existing-src', `/${data.foto_ktp_pemilik_tempat}`);
-                        $("#preview_foto_ktp_pemilik_tempat").find('.preview-status-text').text("KTP Pemilik Terunggah");
-                        $("#preview_foto_ktp_pemilik_tempat").find('.detail-link').attr('href', `/${data.foto_ktp_pemilik_tempat}`).show();
+                    if (data.foto_pemilik) {
+                        $("#preview_foto_pemilik").show();
+                        $("#preview_foto_pemilik").find('img').attr('src', `/${data.foto_pemilik}`).data('existing-src', `/${data.foto_pemilik}`);
+                        $("#preview_foto_pemilik").find('.preview-status-text').text("Foto Pemilik Terunggah");
+                        $("#preview_foto_pemilik").find('.detail-link').attr('href', `/${data.foto_pemilik}`).show();
                     } else {
-                        $("#preview_foto_ktp_pemilik_tempat").hide().find('img').attr('src', '').data('existing-src', '');
+                        $("#preview_foto_pemilik").hide().find('img').attr('src', '').data('existing-src', '');
                     }
-                    if (data.foto_ktp_penanggung_jawab) {
-                        $("#preview_foto_ktp_penanggung_jawab").show();
-                        $("#preview_foto_ktp_penanggung_jawab").find('img').attr('src', `/${data.foto_ktp_penanggung_jawab}`).data('existing-src', `/${data.foto_ktp_penanggung_jawab}`);
-                        $("#preview_foto_ktp_penanggung_jawab").find('.preview-status-text').text("KTP PJ Terunggah");
-                        $("#preview_foto_ktp_penanggung_jawab").find('.detail-link').attr('href', `/${data.foto_ktp_penanggung_jawab}`).show();
+                    if (data.foto_penanggung_jawab) {
+                        $("#preview_foto_penanggung_jawab").show();
+                        $("#preview_foto_penanggung_jawab").find('img').attr('src', `/${data.foto_penanggung_jawab}`).data('existing-src', `/${data.foto_penanggung_jawab}`);
+                        $("#preview_foto_penanggung_jawab").find('.preview-status-text').text("Foto PJ Terunggah");
+                        $("#preview_foto_penanggung_jawab").find('.detail-link').attr('href', `/${data.foto_penanggung_jawab}`).show();
                     } else {
-                        $("#preview_foto_ktp_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
+                        $("#preview_foto_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
                     }
                 })
                 .fail(function() {
@@ -939,7 +942,7 @@
             $.get(BASE + '/' + id + '/show')
                 .done(function(response) {
                     const data = response.data;
-                    $("#modal-detail-title").text(`Detail Foto OLT - ${data.name}`);
+                    $("#modal-detail-title").text(`Detail Foto Server - ${data.name}`);
 
                     // Foto Lokasi
                     if (data.foto_lokasi) {
@@ -954,30 +957,30 @@
                         $("#detail_foto_lokasi_empty").show();
                     }
 
-                    // Foto KTP Pemilik Tempat
-                    if (data.foto_ktp_pemilik_tempat) {
-                        $("#detail_foto_ktp_pemilik").attr('src', `/${data.foto_ktp_pemilik_tempat}`).show();
-                        $("#detail_foto_ktp_pemilik_link").attr('href', `/${data.foto_ktp_pemilik_tempat}`).show();
-                        $("#download_foto_ktp_pemilik").attr('href', `/${data.foto_ktp_pemilik_tempat}`).show();
-                        $("#detail_foto_ktp_pemilik_empty").hide();
+                    // Foto Pemilik Tempat
+                    if (data.foto_pemilik) {
+                        $("#detail_foto_pemilik").attr('src', `/${data.foto_pemilik}`).show();
+                        $("#detail_foto_pemilik_link").attr('href', `/${data.foto_pemilik}`).show();
+                        $("#download_foto_pemilik").attr('href', `/${data.foto_pemilik}`).show();
+                        $("#detail_foto_pemilik_empty").hide();
                     } else {
-                        $("#detail_foto_ktp_pemilik").attr('src', '').hide();
-                        $("#detail_foto_ktp_pemilik_link").attr('href', '').hide();
-                        $("#download_foto_ktp_pemilik").attr('href', '').hide();
-                        $("#detail_foto_ktp_pemilik_empty").show();
+                        $("#detail_foto_pemilik").attr('src', '').hide();
+                        $("#detail_foto_pemilik_link").attr('href', '').hide();
+                        $("#download_foto_pemilik").attr('href', '').hide();
+                        $("#detail_foto_pemilik_empty").show();
                     }
 
-                    // Foto KTP Penanggung Jawab
-                    if (data.foto_ktp_penanggung_jawab) {
-                        $("#detail_foto_ktp_pj").attr('src', `/${data.foto_ktp_penanggung_jawab}`).show();
-                        $("#detail_foto_ktp_pj_link").attr('href', `/${data.foto_ktp_penanggung_jawab}`).show();
-                        $("#download_foto_ktp_pj").attr('href', `/${data.foto_ktp_penanggung_jawab}`).show();
-                        $("#detail_foto_ktp_pj_empty").hide();
+                    // Foto Penanggung Jawab
+                    if (data.foto_penanggung_jawab) {
+                        $("#detail_foto_penanggung_jawab").attr('src', `/${data.foto_penanggung_jawab}`).show();
+                        $("#detail_foto_penanggung_jawab_link").attr('href', `/${data.foto_penanggung_jawab}`).show();
+                        $("#download_foto_penanggung_jawab").attr('href', `/${data.foto_penanggung_jawab}`).show();
+                        $("#detail_foto_penanggung_jawab_empty").hide();
                     } else {
-                        $("#detail_foto_ktp_pj").attr('src', '').hide();
-                        $("#detail_foto_ktp_pj_link").attr('href', '').hide();
-                        $("#download_foto_ktp_pj").attr('href', '').hide();
-                        $("#detail_foto_ktp_pj_empty").show();
+                        $("#detail_foto_penanggung_jawab").attr('src', '').hide();
+                        $("#detail_foto_penanggung_jawab_link").attr('href', '').hide();
+                        $("#download_foto_penanggung_jawab").attr('href', '').hide();
+                        $("#detail_foto_penanggung_jawab_empty").show();
                     }
 
                     $("#modal-detail").modal('show');
@@ -987,10 +990,10 @@
                 });
         }
 
-        function deleteOLT(id) {
+        function deleteServer(id) {
             Swal.fire({
-                title: "Hapus OLT?",
-                text: "Data OLT ini akan dihapus permanen.",
+                title: "Hapus Server?",
+                text: "Data Server ini akan dihapus permanen.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#ef4444",
@@ -1025,7 +1028,6 @@
         function showValidationErrors(errors) {
             clearValidationErrors();
             Object.keys(errors).forEach(function(field) {
-                // khusus untuk field link jika input-group, taruh is-invalid
                 const input = $("#" + field);
                 input.addClass('is-invalid');
                 if (input.parent().hasClass('input-group')) {

@@ -135,8 +135,8 @@
                                     </div>
                                 </li>
                             @endcanany
-                            @canany(['lihat router', 'lihat vlan', 'lihat odc', 'lihat odp', 'lihat olt', 'lihat mic radius', 'lihat mac address'])
-                                <li class="nav-item dropdown {{ request()->is('master-network*') || request()->is('router*') || request()->is('vlan*') || request()->is('odc*') || request()->is('odp*') || request()->is('olt*') || request()->is('mic.radius*') || request()->is('mac.address*') ? 'active' : '' }}">
+                            @canany(['lihat router', 'lihat vlan', 'lihat odc', 'lihat odp', 'lihat olt', 'lihat server', 'lihat mic radius', 'lihat mac address'])
+                                <li class="nav-item dropdown {{ request()->is('master-network*') || request()->is('router*') || request()->is('vlan*') || request()->is('odc*') || request()->is('odp*') || request()->is('olt*') || request()->is('server*') || request()->is('mic.radius*') || request()->is('mac.address*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -174,6 +174,11 @@
                                         @can('lihat olt')
                                             <a class="dropdown-item {{ Route::is("olt*") ? 'active' : '' }}" href="{{ route('olt.index') }}" rel="noopener">
                                                 Data OLT
+                                            </a>
+                                        @endcan
+                                        @can('lihat server')
+                                            <a class="dropdown-item {{ Route::is("server*") ? 'active' : '' }}" href="{{ route('server.index') }}" rel="noopener">
+                                                Data Server
                                             </a>
                                         @endcan
                                         @can('lihat mic radius')

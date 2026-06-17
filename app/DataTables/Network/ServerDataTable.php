@@ -2,12 +2,11 @@
 
 namespace App\DataTables\Network;
 
-use App\Models\ODP;
-use App\Models\OLT;
+use App\Models\Server;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 
-class OLTDataTable
+class ServerDataTable
 {
     public function get()
     {
@@ -22,7 +21,7 @@ class OLTDataTable
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
 
-                if ($auth->can('ubah olt')) {
+                if ($auth->can('edit server')) {
                     $btn .= '<a href="javascript:void(0)" onclick="editModal(' . $row->id . ')"
                         class="btn-action btn-action-edit" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
@@ -33,8 +32,8 @@ class OLTDataTable
                     </a>';
                 }
 
-                if ($auth->can('hapus olt')) {
-                    $btn .= '<button onclick="deleteOLT(' . $row->id . ')"
+                if ($auth->can('hapus server')) {
+                    $btn .= '<button onclick="deleteServer(' . $row->id . ')"
                         class="btn-action btn-action-delete" title="Hapus">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,11 +57,11 @@ class OLTDataTable
      */
     private function query()
     {
-        return OLT::with([
+        return Server::with([
             'hometown'
         ])
             ->where('organization_id', Auth::user()->organization_id)
-            ->select('olt_networks.*');
+            ->select('server.*');
     }
 
     private function search($query)
@@ -75,6 +74,7 @@ class OLTDataTable
             $q->where('name', 'like', "%{$search}%")
                 ->orWhere('code', 'like', "%{$search}%")
                 ->orWhere('address', 'like', "%{$search}%")
+                ->orWhere('link', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

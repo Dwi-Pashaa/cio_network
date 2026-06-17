@@ -23,7 +23,7 @@ class PublicCustomerController extends Controller
     public function search(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'customer_id' => 'required|string',
+            'mac_address' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -33,12 +33,9 @@ class PublicCustomerController extends Controller
             ], 422);
         }
 
-        $customerId = trim($request->input('customer_id'));
+        $macAddress = trim($request->input('mac_address'));
 
-        // Retrieve customer matching either numeric ID or UUID
-        $customer = Customer::where('uuid', $customerId)
-            ->orWhere('id', $customerId)
-            ->first();
+        $customer = Customer::where('mac_address', $macAddress)->first();
 
         if (!$customer) {
             return response()->json([

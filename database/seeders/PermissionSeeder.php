@@ -36,7 +36,11 @@ class PermissionSeeder extends Seeder
             // 'hapus organisasi',
             // 'verifikasi email',
             // 'verifikasi whatsapp',
-            'download qrcode',
+            // 'download qrcode',
+            'tambah server',
+            'edit server',
+            'hapus server',
+            'lihat server'
         ];
 
         foreach ($permissions as $permission) {

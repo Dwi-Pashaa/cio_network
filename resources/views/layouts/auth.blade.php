@@ -34,7 +34,7 @@
         /* ── LEFT PANEL ── */
         .auth-left {
             flex: 1;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4c1d95 60%, #6d28d9 100%);
+            background: linear-gradient(135deg, #0b1530 0%, #0f2b5c 35%, #1d4ed8 70%, #3b82f6 100%);
             position: relative;
             display: flex;
             flex-direction: column;
@@ -51,7 +51,7 @@
             width: 500px;
             height: 500px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
             top: -100px;
             left: -100px;
             animation: float1 8s ease-in-out infinite;
@@ -63,7 +63,7 @@
             width: 400px;
             height: 400px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, transparent 70%);
             bottom: -80px;
             right: -80px;
             animation: float2 10s ease-in-out infinite;
@@ -103,24 +103,22 @@
         }
 
         .auth-brand-logo {
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            display: flex;
+            display: inline-flex;
+            gap: 16px;
+            padding: 10px 18px;
+            background: #ffffff;
+            border-radius: 12px;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin: 0 auto 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
 
         .auth-brand-logo img {
-            width: 60px;
-            height: 60px;
+            height: 30px;
+            width: auto;
             object-fit: contain;
-            border-radius: 12px;
         }
 
         .auth-left h1 {
@@ -219,7 +217,7 @@
         .auth-greeting .welcome {
             font-size: 0.8rem;
             font-weight: 600;
-            color: #7c3aed;
+            color: #2563eb;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             margin-bottom: 0.5rem;
@@ -306,8 +304,8 @@
         }
 
         .auth-input-wrap input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .auth-input-wrap input.is-invalid {
@@ -341,14 +339,14 @@
         }
 
         .toggle-password:hover {
-            color: #7c3aed;
+            color: #2563eb;
         }
 
         /* Submit button */
         .auth-btn {
             width: 100%;
             padding: 0.85rem;
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
             border-radius: 12px;
@@ -378,7 +376,7 @@
 
         .auth-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(109, 40, 217, 0.35);
+            box-shadow: 0 8px 24px rgba(29, 78, 216, 0.35);
         }
 
         .auth-btn:hover::before {
@@ -422,7 +420,8 @@
     <div class="auth-left">
         <div class="auth-left-inner">
             <div class="auth-brand-logo">
-                <img src="{{ asset('img/logo.jpg') }}" alt="{{ config('app.name') }}">
+                <img src="{{ asset('img/logo_2.jpeg') }}" alt="Logo 2">
+                <img src="{{ asset('img/logo.jpg') }}" alt="Logo 1">
             </div>
             <h1>{{ config('app.name') }}</h1>
             <p>Platform terintegrasi untuk manajemen jaringan, pelanggan, dan operasional ISP secara efisien.</p>

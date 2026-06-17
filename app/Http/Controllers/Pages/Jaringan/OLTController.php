@@ -26,6 +26,19 @@ class OLTController extends Controller
         return view("pages.olt.index", compact("hometown"));
     }
 
+    public function generateCode()
+    {
+        $date = now()->format('Y');
+        $lastTransaction = OLT::whereDate('created_at', now()->toDateString())
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $lastNumber = $lastTransaction ? (int)substr($lastTransaction->code, -4) : 0;
+        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+
+        return response()->json(['code' => 200, 'status' => 'success', 'data' => "OLT{$date}{$newNumber}"]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -35,6 +48,10 @@ class OLTController extends Controller
             "name" => "required|string",
             "hometowns_id" => "required|string",
             "link" => "required|string",
+            "foto_lokasi" => "required|image|max:2048",
+            "foto_ktp_pemilik_tempat" => "required|image|max:2048",
+            "foto_ktp_penanggung_jawab" => "required|image|max:2048",
+            "address" => "required|string",
         ]);
 
         if ($validation->fails()) {
@@ -43,6 +60,27 @@ class OLTController extends Controller
 
         $post = $request->all();
         $post['organization_id'] = Auth::user()->organization_id;
+
+        if ($request->hasFile('foto_lokasi')) {
+            $file = $request->file('foto_lokasi');
+            $fileName = 'olt_lokasi_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $post['foto_lokasi'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('foto_ktp_pemilik_tempat')) {
+            $file = $request->file('foto_ktp_pemilik_tempat');
+            $fileName = 'olt_ktp_pemilik_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $post['foto_ktp_pemilik_tempat'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('foto_ktp_penanggung_jawab')) {
+            $file = $request->file('foto_ktp_penanggung_jawab');
+            $fileName = 'olt_ktp_pj_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $post['foto_ktp_penanggung_jawab'] = 'upload/olt/' . $fileName;
+        }
 
         OLT::create($post);
 
@@ -72,16 +110,54 @@ class OLTController extends Controller
             "name" => "required|string",
             "hometowns_id" => "required|string",
             "link" => "required|string",
+            "foto_lokasi" => "nullable|image|max:2048",
+            "foto_ktp_pemilik_tempat" => "nullable|image|max:2048",
+            "foto_ktp_penanggung_jawab" => "nullable|image|max:2048",
+            "address" => "required|string",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
+        $olts = OLT::find($id);
+
+        if (!$olts) {
+            return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
+        }
+
         $put = $request->all();
         $put['organization_id'] = Auth::user()->organization_id;
 
-        $olts = OLT::find($id);
+        if ($request->hasFile('foto_lokasi')) {
+            if ($olts->foto_lokasi && file_exists(public_path($olts->foto_lokasi))) {
+                @unlink(public_path($olts->foto_lokasi));
+            }
+            $file = $request->file('foto_lokasi');
+            $fileName = 'olt_lokasi_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $put['foto_lokasi'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('foto_ktp_pemilik_tempat')) {
+            if ($olts->foto_ktp_pemilik_tempat && file_exists(public_path($olts->foto_ktp_pemilik_tempat))) {
+                @unlink(public_path($olts->foto_ktp_pemilik_tempat));
+            }
+            $file = $request->file('foto_ktp_pemilik_tempat');
+            $fileName = 'olt_ktp_pemilik_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $put['foto_ktp_pemilik_tempat'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('foto_ktp_penanggung_jawab')) {
+            if ($olts->foto_ktp_penanggung_jawab && file_exists(public_path($olts->foto_ktp_penanggung_jawab))) {
+                @unlink(public_path($olts->foto_ktp_penanggung_jawab));
+            }
+            $file = $request->file('foto_ktp_penanggung_jawab');
+            $fileName = 'olt_ktp_pj_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt'), $fileName);
+            $put['foto_ktp_penanggung_jawab'] = 'upload/olt/' . $fileName;
+        }
 
         $olts->update($put);
 
