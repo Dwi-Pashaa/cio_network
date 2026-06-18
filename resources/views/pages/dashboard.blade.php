@@ -783,14 +783,22 @@
                                             <div class="plc-name text-truncate">{{ $upg->name }}</div>
                                             <div class="plc-info">
                                                 @if ($upg->regencie)
-                                                    <span>📍 {{ $upg->regencie->name }}</span><br>
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                                        {{ $upg->regencie->name }}
+                                                    </span><br>
                                                 @endif
                                                 @if ($upg->district)
-                                                    <span>🏛️ {{ $upg->district->name }}</span><br>
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/></svg>
+                                                        {{ $upg->district->name }}
+                                                    </span><br>
                                                 @endif
                                                 @if ($upg->vlan->count() > 0)
-                                                    <span>📡
-                                                        {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}</span>
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>
+                                                        {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}
+                                                    </span>
                                                 @endif
                                             </div>
                                         </div>
@@ -848,25 +856,47 @@
                         <div class="d-flex flex-wrap gap-2">
                             @php
                                 $filterOptions = [
-                                    'kabupaten' => ['label' => 'Kab / Kota', 'emoji' => '🏙️'],
-                                    'kecamatan' => ['label' => 'Kecamatan', 'emoji' => '🏛️'],
-                                    'desa' => ['label' => 'Desa', 'emoji' => '🏘️'],
-                                    'kampung' => ['label' => 'Kampung', 'emoji' => '🏡'],
-                                    'vlan' => ['label' => 'VLAN', 'emoji' => '📡'],
-                                    'olt' => ['label' => 'OLT', 'emoji' => '🔌'],
-                                    'voucher & ppoe' => ['label' => 'Voucher & PPOE', 'emoji' => '📶'],
+                                    'kabupaten' => [
+                                        'label' => 'Kab / Kota',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/><path d="M9 15h.01"/><path d="M9 18h.01"/></svg>',
+                                    ],
+                                    'kecamatan' => [
+                                        'label' => 'Kecamatan',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M9 21v-13l-6 2v11"/><path d="M21 21v-10l-6 -4"/><path d="M9 8l6 4"/></svg>',
+                                    ],
+                                    'desa' => [
+                                        'label' => 'Desa',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4"/><path d="M8 21v-8a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v8"/><path d="M3 21l18 0"/><path d="M3 21v-9a2 2 0 0 1 2 -2h1"/><path d="M21 21v-9a2 2 0 0 0 -2 -2h-1"/></svg>',
+                                    ],
+                                    'kampung' => [
+                                        'label' => 'Kampung',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l9 7.5l-9 7.5l-9 -7.5z"/><path d="M12 12v9"/><path d="M3 10.5v9"/><path d="M21 10.5v9"/><path d="M3 19.5h18"/></svg>',
+                                    ],
+                                    'vlan' => [
+                                        'label' => 'VLAN',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M3 13.5l3 1.5v4l-3 -1.5z"/><path d="M21 13.5l-3 1.5v4l3 -1.5z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>',
+                                    ],
+                                    'olt' => [
+                                        'label' => 'OLT',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M17 17l0 .01"/><path d="M13 17l0 .01"/><path d="M15 13l0 -2"/><path d="M11.75 8.75a4 4 0 0 1 6.5 0"/><path d="M8.5 6.5a8 8 0 0 1 13 0"/></svg>',
+                                    ],
+                                    'voucher & ppoe' => [
+                                        'label' => 'Voucher & PPOE',
+                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M7 12v4"/><path d="M17 12v4"/><path d="M5 16m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"/></svg>',
+                                    ],
                                 ];
                             @endphp
                             @foreach ($filterOptions as $val => $opt)
                                 <a href="?filter={{ urlencode($val) }}"
                                     class="filter-pill {{ request('filter') === $val ? 'active' : '' }}">
-                                    {{ $opt['emoji'] }} {{ $opt['label'] }}
+                                    {!! $opt['svg'] !!} {{ $opt['label'] }}
                                 </a>
                             @endforeach
                             @if (request('filter'))
                                 <a href="{{ route('dashboard') }}" class="filter-pill"
                                     style="border-color:#fecaca;color:#dc2626;">
-                                    ✕ Reset
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                    Reset
                                 </a>
                             @endif
                         </div>

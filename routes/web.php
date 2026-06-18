@@ -1,27 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Pages\ChattingController;
-use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\DashboardController;
-use App\Http\Controllers\Pages\HistoryController;
-use App\Http\Controllers\Pages\Jaringan\MicRadiusController;
-use App\Http\Controllers\Pages\Jaringan\ODCController;
-use App\Http\Controllers\Pages\Jaringan\ODPController;
-use App\Http\Controllers\Pages\Jaringan\OLTController;
-use App\Http\Controllers\Pages\Jaringan\RouterController;
-use App\Http\Controllers\Pages\Jaringan\VlanController;
-use App\Http\Controllers\Pages\MacAddressController;
-use App\Http\Controllers\Pages\PagesController;
-use App\Http\Controllers\Pages\Pemukiman\DesaController;
-use App\Http\Controllers\Pages\Pemukiman\KampungController;
-use App\Http\Controllers\Pages\Pemukiman\RTController;
-use App\Http\Controllers\Pages\Pemukiman\RWController;
-use App\Http\Controllers\Pages\SpamController;
-use App\Http\Controllers\Pages\SwitchPerangkatController;
-use App\Http\Controllers\Pages\Wablass\ReportController;
-use App\Http\Controllers\Pages\Wilayah\KabupatenController;
-use App\Http\Controllers\Pages\Wilayah\KecamatanController;
+use App\Http\Controllers\Pages\ProsedurController;
 use App\Http\Controllers\Pages\PublicCustomerController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/prosedur', [ProsedurController::class, 'index'])->name('public.prosedur');
+Route::get('/prosedur/search-customer', [ProsedurController::class, 'searchCustomer'])->name('public.prosedur.search_customer');
+Route::get('/prosedur/get-router-by-mac', [ProsedurController::class, 'getRouterByMac'])->name('public.prosedur.get_router_by_mac');
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('post.login');

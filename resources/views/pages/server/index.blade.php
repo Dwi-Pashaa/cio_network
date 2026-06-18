@@ -87,6 +87,7 @@
                             <th>KAMPUNG</th>
                             <th>ALAMAT</th>
                             <th class="text-center">FOTO</th>
+                            <th class="text-center">DOKUMEN</th>
                             <th class="text-center">LOKASI</th>
                             <th class="text-center">LINK SERVER</th>
                             <th>CREATED</th>
@@ -234,7 +235,7 @@
                         </div>
 
                         {{-- Row 4 --}}
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label class="form-label" for="foto_penanggung_jawab">Foto Penanggung Jawab <span style="color:#ef4444;">*</span></label>
                             <input type="file" name="foto_penanggung_jawab" id="foto_penanggung_jawab" class="form-control" accept="image/*">
                             <span class="invalid-feedback error_foto_penanggung_jawab"></span>
@@ -247,6 +248,32 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                                 <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                                             </svg>Lihat Full
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="document">Dokumen Pendukung</label>
+                            <input type="file" name="document" id="document" class="form-control" accept=".pdf">
+                            <span class="invalid-feedback error_document"></span>
+                            <div id="preview_document" class="mt-2" style="display:none;">
+                                <div class="d-flex flex-column border rounded bg-white shadow-sm p-1" style="border-radius: 12px; width: 100%; max-width: 280px;">
+                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 100%; height: 150px; border-radius: 8px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between px-2 py-2 mt-1 bg-light rounded-bottom" style="font-size: 0.75rem;">
+                                        <span class="preview-status-text fw-bold text-secondary">Dokumen Terunggah</span>
+                                        <a href="" target="_blank" class="detail-link text-primary fw-bold" style="text-decoration: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                                <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                            </svg>Pratinjau
                                         </a>
                                     </div>
                                 </div>
@@ -328,7 +355,7 @@
                 </div>
                 <div class="modal-body" style="padding:1.5rem;">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
                                 <div class="card-header py-2 px-3 bg-light border-0 text-center">
                                     <span class="fw-bold small text-secondary">Foto Lokasi</span>
@@ -351,7 +378,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
                                 <div class="card-header py-2 px-3 bg-light border-0 text-center">
                                     <span class="fw-bold small text-secondary">Foto Pemilik Lokasi</span>
@@ -374,7 +401,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
                                 <div class="card-header py-2 px-3 bg-light border-0 text-center">
                                     <span class="fw-bold small text-secondary">Foto Penanggung Jawab</span>
@@ -397,10 +424,77 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #f8fafc;">
+                                <div class="card-header py-2 px-3 bg-light border-0 text-center">
+                                    <span class="fw-bold small text-secondary">Dokumen Pendukung</span>
+                                </div>
+                                <div class="card-body p-2 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;">
+                                    <div id="detail_document_preview" class="w-100 mb-2" style="display:none;">
+                                        <div class="d-flex align-items-center justify-content-center bg-white rounded border py-3" style="min-height: 100px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14 2 14 8 20 8"/>
+                                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                                <polyline points="10 9 9 9 8 9"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column gap-1 w-100" id="detail_document_actions" style="display:none;">
+                                        <button type="button" id="preview_detail_document" class="btn btn-sm btn-info d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+                                            </svg> Pratinjau PDF
+                                        </button>
+                                        <a href="" id="download_detail_document" download class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 w-100 justify-content-center" style="font-size: 0.78rem; font-weight: 600; border-radius: 8px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                            </svg> Unduh File
+                                        </a>
+                                    </div>
+                                    <div id="detail_document_empty" class="text-muted small py-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-muted">
+                                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                        </svg>
+                                        <div>Belum diunggah</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top:1px solid #f1f5f9;padding:1rem 1.5rem;">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- PDF Preview Modal --}}
+    <div class="modal modal-blur fade" id="modal-pdf-preview" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;height: 85vh;">
+                <div class="modal-header"
+                    style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);border:none;padding:1.25rem 1.5rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                        </div>
+                        <h5 class="modal-title mb-0" style="color:white;font-weight:700;font-size:.95rem;">Pratinjau Dokumen PDF</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" style="height: calc(100% - 60px);">
+                    <iframe id="pdf-preview-iframe" src="" width="100%" height="100%" style="border:none;"></iframe>
                 </div>
             </div>
         </div>
@@ -419,7 +513,53 @@
             setupFilePreview("#foto_lokasi", "#preview_foto_lokasi", "Foto Lokasi Terunggah");
             setupFilePreview("#foto_pemilik", "#preview_foto_pemilik", "Foto Pemilik Terunggah");
             setupFilePreview("#foto_penanggung_jawab", "#preview_foto_penanggung_jawab", "Foto PJ Terunggah");
+            setupDocumentPreview();
         });
+
+        $(document).on('hidden.bs.modal', '#modal-pdf-preview', function () {
+            $("#pdf-preview-iframe").attr('src', '');
+        });
+
+        function previewPdf(url) {
+            $("#pdf-preview-iframe").attr('src', url);
+            $("#modal-pdf-preview").modal('show');
+        }
+
+        function setupDocumentPreview() {
+            $("#document").on('change', function() {
+                const file = this.files[0];
+                const container = $("#preview_document");
+                if (file) {
+                    container.show();
+                    container.find('.preview-status-text').text("Dokumen Baru Dipilih");
+                    if (file.type === "application/pdf") {
+                        const fileURL = URL.createObjectURL(file);
+                        container.find('.detail-link').attr('href', '#').text('Pratinjau PDF').show().off('click').on('click', function(e) {
+                            e.preventDefault();
+                            previewPdf(fileURL);
+                        });
+                    } else {
+                        container.find('.detail-link').hide();
+                    }
+                } else {
+                    const existingSrc = container.find('.detail-link').data('existing-src');
+                    if (existingSrc) {
+                        container.show();
+                        container.find('.preview-status-text').text("Dokumen Terunggah");
+                        if (existingSrc.toLowerCase().endsWith('.pdf')) {
+                            container.find('.detail-link').attr('href', '#').text('Pratinjau PDF').show().off('click').on('click', function(e) {
+                                e.preventDefault();
+                                previewPdf(existingSrc);
+                            });
+                        } else {
+                            container.find('.detail-link').attr('href', existingSrc).attr('target', '_blank').text('Lihat File').show().off('click');
+                        }
+                    } else {
+                        container.hide().find('.detail-link').attr('href', '').data('existing-src', '');
+                    }
+                }
+            });
+        }
 
         function setupFilePreview(inputSelector, previewContainerSelector, currentStatusText) {
             $(inputSelector).on('change', function() {
@@ -459,7 +599,7 @@
                     }
                 },
                 order: [
-                    [8, 'desc']
+                    [9, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -504,6 +644,37 @@
                                     </svg>
                                     Lihat Foto
                                 </button>`;
+                            }
+                            return '<span class="text-muted">-</span>';
+                        }
+                    },
+                    {
+                        data: 'document',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            if (data) {
+                                const isPdf = data.toLowerCase().endsWith('.pdf');
+                                if (isPdf) {
+                                    return `<button onclick="previewPdf('/${data}')" class="btn d-inline-flex align-items-center gap-1 btn-sm px-2 py-1" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;font-size:0.8rem;font-weight:600;" title="Pratinjau Dokumen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                        Pratinjau PDF
+                                    </button>`;
+                                } else {
+                                    return `<a href="/${data}" target="_blank" class="btn d-inline-flex align-items-center gap-1 btn-sm px-2 py-1" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;font-size:0.8rem;font-weight:600;" title="Unduh Dokumen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        Unduh File
+                                    </a>`;
+                                }
                             }
                             return '<span class="text-muted">-</span>';
                         }
@@ -807,6 +978,7 @@
             $("#foto_lokasi").val('');
             $("#foto_pemilik").val('');
             $("#foto_penanggung_jawab").val('');
+            $("#document").val('');
             $("#latitude").val('');
             $("#longitude").val('');
             $("#map-search-input").val('');
@@ -814,6 +986,7 @@
             $("#preview_foto_lokasi").hide().find('img').attr('src', '').data('existing-src', '');
             $("#preview_foto_pemilik").hide().find('img').attr('src', '').data('existing-src', '');
             $("#preview_foto_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
+            $("#preview_document").hide().find('.detail-link').attr('href', '').data('existing-src', '');
             clearValidationErrors();
         }
 
@@ -855,6 +1028,9 @@
             }
             if ($("#foto_penanggung_jawab")[0].files[0]) {
                 formData.append('foto_penanggung_jawab', $("#foto_penanggung_jawab")[0].files[0]);
+            }
+            if ($("#document")[0].files[0]) {
+                formData.append('document', $("#document")[0].files[0]);
             }
 
             $.ajax({
@@ -905,6 +1081,7 @@
                     $("#foto_lokasi").val('');
                     $("#foto_pemilik").val('');
                     $("#foto_penanggung_jawab").val('');
+                    $("#document").val('');
                     $("#map-search-input").val('');
 
                     // Render previews
@@ -931,6 +1108,23 @@
                         $("#preview_foto_penanggung_jawab").find('.detail-link').attr('href', `/${data.foto_penanggung_jawab}`).show();
                     } else {
                         $("#preview_foto_penanggung_jawab").hide().find('img').attr('src', '').data('existing-src', '');
+                    }
+
+                    if (data.document) {
+                        $("#preview_document").show();
+                        $("#preview_document").find('.preview-status-text').text("Dokumen Terunggah");
+                        const docPath = `/${data.document}`;
+                        $("#preview_document").find('.detail-link').data('existing-src', docPath);
+                        if (data.document.toLowerCase().endsWith('.pdf')) {
+                            $("#preview_document").find('.detail-link').attr('href', '#').text('Pratinjau PDF').show().off('click').on('click', function(e) {
+                                e.preventDefault();
+                                previewPdf(docPath);
+                            });
+                        } else {
+                            $("#preview_document").find('.detail-link').attr('href', docPath).attr('target', '_blank').text('Lihat File').show().off('click');
+                        }
+                    } else {
+                        $("#preview_document").hide().find('.detail-link').attr('href', '').data('existing-src', '');
                     }
                 })
                 .fail(function() {
@@ -981,6 +1175,27 @@
                         $("#detail_foto_penanggung_jawab_link").attr('href', '').hide();
                         $("#download_foto_penanggung_jawab").attr('href', '').hide();
                         $("#detail_foto_penanggung_jawab_empty").show();
+                    }
+
+                    // Dokumen Pendukung
+                    if (data.document) {
+                        const docPath = `/${data.document}`;
+                        $("#detail_document_preview").show();
+                        $("#detail_document_actions").show();
+                        $("#detail_document_empty").hide();
+                        $("#download_detail_document").attr('href', docPath);
+                        if (data.document.toLowerCase().endsWith('.pdf')) {
+                            $("#preview_detail_document").show().off('click').on('click', function(e) {
+                                e.preventDefault();
+                                previewPdf(docPath);
+                            });
+                        } else {
+                            $("#preview_detail_document").hide();
+                        }
+                    } else {
+                        $("#detail_document_preview").hide();
+                        $("#detail_document_actions").hide();
+                        $("#detail_document_empty").show();
                     }
 
                     $("#modal-detail").modal('show');

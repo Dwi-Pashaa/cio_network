@@ -51,6 +51,7 @@ class OLTController extends Controller
             "foto_lokasi" => "required|image|max:2048",
             "foto_ktp_pemilik_tempat" => "required|image|max:2048",
             "foto_ktp_penanggung_jawab" => "required|image|max:2048",
+            "document" => "required|file|mimes:pdf|max:5120",
             "address" => "required|string",
         ]);
 
@@ -80,6 +81,13 @@ class OLTController extends Controller
             $fileName = 'olt_ktp_pj_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('upload/olt'), $fileName);
             $post['foto_ktp_penanggung_jawab'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('document')) {
+            $file = $request->file('document');
+            $fileName = 'olt_doc_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt/document'), $fileName);
+            $post['document'] = 'upload/olt/document/' . $fileName;
         }
 
         OLT::create($post);
@@ -113,6 +121,7 @@ class OLTController extends Controller
             "foto_lokasi" => "nullable|image|max:2048",
             "foto_ktp_pemilik_tempat" => "nullable|image|max:2048",
             "foto_ktp_penanggung_jawab" => "nullable|image|max:2048",
+            "document" => "nullable|file|mimes:pdf|max:5120",
             "address" => "required|string",
         ]);
 
@@ -157,6 +166,16 @@ class OLTController extends Controller
             $fileName = 'olt_ktp_pj_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('upload/olt'), $fileName);
             $put['foto_ktp_penanggung_jawab'] = 'upload/olt/' . $fileName;
+        }
+
+        if ($request->hasFile('document')) {
+            if ($olts->document && file_exists(public_path($olts->document))) {
+                @unlink(public_path($olts->document));
+            }
+            $file = $request->file('document');
+            $fileName = 'olt_doc_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/olt/document'), $fileName);
+            $put['document'] = 'upload/olt/document/' . $fileName;
         }
 
         $olts->update($put);

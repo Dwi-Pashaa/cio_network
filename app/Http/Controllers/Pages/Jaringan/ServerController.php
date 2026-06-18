@@ -51,6 +51,7 @@ class ServerController extends Controller
             "foto_lokasi" => "required|image|max:2048",
             "foto_pemilik" => "required|image|max:2048",
             "foto_penanggung_jawab" => "required|image|max:2048",
+            "document" => "required|file|mimes:pdf|max:5120",
             "address" => "required|string",
             "latitude" => "nullable|string",
             "longitude" => "nullable|string",
@@ -84,6 +85,13 @@ class ServerController extends Controller
             $post['foto_penanggung_jawab'] = 'upload/server/' . $fileName;
         }
 
+        if ($request->hasFile('document')) {
+            $file = $request->file('document');
+            $fileName = 'server_doc_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/server/document'), $fileName);
+            $post['document'] = 'upload/server/document/' . $fileName;
+        }
+
         Server::create($post);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data.']);
@@ -115,6 +123,7 @@ class ServerController extends Controller
             "foto_lokasi" => "nullable|image|max:2048",
             "foto_pemilik" => "nullable|image|max:2048",
             "foto_penanggung_jawab" => "nullable|image|max:2048",
+            "document" => "nullable|file|mimes:pdf|max:5120",
             "address" => "required|string",
             "latitude" => "nullable|string",
             "longitude" => "nullable|string",
@@ -163,6 +172,16 @@ class ServerController extends Controller
             $put['foto_penanggung_jawab'] = 'upload/server/' . $fileName;
         }
 
+        if ($request->hasFile('document')) {
+            if ($server->document && file_exists(public_path($server->document))) {
+                @unlink(public_path($server->document));
+            }
+            $file = $request->file('document');
+            $fileName = 'server_doc_' . time() . '_' . rand(100000, 999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/server/document'), $fileName);
+            $put['document'] = 'upload/server/document/' . $fileName;
+        }
+
         $server->update($put);
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
@@ -188,6 +207,9 @@ class ServerController extends Controller
         }
         if ($server->foto_penanggung_jawab && file_exists(public_path($server->foto_penanggung_jawab))) {
             @unlink(public_path($server->foto_penanggung_jawab));
+        }
+        if ($server->document && file_exists(public_path($server->document))) {
+            @unlink(public_path($server->document));
         }
 
         $server->delete();
