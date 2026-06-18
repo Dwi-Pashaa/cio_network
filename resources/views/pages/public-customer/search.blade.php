@@ -81,6 +81,25 @@
             margin-bottom: 0.75rem;
         }
 
+        .brand-logo-container {
+            display: inline-flex;
+            gap: 16px;
+            padding: 10px 18px;
+            background: #ffffff;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .brand-logo-container img {
+            height: 30px;
+            width: auto;
+            object-fit: contain;
+        }
+
         .card-header-gradient h1 {
             color: #ffffff;
             font-size: 1.75rem;
@@ -329,6 +348,13 @@
                 font-size: 0.8rem;
                 margin-bottom: 0.5rem;
             }
+            .brand-logo-container {
+                margin-bottom: 1rem;
+                padding: 8px 14px;
+            }
+            .brand-logo-container img {
+                height: 24px;
+            }
             .card-header-gradient h1 {
                 font-size: 1.45rem;
                 margin-bottom: 0.5rem;
@@ -375,8 +401,9 @@
     <div class="search-card">
         <!-- Card Header -->
         <div class="card-header-gradient">
-            <div class="brand-badge">
-                Cio Network Solution
+            <div class="brand-logo-container">
+                <img src="{{ asset('img/logo_2.jpeg') }}" alt="Logo 2">
+                <img src="{{ asset('img/logo.jpg') }}" alt="Logo 1">
             </div>
             <h1>Pencarian Pelanggan</h1>
             <p>Masukkan MAC Address untuk mencari data pelanggan dan melakukan pembayaran</p>
