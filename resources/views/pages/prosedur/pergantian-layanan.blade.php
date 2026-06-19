@@ -158,15 +158,15 @@
                 <!-- STEP 1 CONTENT: SEARCH & VERIFY CUSTOMER -->
                 <div class="wizard-pane active" id="w-pane-1">
                     <h3 class="pane-title">Langkah 1: Verifikasi & Cari Pelanggan</h3>
-                    <p class="pane-desc">Masukkan ID Pelanggan PPPoE atau Voucher untuk memuat rincian keanggotaan.</p>
+                    <p class="pane-desc">Masukkan <strong>ID Pelanggan</strong> atau <strong>MAC Address</strong> — sistem akan mengenali format secara otomatis.</p>
                     
                     <div class="input-group-custom" style="margin-bottom: 1.25rem;">
-                        <label class="form-label-custom">ID Pelanggan</label>
+                        <label class="form-label-custom" id="search-input-label">ID Pelanggan / MAC Address</label>
                         <div class="search-bar-container">
                             <div style="position: relative; flex-grow: 1;">
-                                <input type="text" id="wizard-search-id" class="form-control-custom" placeholder="Contoh: CSTMR0001" required>
-                                <div class="input-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <input type="text" id="wizard-search-id" class="form-control-custom" placeholder="Contoh: CSTMR0001 atau AA:BB:CC:DD:EE:FF" autocomplete="off" spellcheck="false">
+                                <div class="input-icon-wrapper" id="search-input-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                 </div>
                             </div>
                             <button type="button" class="btn-sop-submit" id="btn-wizard-search" style="flex-shrink: 0;">
@@ -176,13 +176,18 @@
                                 </div>
                             </button>
                         </div>
+                        {{-- Mode indicator badge --}}
+                        <div id="search-mode-badge" style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; font-weight: 600; color: #94a3b8; transition: all 0.2s;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <span id="search-mode-text">Ketik untuk mulai pencarian</span>
+                        </div>
                     </div>
 
                     <div class="alert-error" id="wizard-search-alert" style="margin-bottom: 1.5rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                         </svg>
-                        <span id="wizard-search-alert-text">ID Pelanggan tidak boleh kosong!</span>
+                        <span id="wizard-search-alert-text">Masukkan ID Pelanggan atau MAC Address!</span>
                     </div>
 
                     <!-- CUSTOMER DETAILS PANEL (HIDDEN INITIALLY) -->
@@ -564,11 +569,48 @@
             const $wizardDetailStatus = $('#wizard-detail-status');
             const $btnWizardNext1 = $('#btn-wizard-next-1');
 
+            const $modeBadge      = $('#search-mode-badge');
+            const $modeText       = $('#search-mode-text');
+            const $inputIcon      = $('#search-input-icon');
+
             let selectedServiceType = 'voucher-ke-pppoe';
             let loadedCustomerData = null;
 
             // Hide alert on load
             $wizardSearchAlert.hide();
+
+            // ─── Auto-detect input type as user types ───
+            const MAC_REGEX = /^([0-9a-fA-F]{2}[:\-]){1,}[0-9a-fA-F]{0,2}$/;
+            const MAC_FULL  = /^([0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}$/;
+
+            const svgId  = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            const svgMac = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="10" y1="12" x2="10.01" y2="12"/></svg>';
+            const svgSrch= '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+
+            $wizardSearchId.on('input', function() {
+                const val = $(this).val().trim();
+                $wizardSearchAlert.hide();
+
+                if (!val) {
+                    $modeBadge.css('color', '#94a3b8');
+                    $modeText.text('Ketik untuk mulai pencarian');
+                    $modeBadge.find('svg').replaceWith($(svgSrch).css({width:'12px',height:'12px'}));
+                    $inputIcon.html(svgSrch);
+                    return;
+                }
+
+                if (MAC_REGEX.test(val)) {
+                    $modeBadge.css('color', '#7c3aed');
+                    $modeText.text(MAC_FULL.test(val) ? 'Mode: MAC Address ✓' : 'Mode: MAC Address (lanjutkan mengetik...)');
+                    $modeBadge.find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
+                    $inputIcon.html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
+                } else {
+                    $modeBadge.css('color', '#2563eb');
+                    $modeText.text('Mode: ID Pelanggan');
+                    $modeBadge.find('svg').replaceWith($(svgId).css({width:'12px',height:'12px'}));
+                    $inputIcon.html(svgId.replace('width="12"','width="18"').replace('height="12"','height="18"'));
+                }
+            });
 
             // Step 2: Click selection card to toggle active state
             $('.service-card').on('click', function() {
@@ -583,10 +625,14 @@
                 const customerId = $wizardSearchId.val().trim();
                 
                 if (!customerId) {
-                    $wizardSearchAlert.find('span').text('ID Pelanggan tidak boleh kosong!');
+                    $wizardSearchAlert.find('span').text('Masukkan ID Pelanggan atau MAC Address!');
                     $wizardSearchAlert.css('display', 'flex').hide().slideDown(200);
                     return;
                 }
+
+                // Auto-detect search mode
+                const isMac = MAC_FULL.test(customerId) || MAC_REGEX.test(customerId);
+                const searchBy = isMac ? 'mac' : 'id';
 
                 $wizardSearchAlert.hide();
                 $btnWizardSearch.prop('disabled', true);
@@ -597,7 +643,7 @@
                 $.ajax({
                     url: "{{ route('public.prosedur.search_customer') }}",
                     method: 'GET',
-                    data: { query: customerId },
+                    data: { query: customerId, search_by: searchBy },
                     success: function(response) {
                         $btnWizardSearch.prop('disabled', false);
                         $spinnerWizardSearch.hide();
@@ -855,6 +901,11 @@
                 // Clear fields
                 $wizardSearchId.val('');
                 $wizardDetailType.text('-');
+                
+                $modeBadge.css('color', '#94a3b8');
+                $modeText.text('Ketik untuk mulai pencarian');
+                $modeBadge.find('svg').replaceWith($(svgSrch).css({width:'12px',height:'12px'}));
+                $inputIcon.html(svgSrch);
                 
                 // Clear Step 3 inputs
                 $('#name_wifi').val('');
