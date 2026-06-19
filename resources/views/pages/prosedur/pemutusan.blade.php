@@ -14,19 +14,22 @@
         
         <!-- SUCCESS CARD SCREEN -->
         <div class="success-card" id="termination-success-screen">
-            <div style="width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.15);">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #fef9c3; color: #ca8a04; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(202, 138, 4, 0.15);">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
             </div>
-            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Pemutusan Berhasil</h2>
-            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; max-width: 440px; display: inline-block; line-height: 1.6;">Layanan pelanggan <strong id="success-cust-id">CIO00123</strong> telah berhasil dihentikan secara permanen. Status perangkat router terdaftar sebagai <strong>"Ditarik"</strong> dan log transaksi pemutusan telah disimpan.</p>
+            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Request Pemutusan Diajukan!</h2>
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; max-width: 500px; display: inline-block; line-height: 1.6;">
+                Request pemutusan layanan pelanggan <strong id="success-cust-id">-</strong> telah masuk ke antrean.
+                Data pelanggan <strong>belum dihapus</strong> — menunggu persetujuan dari <strong>4 level validator</strong> sebelum pemutusan diterapkan ke sistem.
+            </p>
             <div>
                 <button type="button" class="btn-sop-submit" id="btn-restart-wizard" style="background: #0f172a;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                     </svg>
-                    Mulai Prosedur Baru
+                    Prosedur Baru
                 </button>
             </div>
         </div>
@@ -367,6 +370,7 @@
 
                         if (response.status === 'success') {
                             const customer = response.data;
+                            window._loadedPemutusan = customer; // simpan termasuk db_id
                             
                             // Set step details
                             $wizardDetailId.text(customer.id.toUpperCase());
@@ -507,15 +511,45 @@
 
             // Modal: Confirm Clicked
             $('#btn-modal-confirm').on('click', function() {
-                // Close modal
-                $('#confirm-modal').removeClass('active');
-                
-                // Hide stepper header & wizard wrapper
-                $('.horizontal-stepper, #termination-wizard').slideUp(300, function() {
-                    // Show success screen
-                    $('#termination-success-screen').fadeIn(300);
+                const customer = window._loadedPemutusan || {};
+                const $btn = $(this);
+                $btn.prop('disabled', true).text('Menyimpan...');
+
+                const formData = new FormData();
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                formData.append('prosedur_type', 'pemutusan');
+                formData.append('customer_id', customer.db_id);
+                formData.append('alasan', $('#w-input-reason').val());
+
+                const routerFile  = $('#wizard-router-input')[0].files[0];
+                const paymentFile = $('#wizard-payment-input')[0].files[0];
+                if (routerFile)  formData.append('foto_perangkat',  routerFile);
+                if (paymentFile) formData.append('foto_pembayaran', paymentFile);
+
+                $.ajax({
+                    url: "{{ route('public.prosedur.store') }}",
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#confirm-modal').removeClass('active');
+                        // Hide stepper header & wizard wrapper
+                        $('.horizontal-stepper, #termination-wizard').slideUp(300, function() {
+                            // Show success screen
+                            $('#termination-success-screen').fadeIn(300);
+                        });
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message || 'Terjadi kesalahan, coba lagi.';
+                        alert('Gagal mengajukan: ' + msg);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Ya, Putuskan Layanan');
+                    }
                 });
             });
+
 
             // Modal: Click outside to close
             $('#confirm-modal').on('click', function(e) {

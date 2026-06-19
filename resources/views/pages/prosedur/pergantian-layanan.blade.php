@@ -86,22 +86,22 @@
         
         <!-- SUCCESS CARD SCREEN -->
         <div class="success-card" id="change-success-screen">
-            <div style="width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.15);">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #fef9c3; color: #ca8a04; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(202, 138, 4, 0.15);">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
             </div>
-            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Pergantian Layanan Berhasil</h2>
+            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Request Diajukan!</h2>
             <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; max-width: 500px; display: inline-block; line-height: 1.6;">
-                Prosedur pergantian layanan untuk pelanggan <strong id="success-cust-id">-</strong> telah berhasil diproses. 
-                Layanan telah diubah dari jenis <strong id="success-service-before">-</strong> menjadi <strong id="success-service-after">-</strong>.
+                Request pergantian layanan untuk pelanggan <strong id="success-cust-id">-</strong> telah masuk ke antrean.
+                Perubahan dari <strong id="success-service-before">-</strong> ke <strong id="success-service-after">-</strong> akan diterapkan setelah <strong>4 level validator</strong> menyetujui.
             </p>
             <div>
                 <button type="button" class="btn-sop-submit" id="btn-restart-wizard" style="background: #0f172a;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                     </svg>
-                    Mulai Prosedur Baru
+                    Prosedur Baru
                 </button>
             </div>
         </div>
@@ -866,28 +866,53 @@
                 $('#confirm-modal').removeClass('active');
             });
 
-            // Modal: Confirm Clicked -> Finish Wizard
+            // Modal: Confirm Clicked -> Submit to queue
             $('#btn-modal-confirm').on('click', function() {
-                $('#confirm-modal').removeClass('active');
+                const $btn = $(this);
+                $btn.prop('disabled', true).text('Menyimpan...');
 
-                // Determine before/after label based on selected type
-                let beforeText = "Voucher";
-                let afterText = "PPPoE";
-                if (selectedServiceType === 'pppoe-ke-voucher') {
-                    beforeText = "PPPoE";
-                    afterText = "Voucher";
-                }
+                $.ajax({
+                    url: "{{ route('public.prosedur.store') }}",
+                    method: 'POST',
+                    data: {
+                        _token:            $('meta[name="csrf-token"]').attr('content'),
+                        prosedur_type:     'pergantian-layanan',
+                        customer_id:       loadedCustomerData.db_id,
+                        service_type:      selectedServiceType,
+                        paket_id:          $('#paket_id').val() || null,
+                        paket_name:        $('#paket_id option:selected').text() || null,
+                        price_id:          $('#price_id').val() || null,
+                        price_name:        $('#price_id option:selected').text() || null,
+                        mic_radius_id:     $('#mic_radius_id').val() || null,
+                        mic_radius_name:   $('#mic_radius_id option:selected').text() || null,
+                        pppoe_username:    $('#pppoe_username').val() || null,
+                        pppoe_password:    $('#pppoe_password').val() || null,
+                        name_wifi:         $('#name_wifi').val() || null,
+                        password_wifi:     $('#password_wifi').val() || null,
+                    },
+                    success: function(response) {
+                        $('#confirm-modal').removeClass('active');
 
-                // Set success screen details
-                $('#success-cust-id').text(loadedCustomerData.id.toUpperCase());
-                $('#success-service-before').text(beforeText);
-                $('#success-service-after').text(afterText);
+                        // Set success screen details
+                        $('#success-cust-id').text(loadedCustomerData.id.toUpperCase());
+                        $('#success-service-before').text(selectedServiceType === 'pppoe-ke-voucher' ? 'PPPoE' : 'Voucher');
+                        $('#success-service-after').text(selectedServiceType === 'pppoe-ke-voucher' ? 'Voucher' : 'PPPoE');
 
-                // Slide up wizard container and slide down success screen
-                $('.horizontal-stepper, #change-wizard').slideUp(300, function() {
-                    $('#change-success-screen').fadeIn(300);
+                        // Slide up wizard container and slide down success screen
+                        $('.horizontal-stepper, #change-wizard').slideUp(300, function() {
+                            $('#change-success-screen').fadeIn(300);
+                        });
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message || 'Terjadi kesalahan, coba lagi.';
+                        alert('Gagal mengajukan: ' + msg);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Ya, Ganti Layanan');
+                    }
                 });
             });
+
 
             // Modal: Click outside to dismiss
             $('#confirm-modal').on('click', function(e) {

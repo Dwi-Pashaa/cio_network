@@ -6,6 +6,7 @@ use App\Http\Controllers\Pages\HistoryController;
 use App\Http\Controllers\Pages\PagesController;
 use App\Http\Controllers\Pages\SpamController;
 use App\Http\Controllers\Pages\SwitchPerangkatController;
+use App\Http\Controllers\Pages\ValidationController;
 use App\Http\Controllers\Pages\Wablass\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,4 +69,11 @@ Route::prefix('history')->group(function () {
 Route::prefix('report')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('report.index');
     Route::put('/{id}/update', [ReportController::class, 'update'])->name('report.update');
+});
+
+// Validasi prosedur (antrean multi-level dinamis)
+Route::prefix('validasi-prosedur')->group(function () {
+    Route::get('/', [ValidationController::class, 'index'])->name('validasi.prosedur.index');
+    Route::put('/{id}/approve', [ValidationController::class, 'approve'])->name('validasi.prosedur.approve');
+    Route::put('/{id}/reject', [ValidationController::class, 'reject'])->name('validasi.prosedur.reject');
 });

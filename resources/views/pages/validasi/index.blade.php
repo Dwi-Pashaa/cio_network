@@ -1,7 +1,7 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title')
-    Data Spam & Validasi Prosedur
+    Validasi Prosedur
 @endsection
 
 @push('css')
@@ -377,31 +377,22 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M18 8a3 3 0 0 1 0 6"/>
-                        <path d="M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5"/>
-                        <path d="M12 8h0l4.524 -3.77a0.9 .9 0 0 1 1.476 .692v12.156a0.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8"/>
+                        <path d="M9 5H7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2V7a2 2 0 0 0 -2 -2h-2"/>
+                        <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                        <path d="M9 12h6"/>
+                        <path d="M9 16h4"/>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="org-title">Data Spam & Validasi</h3>
-                    <p class="org-subtitle mb-0">Kelola antrean data masuk dan validasi prosedur multi-level</p>
+                    <h3 class="org-title">Validasi Prosedur</h3>
+                    <p class="org-subtitle mb-0">Kelola dan setujui perubahan data pelanggan melalui checkpoint multi-level</p>
                 </div>
             </div>
         </div>
 
         {{-- ── MASTER TAB NAV ── --}}
         <div class="spam-tabs-nav">
-            @can('lihat halaman')
-            <button class="spam-tab-btn active" id="nav-pemasangan" onclick="switchSpamTab('pemasangan')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                Pemasangan Baru
-                <span class="tab-pill" id="pill-pemasangan">0</span>
-            </button>
-            @endcan
-
-            <button class="spam-tab-btn {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="nav-pemutusan" onclick="switchSpamTab('pemutusan')">
+            <button class="spam-tab-btn active" id="nav-pemutusan" onclick="switchSpamTab('pemutusan')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
                     <line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/>
@@ -440,89 +431,8 @@
             @endcan
         </div>
 
-        {{-- ══════════════════════════════════════════════════════
-             TAB 1: PEMASANGAN BARU (existing spam table)
-        ══════════════════════════════════════════════════════ --}}
-        @can('lihat halaman')
-            <div class="spam-panel active" id="panel-pemasangan">
-                <div class="org-toolbar">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
-                        <select name="sort" id="sort" class="org-input" style="width: 80px; padding: 0.35rem 0.8rem;">
-                            @php $opts = [10, 25, 50, 100]; @endphp
-                            @foreach ($opts as $opt)
-                                <option value="{{ $opt }}">{{ $opt }}</option>
-                            @endforeach
-                        </select>
-                        <span class="text-muted" style="font-size: 0.88rem;">entri</span>
-                    </div>
-                    <div class="search-wrapper ms-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        <input type="text" class="org-input" id="search-input" placeholder="Cari pemasangan baru..." autocomplete="off">
-                    </div>
-                </div>
-
-                <div id="spam-table-wrapper" class="table-responsive">
-                    <table class="table org-table table-vcenter text-nowrap" id="spam-table">
-                        <thead>
-                            <tr>
-                                <th class="w-1">No</th>
-                                <th>ID Pelanggan</th>
-                                <th>Tipe Pelanggan</th>
-                                <th>Tipe Layanan</th>
-                                <th>NIK</th>
-                                <th>Nama Pelanggan</th>
-                                <th>Email</th>
-                                <th>No Telephone</th>
-                                <th>Mac Address</th>
-                                <th>Jenis Router</th>
-                                <th>Kampung</th>
-                                <th>Desa</th>
-                                <th>RT</th>
-                                <th>RW</th>
-                                <th>Kecamatan</th>
-                                <th>Kabupaten/Kota</th>
-                                <th>Vlan</th>
-                                <th>Alamat ODC</th>
-                                <th>Alamat ODP</th>
-                                <th>Alamat OLT</th>
-                                <th>Nama Wifi</th>
-                                <th>Password Wifi</th>
-                                <th>PPOE Username</th>
-                                <th>PPOE Password</th>
-                                <th>Tipe Paket</th>
-                                <th>Mix Radius</th>
-                                <th>Tipe Pembayaran</th>
-                                <th>Lokasi</th>
-                                <th>Foto KTP</th>
-                                <th>Di Input Oleh</th>
-                                <th>Created</th>
-                                @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                                    <th>Action</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-
-                <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between">
-                    <p class="m-0 text-muted" style="font-size: 0.88rem;">
-                        Showing <span id="start-entry" class="fw-medium">0</span>
-                        to <span id="end-entry" class="fw-medium">0</span> of
-                        <span id="total-entries" class="fw-medium">0</span> entries
-                    </p>
-                    <ul class="pagination m-0" id="custom-pagination"></ul>
-                </div>
-            </div>
-        @endcan
-
-        {{-- ══════════════════════════════════════════════════════
-             TAB 2: PEMUTUSAN PELANGGAN
-        ══════════════════════════════════════════════════════ --}}
-        <div class="spam-panel {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="panel-pemutusan">
+        {{-- ── TAB 1: PEMUTUSAN PELANGGAN ── --}}
+        <div class="spam-panel active" id="panel-pemutusan">
             @include('pages.validasi.partials.validasi-panel', [
                 'prosedur_type'  => 'pemutusan',
                 'panel_title'    => 'Pemutusan Pelanggan',
@@ -530,9 +440,7 @@
             ])
         </div>
 
-        {{-- ══════════════════════════════════════════════════════
-             TAB 3: PERGANTIAN LAYANAN
-        ══════════════════════════════════════════════════════ --}}
+        {{-- ── TAB 2: PERGANTIAN LAYANAN ── --}}
         <div class="spam-panel" id="panel-pergantian-layanan">
             @include('pages.validasi.partials.validasi-panel', [
                 'prosedur_type'  => 'pergantian-layanan',
@@ -541,9 +449,7 @@
             ])
         </div>
 
-        {{-- ══════════════════════════════════════════════════════
-             TAB 4: PERGANTIAN PERANGKAT
-        ══════════════════════════════════════════════════════ --}}
+        {{-- ── TAB 3: PERGANTIAN PERANGKAT ── --}}
         <div class="spam-panel" id="panel-onu-router">
             @include('pages.validasi.partials.validasi-panel', [
                 'prosedur_type'  => 'onu-router',
@@ -552,30 +458,28 @@
             ])
         </div>
 
-        {{-- ══════════════════════════════════════════════════════
-             TAB 5: REKAP HISTORIS
-        ══════════════════════════════════════════════════════ --}}
+        {{-- ── TAB 4: REKAP HISTORIS ── --}}
         @can('lihat rekap prosedur')
-            <div class="spam-panel" id="panel-rekap">
-                <div class="level-legend">
-                    <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em;">Rekap Hasil Validasi Prosedur</span>
-                </div>
-                <div style="padding: 1.25rem 1.5rem;">
-                    <div class="loading-spin" id="val-loading-rekap">
-                        <div class="spinner-border" style="width: 2rem; height: 2rem; color: #64748b;" role="status"></div>
-                        <p style="margin-top: 0.6rem; font-size: 0.82rem;">Memuat rekap historis...</p>
-                    </div>
-                    <div id="val-content-rekap"></div>
-                </div>
-                <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between" id="rekap-pagination-footer" style="display: none !important;">
-                    <p class="m-0 text-muted" style="font-size: 0.88rem;">
-                        Showing <span id="rekap-start-entry" class="fw-medium">0</span>
-                        to <span id="rekap-end-entry" class="fw-medium">0</span> of
-                        <span id="rekap-total-entries" class="fw-medium">0</span> entries
-                    </p>
-                    <ul class="pagination m-0" id="rekap-pagination"></ul>
-                </div>
+        <div class="spam-panel" id="panel-rekap">
+            <div class="level-legend">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em;">Rekap Hasil Validasi Prosedur</span>
             </div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div class="loading-spin" id="val-loading-rekap">
+                    <div class="spinner-border" style="width: 2rem; height: 2rem; color: #64748b;" role="status"></div>
+                    <p style="margin-top: 0.6rem; font-size: 0.82rem;">Memuat rekap historis...</p>
+                </div>
+                <div id="val-content-rekap"></div>
+            </div>
+            <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between" id="rekap-pagination-footer" style="display: none !important;">
+                <p class="m-0 text-muted" style="font-size: 0.88rem;">
+                    Showing <span id="rekap-start-entry" class="fw-medium">0</span>
+                    to <span id="rekap-end-entry" class="fw-medium">0</span> of
+                    <span id="rekap-total-entries" class="fw-medium">0</span> entries
+                </p>
+                <ul class="pagination m-0" id="rekap-pagination"></ul>
+            </div>
+        </div>
         @endcan
     </div>
 
@@ -642,11 +546,10 @@
 @push('js')
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const SPAM_BASE = "{{ route('spam.index') }}";
-const VAL_BASE  = "{{ route('validasi.prosedur.index') }}";
-const CSRF      = $('meta[name="csrf-token"]').attr('content');
-const LEVELS    = @json(config('prosedur_levels.levels', []));
-let activeSpamTab = document.getElementById('nav-pemasangan') ? 'pemasangan' : 'pemutusan';
+const VAL_BASE   = "{{ route('validasi.prosedur.index') }}";
+const CSRF       = $('meta[name="csrf-token"]').attr('content');
+const LEVELS     = @json(config('prosedur_levels.levels', []));
+let activeSpamTab = 'pemutusan';
 let pendingId     = null;
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -656,7 +559,7 @@ const Toast = Swal.mixin({
 });
 
 // ── TAB SWITCH ────────────────────────────────────────────────────────────────
-const PROSEDUR_TABS = ['pemasangan', 'pemutusan', 'pergantian-layanan', 'onu-router', 'rekap'];
+const PROSEDUR_TABS = ['pemutusan', 'pergantian-layanan', 'onu-router', 'rekap'];
 
 function switchSpamTab(tab) {
     activeSpamTab = tab;
@@ -668,9 +571,7 @@ function switchSpamTab(tab) {
         if (panel) panel.classList.toggle('active', t === tab);
     });
 
-    if (tab === 'pemasangan') {
-        if (typeof table !== 'undefined') table.ajax.reload();
-    } else if (tab === 'rekap') {
+    if (tab === 'rekap') {
         loadRekapPanel();
     } else {
         loadValidationPanel(tab);
@@ -805,6 +706,30 @@ function buildRekapPagination(currentPage, lastPage) {
     });
 }
 
+function loadPillCounts() {
+    ['pemutusan', 'pergantian-layanan', 'onu-router'].forEach(type => {
+        $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
+            const count = (res.data || []).length;
+            const pill = document.getElementById('pill-' + type);
+            if (pill) pill.textContent = count;
+        });
+    });
+    
+    @can('lihat rekap prosedur')
+    $.get(VAL_BASE, { tab: 'rekap' }, function(res) {
+        const count = typeof res.total !== 'undefined' ? res.total : (res.data || []).length;
+        const pill = document.getElementById('pill-rekap');
+        if (pill) pill.textContent = count;
+    });
+    @endcan
+}
+
+// ── INITIALIZER ───────────────────────────────────────────────────────────────
+$(function() {
+    loadPillCounts();
+    loadValidationPanel(activeSpamTab);
+});
+
 // ── PAYLOAD DIFF RENDERER ─────────────────────────────────────────────────────
 function renderPayloadDiff(item) {
     const p    = item.payload || {};
@@ -906,6 +831,7 @@ function renderPayloadDiff(item) {
     return '';
 }
 
+// ── RENDER VALIDATION CARD ────────────────────────────────────────────────────
 function renderValCard(item, isPending = true) {
     const validations   = item.validations || [];
     const approvedCount = validations.filter(v => v.status === 'approved').length;
@@ -1136,235 +1062,5 @@ $('#btn-do-reject').on('click', function() {
         }
     });
 });
-
-// ── DATATABLES (Tab Pemasangan Baru) ──────────────────────────────────────────
-let table;
-
-$(function() {
-    if (document.getElementById('spam-table')) {
-        initializeDataTable();
-        initializePaginationAndSearch();
-    }
-    loadPillCounts();
-    if (activeSpamTab !== 'pemasangan') {
-        switchSpamTab(activeSpamTab);
-    }
-});
-
-function loadPillCounts() {
-    // Count existing spam (pemasangan)
-    $.get(SPAM_BASE, { ajax: 1 }, function() {
-        // Will be updated after datatable loads
-    });
-    // Count pending prosedur for each type
-    ['pemutusan', 'pergantian-layanan', 'onu-router'].forEach(type => {
-        $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
-            const count = (res.data || []).length;
-            const pill = document.getElementById('pill-' + type);
-            if (pill) pill.textContent = count;
-        });
-    });
-    
-    @can('lihat rekap prosedur')
-        $.get(VAL_BASE, { tab: 'rekap' }, function(res) {
-            const count = (res.data || []).length;
-            const pill = document.getElementById('pill-rekap');
-            if (pill) pill.textContent = count;
-        });
-    @endcan
-}
-
-function initializeDataTable() {
-    table = $('#spam-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: SPAM_BASE,
-            data: function(d) {
-                d._token = CSRF;
-            }
-        },
-        order: [[29, 'desc']],
-        pageLength: 10,
-        dom: 'rt',
-        columns: [
-            { data: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'uuid', defaultContent: '-' },
-            { data: 'tipe_pelanggan', defaultContent: '-' },
-            { data: 'type_name', defaultContent: '-' },
-            { data: 'nik', defaultContent: '-' },
-            { data: 'name', defaultContent: '-' },
-            { data: 'email', defaultContent: '-' },
-            { data: 'telp', defaultContent: '-' },
-            { data: 'mac_address', defaultContent: '-' },
-            { data: 'router_name', defaultContent: '-' },
-            { data: 'hometown_name', defaultContent: '-' },
-            { data: 'village_name', defaultContent: '-' },
-            { data: 'rt_name', defaultContent: '-' },
-            { data: 'rw_name', defaultContent: '-' },
-            { data: 'district_name', defaultContent: '-' },
-            { data: 'regencie_name', defaultContent: '-' },
-            { data: 'vlan_name', defaultContent: '-' },
-            { data: 'odc_address', defaultContent: '-' },
-            { data: 'odp_address', defaultContent: '-' },
-            { data: 'olt_address', defaultContent: '-' },
-            { data: 'name_wifi', defaultContent: '-' },
-            { data: 'password_wifi', defaultContent: '-' },
-            { data: 'pppoe_username', defaultContent: '-' },
-            { data: 'pppoe_password', defaultContent: '-' },
-            { data: 'paket_name', defaultContent: '-' },
-            { data: 'mic_radius', defaultContent: '-' },
-            { data: 'price_name', defaultContent: '-' },
-            { data: 'location', orderable: false, searchable: false },
-            { data: 'ktp_photo', orderable: false, searchable: false },
-            { data: 'user_name', defaultContent: '-' },
-            { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY HH:mm:ss') },
-            @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                { data: 'action', orderable: false, searchable: false }
-            @endif
-        ],
-        drawCallback: function(settings) {
-            updatePaginationInfo(settings);
-            updateCustomPagination();
-            handleEmptyState(settings);
-
-            // Update pill for pemasangan tab
-            const info = new $.fn.dataTable.Api(settings).page.info();
-            const pill = document.getElementById('pill-pemasangan');
-            if (pill) pill.textContent = info.recordsDisplay;
-        },
-        language: {
-            processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>',
-            emptyTable: '', zeroRecords: ''
-        }
-    });
-}
-
-function initializePaginationAndSearch() {
-    $("#sort").on('change', function() { table.page.len($(this).val()).draw(); });
-    $("#search-input").on('keypress', function(e) {
-        if (e.which === 13) { e.preventDefault(); table.search(this.value).draw(); }
-    });
-}
-
-function updatePaginationInfo(settings) {
-    const api = new $.fn.dataTable.Api(settings);
-    const info = api.page.info();
-    $('#start-entry').text(info.recordsDisplay > 0 ? info.start + 1 : 0);
-    $('#end-entry').text(info.end);
-    $('#total-entries').text(info.recordsDisplay);
-}
-
-function updateCustomPagination() {
-    const info = table.page.info();
-    const pagination = $('#custom-pagination');
-    pagination.empty();
-    if (info.pages <= 1) return;
-
-    pagination.append(`<li class="page-item ${info.page === 0 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${info.page - 1}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a></li>`);
-
-    let startPage = Math.max(0, info.page - 2);
-    let endPage   = Math.min(info.pages - 1, info.page + 2);
-
-    if (startPage > 0) {
-        pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="0">1</a></li>`);
-        if (startPage > 1) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        pagination.append(`<li class="page-item ${i === info.page ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i + 1}</a></li>`);
-    }
-
-    if (endPage < info.pages - 1) {
-        if (endPage < info.pages - 2) pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
-        pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${info.pages - 1}">${info.pages}</a></li>`);
-    }
-
-    pagination.append(`<li class="page-item ${info.page === info.pages - 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${info.page + 1}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a></li>`);
-
-    pagination.find('a').on('click', function(e) {
-        e.preventDefault();
-        if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
-            const page = parseInt($(this).data('page'));
-            if (!isNaN(page) && page >= 0 && page < info.pages) table.page(page).draw('page');
-        }
-    });
-}
-
-function handleEmptyState(settings) {
-    const api  = new $.fn.dataTable.Api(settings);
-    const info = api.page.info();
-
-    if (info.recordsDisplay === 0) {
-        $('#spam-table thead').hide();
-        const isFiltered = $('#search-input').val();
-        $('#spam-table tbody .empty-state-row').remove();
-        $('#spam-table tbody').html(`
-            <tr class="empty-state-row"><td colspan="32" class="text-center py-5">
-                <div class="empty-state">
-                    <div class="empty-state-icon mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/>
-                            <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/><path d="M12 12l0 .01"/>
-                            <path d="M3 13a20 20 0 0 0 18 0"/>
-                        </svg>
-                    </div>
-                    <h3 class="empty-state-title text-muted">Tidak Ada Data Pemasangan</h3>
-                    <p class="empty-state-subtitle text-muted mb-3">
-                        ${isFiltered ? 'Tidak ada hasil pencarian. Coba kata kunci lain.' : 'Tidak ada data pelanggan pemasangan baru saat ini.'}
-                    </p>
-                    ${isFiltered ? '<button type="button" class="btn btn-primary" id="resetSearchBtn">Hapus Pencarian</button>' : ''}
-                </div>
-            </td></tr>`);
-
-        $('#resetSearchBtn').on('click', function() {
-            $('#search-input').val(''); table.search('').draw();
-        });
-    } else {
-        $('#spam-table thead').show();
-        $('#spam-table tbody .empty-state-row').remove();
-    }
-}
-
-// ── EXISTING SPAM ACTIONS ─────────────────────────────────────────────────────
-const Toast2 = Swal.mixin({
-    toast: true, position: "top-end", showConfirmButton: false,
-    timer: 3000, timerProgressBar: true,
-});
-
-function outSpam(id) {
-    Swal.fire({
-        title: "Info !", text: "Anda yakin ingin memindahkan data ini dari spam?", icon: "warning",
-        showCancelButton: true, confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
-        confirmButtonText: "Keluarkan", cancelButtonText: "Batal"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: SPAM_BASE + '/' + id + '/outSpam', method: "PUT",
-                data: { _token: CSRF }, dataType: "json",
-                success() { Toast2.fire({ icon: 'success', title: 'Berhasil mengeluarkan pelanggan dari spam.' }); table.ajax.reload(); },
-                error() { Toast2.fire({ icon: "error", title: "Server Error" }); }
-            });
-        }
-    });
-}
-
-function reject(id) {
-    Swal.fire({
-        title: "Info !", text: "Anda yakin ingin membatalkan data pelanggan ini?", icon: "warning",
-        showCancelButton: true, confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
-        confirmButtonText: "Iya", cancelButtonText: "Tidak"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: SPAM_BASE + '/' + id + '/reject', method: "DELETE",
-                data: { _token: CSRF }, dataType: "json",
-                success() { Toast2.fire({ icon: 'success', title: 'Berhasil membatalkan data customer.' }); table.ajax.reload(); },
-                error() { Toast2.fire({ icon: "error", title: "Server Error" }); }
-            });
-        }
-    });
-}
 </script>
 @endpush

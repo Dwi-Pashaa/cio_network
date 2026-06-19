@@ -50,17 +50,17 @@
                     <polyline points="20 6 9 17 4 12" />
                 </svg>
             </div>
-            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Pergantian Perangkat Berhasil</h2>
+            <h2 style="color: #0f172a; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Request Diajukan!</h2>
             <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; max-width: 500px; display: inline-block; line-height: 1.6;">
-                Prosedur pergantian ONU / Router untuk pelanggan <strong id="success-cust-id">-</strong> telah sukses dilakukan. 
-                MAC Address perangkat telah diganti dari <strong id="success-mac-lama">-</strong> menjadi <strong id="success-mac-baru">-</strong> pada router <strong id="success-router-name">-</strong>.
+                Request pergantian perangkat ONU/Router untuk pelanggan <strong id="success-cust-id">-</strong> telah masuk ke antrean.
+                Menunggu persetujuan dari <strong>4 level validator</strong> sebelum perubahan diterapkan ke sistem.
             </p>
-            <div>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
                 <button type="button" class="btn-sop-submit" id="btn-restart-wizard" style="background: #0f172a;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                     </svg>
-                    Mulai Prosedur Baru
+                    Prosedur Baru
                 </button>
             </div>
         </div>
@@ -259,6 +259,8 @@
                                 </div>
                             </div>
                             <input type="hidden" id="detected-router-lama-id">
+                            <input type="hidden" id="detected-router-lama-name">
+                            <input type="hidden" id="detected-router-lama-code">
                             <div class="detection-badge badge-info" id="badge-mac-lama">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -281,6 +283,8 @@
                                 </div>
                             </div>
                             <input type="hidden" id="detected-router-baru-id">
+                            <input type="hidden" id="detected-router-new-name">
+                            <input type="hidden" id="detected-router-new-code">
                             <div class="detection-badge badge-info" id="badge-mac-baru">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -633,6 +637,8 @@
                                 $badge.removeClass('badge-info badge-danger').addClass('badge-success')
                                     .html('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Router Terdeteksi:</strong> ' + response.data.router_name + ' (' + response.data.router_code + ')');
                                 $('#detected-router-lama-id').val(response.data.router_id);
+                                $('#detected-router-lama-name').val(response.data.router_name);
+                                $('#detected-router-lama-code').val(response.data.router_code);
                                 validateStep3();
                             }
                         },
@@ -644,6 +650,8 @@
                             $badge.removeClass('badge-info badge-success').addClass('badge-danger')
                                 .html('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' + errMsg);
                             $('#detected-router-lama-id').val('');
+                            $('#detected-router-lama-name').val('');
+                            $('#detected-router-lama-code').val('');
                             validateStep3();
                         }
                     });
@@ -687,6 +695,8 @@
                                 $badge.removeClass('badge-info badge-danger').addClass('badge-success')
                                     .html('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Router Terdeteksi:</strong> ' + response.data.router_name + ' (' + response.data.router_code + ')');
                                 $('#detected-router-baru-id').val(response.data.router_id);
+                                $('#detected-router-new-name').val(response.data.router_name);
+                                $('#detected-router-new-code').val(response.data.router_code);
                                 validateStep3();
                             }
                         },
@@ -698,6 +708,8 @@
                             $badge.removeClass('badge-info badge-success').addClass('badge-danger')
                                 .html('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' + errMsg);
                             $('#detected-router-baru-id').val('');
+                            $('#detected-router-new-name').val('');
+                            $('#detected-router-new-code').val('');
                             validateStep3();
                         }
                     });
@@ -774,19 +786,44 @@
                 $('#confirm-modal').removeClass('active');
             });
 
-            // Modal: Confirm Clicked -> Finish Wizard
+            // Modal: Confirm Clicked -> Submit to queue
             $('#btn-modal-confirm').on('click', function() {
-                $('#confirm-modal').removeClass('active');
+                const $btn = $(this);
+                $btn.prop('disabled', true).text('Menyimpan...');
 
-                // Set success screen details
-                $('#success-cust-id').text(loadedCustomerData.id.toUpperCase());
-                $('#success-mac-lama').text($('#mac-lama').val().trim().toUpperCase());
-                $('#success-mac-baru').text($('#mac-baru').val().trim().toUpperCase());
-                $('#success-router-name').text($('#summary-router-baru').text());
+                $.ajax({
+                    url: "{{ route('public.prosedur.store') }}",
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        prosedur_type:  'onu-router',
+                        customer_id:    loadedCustomerData.db_id,
+                        mac_address_old: $('#mac-lama').val().trim(),
+                        mac_address_new: $('#mac-baru').val().trim(),
+                        router_lama_id:   $('#detected-router-lama-id').val(),
+                        router_lama_name: $('#detected-router-lama-name').val(),
+                        router_lama_code: $('#detected-router-lama-code').val(),
+                        router_new_id:    $('#detected-router-baru-id').val(),
+                        router_new_name:  $('#detected-router-new-name').val(),
+                        router_new_code:  $('#detected-router-new-code').val(),
+                    },
+                    success: function(response) {
+                        $('#confirm-modal').removeClass('active');
 
-                // Slide up wizard container and slide down success screen
-                $('.horizontal-stepper, #onu-wizard').slideUp(300, function() {
-                    $('#onu-success-screen').fadeIn(300);
+                        // Show pending-queue success screen
+                        $('#success-cust-id').text(loadedCustomerData.id.toUpperCase());
+
+                        $('.horizontal-stepper, #onu-wizard').slideUp(300, function() {
+                            $('#onu-success-screen').fadeIn(300);
+                        });
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message || 'Terjadi kesalahan, coba lagi.';
+                        alert('Gagal mengajukan: ' + msg);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Ya, Simpan');
+                    }
                 });
             });
 

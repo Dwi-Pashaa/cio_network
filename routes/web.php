@@ -43,6 +43,9 @@ Route::middleware(['auth'])->group(function () {
     require __DIR__ . '/master-pemukiman.php';
     require __DIR__ . '/master-wilayah.php';
     require __DIR__ . '/master-pages.php';
+
+    // Prosedur: hanya bisa submit jika sudah login
+    Route::post('/prosedur/store', [ProsedurController::class, 'storeProsedurSpam'])->name('public.prosedur.store');
 });
 
 // Route::prefix('complain')->group(function () {

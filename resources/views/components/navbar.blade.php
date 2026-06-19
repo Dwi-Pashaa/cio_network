@@ -323,11 +323,13 @@
                                                 href="{{ route('halaman.index') }}" rel="noopener">
                                                 Data Halaman
                                             </a>
-                                            <a class="dropdown-item {{ Route::is('spam*') ? 'active' : '' }}"
+                                         @endcan
+                                         @canany(['lihat halaman', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+                                            <a class="dropdown-item {{ Route::is('spam*') || Route::is('validasi.prosedur*') ? 'active' : '' }}"
                                                 href="{{ route('spam.index') }}" rel="noopener">
-                                                Data Spam
+                                                Data Spam & Validasi
                                             </a>
-                                        @endcan
+                                         @endcanany
                                         @can('pergantian perangkat')
                                             <a class="dropdown-item {{ request()->is('prosedur') && request()->query('tipe') === 'onu-router' ? 'active' : '' }}"
                                                 href="{{ route('public.prosedur') }}?tipe=onu-router" rel="noopener">

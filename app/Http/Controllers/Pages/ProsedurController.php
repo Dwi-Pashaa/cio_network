@@ -10,7 +10,9 @@ use App\Models\MacAddress;
 use App\Models\Paket;
 use App\Models\Price;
 use App\Models\MicRadius;
+use App\Models\ProsedurSpam;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProsedurController extends Controller
 {
@@ -116,12 +118,13 @@ class ProsedurController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => [
-                'id' => $customer->uuid ?? $customer->id,
-                'name' => $customer->name,
-                'tipe_layanan' => $customer->type->name ?? $customer->tipePelanggan->name ?? 'Tidak diketahui',
-                'paket' => $customer->paket->name ?? 'Tidak ada paket',
-                'alamat' => $fullAddress,
-                'status' => $customer->status ?? 'unknown',
+                'db_id'       => $customer->id,
+                'id'          => $customer->uuid ?? $customer->id,
+                'name'        => $customer->name,
+                'tipe_layanan'=> $customer->type->name ?? $customer->tipePelanggan->name ?? 'Tidak diketahui',
+                'paket'       => $customer->paket->name ?? 'Tidak ada paket',
+                'alamat'      => $fullAddress,
+                'status'      => $customer->status ?? 'unknown',
                 'mac_address' => $customer->mac_address,
             ]
         ]);
@@ -167,6 +170,52 @@ class ProsedurController extends Controller
                 'router_code' => $macRecord->router->code,
                 'router_name' => $macRecord->router->name,
             ]
+        ]);
+    }
+
+    /**
+     * Menerima submit form prosedur dan menyimpannya ke antrean spam
+     * tanpa mengubah data customer aktif.
+     * Validasi 4-level akan diproses di ValidationController.
+     */
+    public function storeProsedurSpam(Request $request)
+    {
+        $request->validate([
+            'prosedur_type' => 'required|in:onu-router,pergantian-layanan,pemutusan',
+            'customer_id'   => 'required|exists:customers,id',
+        ]);
+
+        $user    = Auth::user();
+        $payload = $request->except(['_token', 'customer_id', 'prosedur_type']);
+
+        // Unggah file bukti jika ada
+        foreach (['foto_perangkat', 'foto_pembayaran'] as $fileKey) {
+            if ($request->hasFile($fileKey)) {
+                $path = $request->file($fileKey)->store(
+                    'prosedur/bukti/' . date('Y/m'),
+                    'public'
+                );
+                $payload[$fileKey . '_path'] = $path;
+                unset($payload[$fileKey]);
+            }
+        }
+
+        $spam = ProsedurSpam::create([
+            'customer_id'   => $request->input('customer_id'),
+            'submitted_by'  => $user->id,
+            'organization_id' => $user->organization_id,
+            'prosedur_type' => $request->input('prosedur_type'),
+            'payload'       => $payload,
+            'status'        => 'pending',
+        ]);
+
+        // Buat checkpoint validasi dinamis dari config
+        $spam->createValidationCheckpoints();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Request prosedur berhasil diajukan. Menunggu validasi dari ' . count(config('prosedur_levels.levels', [])) . ' level.',
+            'data'    => ['id' => $spam->id],
         ]);
     }
 }
