@@ -41,22 +41,22 @@ class PermissionSeeder extends Seeder
             // 'edit server',
             // 'hapus server',
             // 'lihat server'
-            // 'pergantian perangkat',
-            // 'pemutusan layanan',
-            // 'pergantian layanan',
+            'pergantian perangkat',
+            'pemutusan layanan',
+            'pergantian layanan',
 
             // ── VALIDASI PROSEDUR (dinamis per level) ──
-            // 'validasi prosedur level 1',
-            // 'validasi prosedur level 2',
-            // 'validasi prosedur level 3',
-            // 'validasi prosedur level 4',
+            'validasi prosedur level 1',
+            'validasi prosedur level 2',
+            'validasi prosedur level 3',
+            'validasi prosedur level 4',
 
-            // // ── AKSES MENU PROSEDUR ──
-            // 'lihat antrean prosedur',      // Melihat daftar antrean validasi
-            // 'lihat rekap prosedur',        // Melihat log historis rekap prosedur
-            // 'kelola validator prosedur',   // Konfigurasi mapping level validator
-            // 'kelola template chat'
-            'lihat log aktivitas'
+            // ── AKSES MENU PROSEDUR ──
+            'lihat antrean prosedur',      // Melihat daftar antrean validasi
+            'lihat rekap prosedur',        // Melihat log historis rekap prosedur
+            'kelola validator prosedur',   // Konfigurasi mapping level validator
+            'kelola template chat'
+            // 'lihat log aktivitas'
         ];
 
         foreach ($permissions as $permission) {
