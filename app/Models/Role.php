@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
 class Role extends SpatieRole
 {
+    use LogsActivityHelper;
+
     protected $fillable = [
         'name',
         'guard_name',

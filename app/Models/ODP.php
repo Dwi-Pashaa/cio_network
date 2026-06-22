@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ODP extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
     protected $table = 'odp_networks';
     protected $guarded = [];
 

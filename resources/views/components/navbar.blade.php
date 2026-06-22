@@ -330,6 +330,12 @@
                                                 Data Spam & Validasi
                                             </a>
                                          @endcanany
+                                         @can('kelola template chat')
+                                            <a class="dropdown-item {{ Route::is('prosedur.templates*') ? 'active' : '' }}"
+                                                href="{{ route('prosedur.templates.index') }}" rel="noopener">
+                                                Template Chat Prosedur
+                                            </a>
+                                         @endcan
                                         @can('pergantian perangkat')
                                             <a class="dropdown-item {{ request()->is('prosedur') && request()->query('tipe') === 'onu-router' ? 'active' : '' }}"
                                                 href="{{ route('public.prosedur') }}?tipe=onu-router" rel="noopener">
@@ -353,8 +359,8 @@
                             @endcan
 
                             {{-- ==================== Lainnya ==================== --}}
-                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas'])
-                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') ? 'active' : '' }}">
+                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas'])
+                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-lainnya"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                         role="button" aria-expanded="false">
@@ -387,6 +393,12 @@
                                             <a class="dropdown-item {{ Route::is('report*') ? 'active' : '' }}"
                                                 href="{{ route('report.index') }}" rel="noopener">
                                                 Log Wablas
+                                            </a>
+                                        @endcan
+                                        @can('lihat log aktivitas')
+                                            <a class="dropdown-item {{ Route::is('activity.log.index*') ? 'active' : '' }}"
+                                                href="{{ route('activity.log.index') }}" rel="noopener">
+                                                History Log
                                             </a>
                                         @endcan
                                     </div>

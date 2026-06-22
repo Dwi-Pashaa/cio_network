@@ -191,11 +191,11 @@ class ProsedurController extends Controller
         // Unggah file bukti jika ada
         foreach (['foto_perangkat', 'foto_pembayaran'] as $fileKey) {
             if ($request->hasFile($fileKey)) {
-                $path = $request->file($fileKey)->store(
-                    'prosedur/bukti/' . date('Y/m'),
-                    'public'
-                );
-                $payload[$fileKey . '_path'] = $path;
+                $file = $request->file($fileKey);
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $targetPath = 'prosedur/bukti/' . date('Y/m');
+                $file->move(public_path($targetPath), $fileName);
+                $payload[$fileKey . '_path'] = $targetPath . '/' . $fileName;
                 unset($payload[$fileKey]);
             }
         }
@@ -211,6 +211,15 @@ class ProsedurController extends Controller
 
         // Buat checkpoint validasi dinamis dari config
         $spam->createValidationCheckpoints();
+
+        // Kirim notifikasi Wablass ke seluruh validator (Level 1 s/d 4) sekaligus
+        try {
+            app(\App\Services\ProsedurNotificationService::class)->notifyAllLevels($spam);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('ProsedurController: Gagal mengirim notifikasi Wablass.', [
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return response()->json([
             'status'  => 'success',

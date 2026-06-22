@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\LogsActivityHelper;
 
 class Customer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivityHelper;
     protected $table = 'customers';
     protected $guarded = [];
 
@@ -90,6 +91,11 @@ class Customer extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function userUpdate()
+    {
+        return $this->belongsTo(User::class, 'user_update_id', 'id');
     }
 
     public function tipePelanggan()

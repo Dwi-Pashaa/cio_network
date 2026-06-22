@@ -55,7 +55,8 @@ class PermissionSeeder extends Seeder
             // 'lihat antrean prosedur',      // Melihat daftar antrean validasi
             // 'lihat rekap prosedur',        // Melihat log historis rekap prosedur
             // 'kelola validator prosedur',   // Konfigurasi mapping level validator
-            'kelola template chat'
+            // 'kelola template chat'
+            'lihat log aktivitas'
         ];
 
         foreach ($permissions as $permission) {

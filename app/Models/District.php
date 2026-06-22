@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class District extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
     protected $table = 'districts';
     protected $fillable = ['code', 'name', 'regencie_id', 'organization_id'];
 

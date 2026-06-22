@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title')
     Data Spam & Validasi Prosedur
@@ -897,8 +897,8 @@ function renderPayloadDiff(item) {
                     </div>
                 </div>
                 ${p.alasan ? `<div class="diff-row diff-info-row"><div class="diff-label">Alasan</div><div class="diff-info-val">${p.alasan}</div></div>` : ''}
-                ${p.foto_perangkat_path  ? `<div class="diff-row diff-info-row"><div class="diff-label">Foto Perangkat</div><div class="diff-info-val"><a href="/storage/${p.foto_perangkat_path}" target="_blank" style="color:#2563eb;font-weight:600">Lihat Foto</a></div></div>` : ''}
-                ${p.foto_pembayaran_path ? `<div class="diff-row diff-info-row"><div class="diff-label">Bukti Bayar</div><div class="diff-info-val"><a href="/storage/${p.foto_pembayaran_path}" target="_blank" style="color:#2563eb;font-weight:600">Lihat Bukti</a></div></div>` : ''}
+                ${p.foto_perangkat_path  ? `<div class="diff-row diff-info-row"><div class="diff-label">Foto Perangkat</div><div class="diff-info-val"><a href="${p.foto_perangkat_url || '/storage/' + p.foto_perangkat_path}" target="_blank" style="color:#2563eb;font-weight:600">Lihat Foto</a></div></div>` : ''}
+                ${p.foto_pembayaran_path ? `<div class="diff-row diff-info-row"><div class="diff-label">Bukti Bayar</div><div class="diff-info-val"><a href="${p.foto_pembayaran_url || '/storage/' + p.foto_pembayaran_path}" target="_blank" style="color:#2563eb;font-weight:600">Lihat Bukti</a></div></div>` : ''}
             </div>
         </div>`;
     }
@@ -984,18 +984,23 @@ function renderValCard(item, isPending = true) {
 
     let footerContent = '';
     if (isPending) {
-        const actionButtons = item.user_can_validate ? `
-            <div class="req-actions">
-                <button class="btn-val-reject" onclick="openValReject(${item.id})">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    Tolak
-                </button>
-                <button class="btn-approve" onclick="openValApprove(${item.id}, '${(item.customer?.name || '').replace(/'/g, "\\'")}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    Setujui
-                </button>
-            </div>
-        ` : '';
+        let actionButtons = '';
+        if (item.user_can_validate) {
+            actionButtons = `
+                <div class="req-actions">
+                    ${item.user_can_reject ? `
+                    <button class="btn-val-reject" onclick="openValReject(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Tolak
+                    </button>
+                    ` : ''}
+                    <button class="btn-approve" onclick="openValApprove(${item.id}, '${(item.customer?.name || '').replace(/'/g, "\\'")}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Setujui
+                    </button>
+                </div>
+            `;
+        }
 
         footerContent = `
         <div class="req-card-footer">

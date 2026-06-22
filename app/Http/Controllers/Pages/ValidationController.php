@@ -57,6 +57,26 @@ class ValidationController extends Controller
 
                 $items->each(function ($spam) use ($user) {
                     $spam->setAttribute('user_can_validate', !is_null($spam->getPendingCheckpointForUser($user)));
+                    
+                    $levelsConfig = config('prosedur_levels.levels', []);
+                    $adminPermission = $levelsConfig[1]['permission'] ?? 'validasi prosedur level 1';
+                    $spam->setAttribute('user_can_reject', $user->can($adminPermission));
+                    
+                    $payload = $spam->payload;
+                    foreach (['foto_perangkat', 'foto_pembayaran'] as $fileKey) {
+                        $pathKey = $fileKey . '_path';
+                        if (!empty($payload[$pathKey])) {
+                            $path = $payload[$pathKey];
+                            if (file_exists(public_path($path))) {
+                                $payload[$fileKey . '_url'] = asset($path);
+                            } else {
+                                $payload[$fileKey . '_url'] = asset('storage/' . $path);
+                            }
+                        } else {
+                            $payload[$fileKey . '_url'] = null;
+                        }
+                    }
+                    $spam->payload = $payload;
                 });
 
                 return response()->json(['data' => $items->values()]);
@@ -79,6 +99,24 @@ class ValidationController extends Controller
 
             $perPage = $request->input('per_page', 10);
             $paginated = $query->orderBy('updated_at', 'desc')->paginate($perPage);
+
+            $paginated->getCollection()->each(function ($spam) {
+                $payload = $spam->payload;
+                foreach (['foto_perangkat', 'foto_pembayaran'] as $fileKey) {
+                    $pathKey = $fileKey . '_path';
+                    if (!empty($payload[$pathKey])) {
+                        $path = $payload[$pathKey];
+                        if (file_exists(public_path($path))) {
+                            $payload[$fileKey . '_url'] = asset($path);
+                        } else {
+                            $payload[$fileKey . '_url'] = asset('storage/' . $path);
+                        }
+                    } else {
+                        $payload[$fileKey . '_url'] = null;
+                    }
+                }
+                $spam->payload = $payload;
+            });
 
             return response()->json([
                 'data'         => $paginated->items(),
@@ -143,6 +181,19 @@ class ValidationController extends Controller
             }
         });
 
+        // Kirim notifikasi Wablass setelah transaksi sukses (jika disetujui sepenuhnya)
+        try {
+            $spam->refresh()->load('validations');
+            $notifier = app(\App\Services\ProsedurNotificationService::class);
+            if ($spam->isFullyApproved()) {
+                $notifier->notifyTechnicianApproved($spam);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('ValidationController (Approve): Gagal mengirim notifikasi Wablass.', [
+                'error' => $e->getMessage()
+            ]);
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Validasi berhasil disimpan.',
@@ -169,19 +220,26 @@ class ValidationController extends Controller
             ], 422);
         }
 
-        // Pastikan user punya permission level manapun untuk menolak
-        $checkpoint = $spam->getPendingCheckpointForUser($user);
-        if (!$checkpoint && !$user->can('lihat antrean prosedur')) {
+        // Pastikan user punya permission level 1 (Admin) untuk menolak
+        $levelsConfig = config('prosedur_levels.levels', []);
+        $adminPermission = $levelsConfig[1]['permission'] ?? 'validasi prosedur level 1';
+
+        if (!$user->can($adminPermission)) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Anda tidak memiliki hak untuk menolak request ini.',
+                'message' => 'Hanya pengguna level Admin yang dapat menolak request ini.',
             ], 403);
         }
 
         DB::transaction(function () use ($spam, $user, $request) {
-            // Tandai checkpoint user sebagai rejected
-            if ($checkpoint = $spam->getPendingCheckpointForUser($user)) {
-                $checkpoint->update([
+            // Temukan checkpoint yang sedang pending saat ini (stage mana yang ditolak)
+            $activeCheckpoint = $spam->validations()
+                ->where('status', 'pending')
+                ->orderBy('level')
+                ->first();
+
+            if ($activeCheckpoint) {
+                $activeCheckpoint->update([
                     'status'       => 'rejected',
                     'validated_by' => $user->id,
                     'validated_at' => now(),
@@ -198,6 +256,19 @@ class ValidationController extends Controller
             ]);
         });
 
+        // Kirim notifikasi Wablass penolakan setelah transaksi sukses
+        try {
+            app(\App\Services\ProsedurNotificationService::class)->notifyTechnicianRejected(
+                $spam, 
+                $user->name, 
+                $request->input('reject_reason')
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('ValidationController (Reject): Gagal mengirim notifikasi Wablass.', [
+                'error' => $e->getMessage()
+            ]);
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Request prosedur berhasil ditolak.',
@@ -212,11 +283,12 @@ class ValidationController extends Controller
     {
         $customer = Customer::findOrFail($spam->customer_id);
         $payload  = $spam->payload ?? [];
+        $submittedBy = $spam->submitted_by;
 
         match ($spam->prosedur_type) {
-            'pemutusan'          => $this->executePemutusan($customer, $payload),
-            'pergantian-layanan' => $this->executePergantianLayanan($customer, $payload),
-            'onu-router'         => $this->executeOnuRouter($customer, $payload),
+            'pemutusan'          => $this->executePemutusan($customer, $payload, $submittedBy),
+            'pergantian-layanan' => $this->executePergantianLayanan($customer, $payload, $submittedBy),
+            'onu-router'         => $this->executeOnuRouter($customer, $payload, $submittedBy),
             default              => null,
         };
 
@@ -227,26 +299,51 @@ class ValidationController extends Controller
         ]);
     }
 
-    private function executePemutusan(Customer $customer, array $payload): void
+    private function executePemutusan(Customer $customer, array $payload, int $submittedBy): void
     {
-        // Kembalikan stok router ke user lapangan
-        if ($customer->routers_id && $customer->user_id) {
-            $userRouter = UserRouter::where('user_id', $customer->user_id)
+        $technician = \App\Models\User::find($submittedBy);
+        $orgId = $technician ? $technician->organization_id : null;
+
+        // Kembalikan stok router ke user lapangan yang mengajukan (submittedBy)
+        if ($customer->routers_id) {
+            $userRouter = UserRouter::where('user_id', $submittedBy)
                 ->where('router_id', $customer->routers_id)
                 ->first();
-            $userRouter?->increment('total');
+            if ($userRouter) {
+                $userRouter->increment('total');
+            } else {
+                UserRouter::create([
+                    'user_id' => $submittedBy,
+                    'router_id' => $customer->routers_id,
+                    'total' => 1,
+                    'organization_id' => $orgId,
+                ]);
+            }
         }
 
-        // Kembalikan stok patch core
-        if ($customer->patch_core_id && $customer->user_id) {
-            $userPatchCore = UserPatchCore::where('user_id', $customer->user_id)
+        // Kembalikan stok patch core ke user lapangan yang mengajukan (submittedBy)
+        if ($customer->patch_core_id) {
+            $userPatchCore = UserPatchCore::where('user_id', $submittedBy)
                 ->where('patch_core_id', $customer->patch_core_id)
                 ->first();
-            $userPatchCore?->increment('total');
+            if ($userPatchCore) {
+                $userPatchCore->increment('total');
+            } else {
+                UserPatchCore::create([
+                    'user_id' => $submittedBy,
+                    'patch_core_id' => $customer->patch_core_id,
+                    'total' => 1,
+                    'organization_id' => $orgId,
+                ]);
+            }
         }
 
         $macAddress     = $customer->mac_address;
         $organizationId = $customer->organization_id;
+
+        // Set who updated/triggered the deletion
+        $customer->user_update_id = $submittedBy;
+        $customer->save();
 
         // Soft delete — data tetap ada di DB, hanya di-hide via deleted_at
         $customer->delete();
@@ -255,13 +352,13 @@ class ValidationController extends Controller
         $this->syncMacAddressStatus($macAddress, $organizationId);
     }
 
-    private function executePergantianLayanan(Customer $customer, array $payload): void
+    private function executePergantianLayanan(Customer $customer, array $payload, int $submittedBy): void
     {
         $serviceType = $payload['service_type'] ?? null;
 
         if ($serviceType === 'voucher-ke-pppoe') {
             // Voucher → PPPoE: isi semua field dari payload, ubah tipe layanan ke PPPoE
-            $updateData = ['types_id' => 1]; // PPPOE
+            $updateData = ['types_id' => 1, 'user_update_id' => $submittedBy]; // PPPOE
 
             if (!empty($payload['paket_id']))        $updateData['paket_id']       = $payload['paket_id'];
             if (!empty($payload['price_id']))        $updateData['price_id']       = $payload['price_id'];
@@ -284,11 +381,12 @@ class ValidationController extends Controller
                 'paket_id'       => null,
                 'price_id'       => null,
                 'mic_radius_id'  => null,
+                'user_update_id' => $submittedBy,
             ]);
         }
     }
 
-    private function executeOnuRouter(Customer $customer, array $payload): void
+    private function executeOnuRouter(Customer $customer, array $payload, int $submittedBy): void
     {
         $oldMac     = $customer->mac_address;
         $updateData = [];
@@ -317,10 +415,8 @@ class ValidationController extends Controller
             }
         }
 
-        if (!empty($updateData)) {
-            // Update hanya untuk customer dengan id ini saja
-            Customer::where('id', $customer->id)->update($updateData);
-        }
+        $updateData['user_update_id'] = $submittedBy;
+        Customer::where('id', $customer->id)->update($updateData);
 
         // Sinkronisasi status MAC Address: bebaskan MAC lama, tandai MAC baru sebagai digunakan
         if (!empty($payload['mac_address_new'])) {

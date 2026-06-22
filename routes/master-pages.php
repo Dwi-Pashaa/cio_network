@@ -77,3 +77,22 @@ Route::prefix('validasi-prosedur')->group(function () {
     Route::put('/{id}/approve', [ValidationController::class, 'approve'])->name('validasi.prosedur.approve');
     Route::put('/{id}/reject', [ValidationController::class, 'reject'])->name('validasi.prosedur.reject');
 });
+
+// Template chat prosedur (Admin)
+Route::prefix('prosedur-templates')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'index'])->name('prosedur.templates.index')->middleware('permission:kelola template chat');
+    Route::get('/create', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'create'])->name('prosedur.templates.create')->middleware('permission:kelola template chat');
+    Route::post('/store', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'store'])->name('prosedur.templates.store')->middleware('permission:kelola template chat');
+    Route::get('/{id}/edit', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'edit'])->name('prosedur.templates.edit')->middleware('permission:kelola template chat');
+    Route::put('/{id}/update', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'update'])->name('prosedur.templates.update')->middleware('permission:kelola template chat');
+    Route::delete('/{id}/destroy', [\App\Http\Controllers\Pages\ProsedurChatTemplateController::class, 'destroy'])->name('prosedur.templates.destroy')->middleware('permission:kelola template chat');
+});
+
+// Histori log aktivitas (Spatie Laravel Activitylog)
+Route::prefix('activity-log')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Pages\ActivityLogController::class, 'index'])
+        ->name('activity.log.index')
+        ->middleware('permission:lihat log aktivitas');
+});
+
+

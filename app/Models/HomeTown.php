@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class HomeTown extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
     protected $table = 'home_towns';
     protected $fillable = ['code', 'name', 'regencie_id', 'district_id', 'organization_id'];
 

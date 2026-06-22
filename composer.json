@@ -17,6 +17,7 @@
         "maatwebsite/excel": "*",
         "phpseclib/phpseclib": "^3.0",
         "pusher/pusher-php-server": "^7.2",
+        "spatie/laravel-activitylog": "^4.0",
         "spatie/laravel-permission": "^6.16",
         "yajra/laravel-datatables": "10"
     },
@@ -68,6 +69,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "policy": {
+            "advisories": {
+                "block": false
+            }
         }
     },
     "minimum-stability": "stable",

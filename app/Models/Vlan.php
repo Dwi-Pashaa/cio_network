@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Vlan extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
     protected $table = 'vlan_networks';
     protected $fillable = ['code', 'name', 'organization_id'];
 

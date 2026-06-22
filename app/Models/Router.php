@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Router extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
     protected $table = 'router_networks';
     protected $fillable = ['code', 'name', 'organization_id'];
 

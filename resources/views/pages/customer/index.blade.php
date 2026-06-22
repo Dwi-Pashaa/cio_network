@@ -188,6 +188,8 @@
                             <th>ORGANISASI/MITRA</th>
                             <th>DI INPUT OLEH</th>
                             <th>CREATED</th>
+                            <th>DI UBAH OLEH</th>
+                            <th>UPDATED</th>
                             @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
                                 <th class="text-center">ACTION</th>
                             @endif
@@ -430,6 +432,14 @@
                         render: function(data) {
                             return moment(data).format('DD/MM/YYYY HH:mm:ss');
                         }
+                    },
+                    {
+                        data: 'edited_by',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'updated_at_formatted',
+                        defaultContent: '-'
                     },
                     {
                         data: 'action',

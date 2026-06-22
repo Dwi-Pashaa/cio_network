@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivityHelper;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Server extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivityHelper;
 
     protected $table = 'server';
     protected $guarded = [];

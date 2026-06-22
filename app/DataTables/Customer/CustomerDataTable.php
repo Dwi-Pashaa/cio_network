@@ -238,6 +238,16 @@ class CustomerDataTable
                 return $row->created_at ? $row->created_at->format('d/m/Y H:i:s') : '-';
             })
 
+            // Kolom Di Ubah Oleh
+            ->addColumn('edited_by', function ($row) {
+                return $row->userUpdate->name ?? '-';
+            })
+
+            // Kolom Updated At
+            ->addColumn('updated_at_formatted', function ($row) {
+                return $row->updated_at ? $row->updated_at->format('d/m/Y H:i:s') : '-';
+            })
+
             // Kolom Action (3 tombol)
             ->addColumn('action', function ($row) {
                 $btn = '';
@@ -358,6 +368,7 @@ class CustomerDataTable
             'price',
             'paket',
             'user',
+            'userUpdate',
             'mic_radius',
             'tipePelanggan',
             'organization'
