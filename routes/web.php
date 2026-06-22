@@ -18,10 +18,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/pergantian', [ProsedurController::class, 'index'])->name('public.prosedur');
-Route::get('/pergantian/search-customer', [ProsedurController::class, 'searchCustomer'])->name('public.prosedur.search_customer');
-Route::get('/pergantian/get-router-by-mac', [ProsedurController::class, 'getRouterByMac'])->name('public.prosedur.get_router_by_mac');
-
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('post.login');
 
@@ -46,6 +42,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Prosedur: hanya bisa submit jika sudah login
     Route::post('/prosedur/store', [ProsedurController::class, 'storeProsedurSpam'])->name('public.prosedur.store');
+
+    Route::get('/pergantian', [ProsedurController::class, 'index'])->name('public.prosedur');
+    Route::get('/pergantian/search-customer', [ProsedurController::class, 'searchCustomer'])->name('public.prosedur.search_customer');
+    Route::get('/pergantian/get-router-by-mac', [ProsedurController::class, 'getRouterByMac'])->name('public.prosedur.get_router_by_mac');
 });
 
 // Route::prefix('complain')->group(function () {
