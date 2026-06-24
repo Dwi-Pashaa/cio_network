@@ -212,18 +212,20 @@ class ProsedurController extends Controller
         // Buat checkpoint validasi dinamis dari config
         $spam->createValidationCheckpoints();
 
-        // Kirim notifikasi Wablass ke seluruh validator (Level 1 s/d 4) sekaligus
+        // Kirim notifikasi Wablass ke validator Level 1 (Admin) saja saat baru diajukan
         try {
-            app(\App\Services\ProsedurNotificationService::class)->notifyAllLevels($spam);
+            app(\App\Services\ProsedurNotificationService::class)->notifyLevels($spam, [1]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('ProsedurController: Gagal mengirim notifikasi Wablass.', [
                 'error' => $e->getMessage()
             ]);
         }
 
+        $validationCount = $spam->validations()->count();
+
         return response()->json([
             'status'  => 'success',
-            'message' => 'Request prosedur berhasil diajukan. Menunggu validasi dari ' . count(config('prosedur_levels.levels', [])) . ' level.',
+            'message' => "Request prosedur berhasil diajukan. Menunggu validasi dari {$validationCount} level.",
             'data'    => ['id' => $spam->id],
         ]);
     }

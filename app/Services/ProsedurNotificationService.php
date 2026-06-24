@@ -58,6 +58,7 @@ class ProsedurNotificationService
             'onu-router' => 'Pergantian Perangkat ONU / Router',
             'pemutusan' => 'Pemutusan Layanan Pelanggan',
             'pergantian-layanan' => 'Pergantian Layanan Pelanggan',
+            'pergantian-password' => 'Pergantian Password WiFi',
             default => $spam->prosedur_type
         };
 
@@ -104,9 +105,9 @@ class ProsedurNotificationService
     }
 
     /**
-     * Kirim notifikasi ke seluruh validator di semua level (Level 1 s/d 4) sekaligus.
+     * Kirim notifikasi ke seluruh validator di level tertentu sekaligus.
      */
-    public function notifyAllLevels(ProsedurSpam $spam)
+    public function notifyLevels(ProsedurSpam $spam, array $levels)
     {
         $levelsConfig = config('prosedur_levels.levels', []);
         $messagingService = app(FonteMessagingService::class);
@@ -130,6 +131,7 @@ class ProsedurNotificationService
             'onu-router' => 'Pergantian Perangkat ONU / Router',
             'pemutusan' => 'Pemutusan Layanan Pelanggan',
             'pergantian-layanan' => 'Pergantian Layanan Pelanggan',
+            'pergantian-password' => 'Pergantian Password WiFi',
             default => $spam->prosedur_type
         };
 
@@ -137,6 +139,15 @@ class ProsedurNotificationService
         $validationLink = route('spam.index');
 
         foreach ($levelsConfig as $level => $cfg) {
+            if (!in_array($level, $levels)) {
+                continue;
+            }
+
+            // Skip OLT (level 2) notification for service change procedures
+            if ($spam->prosedur_type === 'pergantian-layanan' && $level === 2) {
+                continue;
+            }
+
             // Ambil template untuk level ini
             $templateCode = "validator_level_" . $level;
             $templateRecord = \App\Models\ProsedurChatTemplate::where('code', $templateCode)->first();
@@ -184,6 +195,16 @@ class ProsedurNotificationService
     }
 
     /**
+     * Kirim notifikasi ke seluruh validator di semua level (Level 1 s/d 4) sekaligus.
+     */
+    public function notifyAllLevels(ProsedurSpam $spam)
+    {
+        $this->notifyLevels($spam, [1, 2, 3, 4]);
+    }
+
+
+
+    /**
      * Kirim notifikasi ke teknisi bahwa pengajuan telah selesai disetujui & dieksekusi.
      */
     public function notifyTechnicianApproved(ProsedurSpam $spam)
@@ -208,6 +229,7 @@ class ProsedurNotificationService
             'onu-router' => 'Pergantian Perangkat ONU / Router',
             'pemutusan' => 'Pemutusan Layanan Pelanggan',
             'pergantian-layanan' => 'Pergantian Layanan Pelanggan',
+            'pergantian-password' => 'Pergantian Password WiFi',
             default => $spam->prosedur_type
         };
 
@@ -250,6 +272,7 @@ class ProsedurNotificationService
             'onu-router' => 'Pergantian Perangkat ONU / Router',
             'pemutusan' => 'Pemutusan Layanan Pelanggan',
             'pergantian-layanan' => 'Pergantian Layanan Pelanggan',
+            'pergantian-password' => 'Pergantian Password WiFi',
             default => $spam->prosedur_type
         };
 
@@ -354,8 +377,44 @@ class ProsedurNotificationService
                 }
                 return "- Tipe Transisi: tidak diketahui";
 
+            case 'pergantian-password':
+                $wifiName = $payload['name_wifi'] ?? '';
+                $wifiPass = $payload['password_wifi'] ?? '-';
+                $wifiNameStr = !empty($wifiName) ? $wifiName : '(Tidak diubah / Tetap)';
+                return "- Nama WiFi Baru: {$wifiNameStr}\n"
+                    . "- Password WiFi Baru: {$wifiPass}";
+
             default:
                 return '-';
         }
     }
+
+    /**
+     * Kirim notifikasi ke WhatsApp pelanggan bahwa password WiFi telah berhasil diubah.
+     */
+    public function notifyCustomerPasswordChanged(ProsedurSpam $spam)
+    {
+        $customer = $spam->customer;
+        if (!$customer || empty($customer->telp)) {
+            return;
+        }
+
+        $payload = $spam->payload ?? [];
+        $wifiName = $payload['name_wifi'] ?? $customer->name_wifi ?? '-';
+        $wifiPass = $payload['password_wifi'] ?? '-';
+
+        $message = "*✅ PEMBERITAHUAN PERUBAHAN PASSWORD*\n\n"
+            . "Halo *{$customer->name}*,\n"
+            . "Kami ingin menginformasikan bahwa permintaan perubahan password WiFi Anda telah berhasil divalidasi dan diperbarui oleh tim ONC.\n\n"
+            . "*Detail Perubahan:* \n"
+            . "- Nama WiFi: *{$wifiName}*\n"
+            . "- Password WiFi Baru: *{$wifiPass}*\n\n"
+            . "Jika Anda tidak merasa melakukan perubahan ini, silakan hubungi tim Customer Support kami segera.\n\n"
+            . "Terima kasih,\n"
+            . "*CIO Network*";
+
+        app(FonteMessagingService::class)->sendMessage($customer->telp, $message);
+    }
 }
+
+

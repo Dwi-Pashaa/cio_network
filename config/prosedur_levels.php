@@ -23,14 +23,14 @@ return [
             'color'      => 'green',
         ],
         3 => [
-            'label'      => 'ONC',
+            'label'      => 'Mix Radius',
             'permission' => 'validasi prosedur level 3',
-            'color'      => 'orange',
+            'color'      => 'purple',
         ],
         4 => [
-            'label'      => 'Mix Radius',
+            'label'      => 'ONC',
             'permission' => 'validasi prosedur level 4',
-            'color'      => 'purple',
+            'color'      => 'orange',
         ],
     ],
 ];

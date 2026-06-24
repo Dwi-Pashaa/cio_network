@@ -59,6 +59,7 @@
         .req-card.type-pemutusan         { border-left-color: #ef4444; }
         .req-card.type-pergantian-layanan { border-left-color: #2563eb; }
         .req-card.type-onu-router        { border-left-color: #7c3aed; }
+        .req-card.type-pergantian-password { border-left-color: #0ea5e9; }
 
         /* Card Header */
         .req-card-header {
@@ -119,6 +120,7 @@
         .badge-pemutusan          { background: rgba(239,68,68,0.08);    color: #dc2626; }
         .badge-pergantian-layanan { background: rgba(37,99,235,0.08);    color: #2563eb; }
         .badge-onu-router         { background: rgba(124,58,237,0.08);   color: #7c3aed; }
+        .badge-pergantian-password { background: rgba(14,165,233,0.08);   color: #0ea5e9; }
 
         /* ─── APPROVAL PROGRESS STEPPER ──────────────────────── */
         .approval-progress {
@@ -363,6 +365,60 @@
             color: #475569; font-size: 0.8rem;
             display: flex; align-items: center; gap: 6px;
         }
+        .btn-val-steps {
+            border: 1.5px solid #ea580c;
+            background: #fff;
+            color: #ea580c;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-val-steps:hover {
+            background: rgba(234, 88, 12, 0.06);
+            border-color: #c2410c;
+            color: #c2410c;
+            transform: translateY(-1px);
+        }
+        .btn-copy-msg {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1.5px solid #ea580c;
+            background: #fff;
+            color: #ea580c;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-copy-msg:hover {
+            background: rgba(234, 88, 12, 0.06);
+            border-color: #c2410c;
+            color: #c2410c;
+            transform: translateY(-1px);
+        }
+        .mix-message-container:hover pre {
+            border-color: #cbd5e1;
+            background: #f1f5f9 !important;
+        }
+        .mix-message-container:hover .mix-message-overlay {
+            opacity: 1 !important;
+            color: #ea580c;
+            border-color: #ffd8a8;
+        }
+        pre a {
+            color: #2563eb !important;
+            text-decoration: underline !important;
+            cursor: pointer !important;
+        }
     </style>
 @endpush
 
@@ -427,6 +483,15 @@
                 </svg>
                 Pergantian Perangkat
                 <span class="tab-pill" id="pill-onu-router">0</span>
+            </button>
+
+            <button class="spam-tab-btn" id="nav-pergantian-password" onclick="switchSpamTab('pergantian-password')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Pergantian Password
+                <span class="tab-pill" id="pill-pergantian-password">0</span>
             </button>
 
             @can('lihat rekap prosedur')
@@ -553,6 +618,17 @@
         </div>
 
         {{-- ══════════════════════════════════════════════════════
+             TAB: PERGANTIAN PASSWORD
+        ══════════════════════════════════════════════════════ --}}
+        <div class="spam-panel" id="panel-pergantian-password">
+            @include('pages.validasi.partials.validasi-panel', [
+                'prosedur_type'  => 'pergantian-password',
+                'panel_title'    => 'Pergantian Password',
+                'panel_color'    => '#0ea5e9',
+            ])
+        </div>
+
+        {{-- ══════════════════════════════════════════════════════
              TAB 5: REKAP HISTORIS
         ══════════════════════════════════════════════════════ --}}
         @can('lihat rekap prosedur')
@@ -637,6 +713,210 @@
             </div>
         </div>
     </div>
+    {{-- ══ ADMIN STEPS MODAL ════════════════════════════════════ --}}
+    <div class="modal fade" id="adminStepsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(59,130,246,0.1); color: #3b82f6; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M12 8a4 4 0 0 1 4 4v1a4 4 0 0 1 -8 0v-1a4 4 0 0 1 4 -4z"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Langkah-langkah Validasi Admin</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;">Ikuti panduan berikut sebelum melakukan validasi Admin</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem 1.75rem 1.75rem; font-size: 0.9rem; line-height: 1.8; color: #334155;">
+                    <ol style="margin: 0; padding-left: 20px;">
+                        <li class="mb-2">
+                            Periksa kesesuaian data pengajuan perangkat baru yang diinput oleh teknisi.
+                        </li>
+                        <li class="mb-2">
+                            Pastikan data pelanggan (ID Pelanggan, Nama, Alamat) sudah benar dan terdaftar di sistem.
+                        </li>
+                        <li class="mb-2">
+                            Pastikan bukti foto perangkat/pembayaran (jika dilampirkan) sudah valid dan sesuai.
+                        </li>
+                        <li class="mb-2">
+                            Setelah semua data dipastikan benar, lakukan konfirmasi dengan mengklik tombol <strong>Setujui</strong> di bawah.
+                        </li>
+                        <li class="mb-2">
+                            Sistem akan otomatis mengirimkan notifikasi WA ke validator tingkat berikutnya (OLT, Mix Radius, dan ONC) untuk melanjutkan proses validasi.
+                        </li>
+                    </ol>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 1.75rem 1.75rem;">
+                    <button type="button" class="btn-val-reject" data-bs-dismiss="modal" style="margin: 0;">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══ OLT STEPS MODAL ══════════════════════════════════════ --}}
+    <div class="modal fade" id="oltStepsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(234,88,12,0.1); color: #ea580c; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="13" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/><rect x="9" y="3" width="6" height="8" rx="2"/><path d="M12 11v2"/><path d="M6 13v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Langkah-langkah Validasi OLT</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;">Ikuti panduan berikut sebelum melakukan validasi perangkat</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body olt-steps-body" style="padding: 1.5rem 1.75rem 1.75rem; font-size: 0.9rem; line-height: 1.8; color: #334155;">
+                    <ol style="margin: 0; padding-left: 20px;">
+                        <li class="mb-2">
+                            Masuk ke OLT <strong class="step-olt-name text-dark"></strong>, berikut linknya: <span id="step-olt-link"></span>
+                        </li>
+                        <li class="mb-2">
+                            Masukan username & password OLT Anda.
+                        </li>
+                        <li class="mb-2">
+                            Cari MAC Address lama (<strong id="step-mac-old" class="text-danger" style="font-family: monospace;"></strong>) di data OLT <strong class="step-olt-name text-dark"></strong>.
+                        </li>
+                        <li class="mb-2">
+                            Hapus data MAC Address lama (<strong id="step-mac-old-2" class="text-danger" style="font-family: monospace;"></strong>).
+                        </li>
+                        <li class="mb-2">
+                            Cek & cari di data OLT MAC Address baru (<strong id="step-mac-new" class="text-success" style="font-family: monospace;"></strong>), ada atau tidak ada?
+                        </li>
+                        <li class="mb-2">
+                            Kalo tidak ada, lakukan input MAC Address secara manual.
+                        </li>
+                        <li class="mb-2">
+                            Setelah melakukan langkah 1-6, segera lakukan validasi data pengajuan di bawah ini.
+                        </li>
+                    </ol>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 1.75rem 1.75rem;">
+                    <button type="button" class="btn-val-reject" data-bs-dismiss="modal" style="margin: 0;">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══ MIX RADIUS STEPS MODAL ════════════════════════════════ --}}
+    <div class="modal fade" id="mixStepsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(234,88,12,0.1); color: #ea580c; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="13" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/><rect x="9" y="3" width="6" height="8" rx="2"/><path d="M12 11v2"/><path d="M6 13v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Langkah-langkah Validasi Mix Radius</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;">Ikuti panduan berikut sebelum melakukan validasi Mix Radius</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem 1.75rem 1.75rem; font-size: 0.9rem; line-height: 1.8; color: #334155;">
+                    <ol style="margin: 0; padding-left: 20px;">
+                        <li class="mb-2">
+                            Masuk ke web Mix Radius <strong class="step-mix-name text-dark"></strong> berikut linknya: <a href="https://mixcio.topsetting.com:973/" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">https://mixcio.topsetting.com:973/</a>
+                        </li>
+                        <li class="mb-2">
+                            Masukan username & password Mix Radius Anda.
+                        </li>
+                        <li class="mb-2">
+                            Setelah login cari ke menu <strong>Pelanggan</strong> kemudian klik menu <strong>User PPP</strong>.
+                        </li>
+                        <li class="mb-2">
+                            Cari ID Pelanggan (<strong class="step-mix-cust-id text-danger" style="font-family: monospace;"></strong>) di kolom pencarian User PPP.
+                        </li>
+                        <li class="mb-2">
+                            Setelah ketemu kemudian edit data (<strong class="step-mix-cust-id-2 text-danger" style="font-family: monospace;"></strong>) di pojok kanan logo pensil.
+                        </li>
+                        <li class="mb-2">
+                            Setelah muncul data kemudian klik <strong>Paket Langganan</strong>.
+                        </li>
+                        <li class="mb-2">
+                            Kemudian ke kolom <strong>Caller-id</strong> kemudian hapus data MAC Address-nya (kosongkan saja).
+                        </li>
+                        <li class="mb-2">
+                            Kemudian <strong>Bind on Login</strong> ubah jadi <strong>TIDAK</strong>. Setelah diubah jadi tidak, ubah lagi jadi <strong>YA</strong>.
+                        </li>
+                        <li class="mb-2">
+                            Pastikan kolom MAC Address benar-benar kosong, kemudian klik <strong>Simpan</strong>.
+                        </li>
+                        <li class="mb-2">
+                            Setelah melakukan langkah 1-9, segera lakukan validasi data pengajuan di bawah ini.
+                        </li>
+                    </ol>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 1.75rem 1.75rem;">
+                    <button type="button" class="btn-val-reject" data-bs-dismiss="modal" style="margin: 0;">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mixLayananStepsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(234,88,12,0.1); color: #ea580c; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="13" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/><rect x="9" y="3" width="6" height="8" rx="2"/><path d="M12 11v2"/><path d="M6 13v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title step-mix-layanan-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Langkah-langkah Validasi Mix Radius</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;">Ikuti panduan berikut sebelum melakukan validasi Mix Radius</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body mix-layanan-steps-body" style="padding: 1.5rem 1.75rem 1.75rem; font-size: 0.9rem; line-height: 1.8; color: #334155;">
+                    <!-- Content will be injected dynamically -->
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 1.75rem 1.75rem;">
+                    <button type="button" class="btn-val-reject" data-bs-dismiss="modal" style="margin: 0;">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══ ONC STEPS MODAL ══════════════════════════════════════ --}}
+    <div class="modal fade" id="oncStepsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(234,88,12,0.1); color: #ea580c; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="13" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/><rect x="9" y="3" width="6" height="8" rx="2"/><path d="M12 11v2"/><path d="M6 13v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title step-onc-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Langkah-langkah Validasi ONC</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;">Ikuti panduan berikut sebelum melakukan validasi ONC</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body onc-steps-body" style="padding: 1.5rem 1.75rem 1.75rem; font-size: 0.9rem; line-height: 1.8; color: #334155;">
+                    <p style="margin-bottom: 1rem;">
+                        PERUBAHAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA (<strong class="step-onc-auth-user text-dark"></strong>) UNTUK MELAKUKAN PERUBAHAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI DENGAN PENGIRIMKAN NOTIFIKASI SUKSES SECARA OTOMATIS KE TEKNISI (<strong class="step-onc-tech text-dark"></strong>).
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI, SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING KEMBALI ROUTER TYPE (<strong class="step-onc-router-new text-success"></strong>), DENGAN MAC ADDRESS BARU (<strong class="step-onc-mac-new text-success" style="font-family: monospace;"></strong>) DAN SUDAH DALAM KEADAAN TERKONEKSI.
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        UNTUK MEMASTIKAN SEBAIKNYA ANDA BEKERJA SAMA DENGAN MENELPON TEKNISI PENGAJUAN PERUBAHAN DATA TERSEBUT:<br>
+                        NAMA TEKNISI: <strong class="step-onc-tech-2 text-dark"></strong><br>
+                        NO WA: <strong class="step-onc-tech-wa text-primary"></strong>
+                    </p>
+                    <p style="margin: 0;">
+                        SETELAH SEMUANYA BERJALAN SUKSES TERKONEKSI, KEMUDIAN ANDA BISA MENYELESAIKANNYA DENGAN MENGKLIK KONFIRMASI (SUPAYA ID PELANGGAN <strong class="step-onc-cust-id text-danger" style="font-family: monospace;"></strong> BERUBAH SECARA OTOMATIS DI BAGIAN DATA PELANGGAN).
+                    </p>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 1.75rem 1.75rem;">
+                    <button type="button" class="btn-val-reject" data-bs-dismiss="modal" style="margin: 0;">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('js')
@@ -646,8 +926,16 @@ const SPAM_BASE = "{{ route('spam.index') }}";
 const VAL_BASE  = "{{ route('validasi.prosedur.index') }}";
 const CSRF      = $('meta[name="csrf-token"]').attr('content');
 const LEVELS    = @json(config('prosedur_levels.levels', []));
+const authUserName = @json(Auth::user()->name);
+const userLevels = [];
+@if(Auth::user()->hasPermissionTo('validasi prosedur level 1')) userLevels.push(1); @endif
+@if(Auth::user()->hasPermissionTo('validasi prosedur level 2')) userLevels.push(2); @endif
+@if(Auth::user()->hasPermissionTo('validasi prosedur level 3')) userLevels.push(3); @endif
+@if(Auth::user()->hasPermissionTo('validasi prosedur level 4')) userLevels.push(4); @endif
+
 let activeSpamTab = document.getElementById('nav-pemasangan') ? 'pemasangan' : 'pemutusan';
 let pendingId     = null;
+let currentItems  = [];
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
 const Toast = Swal.mixin({
@@ -656,7 +944,7 @@ const Toast = Swal.mixin({
 });
 
 // ── TAB SWITCH ────────────────────────────────────────────────────────────────
-const PROSEDUR_TABS = ['pemasangan', 'pemutusan', 'pergantian-layanan', 'onu-router', 'rekap'];
+const PROSEDUR_TABS = ['pemasangan', 'pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password', 'rekap'];
 
 function switchSpamTab(tab) {
     activeSpamTab = tab;
@@ -688,6 +976,7 @@ function loadValidationPanel(type) {
     $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
         if (loadingEl) loadingEl.style.display = 'none';
         const items = res.data || [];
+        currentItems = items;
 
         // Update pill count
         const pill = document.getElementById('pill-' + type);
@@ -728,6 +1017,7 @@ function loadRekapPanel(page = 1) {
     $.get(VAL_BASE, { tab: 'rekap', page: page }, function(res) {
         if (loadingEl) loadingEl.style.display = 'none';
         const items = res.data || [];
+        currentItems = items;
         const total = res.total || 0;
         const lastPage = res.last_page || 1;
         const from = res.from || 0;
@@ -811,7 +1101,107 @@ function renderPayloadDiff(item) {
     const type = item.prosedur_type;
     const cust = item.customer || {};
 
+    const activeValidation = (item.validations || []).find(v => v.status === 'pending');
+    let targetLevel = null;
+    if (activeValidation) {
+        if (item.user_can_validate) {
+            targetLevel = activeValidation.level;
+        } else {
+            const intersection = userLevels.filter(lvl => (item.validations || []).some(v => v.level == lvl));
+            if (intersection.length > 0) {
+                targetLevel = Math.max(...intersection);
+            } else {
+                targetLevel = activeValidation.level;
+            }
+        }
+    }
+
     if (type === 'onu-router') {
+        if (targetLevel) {
+            let greeting = '';
+            let headerTitle = '';
+
+            if (targetLevel == 1) {
+                greeting = `Hallo Admin : ${authUserName}`;
+                headerTitle = `Pesan Validasi Admin`;
+            } else if (targetLevel == 2) {
+                greeting = `Hallo ${authUserName}`;
+                headerTitle = `Pesan Validasi OLT`;
+            } else if (targetLevel == 3) {
+                greeting = `Hallo Mixradius : ${authUserName}`;
+                headerTitle = `Pesan Validasi Mix Radius`;
+            } else if (targetLevel == 4) {
+                greeting = `Hallo ONC : ${authUserName}`;
+                headerTitle = `Pesan Validasi ONC`;
+            }
+
+            if (greeting && headerTitle) {
+                const technician = item.submitted_by?.name || '-';
+                const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+                
+                const addressParts = [];
+                if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+                if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+                if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+                if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+                if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+                if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+                const alamatStr = addressParts.join(', ') || '-';
+                
+                const serviceType = (cust.type?.name || '-').toLowerCase();
+                const oltName = cust.olt?.name || '-';
+                const macOld = (p.mac_address_old || '-').toUpperCase();
+                const macNew = (p.mac_address_new || '-').toUpperCase();
+                
+                const routerLama = p.router_lama_name
+                    ? `${p.router_lama_name}${p.router_lama_code ? ' (' + p.router_lama_code + ')' : ''}`
+                    : (p.router_lama_id ? `ID: ${p.router_lama_id}` : '-');
+
+                const routerBaru = p.router_new_name
+                    ? `${p.router_new_name}${p.router_new_code ? ' (' + p.router_new_code + ')' : ''}`
+                    : (p.router_new_id ? `ID: ${p.router_new_id}` : '-');
+
+                const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Perangkat
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Data Pelanggan
+.Id Pelanggan : ${cust.uuid || cust.id || '-'}
+.type layanan : ${serviceType}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+Tujuan Pengajuan
+untuk merubah data mac addres di olt (${oltName})
+berikut data di bawah ini.
+.mac addres lama : ${macOld}
+.nama router lama : ${routerLama}
+.mac addres baru : ${macNew}
+.nama router baru : ${routerBaru}`;
+
+                return `
+                <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                            ${headerTitle}
+                        </div>
+                        <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Salin Pesan
+                        </button>
+                    </div>
+                    <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                        <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                        <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                            Klik untuk menyalin
+                        </div>
+                    </div>
+                </div>`;
+            }
+        }
+
         const macOld    = (p.mac_address_old || '-').toUpperCase();
         const macNew    = (p.mac_address_new || '-').toUpperCase();
 
@@ -843,6 +1233,284 @@ function renderPayloadDiff(item) {
     }
 
     if (type === 'pergantian-layanan') {
+        if (p.service_type === 'voucher-ke-pppoe' && targetLevel == 3) {
+            const greeting = `Hallo Mixradius : ${authUserName}`;
+            const headerTitle = `Pesan Validasi Mix Radius`;
+            const technician = item.submitted_by?.name || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const mixName = p.mic_radius_name || '-';
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Layanan Voucher ke PPPOE
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Data Pelanggan Sebelumnya
+.Id Pelanggan : ${cust.uuid || cust.id || '-'}
+.type layanan sebelumya : VOUCHER
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+Tujuan Pengajuan
+Untuk merubah data pelanggan dari voucher ke pppoe
+MASUKAN DATA PPPOE dibawah ini
+.Tipe Paket : ${p.paket_name || '-'}
+.Mix Radius : ${mixName}
+.Nama WiFi : ${p.name_wifi || '-'}
+.Password WiFi : ${p.password_wifi || '-'}
+.Username PPPoE : ${p.pppoe_username || '-'}
+.Password PPPoE : ${p.pppoe_password || '-'}`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        } else if (p.service_type === 'pppoe-ke-voucher' && targetLevel == 3) {
+            const greeting = `Hallo Mixradius : ${authUserName}`;
+            const headerTitle = `Pesan Validasi Mix Radius`;
+            const technician = item.submitted_by?.name || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const mixName = p.mic_radius_name || cust.mic_radius?.name || '-';
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Layanan PPPOE ke VOUCHER
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Data Pelanggan Sebelumnya
+.Id Pelanggan : ${custId}
+.type layanan sebelumya : PPPOE
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+Tujuan Pengajuan
+Untuk merubah data pelanggan dari PPPOE KE VOUCHER
+-anda haru melakukan penghapusan data pppoe dengan id ${custId} di web mixradius
+Dengan akun mixradius ${mixName}
+Langkah langkah
+1.Masuk ke web akun mixradius ${mixName} berikut linknya
+https://mixcio.topsetting.com:973/
+2.masukan username & password mixradius anda
+3.setelah login cari kemenu pelanggan kemudian klik menu user pppoe
+4.Cari Id Pelanggan ${custId} di kolom pencarian user ppp
+5.setelah ketemu kemudian klik tombol hapus
+6.setelah melakukan langkah 1-5 segera melakuan validasi data pengajuan di bawah ini`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        } else if (p.service_type === 'voucher-ke-pppoe' && targetLevel == 4) {
+            const greeting = `Hallo ONC : ${authUserName}`;
+            const headerTitle = `Pesan Validasi ONC`;
+            const technician = item.submitted_by?.name || '-';
+            const techName = (item.submitted_by || item.submittedBy)?.name || '-';
+            const techTelp = (item.submitted_by || item.submittedBy)?.telp || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const macNew = (p.mac_address_new || cust.mac_address || '-').toUpperCase();
+            const routerNew = p.router_new_name
+                ? `${p.router_new_name}${p.router_new_code ? ' (' + p.router_new_code + ')' : ''}`
+                : (cust.router ? cust.router.name : '-');
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Layanan Voucher ke PPPOE
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Hallo Onc
+BERIKUT DATA PELANGGAN SEBELUM DI EDIT DAN SESUDAH DI EDIT
+Data idpelanggan ${custId} sebelum di edit
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan sebelumya : VOUCHER
+Data idpelanggan ${custId} sesudah di edit
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan : PPPOE
+.Tipe Paket : ${p.paket_name || '-'}
+.Mix Radius : ${p.mic_radius_name || '-'}
+.Nama WiFi : ${p.name_wifi || '-'}
+.Password WiFi : ${p.password_wifi || '-'}
+.Username PPPoE : ${p.pppoe_username || '-'}
+.Password PPPoE : ${p.pppoe_password || '-'}
+PERUBAHAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA ( ${authUserName} ) UNTUK
+MELAKUKAN PERUBAHAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI
+DENGAN PENGIRIMKAN NOTIFIKASI SUKSES SECARA OTOMATIS KE TEKNISI ( ${technician} )
+TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI
+SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING KEMBALI
+ROUTER TYPE ( ${routerNew} ),DENGAN MAC ADDRES BARU ( ${macNew} ) DAN
+SUDAH DALAM KE ADAAN TERKONEKSI,UNTUK MEMASTIKAN SEBAIKNYA ANDA BEKERJA SAMA
+DENGAN MENELPON TEKNISI PENGAJUAN PERUBAHAN DATA TERSEBUT
+NAMA TEKNISI ( ${techName} ) NO WA ( ${techTelp} )
+SETELAH SEMUANYA BERJALAN SUKSES TERKONEKSI ,KEMUDIAN ANDA BISA MENYELESAIKANYA
+DENGAN MENGKLIK KONFIRMASI (SUPAYA ID PELANGGAN ( ${custId} ) BERUBAH SECARA
+OTOMATIS DI BAGIAN DATA PELANGGAN.`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        } else if (p.service_type === 'pppoe-ke-voucher' && targetLevel == 4) {
+            const greeting = `Hallo ONC : ${authUserName}`;
+            const headerTitle = `Pesan Validasi ONC`;
+            const technician = item.submitted_by?.name || '-';
+            const techName = (item.submitted_by || item.submittedBy)?.name || '-';
+            const techTelp = (item.submitted_by || item.submittedBy)?.telp || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const macNew = (p.mac_address_new || cust.mac_address || '-').toUpperCase();
+            const routerNew = p.router_new_name
+                ? `${p.router_new_name}${p.router_new_code ? ' (' + p.router_new_code + ')' : ''}`
+                : (cust.router ? cust.router.name : '-');
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Layanan PPPOE ke VOUCHER
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Hallo Onc
+BERIKUT DATA PELANGGAN SEBELUM DI EDIT DAN SESUDAH DI EDIT
+Data idpelanggan ${custId} sebelum di edit
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan sebelumya : PPPOE
+.Tipe Paket sebelumnya : ${cust.paket?.name || '-'}
+.Mix Radius sebelumnya : ${cust.mic_radius?.name || '-'}
+.Username PPPoE sebelumnya : ${cust.pppoe_username || '-'}
+.Password PPPoE sebelumnya : ${cust.pppoe_password || '-'}
+Data idpelanggan ${custId} sesudah di edit
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan : VOUCHER
+${p.name_wifi ? `.Nama WiFi : ${p.name_wifi}\n` : ''}${p.password_wifi ? `.Password WiFi : ${p.password_wifi}\n` : ''}PERUBAHAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA ( ${authUserName} ) UNTUK
+MELAKUKAN PERUBAHAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI
+DENGAN PENGIRIMKAN NOTIFIKASI SUKSES SECARA OTOMATIS KE TEKNISI ( ${technician} )
+TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI
+SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING KEMBALI
+ROUTER TYPE ( ${routerNew} ),DENGAN MAC ADDRES BARU ( ${macNew} ) DAN
+SUDAH DALAM KE ADAAN TERKONEKSI,UNTUK MEMASTIKAN SEBAIKNYA ANDA BEKERJA SAMA
+DENGAN MENELPON TEKNISI PENGAJUAN PERUBAHAN DATA TERSEBUT
+NAMA TEKNISI ( ${techName} ) NO WA ( ${techTelp} )
+SETELAH SEMUANYA BERJALAN SUKSES TERKONEKSI ,KEMUDIAN ANDA BISA MENYELESAIKANYA
+DENGAN MENGKLIK KONFIRMASI (SUPAYA ID PELANGGAN ( ${custId} ) BERUBAH SECARA
+OTOMATIS DI BAGIAN DATA PELANGGAN.`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        }
+
         const serviceMap = { 'pppoe-ke-voucher': 'PPPoE → Voucher', 'voucher-ke-pppoe': 'Voucher → PPPoE' };
         const svcLabel   = serviceMap[p.service_type] || p.service_type || '-';
         const parts      = svcLabel.split('→');
@@ -881,6 +1549,204 @@ function renderPayloadDiff(item) {
     }
 
     if (type === 'pemutusan') {
+        const fotoPerangkatUrl = p.foto_perangkat_path ? (p.foto_perangkat_url || (window.location.origin + '/storage/' + p.foto_perangkat_path)) : '-';
+        const fotoPembayaranUrl = p.foto_pembayaran_path ? (p.foto_pembayaran_url || (window.location.origin + '/storage/' + p.foto_pembayaran_path)) : '-';
+        const fotoPerangkatHtml = p.foto_perangkat_path ? `<a href="${fotoPerangkatUrl}" target="_blank" onclick="event.stopPropagation()" style="color: #2563eb; text-decoration: underline;">${fotoPerangkatUrl}</a>` : '-';
+        const fotoPembayaranHtml = p.foto_pembayaran_path ? `<a href="${fotoPembayaranUrl}" target="_blank" onclick="event.stopPropagation()" style="color: #2563eb; text-decoration: underline;">${fotoPembayaranUrl}</a>` : '-';
+
+        if (targetLevel == 2) {
+            const greeting = `Hallo ${authUserName}`;
+            const headerTitle = `Pesan Validasi OLT`;
+            const technician = item.submitted_by?.name || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            const typeLayanan = (cust.type?.name || '-').toUpperCase();
+            const oltName = cust.olt?.name || '-';
+            const oltLink = cust.olt?.link || '#';
+            const macLama = (cust.mac_address || '-').toUpperCase();
+
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pemutusan Layanan
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Data Pelanggan
+.Id Pelanggan : ${custId}
+.type layanan : ${typeLayanan}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.Bukti Foto Perangkat : ${fotoPerangkatHtml}
+.Bukti Pembayaran : ${fotoPembayaranHtml}
+Tujuan Pengajuan
+Untuk Melakukan Penghapusan Data pelanggan Di Data Olt (${oltName})
+Berikut Langkah langkah nya bawah ini.
+Langkah langkah
+1.Masuk ke olt (${oltName}) berikut linknya ${oltLink}
+2.masukan username & password olt anda
+3.cari mac addres lama (${macLama}) di data olt (${oltName})
+4.hapus data mac addres lama (${macLama})
+5.setelah melakukan langkah 1-4 segera melakuan validasi data pengajuan di bawah ini.`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        } else if (targetLevel == 3) {
+            const typeLayanan = (cust.type?.name || '-').toUpperCase();
+            if (typeLayanan === 'PPPOE') {
+                const greeting = `Hallo Mixradius : ${authUserName}`;
+                const headerTitle = `Pesan Validasi Mix Radius`;
+                const technician = item.submitted_by?.name || '-';
+                const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+                const custId = cust.uuid || cust.id || '-';
+                const mixName = cust.mic_radius?.name || '-';
+
+                const addressParts = [];
+                if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+                if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+                if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+                if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+                if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+                if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+                const alamatStr = addressParts.join(', ') || '-';
+
+                const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pemutusan Layanan
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Data Pelanggan
+.Id Pelanggan : ${custId}
+.type layanan : PPPOE
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.Bukti Foto Perangkat : ${fotoPerangkatHtml}
+.Bukti Pembayaran : ${fotoPembayaranHtml}
+Tujuan Pengajuan
+Untuk Menghapus Data Pelanggan yang sudah berhenti berlangganan
+Dengan alasan (${p.alasan || '-'})
+Langkah langkah
+1.Masuk ke web akun mixradius (${mixName}) berikut linknya
+https://mixcio.topsetting.com:973/
+2.masukan username & password mixradius anda
+3.setelah login cari kemenu pelanggan kemudian klik menu user pppoe
+4.Cari Id Pelanggan (${custId}) di kolom pencarian user ppp
+5.setelah ketemu kemudian klik tombol hapus
+6.setelah melakukan langkah 1-5 segera melakuan validasi data pengajuan di bawah ini`;
+
+                return `
+                <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                            ${headerTitle}
+                        </div>
+                        <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Salin Pesan
+                        </button>
+                    </div>
+                    <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                        <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                        <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                            Klik untuk menyalin
+                        </div>
+                    </div>
+                </div>`;
+            }
+        } else if (targetLevel == 4) {
+            const greeting = `Hallo ONC : ${authUserName}`;
+            const headerTitle = `Pesan Validasi ONC`;
+            const technician = item.submitted_by?.name || '-';
+            const techName = (item.submitted_by || item.submittedBy)?.name || '-';
+            const techTelp = (item.submitted_by || item.submittedBy)?.telp || '-';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            const typeLayanan = (cust.type?.name || '-').toUpperCase();
+
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pemutusan Layanan
+Di input Oleh teknisi : ${technician}
+Pada Tanggal : ${tanggal}
+Hallo Onc
+BERIKUT DATA PENGAJUAN PEMUTUSAN LANGGAN
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan : ${typeLayanan}
+.Bukti Foto Perangkat : ${fotoPerangkatHtml}
+.Bukti Pembayaran : ${fotoPembayaranHtml}
+PENGHAPUSAN DATA PELANGGAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA ( ${authUserName} ) UNTUK
+MELAKUKAN PENGHAPUSAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI
+DENGAN PENGIRIMKAN NOTIFIKASI BERHENTI BERLANGGANAN SUKSES SECARA OTOMATIS KE
+TEKNISI ( ${technician} )
+TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI PENGHAPUSAN DATA PERMANENT
+SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING ROUTER
+TERSEBUT MENJADI SETELAN AWAL KEMBALI (SETELAN KANTOR)
+DISKUSIKAN DENGAN TEKNISI PENGAJUAN
+NAMA TEKNISI ( ${techName} ) NO WA ( ${techTelp} )
+SETELAH PENYETINGAN SELESAI,ANDA BISA MENYELESAIKANYA
+DENGAN MENGKLIK KONFIRMASI PENGHAPUSAN DATA (SUPAYA ID PELANGGAN (${custId}) DI HAPUS PERMANEN SECARA OTOMATIS DI BAGIAN DATA PELANGGAN)`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        }
+
         return `
         <div class="diff-block" id="diff-${item.id}" style="display: none;">
             <div class="diff-title">
@@ -903,10 +1769,109 @@ function renderPayloadDiff(item) {
         </div>`;
     }
 
+    if (type === 'pergantian-password') {
+        if (targetLevel == 4) {
+            const greeting = `Hallo ONC : ${authUserName}`;
+            const headerTitle = `Pesan Validasi ONC`;
+            const technician = item.submitted_by?.name || 'Customer (Self-service)';
+            const tanggal = moment(item.created_at).format('DD MMMM YYYY');
+            const custId = cust.uuid || cust.id || '-';
+            const typeLayanan = (cust.type?.name || '-').toUpperCase();
+
+            const addressParts = [];
+            if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+            if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+            if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+            if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+            if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+            if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+            const alamatStr = addressParts.join(', ') || '-';
+
+            const wifiNameOld = cust.name_wifi || '-';
+            const wifiNameNew = p.name_wifi || '(Tidak diubah / Tetap)';
+            const wifiPassOld = cust.password_wifi || '-';
+            const wifiPassNew = p.password_wifi || '-';
+
+            const msgText = `${greeting}
+Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
+pesan di bawah ini.
+Pengajuan : Pergantian Password WiFi
+Pada Tanggal : ${tanggal}
+Hallo Onc
+BERIKUT DATA PERUBAHAN PASSWORD PELANGGAN
+Data pelanggan sebelum di edit:
+.Id Pelanggan : ${custId}
+.nama Pelanggan : ${cust.name || '-'}
+.alamat pelanggan : ${alamatStr}
+.type layanan : ${typeLayanan}
+.Nama WiFi Lama : ${wifiNameOld}
+.Password WiFi Lama : ${wifiPassOld}
+
+Data pelanggan sesudah di edit:
+.Nama WiFi Baru : ${wifiNameNew}
+.Password WiFi Baru : ${wifiPassNew}
+
+PERUBAHAN DIATAS DI SUBMIT OLEH CUSTOMER / DILUAR SISTEM.
+KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA ( ${authUserName} ) UNTUK
+MELAKUKAN PERUBAHAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI
+DENGAN PENGIRIMKAN NOTIFIKASI SUKSES SECARA OTOMATIS KE WHATSAPP PELANGGAN.
+TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI, PASTIKAN ANDA SUDAH MENYETING PASSWORD TERSEBUT PADA ROUTER ATAU MIKROTIK RADIUS SEHINGGA PELANGGAN DAPAT TERKONEKSI KEMBALI.`;
+
+            return `
+            <div class="diff-block" id="diff-${item.id}" style="display: none; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/></svg>
+                        ${headerTitle}
+                    </div>
+                    <button type="button" class="btn-copy-msg" onclick="copyMixMessage(${item.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Pesan
+                    </button>
+                </div>
+                <div class="mix-message-container" onclick="copyMixMessage(${item.id})" title="Klik untuk menyalin pesan" style="cursor: pointer; position: relative;">
+                    <pre id="mix-msg-${item.id}" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; color: #334155; padding: 1.25rem; white-space: pre-wrap; word-break: break-all; margin: 0; transition: all 0.2s ease-in-out; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">${msgText}</pre>
+                    <div class="mix-message-overlay" style="position: absolute; right: 12px; bottom: 12px; font-size: 0.65rem; color: #94a3b8; font-weight: 700; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; pointer-events: none; opacity: 0.8; transition: opacity 0.2s;">
+                        Klik untuk menyalin
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        const wifiNameOld = cust.name_wifi || '-';
+        const wifiNameNew = p.name_wifi || '(Tidak diubah)';
+        const wifiPassOld = cust.password_wifi || '-';
+        const wifiPassNew = p.password_wifi || '-';
+
+        return `
+        <div class="diff-block" id="diff-${item.id}" style="display: none;">
+            <div class="diff-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Detail Pergantian Password WiFi
+            </div>
+            <div class="diff-rows">
+                <div class="diff-row">
+                    <div class="diff-label">Nama WiFi (SSID)</div>
+                    <div class="diff-old">&#8722; ${wifiNameOld}</div>
+                    <div class="diff-arrow" style="display:flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                    <div class="diff-new">&#43; ${wifiNameNew}</div>
+                </div>
+                <div class="diff-row">
+                    <div class="diff-label">Password WiFi</div>
+                    <div class="diff-old">&#8722; ${wifiPassOld}</div>
+                    <div class="diff-arrow" style="display:flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                    <div class="diff-new" style="font-family:monospace;font-weight:700;">&#43; ${wifiPassNew}</div>
+                </div>
+            </div>
+        </div>`;
+    }
+
     return '';
 }
 
 function renderValCard(item, isPending = true) {
+    const p             = item.payload || {};
+    const cust          = item.customer || {};
     const validations   = item.validations || [];
     const approvedCount = validations.filter(v => v.status === 'approved').length;
     const allApproved   = approvedCount === validations.length && validations.length > 0;
@@ -966,11 +1931,12 @@ function renderValCard(item, isPending = true) {
         'pemutusan':          { label: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg> Pemutusan',           cls: 'type-pemutusan'          },
         'pergantian-layanan': { label: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Pergantian Layanan',  cls: 'type-pergantian-layanan' },
         'onu-router':         { label: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> Pergantian Perangkat', cls: 'type-onu-router'         },
+        'pergantian-password': { label: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Ganti Password WiFi', cls: 'type-pergantian-password' },
     }[item.prosedur_type] || { label: item.prosedur_type, cls: '' };
 
     const typeBadge = `<span class="req-type-badge badge-${item.prosedur_type}">${typeInfo.label}</span>`;
 
-    const custName = item.customer?.name || '-';
+    const custName = cust.name || '-';
     const initials = custName.split(' ').slice(0,2).map(w => w[0] || '').join('').toUpperCase() || '??';
 
     const diffHtml  = renderPayloadDiff(item);
@@ -985,7 +1951,88 @@ function renderValCard(item, isPending = true) {
     let footerContent = '';
     if (isPending) {
         let actionButtons = '';
+        let stepButtonHtml = '';
         if (item.user_can_validate) {
+            const activeValidation = validations.find(v => v.status === 'pending');
+            const isOltActive = activeValidation && activeValidation.level == 2;
+            const isMixActive = activeValidation && activeValidation.level == 3;
+            const isOncActive = activeValidation && activeValidation.level == 4;
+            const isOnuRouter = item.prosedur_type === 'onu-router';
+
+            if (isOnuRouter) {
+                if (userLevels.includes(1)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showAdminSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                } else if (userLevels.includes(2)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showOltSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                } else if (userLevels.includes(3)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showMixSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                } else if (userLevels.includes(4)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showOncSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                }
+            } else if (item.prosedur_type === 'pergantian-layanan' && (p.service_type === 'voucher-ke-pppoe' || p.service_type === 'pppoe-ke-voucher')) {
+                if (userLevels.includes(3)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showMixLayananSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                } else if (userLevels.includes(4)) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showOncSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                }
+            } else if (item.prosedur_type === 'pemutusan') {
+                if (userLevels.includes(2) && isOltActive) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showOltSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                } else if (userLevels.includes(3) && isMixActive) {
+                    const typeLayanan = (cust.type?.name || '-').toUpperCase();
+                    if (typeLayanan === 'PPPOE') {
+                        stepButtonHtml = `
+                            <button class="btn-val-steps" onclick="showMixLayananSteps(${item.id})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                                Langkah-langkah
+                            </button>
+                        `;
+                    }
+                } else if (userLevels.includes(4) && isOncActive) {
+                    stepButtonHtml = `
+                        <button class="btn-val-steps" onclick="showOncSteps(${item.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px; vertical-align:-1px;"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5.01" y2="6"/><line x1="5" y1="12" x2="5.01" y2="12"/><line x1="5" y1="18" x2="5.01" y2="18"/></svg>
+                            Langkah-langkah
+                        </button>
+                    `;
+                }
+            }
+
             actionButtons = `
                 <div class="req-actions">
                     ${item.user_can_reject ? `
@@ -1004,7 +2051,10 @@ function renderValCard(item, isPending = true) {
 
         footerContent = `
         <div class="req-card-footer">
-            <div>${toggleBtn}</div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                ${toggleBtn}
+                ${stepButtonHtml}
+            </div>
             ${actionButtons}
         </div>`;
     } else {
@@ -1162,7 +2212,7 @@ function loadPillCounts() {
         // Will be updated after datatable loads
     });
     // Count pending prosedur for each type
-    ['pemutusan', 'pergantian-layanan', 'onu-router'].forEach(type => {
+    ['pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password'].forEach(type => {
         $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
             const count = (res.data || []).length;
             const pill = document.getElementById('pill-' + type);
@@ -1370,6 +2420,315 @@ function reject(id) {
             });
         }
     });
+}
+
+// ── ADMIN STEPS MODAL TRIGGER ─────────────────────────────────────────────────
+function showAdminSteps(id) {
+    new bootstrap.Modal(document.getElementById('adminStepsModal')).show();
+}
+
+// ── OLT STEPS MODAL TRIGGER ───────────────────────────────────────────────────
+function showOltSteps(id) {
+    const item = currentItems.find(x => x.id === id);
+    if (!item) return;
+
+    const oltName = item.customer?.olt?.name || 'Tidak diketahui';
+    const oltLink = item.customer?.olt?.link;
+
+    if (item.prosedur_type === 'pemutusan') {
+        const macOld = (item.customer?.mac_address || '-').toUpperCase();
+        let formattedLink = '(Link tidak tersedia)';
+        if (oltLink) {
+            let linkUrl = oltLink;
+            if (!/^https?:\/\//i.test(oltLink)) {
+                linkUrl = 'http://' + oltLink;
+            }
+            formattedLink = `<a href="${linkUrl}" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">${oltLink}</a>`;
+        }
+        $('.olt-steps-body').html(`
+            <ol style="margin: 0; padding-left: 20px;">
+                <li class="mb-2">
+                    Masuk ke OLT <strong class="text-dark">${oltName}</strong>, berikut linknya: ${formattedLink}
+                </li>
+                <li class="mb-2">
+                    Masukan username & password OLT Anda.
+                </li>
+                <li class="mb-2">
+                    Cari MAC Address lama (<strong class="text-danger" style="font-family: monospace;">${macOld}</strong>) di data OLT <strong class="text-dark">${oltName}</strong>.
+                </li>
+                <li class="mb-2">
+                    Hapus data MAC Address lama (<strong class="text-danger" style="font-family: monospace;">${macOld}</strong>).
+                </li>
+                <li class="mb-2">
+                    Setelah melakukan langkah 1-4, segera lakukan validasi data pengajuan di bawah ini.
+                </li>
+            </ol>
+        `);
+    } else {
+        const macOld = (item.payload?.mac_address_old || 'Tidak diketahui').toUpperCase();
+        const macNew = (item.payload?.mac_address_new || 'Tidak diketahui').toUpperCase();
+        let formattedLink = '(Link tidak tersedia)';
+        if (oltLink) {
+            let linkUrl = oltLink;
+            if (!/^https?:\/\//i.test(oltLink)) {
+                linkUrl = 'http://' + oltLink;
+            }
+            formattedLink = `<a href="${linkUrl}" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">${oltLink}</a>`;
+        }
+        $('.olt-steps-body').html(`
+            <ol style="margin: 0; padding-left: 20px;">
+                <li class="mb-2">
+                    Masuk ke OLT <strong class="text-dark">${oltName}</strong>, berikut linknya: ${formattedLink}
+                </li>
+                <li class="mb-2">
+                    Masukan username & password OLT Anda.
+                </li>
+                <li class="mb-2">
+                    Cari MAC Address lama (<strong class="text-danger" style="font-family: monospace;">${macOld}</strong>) di data OLT <strong class="text-dark">${oltName}</strong>.
+                </li>
+                <li class="mb-2">
+                    Hapus data MAC Address lama (<strong class="text-danger" style="font-family: monospace;">${macOld}</strong>).
+                </li>
+                <li class="mb-2">
+                    Cek & cari di data OLT MAC Address baru (<strong class="text-success" style="font-family: monospace;">${macNew}</strong>), ada atau tidak ada?
+                </li>
+                <li class="mb-2">
+                    Kalo tidak ada, lakukan input MAC Address secara manual.
+                </li>
+                <li class="mb-2">
+                    Setelah melakukan langkah 1-6, segera lakukan validasi data pengajuan di bawah ini.
+                </li>
+            </ol>
+        `);
+    }
+
+    new bootstrap.Modal(document.getElementById('oltStepsModal')).show();
+}
+
+// ── MIX RADIUS STEPS MODAL TRIGGER ────────────────────────────────────────────
+function showMixSteps(id) {
+    const item = currentItems.find(x => x.id === id);
+    if (!item) return;
+
+    const mixName = item.customer?.mic_radius?.name || 'Tidak diketahui';
+    const custId = item.customer?.uuid || item.customer?.id || 'Tidak diketahui';
+
+    $('.step-mix-name').text(mixName);
+    $('.step-mix-cust-id').text(custId);
+    $('.step-mix-cust-id-2').text(custId);
+
+    new bootstrap.Modal(document.getElementById('mixStepsModal')).show();
+}
+
+// ── MIX RADIUS LAYANAN STEPS MODAL TRIGGER ─────────────────────────────────────
+function showMixLayananSteps(id) {
+    const item = currentItems.find(x => x.id === id);
+    if (!item) return;
+
+    const p = item.payload || {};
+    const cust = item.customer || {};
+    const custId = cust.uuid || cust.id || '-';
+    const mixName = p.mic_radius_name || cust.mic_radius?.name || 'Tidak diketahui';
+
+    if (item.prosedur_type === 'pemutusan') {
+        $('.step-mix-layanan-title').text('Langkah-langkah Validasi Mix Radius (Pemutusan)');
+        $('.mix-layanan-steps-body').html(`
+            <ol style="margin: 0; padding-left: 20px;">
+                <li class="mb-2">
+                    Masuk ke web akun mixradius (<strong class="text-dark">${mixName}</strong>) berikut linknya: <a href="https://mixcio.topsetting.com:973/" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">https://mixcio.topsetting.com:973/</a>
+                </li>
+                <li class="mb-2">
+                    Masukan username & password mixradius anda.
+                </li>
+                <li class="mb-2">
+                    Setelah login cari ke menu <strong>Pelanggan</strong> kemudian klik menu <strong>user pppoe</strong>.
+                </li>
+                <li class="mb-2">
+                    Cari Id Pelanggan (<strong class="text-dark">${custId}</strong>) di kolom pencarian user ppp.
+                </li>
+                <li class="mb-2">
+                    Setelah ketemu kemudian klik tombol <strong>hapus</strong>.
+                </li>
+                <li class="mb-2">
+                    Setelah melakukan langkah 1-5 segera lakukan validasi data pengajuan di bawah ini.
+                </li>
+            </ol>
+        `);
+    } else if (p.service_type === 'voucher-ke-pppoe') {
+        $('.step-mix-layanan-title').text('Langkah-langkah Validasi Mix Radius (Voucher ke PPPoE)');
+        $('.mix-layanan-steps-body').html(`
+            <ol style="margin: 0; padding-left: 20px;">
+                <li class="mb-2">
+                    Masuk ke web akun mixradius (<strong class="text-dark">${mixName}</strong>) berikut linknya: <a href="https://mixcio.topsetting.com:973/" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">https://mixcio.topsetting.com:973/</a>
+                </li>
+                <li class="mb-2">
+                    Masukan username & password mixradius anda.
+                </li>
+                <li class="mb-2">
+                    Setelah login cari ke menu <strong>Pelanggan</strong> kemudian klik menu <strong>user pppoe</strong>.
+                </li>
+                <li class="mb-2">
+                    Tambah Pelanggan PPPOE.
+                </li>
+                <li class="mb-2">
+                    Kemudian isi data PPPOE sesuai Pesan Di atas di bagian tujuan pengajuan isi dengan teliti.
+                </li>
+                <li class="mb-2">
+                    Setelah data sama kemudian klik <strong>Tambah Pelanggan</strong>, cara tersebut sama halnya dengan pemasangan baru pelanggan pppoe.
+                </li>
+                <li class="mb-2">
+                    Setelah melakukan langkah 1-6 segera lakukan validasi data pengajuan di bawah ini.
+                </li>
+            </ol>
+        `);
+    } else if (p.service_type === 'pppoe-ke-voucher') {
+        $('.step-mix-layanan-title').text('Langkah-langkah Validasi Mix Radius (PPPoE ke Voucher)');
+        $('.mix-layanan-steps-body').html(`
+            <ol style="margin: 0; padding-left: 20px;">
+                <li class="mb-2">
+                    Masuk ke web akun mixradius (<strong class="text-dark">${mixName}</strong>) berikut linknya: <a href="https://mixcio.topsetting.com:973/" target="_blank" class="text-primary fw-bold" style="text-decoration: underline;">https://mixcio.topsetting.com:973/</a>
+                </li>
+                <li class="mb-2">
+                    Masukan username & password mixradius anda.
+                </li>
+                <li class="mb-2">
+                    Setelah login cari ke menu <strong>Pelanggan</strong> kemudian klik menu <strong>user pppoe</strong>.
+                </li>
+                <li class="mb-2">
+                    Cari Id Pelanggan (<strong class="text-dark">${custId}</strong>) di kolom pencarian user ppp.
+                </li>
+                <li class="mb-2">
+                    Setelah ketemu kemudian klik tombol <strong>hapus</strong>.
+                </li>
+                <li class="mb-2">
+                    Setelah melakukan langkah 1-5 segera lakukan validasi data pengajuan di bawah ini.
+                </li>
+            </ol>
+        `);
+    }
+
+    new bootstrap.Modal(document.getElementById('mixLayananStepsModal')).show();
+}
+
+// ── ONC STEPS MODAL TRIGGER ───────────────────────────────────────────────────
+function showOncSteps(id) {
+    const item = currentItems.find(x => x.id === id);
+    if (!item) return;
+
+    const p = item.payload || {};
+    const cust = item.customer || {};
+    const techName = (item.submitted_by || item.submittedBy)?.name || '-';
+    const techTelp = (item.submitted_by || item.submittedBy)?.telp || '-';
+    const custId = cust.uuid || cust.id || '-';
+
+    if (item.prosedur_type === 'pemutusan') {
+        const typeLayanan = (cust.type?.name || '-').toUpperCase();
+        const addressParts = [];
+        if (cust.hometown?.name) addressParts.push("Kampung " + cust.hometown.name);
+        if (cust.rt?.name) addressParts.push("RT " + cust.rt.name);
+        if (cust.rw?.name) addressParts.push("RW " + cust.rw.name);
+        if (cust.village?.name) addressParts.push("Desa " + cust.village.name);
+        if (cust.district?.name) addressParts.push("Kec. " + cust.district.name);
+        if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
+        const alamatStr = addressParts.join(', ') || '-';
+
+        $('.step-onc-title').text('Langkah-langkah Validasi ONC (Pemutusan)');
+        $('.onc-steps-body').html(`
+            <p class="mb-2"><strong>BERIKUT DATA PENGAJUAN PEMUTUSAN LANGGANAN:</strong></p>
+            <table class="table table-sm table-bordered mb-3" style="font-size: 0.85rem;">
+                <tr><td style="width: 30%; font-weight: 600;">ID Pelanggan</td><td>${custId}</td></tr>
+                <tr><td style="font-weight: 600;">Nama Pelanggan</td><td>${cust.name || '-'}</td></tr>
+                <tr><td style="font-weight: 600;">Alamat</td><td>${alamatStr}</td></tr>
+                <tr><td style="font-weight: 600;">Type Layanan</td><td>${typeLayanan}</td></tr>
+            </table>
+            <p class="mb-2">
+                PENGHAPUSAN DATA PELANGGAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+            </p>
+            <p class="mb-2">
+                KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA (<strong class="text-dark">${authUserName}</strong>) UNTUK MELAKUKAN PENGHAPUSAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI DENGAN PENGIRIMKAN NOTIFIKASI BERHENTI BERLANGGANAN SUKSES SECARA OTOMATIS KE TEKNISI (<strong class="text-dark">${techName}</strong>).
+            </p>
+            <p class="mb-2 text-danger" style="font-weight: 700;">
+                TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI PENGHAPUSAN DATA PERMANENT, SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING ROUTER TERSEBUT MENJADI SETELAN AWAL KEMBALI (SETELAN KANTOR).
+            </p>
+            <p class="mb-2">
+                DISKUSIKAN DENGAN TEKNISI PENGAJUAN:<br>
+                NAMA TEKNISI: <strong class="text-dark">${techName}</strong><br>
+                NO WA: <strong class="text-primary">${techTelp}</strong>
+            </p>
+            <p class="mb-0">
+                SETELAH PENYETINGAN SELESAI, ANDA BISA MENYELESAIKANYA DENGAN MENGKLIK KONFIRMASI PENGHAPUSAN DATA (SUPAYA ID PELANGGAN <strong class="text-danger" style="font-family: monospace;">${custId}</strong> DI HAPUS PERMANEN SECARA OTOMATIS DI BAGIAN DATA PELANGGAN).
+            </p>
+        `);
+    } else {
+        const macNew = (p.mac_address_new || cust.mac_address || '-').toUpperCase();
+        const routerNew = p.router_new_name
+            ? `${p.router_new_name}${p.router_new_code ? ' (' + p.router_new_code + ')' : ''}`
+            : (p.router_new_id ? `ID: ${p.router_new_id}` : (cust.router ? cust.router.name : '-'));
+
+        $('.step-onc-title').text('Langkah-langkah Validasi ONC');
+        $('.onc-steps-body').html(`
+            <p style="margin-bottom: 1rem;">
+                PERUBAHAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
+            </p>
+            <p style="margin-bottom: 1rem;">
+                KAMI TINGGAL MENUNGGU KONFIRSIMASI TAHAP AKHIR DARI ANDA (<strong class="text-dark">${authUserName}</strong>) UNTUK MELAKUKAN PERUBAHAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI DENGAN PENGIRIMKAN NOTIFIKASI SUKSES SECARA OTOMATIS KE TEKNISI (<strong class="text-dark">${techName}</strong>).
+            </p>
+            <p style="margin-bottom: 1rem;">
+                TETAPI SEBELUM MELAKUKAN KLIK KONFIRMASI, SEBELUMNYA ANDA HARUS MEMASTIKAN BAHWA ANDA SUDAH MENGECEK MENYETING KEMBALI ROUTER TYPE (<strong class="text-success">${routerNew}</strong>), DENGAN MAC ADDRESS BARU (<strong class="text-success" style="font-family: monospace;">${macNew}</strong>) DAN SUDAH DALAM KEADAAN TERKONEKSI.
+            </p>
+            <p style="margin-bottom: 1rem;">
+                UNTUK MEMASTIKAN SEBAIKNYA ANDA BEKERJA SAMA DENGAN MENELPON TEKNISI PENGAJUAN PERUBAHAN DATA TERSEBUT:<br>
+                NAMA TEKNISI: <strong class="text-dark">${techName}</strong><br>
+                NO WA: <strong class="text-primary">${techTelp}</strong>
+            </p>
+            <p style="margin: 0;">
+                SETELAH SEMUANYA BERJALAN SUKSES TERKONEKSI, KEMUDIAN ANDA BISA MENYELESAIKANNYA DENGAN MENGKLIK KONFIRMASI (SUPAYA ID PELANGGAN <strong class="text-danger" style="font-family: monospace;">${custId}</strong> BERUBAH SECARA OTOMATIS DI BAGIAN DATA PELANGGAN).
+            </p>
+        `);
+    }
+
+    new bootstrap.Modal(document.getElementById('oncStepsModal')).show();
+}
+
+// ── COPY MIX RADIUS MESSAGE ───────────────────────────────────────────────────
+function copyMixMessage(id) {
+    const evt = window.event;
+    if (evt && (evt.target.tagName === 'A' || evt.target.closest('a'))) {
+        return;
+    }
+    const preElement = document.getElementById('mix-msg-' + id);
+    if (!preElement) return;
+
+    const textToCopy = preElement.textContent || preElement.innerText;
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                Toast.fire({ icon: 'success', title: 'Pesan berhasil disalin!' });
+            }).catch(err => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    } catch (err) {
+        Toast.fire({ icon: 'error', title: 'Gagal menyalin pesan.' });
+    }
+}
+
+function fallbackCopyText(text) {
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = text;
+    tempTextArea.style.position = 'fixed';
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    try {
+        document.execCommand('copy');
+        Toast.fire({ icon: 'success', title: 'Pesan berhasil disalin!' });
+    } catch (err) {
+        Toast.fire({ icon: 'error', title: 'Gagal menyalin pesan.' });
+    }
+    document.body.removeChild(tempTextArea);
 }
 </script>
 @endpush

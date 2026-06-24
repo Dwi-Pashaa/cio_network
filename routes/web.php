@@ -62,3 +62,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/search-customer', [PublicCustomerController::class, 'searchPage'])->name('public.customer.search');
 Route::post('/search-customer', [PublicCustomerController::class, 'search'])->name('public.customer.search.post');
 Route::get('/clientarea-login', [PublicCustomerController::class, 'proxyLogin'])->name('public.customer.clientarea_login');
+
+Route::get('/reset-wifi', [PublicCustomerController::class, 'resetWifiPage'])->name('public.customer.reset_wifi');
+Route::post('/reset-wifi/search', [PublicCustomerController::class, 'searchCustomerForReset'])->name('public.customer.reset_wifi.search');
+Route::post('/reset-wifi/submit', [PublicCustomerController::class, 'submitResetPassword'])->name('public.customer.reset_wifi.submit');

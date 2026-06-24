@@ -73,10 +73,18 @@ class ProsedurSpam extends Model
      */
     public function getPendingCheckpointForUser(User $user): ?ProsedurSpamValidation
     {
+        $level1Validation = $this->validations()->where('level', 1)->first();
+        $isLevel1Approved = !$level1Validation || $level1Validation->status === 'approved';
+
         return $this->validations()
             ->where('status', 'pending')
             ->get()
-            ->first(fn($v) => $user->can($v->required_permission));
+            ->first(function ($v) use ($user, $isLevel1Approved) {
+                if ($v->level > 1 && !$isLevel1Approved) {
+                    return false;
+                }
+                return $user->hasPermissionTo($v->required_permission);
+            });
     }
 
     /**
@@ -89,6 +97,16 @@ class ProsedurSpam extends Model
         $levels = config('prosedur_levels.levels', []);
 
         foreach ($levels as $level => $cfg) {
+            // OLT is level 2; skip it for service change procedures
+            if ($this->prosedur_type === 'pergantian-layanan' && $level === 2) {
+                continue;
+            }
+
+            // For password change procedure, only ONC (level 4) is required
+            if ($this->prosedur_type === 'pergantian-password' && $level !== 4) {
+                continue;
+            }
+
             $this->validations()->create([
                 'level'               => $level,
                 'level_label'         => $cfg['label'],

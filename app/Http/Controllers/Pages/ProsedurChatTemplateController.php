@@ -25,8 +25,8 @@ class ProsedurChatTemplateController extends Controller
         $allCodes = [
             'validator_level_1' => 'validator_level_1 (Level 1 - Admin)',
             'validator_level_2' => 'validator_level_2 (Level 2 - OLT)',
-            'validator_level_3' => 'validator_level_3 (Level 3 - ONC)',
-            'validator_level_4' => 'validator_level_4 (Level 4 - Mix Radius)',
+            'validator_level_3' => 'validator_level_3 (Level 3 - Mix Radius)',
+            'validator_level_4' => 'validator_level_4 (Level 4 - ONC)',
             'technician_approved' => 'technician_approved (Disetujui - Teknisi)',
             'technician_rejected' => 'technician_rejected (Ditolak - Teknisi)',
         ];

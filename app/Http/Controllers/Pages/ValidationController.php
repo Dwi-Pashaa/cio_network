@@ -26,7 +26,7 @@ class ValidationController extends Controller
 
         // Permission level mana yang dimiliki user login
         $myPermissions = collect($levels)
-            ->filter(fn($cfg) => $user->can($cfg['permission']))
+            ->filter(fn($cfg) => $user->hasPermissionTo($cfg['permission']))
             ->pluck('permission')
             ->toArray();
 
@@ -36,7 +36,18 @@ class ValidationController extends Controller
 
             if ($tab === 'queue') {
                 $query = ProsedurSpam::with([
-                    'customer',
+                    'customer.olt',
+                    'customer.mic_radius',
+                    'customer.router',
+                    'customer.paket',
+                    'customer.type',
+                    'customer.tipePelanggan',
+                    'customer.hometown',
+                    'customer.rt',
+                    'customer.rw',
+                    'customer.village',
+                    'customer.district',
+                    'customer.regencie',
                     'submittedBy',
                     'validations.validatedByUser',
                 ])
@@ -51,8 +62,22 @@ class ValidationController extends Controller
                 $items = $query->orderBy('created_at', 'desc')
                     ->get()
                     ->filter(function ($spam) use ($myPermissions, $user) {
-                        return count($myPermissions) > 0
-                            || $user->can('lihat antrean prosedur');
+                        if (count($myPermissions) === 0 && !$user->can('lihat antrean prosedur')) {
+                            return false;
+                        }
+
+                        // Cek apakah Level 1 (Admin) sudah disetujui
+                        $level1Validation = $spam->validations->firstWhere('level', 1);
+                        $isLevel1Approved = !$level1Validation || $level1Validation->status === 'approved';
+
+                        if (!$isLevel1Approved) {
+                            // Jika belum disetujui Admin, hanya user dengan permission Admin yang bisa melihat
+                            $levelsConfig = config('prosedur_levels.levels', []);
+                            $adminPermission = $levelsConfig[1]['permission'] ?? 'validasi prosedur level 1';
+                            return $user->can($adminPermission);
+                        }
+
+                        return true;
                     });
 
                 $items->each(function ($spam) use ($user) {
@@ -84,7 +109,18 @@ class ValidationController extends Controller
 
             // Tab rekap historis (approved & rejected)
             $query = ProsedurSpam::with([
-                'customer',
+                'customer.olt',
+                'customer.mic_radius',
+                'customer.router',
+                'customer.paket',
+                'customer.type',
+                'customer.tipePelanggan',
+                'customer.hometown',
+                'customer.rt',
+                'customer.rw',
+                'customer.village',
+                'customer.district',
+                'customer.regencie',
                 'submittedBy',
                 'rejectedBy',
                 'executedBy',
@@ -181,12 +217,18 @@ class ValidationController extends Controller
             }
         });
 
-        // Kirim notifikasi Wablass setelah transaksi sukses (jika disetujui sepenuhnya)
+        // Kirim notifikasi Wablass setelah transaksi sukses
         try {
             $spam->refresh()->load('validations');
             $notifier = app(\App\Services\ProsedurNotificationService::class);
             if ($spam->isFullyApproved()) {
-                $notifier->notifyTechnicianApproved($spam);
+                if ($spam->prosedur_type === 'pergantian-password') {
+                    $notifier->notifyCustomerPasswordChanged($spam);
+                } else {
+                    $notifier->notifyTechnicianApproved($spam);
+                }
+            } elseif ($checkpoint->level === 1) {
+                $notifier->notifyLevels($spam, [2, 3, 4]);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('ValidationController (Approve): Gagal mengirim notifikasi Wablass.', [
@@ -289,6 +331,7 @@ class ValidationController extends Controller
             'pemutusan'          => $this->executePemutusan($customer, $payload, $submittedBy),
             'pergantian-layanan' => $this->executePergantianLayanan($customer, $payload, $submittedBy),
             'onu-router'         => $this->executeOnuRouter($customer, $payload, $submittedBy),
+            'pergantian-password' => $this->executePergantianPassword($customer, $payload, $submittedBy),
             default              => null,
         };
 
@@ -423,6 +466,20 @@ class ValidationController extends Controller
             $this->syncMacAddressStatus($oldMac, $customer->organization_id);
             $this->markMacAddressUsed($payload['mac_address_new'], $customer->organization_id);
         }
+    }
+
+    private function executePergantianPassword(Customer $customer, array $payload, int $submittedBy): void
+    {
+        $updateData = [
+            'password_wifi'  => $payload['password_wifi'],
+            'user_update_id' => $submittedBy,
+        ];
+
+        if (!empty($payload['name_wifi'])) {
+            $updateData['name_wifi'] = $payload['name_wifi'];
+        }
+
+        Customer::where('id', $customer->id)->update($updateData);
     }
 
     private function syncMacAddressStatus(?string $macAddress, ?int $organizationId): void

@@ -14,6 +14,9 @@
 <div class="level-legend">
     <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em;">Level validator:</span>
     @foreach($levels as $num => $cfg)
+        @if($prosedur_type === 'pergantian-layanan' && $num === 2)
+            @continue
+        @endif
         <span class="lvl-chip lvl-{{ $cfg['color'] }}">
             <svg xmlns="http://www.w3.org/2000/svg" width="7" height="7" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>
             L{{ $num }}: {{ $cfg['label'] }}
