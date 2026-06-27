@@ -194,6 +194,7 @@ class MacAddressController extends Controller
                      FROM customers c
                      WHERE UPPER(TRIM(c.mac_address)) = UPPER(TRIM(ma.mac_address))
                      AND c.organization_id = ma.organization_id
+                     AND c.deleted_at IS NULL
                  )
                  THEN 'used'
                  ELSE 'available'
