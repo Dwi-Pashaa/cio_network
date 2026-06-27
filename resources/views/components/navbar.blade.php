@@ -324,7 +324,7 @@
                                                 Data Halaman
                                             </a>
                                          @endcan
-                                         @canany(['lihat halaman', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+                                         @canany(['lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
                                             <a class="dropdown-item {{ Route::is('spam*') || Route::is('validasi.prosedur*') ? 'active' : '' }}"
                                                 href="{{ route('spam.index') }}" rel="noopener">
                                                 Data Spam & Validasi
