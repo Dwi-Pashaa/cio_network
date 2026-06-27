@@ -88,7 +88,8 @@ class CustomerController extends Controller
         $olt = OLT::where('organization_id', Auth::user()->organization_id)->with(['hometown'])->get();
         $micRadius = MicRadius::where('organization_id', Auth::user()->organization_id)->get();
 
-        $last = Customer::whereNotNull('uuid')
+        $last = Customer::withTrashed()
+            ->whereNotNull('uuid')
             ->orderBy('uuid', 'desc')
             ->first();
         if (!$last) {
@@ -196,7 +197,8 @@ class CustomerController extends Controller
 
         $customer = Customer::find($id);
 
-        $last = Customer::whereNotNull('uuid')
+        $last = Customer::withTrashed()
+            ->whereNotNull('uuid')
             ->orderBy('uuid', 'desc')
             ->first();
         if (!$last) {

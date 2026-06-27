@@ -34,8 +34,14 @@ class PublicCustomerController extends Controller
         }
 
         $macAddress = trim($request->input('mac_address'));
+        // Normalize MAC: allow hyphens/colons, make uppercase
+        $macAddress = strtoupper(str_replace('-', ':', $macAddress));
 
-        $customer = Customer::where('mac_address', $macAddress)->first();
+        $customer = Customer::where('mac_address', $macAddress)
+            ->whereHas('type', function ($q) {
+                $q->where('name', 'PPPOE');
+            })
+            ->first();
 
         if (!$customer) {
             return response()->json([
