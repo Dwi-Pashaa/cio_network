@@ -25,7 +25,7 @@ class ProsedurSpam extends Model
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class, 'customer_id')->withTrashed();
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     public function submittedBy()

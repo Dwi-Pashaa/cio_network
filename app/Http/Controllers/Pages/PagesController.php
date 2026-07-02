@@ -342,7 +342,7 @@ class PagesController extends Controller
         $orgId  = Auth::user()->organization_id;
 
         // Generate kode pelanggan berikutnya
-        $last = Customer::withTrashed()->whereNotNull('uuid')->orderBy('uuid', 'desc')->first();
+        $last = Customer::query()->whereNotNull('uuid')->orderBy('uuid', 'desc')->first();
         $lastNumber = $last ? ((int) (preg_match('/\d+/', $last->uuid, $m) ? $m[0] : 0)) : 0;
         $newCode = 'CSTMR' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
 
@@ -581,7 +581,7 @@ class PagesController extends Controller
 
             $userPatchCore->decrement('total');
 
-            $last = Customer::withTrashed()
+            $last = Customer::query()
                 ->whereNotNull('uuid')
                 ->where('uuid', 'like', 'CSTMR%')
                 ->orderBy('uuid', 'desc')
