@@ -101,7 +101,7 @@
                     <input type="hidden" id="modal-type">
                     <div class="form-group">
                         <label class="form-label">Nama Level <span class="text-danger">*</span></label>
-                        <input type="text" id="level-name" class="form-control" placeholder="Contoh: Staff Lapangan">
+                        <input type="text" id="level-name" class="form-control" placeholder="Contoh: Teknisi">
                         <span class="invalid-feedback error_name" style="font-size: .8rem; font-weight: 500;"></span>
                     </div>
                 </div>
