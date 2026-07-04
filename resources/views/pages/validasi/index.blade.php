@@ -1500,6 +1500,17 @@ OTOMATIS DI BAGIAN DATA PELANGGAN.`;
             if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
             const alamatStr = addressParts.join(', ') || '-';
 
+            const paymentType = (cust.price?.name || 'UNKNOWN').toUpperCase();
+            const isPostpaid = paymentType.includes('POSTPAID') || paymentType.includes('PAKE DULU');
+            const isVoucher = typeLayanan.includes('VOUCHER') || typeLayanan.includes('HOTSPOT');
+
+            let buktiBayarLine = '';
+            if (!isVoucher) {
+                if (isPostpaid) {
+                    buktiBayarLine = `\n.Bukti Pembayaran : ${fotoPembayaranHtml}`;
+                }
+            }
+
             const msgText = `${greeting}
 Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
 pesan di bawah ini.
@@ -1511,8 +1522,7 @@ Data Pelanggan
 .type layanan : ${typeLayanan}
 .nama Pelanggan : ${cust.name || '-'}
 .alamat pelanggan : ${alamatStr}
-.Bukti Foto Perangkat : ${fotoPerangkatHtml}
-.Bukti Pembayaran : ${fotoPembayaranHtml}
+${isVoucher ? '' : `.Bukti Foto Perangkat : ${fotoPerangkatHtml}`}${buktiBayarLine}
 Tujuan Pengajuan
 Untuk Melakukan Penghapusan Data pelanggan Di Data Olt (${oltName})
 Berikut Langkah langkah nya bawah ini.
@@ -1561,6 +1571,17 @@ Langkah langkah
                 if (cust.regencie?.name) addressParts.push("Kab. " + cust.regencie.name);
                 const alamatStr = addressParts.join(', ') || '-';
 
+                const paymentType = (cust.price?.name || 'UNKNOWN').toUpperCase();
+                const isPostpaid = paymentType.includes('POSTPAID') || paymentType.includes('PAKE DULU');
+                const isVoucher = typeLayanan.includes('VOUCHER') || typeLayanan.includes('HOTSPOT');
+
+                let buktiBayarLine = '';
+                if (!isVoucher) {
+                    if (isPostpaid) {
+                        buktiBayarLine = `\n.Bukti Pembayaran : ${fotoPembayaranHtml}`;
+                    }
+                }
+
                 const msgText = `${greeting}
 Tolong di Baca Data Di bawah ini dengan teliti dan segera Lakukan perubahan data sesuai aturan
 pesan di bawah ini.
@@ -1572,8 +1593,7 @@ Data Pelanggan
 .type layanan : PPPOE
 .nama Pelanggan : ${cust.name || '-'}
 .alamat pelanggan : ${alamatStr}
-.Bukti Foto Perangkat : ${fotoPerangkatHtml}
-.Bukti Pembayaran : ${fotoPembayaranHtml}
+${isVoucher ? '' : `.Bukti Foto Perangkat : ${fotoPerangkatHtml}`}${buktiBayarLine}
 Tujuan Pengajuan
 Untuk Menghapus Data Pelanggan yang sudah berhenti berlangganan
 Dengan alasan (${p.alasan || '-'})
@@ -1637,8 +1657,15 @@ BERIKUT DATA PENGAJUAN PEMUTUSAN LANGGAN
 .nama Pelanggan : ${cust.name || '-'}
 .alamat pelanggan : ${alamatStr}
 .type layanan : ${typeLayanan}
-.Bukti Foto Perangkat : ${fotoPerangkatHtml}
-.Bukti Pembayaran : ${fotoPembayaranHtml}
+${(() => {
+    const pt = (cust.price?.name || 'UNKNOWN').toUpperCase();
+    const isPost = pt.includes('POSTPAID') || pt.includes('PAKE DULU');
+    const isVch = typeLayanan.includes('VOUCHER') || typeLayanan.includes('HOTSPOT');
+    let lines = '';
+    if (!isVch) lines += `.Bukti Foto Perangkat : ${fotoPerangkatHtml}`;
+    if (!isVch && isPost) lines += `\n.Bukti Pembayaran : ${fotoPembayaranHtml}`;
+    return lines;
+})()}
 PENGHAPUSAN DATA PELANGGAN DIATAS SUDAH DI VALIDASI OLEH SEMUA BAGIANNYA MASING MASING.
 KAMI TINGGAL MENUNGGU KONFIRMASI TAHAP AKHIR DARI ANDA ( ${authUserName} ) UNTUK
 MELAKUKAN PENGHAPUSAN DATA DIBAGIAN DATA PELANGGAN SECARA OTOMATIS DIBARENGI

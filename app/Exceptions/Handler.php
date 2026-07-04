@@ -26,5 +26,15 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        $this->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ukuran file yang diunggah terlalu besar. Maksimal total upload adalah 8MB.'
+                ], 413);
+            }
+            return redirect()->back()->withInput()->with('error', 'Ukuran file yang diunggah terlalu besar. Maksimal total upload adalah 8MB.');
+        });
     }
 }

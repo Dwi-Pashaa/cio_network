@@ -51,7 +51,20 @@ class CustomerController extends Controller
         $vlan = Vlan::where('organization_id', Auth::user()->organization_id)->get();
         $micRadius = MicRadius::where('organization_id', Auth::user()->organization_id)->get();
 
-        return view("pages.customer.index", compact("hometown", "olts", "vlan", "micRadius", "vilage"));
+        $serviceTypes = Type::where('status', '0');
+        $customerTypes = Type::where('status', '1');
+
+        if (optional(Auth::user()->organization)->type === 'mitra') {
+            $serviceTypes->where('organization_id', Auth::user()->organization_id);
+            $customerTypes->where('organization_id', Auth::user()->organization_id);
+        }
+
+        $serviceTypes = $serviceTypes->get();
+        $customerTypes = $customerTypes->get();
+
+        $organizations = \App\Models\Organization::all();
+
+        return view("pages.customer.index", compact("hometown", "olts", "vlan", "micRadius", "vilage", "serviceTypes", "customerTypes", "organizations"));
     }
 
     public function getSelect(Request $request)

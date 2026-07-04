@@ -353,16 +353,24 @@
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
                                     <label class="form-label">Tipe Pelanggan <span class="text-danger">*</span></label>
-                                    <select name="tipe_pelanggan_id" id="tipe_pelanggan_id"
-                                        class="form-control @error('tipe_pelanggan_id') is-invalid @enderror">
-                                        <option value="">Pilih Tipe Pelanggan</option>
-                                        @foreach ($tipePelanggan as $tpl)
-                                            <option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}"
-                                                {{ old('tipe_pelanggan_id') == $tpl->id ? 'selected' : '' }}>
-                                                {{ $tpl->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($tipePelanggan->count() === 1)
+                                        @php $singleTpl = $tipePelanggan->first(); @endphp
+                                        <select name="tipe_pelanggan_id" id="tipe_pelanggan_id"
+                                            class="form-control @error('tipe_pelanggan_id') is-invalid @enderror">
+                                            <option value="{{ $singleTpl->id }}" selected>{{ $singleTpl->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="tipe_pelanggan_id" id="tipe_pelanggan_id"
+                                            class="form-control @error('tipe_pelanggan_id') is-invalid @enderror">
+                                            <option value="">Pilih Tipe Pelanggan</option>
+                                            @foreach ($tipePelanggan as $tpl)
+                                                <option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}"
+                                                    {{ old('tipe_pelanggan_id') == $tpl->id ? 'selected' : '' }}>
+                                                    {{ $tpl->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('tipe_pelanggan_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -459,16 +467,24 @@
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                     <label class="form-label">Tipe Layanan <span class="text-danger">*</span></label>
-                                    <select name="types_id" id="types_id"
-                                        class="form-control @error('types_id') is-invalid @enderror">
-                                        <option value="">Pilih Tipe Layanan</option>
-                                        @foreach ($types as $tp)
-                                            <option data-label="{{ $tp->name }}" value="{{ $tp->id }}"
-                                                {{ old('types_id') == $tp->id ? 'selected' : '' }}>
-                                                {{ $tp->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($types->count() === 1)
+                                        @php $singleType = $types->first(); @endphp
+                                        <select name="types_id" id="types_id"
+                                            class="form-control @error('types_id') is-invalid @enderror">
+                                            <option value="{{ $singleType->id }}" selected>{{ $singleType->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="types_id" id="types_id"
+                                            class="form-control @error('types_id') is-invalid @enderror">
+                                            <option value="">Pilih Tipe Layanan</option>
+                                            @foreach ($types as $tp)
+                                                <option data-label="{{ $tp->name }}" value="{{ $tp->id }}"
+                                                    {{ old('types_id') == $tp->id ? 'selected' : '' }}>
+                                                    {{ $tp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     <input type="hidden" name="type_name" id="type_name">
                                     @error('types_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
@@ -507,45 +523,69 @@
                                     </div>
                                     <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Tipe Paket</label>
-                                        <select name="paket_id" id="paket_id"
-                                            class="form-control select-tom @error('paket_id') is-invalid @enderror">
-                                            <option value="">Pilih Paket</option>
-                                            @foreach ($paket as $pkt)
-                                                <option value="{{ $pkt->id }}"
-                                                    {{ old('paket_id') == $pkt->id ? 'selected' : '' }}>
-                                                    {{ $pkt->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if ($paket->count() === 1)
+                                            @php $singlePaket = $paket->first(); @endphp
+                                            <select name="paket_id" id="paket_id"
+                                                class="form-control @error('paket_id') is-invalid @enderror">
+                                                <option value="{{ $singlePaket->id }}" selected>{{ $singlePaket->name }}</option>
+                                            </select>
+                                        @else
+                                            <select name="paket_id" id="paket_id"
+                                                class="form-control select-tom @error('paket_id') is-invalid @enderror">
+                                                <option value="">Pilih Paket</option>
+                                                @foreach ($paket as $pkt)
+                                                    <option value="{{ $pkt->id }}"
+                                                        {{ old('paket_id') == $pkt->id ? 'selected' : '' }}>
+                                                        {{ $pkt->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                         @error('paket_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Mix Radius</label>
-                                        <select name="mic_radius_id" id="mic_radius_id"
-                                            class="form-control select-tom @error('mic_radius_id') is-invalid @enderror">
-                                            <option value="">Pilih Mix Radius</option>
-                                            @foreach ($micRadius as $mc)
-                                                <option value="{{ $mc->id }}"
-                                                    {{ old('mic_radius_id') == $mc->id ? 'selected' : '' }}>
-                                                    {{ $mc->code }} - {{ $mc->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if ($micRadius->count() === 1)
+                                            @php $singleMr = $micRadius->first(); @endphp
+                                            <select name="mic_radius_id" id="mic_radius_id"
+                                                class="form-control @error('mic_radius_id') is-invalid @enderror">
+                                                <option value="{{ $singleMr->id }}" selected>{{ $singleMr->code }} - {{ $singleMr->name }}</option>
+                                            </select>
+                                        @else
+                                            <select name="mic_radius_id" id="mic_radius_id"
+                                                class="form-control select-tom @error('mic_radius_id') is-invalid @enderror">
+                                                <option value="">Pilih Mix Radius</option>
+                                                @foreach ($micRadius as $mc)
+                                                    <option value="{{ $mc->id }}"
+                                                        {{ old('mic_radius_id') == $mc->id ? 'selected' : '' }}>
+                                                        {{ $mc->code }} - {{ $mc->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                         @error('mic_radius_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="col-lg-4 col-md-12 col-sm-12 mb-3">
                                         <label class="form-label">Tipe Pembayaran</label>
-                                        <select name="price_id" id="price_id"
-                                            class="form-control select-tom @error('price_id') is-invalid @enderror">
-                                            <option value="">Pilih Tipe Pembayaran</option>
-                                            @foreach ($price as $prc)
-                                                <option value="{{ $prc->id }}"
-                                                    {{ old('price_id') == $prc->id ? 'selected' : '' }}>
-                                                    {{ $prc->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if ($price->count() === 1)
+                                            @php $singlePrice = $price->first(); @endphp
+                                            <select name="price_id" id="price_id"
+                                                class="form-control @error('price_id') is-invalid @enderror">
+                                                <option value="{{ $singlePrice->id }}" selected>{{ $singlePrice->name }}</option>
+                                            </select>
+                                        @else
+                                            <select name="price_id" id="price_id"
+                                                class="form-control select-tom @error('price_id') is-invalid @enderror">
+                                                <option value="">Pilih Tipe Pembayaran</option>
+                                                @foreach ($price as $prc)
+                                                    <option value="{{ $prc->id }}"
+                                                        {{ old('price_id') == $prc->id ? 'selected' : '' }}>
+                                                        {{ $prc->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                         @error('price_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -574,30 +614,46 @@
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">RT</label>
-                                    <select name="rts_id" id="rts_id"
-                                        class="form-control select-tom @error('rts_id') is-invalid @enderror">
-                                        <option value="">Pilih RT</option>
-                                        @foreach ($rts as $rt)
-                                            <option value="{{ $rt->id }}"
-                                                {{ old('rts_id') == $rt->id ? 'selected' : '' }}>{{ $rt->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($rts->count() === 1)
+                                        @php $singleRt = $rts->first(); @endphp
+                                        <select name="rts_id" id="rts_id"
+                                            class="form-control @error('rts_id') is-invalid @enderror">
+                                            <option value="{{ $singleRt->id }}" selected>{{ $singleRt->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="rts_id" id="rts_id"
+                                            class="form-control select-tom @error('rts_id') is-invalid @enderror">
+                                            <option value="">Pilih RT</option>
+                                            @foreach ($rts as $rt)
+                                                <option value="{{ $rt->id }}"
+                                                    {{ old('rts_id') == $rt->id ? 'selected' : '' }}>{{ $rt->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('rts_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">RW</label>
-                                    <select name="rws_id" id="rws_id"
-                                        class="form-control select-tom @error('rws_id') is-invalid @enderror">
-                                        <option value="">Pilih RW</option>
-                                        @foreach ($rws as $rw)
-                                            <option value="{{ $rw->id }}"
-                                                {{ old('rws_id') == $rw->id ? 'selected' : '' }}>{{ $rw->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($rws->count() === 1)
+                                        @php $singleRw = $rws->first(); @endphp
+                                        <select name="rws_id" id="rws_id"
+                                            class="form-control @error('rws_id') is-invalid @enderror">
+                                            <option value="{{ $singleRw->id }}" selected>{{ $singleRw->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="rws_id" id="rws_id"
+                                            class="form-control select-tom @error('rws_id') is-invalid @enderror">
+                                            <option value="">Pilih RW</option>
+                                            @foreach ($rws as $rw)
+                                                <option value="{{ $rw->id }}"
+                                                    {{ old('rws_id') == $rw->id ? 'selected' : '' }}>{{ $rw->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('rws_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -657,74 +713,114 @@
                             <div class="row">
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">VLAN</label>
-                                    <select name="vlans_id" id="vlans_id"
-                                        class="form-control select-tom @error('vlans_id') is-invalid @enderror">
-                                        <option value="">Pilih VLAN</option>
-                                        @foreach ($vlans as $vln)
-                                            <option value="{{ $vln->id }}" data-label="{{ $vln->name }}">
-                                                {{ $vln->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    @if ($vlans->count() === 1)
+                                        @php $singleVlan = $vlans->first(); @endphp
+                                        <select name="vlans_id" id="vlans_id"
+                                            class="form-control @error('vlans_id') is-invalid @enderror">
+                                            <option value="{{ $singleVlan->id }}" selected>{{ $singleVlan->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="vlans_id" id="vlans_id"
+                                            class="form-control select-tom @error('vlans_id') is-invalid @enderror">
+                                            <option value="">Pilih VLAN</option>
+                                            @foreach ($vlans as $vln)
+                                                <option value="{{ $vln->id }}" data-label="{{ $vln->name }}">
+                                                    {{ $vln->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('vlans_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat ODC</label>
-                                    <select name="odcs_id" id="odcs_id"
-                                        class="form-control select-tom @error('odcs_id') is-invalid @enderror">
-                                        <option value="">Pilih ODC</option>
-                                        @foreach ($odcs as $odc)
-                                            <option value="{{ $odc->id }}">
-                                                {{ $odc->code }} | {{ $odc->hometown_name }} | {{ $odc->rt_number }} |
-                                                {{ $odc->rw_number }} | {{ $odc->odc_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($odcs->count() === 1)
+                                        @php $singleOdc = $odcs->first(); @endphp
+                                        <select name="odcs_id" id="odcs_id"
+                                            class="form-control @error('odcs_id') is-invalid @enderror">
+                                            <option value="{{ $singleOdc->id }}" selected>{{ $singleOdc->code }} | {{ $singleOdc->hometown_name }} | {{ $singleOdc->rt_number }} | {{ $singleOdc->rw_number }} | {{ $singleOdc->odc_name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="odcs_id" id="odcs_id"
+                                            class="form-control select-tom @error('odcs_id') is-invalid @enderror">
+                                            <option value="">Pilih ODC</option>
+                                            @foreach ($odcs as $odc)
+                                                <option value="{{ $odc->id }}">
+                                                    {{ $odc->code }} | {{ $odc->hometown_name }} | {{ $odc->rt_number }} |
+                                                    {{ $odc->rw_number }} | {{ $odc->odc_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('odcs_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat ODP</label>
-                                    <select name="odps_id" id="odps_id"
-                                        class="form-control select-tom @error('odps_id') is-invalid @enderror">
-                                        <option value="">Pilih ODP</option>
-                                        @foreach ($odps as $odp)
-                                            <option value="{{ $odp->id }}">
-                                                {{ $odp->code }} | {{ $odp->hometown_name }} | {{ $odp->rt_number }} |
-                                                {{ $odp->rw_number }} | {{ $odp->odp_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($odps->count() === 1)
+                                        @php $singleOdp = $odps->first(); @endphp
+                                        <select name="odps_id" id="odps_id"
+                                            class="form-control @error('odps_id') is-invalid @enderror">
+                                            <option value="{{ $singleOdp->id }}" selected>{{ $singleOdp->code }} | {{ $singleOdp->hometown_name }} | {{ $singleOdp->rt_number }} | {{ $singleOdp->rw_number }} | {{ $singleOdp->odp_name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="odps_id" id="odps_id"
+                                            class="form-control select-tom @error('odps_id') is-invalid @enderror">
+                                            <option value="">Pilih ODP</option>
+                                            @foreach ($odps as $odp)
+                                                <option value="{{ $odp->id }}">
+                                                    {{ $odp->code }} | {{ $odp->hometown_name }} | {{ $odp->rt_number }} |
+                                                    {{ $odp->rw_number }} | {{ $odp->odp_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('odps_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Alamat OLT</label>
-                                    <select name="olts_id" id="olts_id"
-                                        class="form-control select-tom @error('olts_id') is-invalid @enderror">
-                                        <option value="">Pilih OLT</option>
-                                        @foreach ($olts as $olt)
-                                            <option value="{{ $olt->id }}">
-                                                {{ $olt->code }} | {{ $olt->hometown_name }} {{ $olt->olt_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($olts->count() === 1)
+                                        @php $singleOlt = $olts->first(); @endphp
+                                        <select name="olts_id" id="olts_id"
+                                            class="form-control @error('olts_id') is-invalid @enderror">
+                                            <option value="{{ $singleOlt->id }}" selected>{{ $singleOlt->code }} | {{ $singleOlt->hometown_name }} {{ $singleOlt->olt_name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="olts_id" id="olts_id"
+                                            class="form-control select-tom @error('olts_id') is-invalid @enderror">
+                                            <option value="">Pilih OLT</option>
+                                            @foreach ($olts as $olt)
+                                                <option value="{{ $olt->id }}">
+                                                    {{ $olt->code }} | {{ $olt->hometown_name }} {{ $olt->olt_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('olts_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div class="col-lg-12 mb-3">
                                     <label class="form-label">Ukuran Patch Core <span class="text-danger">*</span></label>
-                                    <select name="patch_core_id" id="patch_core_id"
-                                        class="form-control @error('patch_core_id') is-invalid @enderror">
-                                        <option value="">Pilih Ukuran Patch Core</option>
-                                        @foreach ($pathCore as $pc)
-                                            <option value="{{ $pc->id }}">{{ $pc->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    @if ($pathCore->count() === 1)
+                                        @php $singlePc = $pathCore->first(); @endphp
+                                        <select name="patch_core_id" id="patch_core_id"
+                                            class="form-control @error('patch_core_id') is-invalid @enderror">
+                                            <option value="{{ $singlePc->id }}" selected>{{ $singlePc->name }}</option>
+                                        </select>
+                                    @else
+                                        <select name="patch_core_id" id="patch_core_id"
+                                            class="form-control @error('patch_core_id') is-invalid @enderror">
+                                            <option value="">Pilih Ukuran Patch Core</option>
+                                            @foreach ($pathCore as $pc)
+                                                <option value="{{ $pc->id }}">{{ $pc->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                     @error('patch_core_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror

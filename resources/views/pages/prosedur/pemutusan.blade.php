@@ -39,21 +39,36 @@
             
             <!-- Horizontal Stepper Header -->
             <div class="horizontal-stepper">
+                <!-- Step 1: Pilih Tipe Layanan -->
                 <div class="h-step active" id="hs-1">
+                    <div class="h-step-node">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </div>
+                    <span class="h-step-label">Pilih Layanan</span>
+                </div>
+                <div class="h-step-line"></div>
+                <!-- Step 2: Cari Pelanggan -->
+                <div class="h-step" id="hs-2">
                     <div class="h-step-node">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </div>
                     <span class="h-step-label">Cari Pelanggan</span>
                 </div>
                 <div class="h-step-line"></div>
-                <div class="h-step" id="hs-2">
+                <!-- Step 3: Detail Profil -->
+                <div class="h-step" id="hs-3">
                     <div class="h-step-node">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </div>
                     <span class="h-step-label">Detail Profil</span>
                 </div>
                 <div class="h-step-line"></div>
-                <div class="h-step" id="hs-3">
+                <!-- Step 4: Bukti Pemutusan -->
+                <div class="h-step" id="hs-4">
                     <div class="h-step-node">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </div>
@@ -63,12 +78,67 @@
 
             <!-- Stepper Content Wrapper -->
             <div class="wizard-content-wrapper">
-                
-                <!-- STEP 1 CONTENT -->
+
+                <!-- STEP 1: PILIH TIPE LAYANAN -->
                 <div class="wizard-pane active" id="w-pane-1">
-                    <h3 class="pane-title">Langkah 1: Verifikasi & Cari Pelanggan</h3>
+                    <h3 class="pane-title">Langkah 1: Pilih Tipe Layanan yang Akan Diputus</h3>
+                    <p class="pane-desc">Pilih jenis layanan pelanggan yang saat ini aktif dan akan dilakukan pemutusan.</p>
+
+                    <div class="service-type-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+                        <!-- Card 1: Voucher -->
+                        <div class="service-card selected" data-value="voucher" id="card-voucher" style="border:2px solid #2563eb;border-radius:16px;padding:1.5rem;cursor:pointer;transition:all 0.25s;background:#fff;position:relative;">
+                            <input type="radio" name="tipe_pemutusan_layanan" value="voucher" style="display:none;" checked>
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                <div style="width:48px;height:48px;border-radius:12px;background:rgba(37,99,235,0.08);color:#2563eb;display:flex;align-items:center;justify-content:center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <div class="card-radio-indicator" style="width:20px;height:20px;border-radius:50%;border:2px solid #2563eb;background:#2563eb;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+                                    <div style="width:10px;height:10px;border-radius:50%;background:#fff;transform:scale(1);transition:all 0.2s;"></div>
+                                </div>
+                            </div>
+                            <h4 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem 0;">Voucher / Hotspot</h4>
+                            <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Pelanggan menggunakan layanan berbasis Voucher atau Hotspot prabayar.</p>
+                        </div>
+
+                        <!-- Card 2: PPPoE -->
+                        <div class="service-card" data-value="pppoe" id="card-pppoe" style="border:2px solid #e2e8f0;border-radius:16px;padding:1.5rem;cursor:pointer;transition:all 0.25s;background:#fff;position:relative;">
+                            <input type="radio" name="tipe_pemutusan_layanan" value="pppoe" style="display:none;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                <div style="width:48px;height:48px;border-radius:12px;background:rgba(37,99,235,0.08);color:#2563eb;display:flex;align-items:center;justify-content:center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line>
+                                    </svg>
+                                </div>
+                                <div class="card-radio-indicator" style="width:20px;height:20px;border-radius:50%;border:2px solid #cbd5e1;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+                                    <div style="width:10px;height:10px;border-radius:50%;background:#2563eb;transform:scale(0);transition:all 0.2s;"></div>
+                                </div>
+                            </div>
+                            <h4 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem 0;">PPPoE / HOME</h4>
+                            <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Pelanggan menggunakan layanan koneksi PPPoE dengan perangkat router dedicated.</p>
+                        </div>
+                    </div>
+
+                    <div class="wizard-actions">
+                        <button type="button" class="btn-sop-submit" id="btn-next-to-search">
+                            Lanjutkan Prosedur
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: CARI PELANGGAN -->
+                <div class="wizard-pane" id="w-pane-2">
+                    <h3 class="pane-title">Langkah 2: Verifikasi & Cari Pelanggan</h3>
                     <p class="pane-desc">Masukkan <strong>ID Pelanggan</strong> atau <strong>MAC Address</strong> — sistem akan mengenali format secara otomatis.</p>
                     
+                    <!-- Selected service badge -->
+                    <div id="selected-service-badge" style="margin-bottom: 1.25rem; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: #2563eb; background: rgba(37, 99, 235, 0.08); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(37, 99, 235, 0.15);">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2563eb; animation: pulse 1.5s infinite;"></span>
+                        <span>Mencari Pelanggan Tipe: <strong id="selected-service-text" style="text-transform: uppercase;">Voucher</strong></span>
+                    </div>
+
                     <div class="input-group-custom" style="margin-bottom: 1.25rem;">
                         <label class="form-label-custom" id="search-input-label">ID Pelanggan / MAC Address</label>
                         <div class="search-bar-container">
@@ -99,11 +169,19 @@
                     </div>
                 </div>
 
-                <!-- STEP 2 CONTENT -->
-                <div class="wizard-pane" id="w-pane-2">
-                    <h3 class="pane-title">Langkah 2: Tinjau Detail Pelanggan</h3>
+                <!-- STEP 3: DETAIL PROFIL (FIXED ID FROM w-pane-2) -->
+                <div class="wizard-pane" id="w-pane-3">
+                    <h3 class="pane-title">Langkah 3: Tinjau Detail Pelanggan</h3>
                     <p class="pane-desc">Pastikan profil dan paket layanan yang akan dihapus sudah benar.</p>
                     
+                    <!-- Warning Alert for mismatch category/MAC -->
+                    <div class="alert-error" id="wizard-mismatch-alert" style="margin-bottom: 1.25rem; display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <span id="wizard-mismatch-alert-text">Tipe layanan tidak sesuai!</span>
+                    </div>
+
                     <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
                         <!-- Row 1: ID Pelanggan -->
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.85rem; border-bottom: 1px dashed #e2e8f0;">
@@ -173,20 +251,20 @@
                     </div>
                     
                     <div class="wizard-actions">
-                        <button type="button" class="btn-sop-back" id="btn-back-to-1">
+                        <button type="button" class="btn-sop-back" id="btn-back-to-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                             Kembali
                         </button>
-                        <button type="button" class="btn-sop-submit" id="btn-wizard-next-2">
+                        <button type="button" class="btn-sop-submit" id="btn-wizard-next-3">
                             Lanjutkan Prosedur
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </button>
                     </div>
                 </div>
 
-                <!-- STEP 3 CONTENT -->
-                <div class="wizard-pane" id="w-pane-3">
-                    <h3 class="pane-title">Langkah 3: Data & Bukti Pemutusan</h3>
+                <!-- STEP 4: BUKTI PEMUTUSAN -->
+                <div class="wizard-pane" id="w-pane-4">
+                    <h3 class="pane-title">Langkah 4: Data & Bukti Pemutusan</h3>
                     <p class="pane-desc">Unggah bukti penarikan router, selesaikan tagihan akhir, serta alasan penonaktifan.</p>
                     
                     <form id="wizard-termination-form">
@@ -202,7 +280,8 @@
                                 </div>
                             </div>
 
-                            <div class="input-group-custom">
+                            <!-- Wrapper Bukti Perangkat (Conditional) -->
+                            <div class="input-group-custom" id="section-bukti-perangkat">
                                 <label class="form-label-custom">Foto Bukti Perangkat Diambil</label>
                                 <input type="file" id="wizard-router-input" style="display: none;" accept="image/*" required>
                                 
@@ -221,7 +300,8 @@
                                 </div>
                             </div>
 
-                            <div class="input-group-custom">
+                            <!-- Wrapper Bukti Transfer (Conditional) -->
+                            <div class="input-group-custom" id="section-bukti-transfer">
                                 <label class="form-label-custom">Foto Bukti Pembayaran</label>
                                 <input type="file" id="wizard-payment-input" style="display: none;" accept="image/*" required>
                                 
@@ -247,7 +327,7 @@
                         </div>
                         
                         <div class="wizard-actions">
-                            <button type="button" class="btn-sop-back" id="btn-back-to-2">
+                            <button type="button" class="btn-sop-back" id="btn-back-to-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                                 Kembali
                             </button>
@@ -286,6 +366,8 @@
     <script>
         $(document).ready(function() {
             // ─── HORIZONTAL TERMINATION WIZARD LOGIC ───
+            let selectedPemutusanType = 'voucher';
+
             const $wizardSearchId = $('#wizard-search-id');
             const $btnWizardSearch = $('#btn-wizard-search');
             const $spinnerWizardSearch = $('#spinner-wizard-search');
@@ -299,6 +381,30 @@
 
             // Hide alert on load
             $wizardSearchAlert.hide();
+
+            // ─── Step 1: Service card selection ───
+            $('.service-card').on('click', function() {
+                $('.service-card').each(function() {
+                    $(this).css('border-color', '#e2e8f0');
+                    $(this).find('.card-radio-indicator').css({'border-color':'#cbd5e1','background':''});
+                    $(this).find('.card-radio-indicator div').css('transform','scale(0)');
+                });
+                $(this).css('border-color', '#2563eb');
+                $(this).find('.card-radio-indicator').css({'border-color':'#2563eb','background':'#2563eb'});
+                $(this).find('.card-radio-indicator div').css('transform','scale(1)');
+                $(this).find('input[type="radio"]').prop('checked', true);
+                selectedPemutusanType = $(this).data('value');
+            });
+
+            // Step 1 → Step 2
+            $('#btn-next-to-search').on('click', function() {
+                $('#selected-service-text').text(selectedPemutusanType);
+                $('#hs-1').removeClass('active').addClass('completed');
+                $('#hs-2').addClass('active');
+                $('.h-step-line').eq(0).addClass('completed');
+                $('#w-pane-1').removeClass('active');
+                $('#w-pane-2').addClass('active');
+            });
 
             // ─── Auto-detect input type as user types ───
             const MAC_REGEX = /^([0-9a-fA-F]{2}[:\-]){1,}[0-9a-fA-F]{0,2}$/;
@@ -390,14 +496,45 @@
 
                             $('#success-cust-id').text(customer.id.toUpperCase());
 
-                            // Update Stepper circles
-                            $('#hs-1').removeClass('active').addClass('completed');
-                            $('#hs-2').addClass('active');
-                            $('.h-step-line').first().addClass('completed');
+                            // Validate customer service category against selection
+                            let isValid = true;
+                            let errMsg = '';
+                            const custTypeRaw = customer.tipe_layanan_raw || '';
+                            const isVoucher = custTypeRaw.includes('voucher') || custTypeRaw.includes('hotspot');
+                            const isPppoe   = custTypeRaw.includes('pppoe')   || custTypeRaw.includes('home');
+
+                            if (selectedPemutusanType === 'voucher') {
+                                if (!isVoucher) {
+                                    isValid = false;
+                                    errMsg = 'Mismatch Kategori: Anda memilih Voucher di Step 1, namun tipe layanan customer adalah ' + customer.tipe_layanan + '.';
+                                }
+                            } else if (selectedPemutusanType === 'pppoe') {
+                                if (!isPppoe) {
+                                    isValid = false;
+                                    errMsg = 'Mismatch Kategori: Anda memilih PPPoE di Step 1, namun tipe layanan customer adalah ' + customer.tipe_layanan + '.';
+                                } else if (!customer.mac_address) {
+                                    isValid = false;
+                                    errMsg = 'MAC Address Mismatch: Pelanggan PPPoE ini tidak memiliki MAC Address terdaftar.';
+                                }
+                            }
+
+                            if (!isValid) {
+                                $('#wizard-mismatch-alert-text').text(errMsg);
+                                $('#wizard-mismatch-alert').show();
+                                $('#btn-wizard-next-3').prop('disabled', true).css('opacity', 0.5);
+                            } else {
+                                $('#wizard-mismatch-alert').hide();
+                                $('#btn-wizard-next-3').prop('disabled', false).css('opacity', 1);
+                            }
+
+                            // Update Stepper circles (now step 2→3)
+                            $('#hs-2').removeClass('active').addClass('completed');
+                            $('#hs-3').addClass('active');
+                            $('.h-step-line').eq(1).addClass('completed');
 
                             // Switch panes
-                            $('#w-pane-1').removeClass('active');
-                            $('#w-pane-2').addClass('active');
+                            $('#w-pane-2').removeClass('active');
+                            $('#w-pane-3').addClass('active');
                         } else {
                             $wizardSearchAlert.find('span').text(response.message || 'Pelanggan tidak ditemukan.');
                             $wizardSearchAlert.css('display', 'flex').hide().slideDown(200);
@@ -419,40 +556,75 @@
                 });
             });
 
-            // Step 2: Back to Step 1 Clicked
+            // Step 2 (Cari): Back to Step 1 (Pilih Layanan)
             $('#btn-back-to-1').on('click', function() {
-                // Adjust horizontal header state
                 $('#hs-1').addClass('active').removeClass('completed');
                 $('#hs-2').removeClass('active');
-                $('.h-step-line').first().removeClass('completed');
+                $('.h-step-line').eq(0).removeClass('completed');
 
-                // Switch panes
                 $('#w-pane-2').removeClass('active');
                 $('#w-pane-1').addClass('active');
             });
 
-            // Step 2: Continue to Step 3 Clicked
-            $('#btn-wizard-next-2').on('click', function() {
-                // Adjust horizontal header state
-                $('#hs-2').removeClass('active').addClass('completed');
-                $('#hs-3').addClass('active');
-                $('.h-step-line').last().addClass('completed');
-
-                // Switch panes
-                $('#w-pane-2').removeClass('active');
-                $('#w-pane-3').addClass('active');
-            });
-
-            // Step 3: Back to Step 2 Clicked
+            // Step 3 (Detail Profil): Back to Step 2 (Cari Pelanggan)
             $('#btn-back-to-2').on('click', function() {
-                // Adjust horizontal header state
                 $('#hs-2').addClass('active').removeClass('completed');
                 $('#hs-3').removeClass('active');
-                $('.h-step-line').last().removeClass('completed');
+                $('.h-step-line').eq(1).removeClass('completed');
 
-                // Switch panes
                 $('#w-pane-3').removeClass('active');
                 $('#w-pane-2').addClass('active');
+            });
+
+            // Function to configure step 4 dynamic layouts
+            function updateStep4Layout() {
+                const customer = window._loadedPemutusan || {};
+                const paymentType = (customer.tipe_pembayaran || 'UNKNOWN').toUpperCase();
+
+                if (selectedPemutusanType === 'voucher') {
+                    // Voucher: Only reason (no router proof, no payment proof)
+                    $('#section-bukti-perangkat').hide();
+                    $('#wizard-router-input').prop('required', false);
+
+                    $('#section-bukti-transfer').hide();
+                    $('#wizard-payment-input').prop('required', false);
+                } else {
+                    // PPPoE
+                    $('#section-bukti-perangkat').show();
+                    $('#wizard-router-input').prop('required', true);
+
+                    if (paymentType.includes('POSTPAID') || paymentType.includes('PAKE DULU')) {
+                        // PPPoE Postpaid: Alasan + Perangkat + Transfer
+                        $('#section-bukti-transfer').show();
+                        $('#wizard-payment-input').prop('required', true);
+                    } else {
+                        // PPPoE Prepaid: Alasan + Perangkat (No Transfer)
+                        $('#section-bukti-transfer').hide();
+                        $('#wizard-payment-input').prop('required', false);
+                    }
+                }
+            }
+
+            // Step 3 (Detail Profil): Continue to Step 4 (Bukti Pemutusan)
+            $('#btn-wizard-next-3').on('click', function() {
+                updateStep4Layout();
+
+                $('#hs-3').removeClass('active').addClass('completed');
+                $('#hs-4').addClass('active');
+                $('.h-step-line').eq(2).addClass('completed');
+
+                $('#w-pane-3').removeClass('active');
+                $('#w-pane-4').addClass('active');
+            });
+
+            // Step 4 (Bukti Pemutusan): Back to Step 3 (Detail Profil)
+            $('#btn-back-to-3').on('click', function() {
+                $('#hs-3').addClass('active').removeClass('completed');
+                $('#hs-4').removeClass('active');
+                $('.h-step-line').eq(2).removeClass('completed');
+
+                $('#w-pane-4').removeClass('active');
+                $('#w-pane-3').addClass('active');
             });
 
             // Step 3: Custom File Dropzone Click (Router/Perangkat)
@@ -497,7 +669,7 @@
                 }
             });
 
-            // Step 3: Final Submit Clicked
+            // Step 4: Final Submit Clicked
             $('#wizard-termination-form').on('submit', function(e) {
                 e.preventDefault();
                 // Show modal overlay
@@ -535,6 +707,7 @@
                     success: function(response) {
                         $('#confirm-modal').removeClass('active');
                         // Hide stepper header & wizard wrapper
+                        formData.append('tipe_layanan_pemutusan', selectedPemutusanType);
                         $('.horizontal-stepper, #termination-wizard').slideUp(300, function() {
                             // Show success screen
                             $('#termination-success-screen').fadeIn(300);
@@ -581,11 +754,24 @@
                 $('#wizard-payment-preview-container').hide();
                 $('#wizard-payment-icon-element, #wizard-payment-text-element, #wizard-payment-subtext-element').show();
 
+                // Reset service card selection
+                selectedPemutusanType = 'voucher';
+                $('#card-voucher').css('border-color','#2563eb').find('.card-radio-indicator').css({'border-color':'#2563eb','background':'#2563eb'});
+                $('#card-voucher .card-radio-indicator div').css('transform','scale(1)');
+                $('#card-pppoe').css('border-color','#e2e8f0').find('.card-radio-indicator').css({'border-color':'#cbd5e1','background':''});
+                $('#card-pppoe .card-radio-indicator div').css('transform','scale(0)');
+                $('input[name="tipe_pemutusan_layanan"][value="voucher"]').prop('checked', true);
+
                 // Reset horizontal header classes
                 $('#hs-1').addClass('active').removeClass('completed');
                 $('#hs-2').removeClass('active completed');
                 $('#hs-3').removeClass('active completed');
+                $('#hs-4').removeClass('active completed');
                 $('.h-step-line').removeClass('completed');
+
+                // Reset alerts & warnings
+                $('#wizard-mismatch-alert').hide();
+                $('#btn-wizard-next-3').prop('disabled', false).css('opacity', 1);
 
                 // Switch back to pane 1
                 $('.wizard-pane').removeClass('active');

@@ -226,9 +226,41 @@ class PublicCustomerController extends Controller
             ]);
         }
 
+        // Send WhatsApp confirmation notification to Customer
+        if ($customer->telp) {
+            try {
+                $rawPassword = $request->input('password_wifi');
+                $len = strlen($rawPassword);
+                $visibleLen = min(4, max(1, floor($len / 2)));
+                $maskedPassword = substr($rawPassword, 0, $visibleLen) . str_repeat('*', $len - $visibleLen);
+                $wifiName = $request->input('name_wifi') ?: ($customer->name_wifi ?: 'Tidak diubah');
+
+                $customerMessage = "*Halo, {$customer->name}!* 👋\n\n"
+                    . "Permintaan perubahan password WiFi Anda telah kami terima dan sedang dalam antrean verifikasi. 🚀\n\n"
+                    . "Demi menjaga keamanan jaringan Anda, proses ini memerlukan waktu validasi maksimal *1 x 24 jam*. Setelah disetujui oleh tim kami, sistem akan memperbarui password router WiFi Anda secara otomatis. Anda tidak perlu melakukan apa-apa lagi! ✨\n\n"
+                    . "*Detail Permintaan:* \n"
+                    . "- Nama WiFi: *{$wifiName}*\n"
+                    . "- Password Baru: *{$maskedPassword}*\n\n"
+                    . "Terima kasih atas kesabaran dan kerja sama Anda. Jika ada kendala atau pertanyaan, tim kami siap membantu!\n\n"
+                    . "Salam hangat,\n"
+                    . "*CIO Network*";
+
+                app(\App\Services\FonteMessagingService::class)->sendMessage($customer->telp, $customerMessage);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('PublicCustomerController: Gagal mengirim notifikasi WhatsApp ke pelanggan.', [
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        $successMsg = 'Permintaan perubahan password WiFi Anda berhasil diajukan! Demi keamanan, proses verifikasi memerlukan waktu maksimal 1x24 jam. Setelah disetujui, sistem kami akan memperbarui password Anda secara otomatis.';
+        if ($customer->telp) {
+            $successMsg .= ' Konfirmasi detail permintaan juga telah kami kirimkan ke WhatsApp Anda.';
+        }
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Request pergantian password berhasil diajukan. Menunggu validasi dari tim ONC.'
+            'message' => $successMsg
         ]);
     }
 }

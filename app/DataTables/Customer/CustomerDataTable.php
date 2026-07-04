@@ -412,6 +412,9 @@ class CustomerDataTable
             ->when($request->vlan, fn($q, $v) => $q->where('vlans_id', $v))
             ->when($request->olt, fn($q, $v) => $q->where('olts_id', $v))
             ->when($request->micradius, fn($q, $v) => $q->where('mic_radius_id', $v))
+            ->when($request->type_id, fn($q, $v) => $q->where('types_id', $v))
+            ->when($request->tipe_pelanggan_id, fn($q, $v) => $q->where('tipe_pelanggan_id', $v))
+            ->when($request->organization_id, fn($q, $v) => $q->where('customers.organization_id', $v))
             ->when($request->email_verify, function ($q, $v) {
                 if ($v === 'belum_dicek') {
                     return $q->whereNull('email_verify_at');

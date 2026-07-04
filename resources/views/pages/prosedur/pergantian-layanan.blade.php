@@ -355,7 +355,7 @@
                         </div>
 
                         <!-- PPPoE Username -->
-                        <div class="input-group-custom">
+                        <div class="input-group-custom" style="display: none;">
                             <label class="form-label-custom" for="pppoe_username">PPPoE Username</label>
                             <div style="position: relative;">
                                 <input type="text" id="pppoe_username" class="form-control-custom" placeholder="Contoh: cstmr_username" style="padding-left: 2.75rem;" required>
@@ -368,7 +368,7 @@
                         </div>
 
                         <!-- PPPoE Password -->
-                        <div class="input-group-custom">
+                        <div class="input-group-custom" style="display: none;">
                             <label class="form-label-custom" for="pppoe_password">PPPoE Password</label>
                             <div style="position: relative;">
                                 <input type="text" id="pppoe_password" class="form-control-custom" placeholder="Password Koneksi" style="padding-left: 2.75rem;" required>
@@ -753,6 +753,14 @@
                     $('#w-pane-4').addClass('active');
                 } else {
                     // Go to Step 3 (PPPoE Config)
+                    if (loadedCustomerData) {
+                        const uuid = loadedCustomerData.id.toUpperCase();
+                        const vlan = loadedCustomerData.vlan ? loadedCustomerData.vlan.toUpperCase() : '';
+                        const pppoeValue = vlan ? `${vlan}/${uuid}` : uuid;
+                        $('#pppoe_username').val(pppoeValue);
+                        $('#pppoe_password').val(pppoeValue);
+                    }
+
                     $('#hs-2').removeClass('active').addClass('completed');
                     $('#hs-3').addClass('active');
                     $('.h-step-line').eq(1).addClass('completed');
@@ -760,6 +768,8 @@
                     // Switch panes
                     $('#w-pane-2').removeClass('active');
                     $('#w-pane-3').addClass('active');
+
+                    validateStep3();
                 }
             });
 
@@ -767,13 +777,12 @@
             function validateStep3() {
                 const nameWifi = $('#name_wifi').val().trim();
                 const passwordWifi = $('#password_wifi').val().trim();
-                const pppoeUsername = $('#pppoe_username').val().trim();
-                const pppoePassword = $('#pppoe_password').val().trim();
                 const paketId = $('#paket_id').val();
                 const priceId = $('#price_id').val();
                 const micRadiusId = $('#mic_radius_id').val();
 
-                const isValid = nameWifi && passwordWifi && pppoeUsername && pppoePassword && paketId && priceId && micRadiusId;
+                // pppoe_username & pppoe_password are auto-filled from customer UUID, excluded from validation
+                const isValid = nameWifi && passwordWifi && paketId && priceId && micRadiusId;
 
                 if (isValid) {
                     $('#btn-wizard-next-3').prop('disabled', false).css({ 'opacity': '1', 'cursor': 'pointer' });
