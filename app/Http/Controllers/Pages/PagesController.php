@@ -59,7 +59,6 @@ class PagesController extends Controller
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
         $villages = Village::whereIn('regencie_id', $authUserRegencies)->get();
         $vlans = Vlan::where('organization_id', auth()->user()->organization_id)->get();
-        $routers = Router::where('organization_id', auth()->user()->organization_id)->get();
         $odps = ODP::where('organization_id', auth()->user()->organization_id)->get();
         $odcs = ODC::where('organization_id', auth()->user()->organization_id)->get();
         $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
@@ -74,7 +73,6 @@ class PagesController extends Controller
             "districts",
             "villages",
             "vlans",
-            "routers",
             "odps",
             "odcs",
             "olts",
@@ -97,7 +95,6 @@ class PagesController extends Controller
             "regencies_id" => "required",
             "districts_id" => "required",
             "villages_id" => "required",
-            "routers_id" => "required",
             "vlans_id" => "required",
             "odcs_id" => "required",
             "odps_id" => "required",
@@ -121,14 +118,6 @@ class PagesController extends Controller
         $post['organization_id'] = Auth::user()->organization_id;
 
         $pages = Pages::create($post);
-
-        $routers = is_array($request->routers_id) ? $request->routers_id : explode(',', $request->routers_id);
-        foreach ($routers as $rtr) {
-            DB::table('pages_routers')->insert([
-                "pages_id" => $pages->id,
-                "routers_id" => $rtr
-            ]);
-        }
 
         $vlans = is_array($request->vlans_id) ? $request->vlans_id : explode(',', $request->vlans_id);
         foreach ($vlans as $vln) {
@@ -223,7 +212,6 @@ class PagesController extends Controller
             "regencies_id" => "required",
             "districts_id" => "required",
             "villages_id" => "required",
-            "routers_id" => "required",
             "vlans_id" => "required",
             "odcs_id" => "required",
             "odps_id" => "required",
@@ -253,7 +241,6 @@ class PagesController extends Controller
 
         $pages->update($updateData);
 
-        $routers = is_array($request->routers_id) ? $request->routers_id : explode(',', $request->routers_id);
         $vlans = is_array($request->vlans_id) ? $request->vlans_id : explode(',', $request->vlans_id);
         $odcs = is_array($request->odcs_id) ? $request->odcs_id : explode(',', $request->odcs_id);
         $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
@@ -262,11 +249,6 @@ class PagesController extends Controller
         $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
         $price = is_array($request->price) ? $request->price : explode(',', $request->price);
         $tipePelanggan = is_array($request->tipe_pelanggan_id) ? $request->tipe_pelanggan_id : explode(',', $request->tipe_pelanggan_id);
-
-        $pages->router()->delete();
-        foreach ($routers as $rtr) {
-            $pages->router()->create(["routers_id" => $rtr]);
-        }
 
         $pages->vlan()->delete();
         foreach ($vlans as $vln) {

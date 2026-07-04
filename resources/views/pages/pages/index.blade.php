@@ -415,15 +415,6 @@
                                     <div class="card-body p-3">
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <label for="routers_id" class="form-label-premium">Jenis Router <span style="color:#ef4444;">*</span></label>
-                                                <select name="routers_id[]" id="routers_id" class="form-select" multiple>
-                                                    @foreach ($routers as $rtr)
-                                                        <option value="{{ $rtr->id }}">{{ $rtr->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                                <span class="invalid-feedback error_routers_id"></span>
-                                            </div>
-                                            <div class="col-md-6">
                                                 <label for="vlans_id" class="form-label-premium">Vlan <span style="color:#ef4444;">*</span></label>
                                                 <select name="vlans_id[]" id="vlans_id" class="form-select" multiple>
                                                     @foreach ($vlans as $vln)
@@ -792,7 +783,7 @@
             // Initialize all select2
             const selectIds = [
                 'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
-                'routers_id', 'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
+                'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
                 'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
             ];
 
@@ -827,7 +818,7 @@
             // Reset all selects
             const selectIds = [
                 'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
-                'routers_id', 'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
+                'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
                 'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
             ];
 
@@ -865,7 +856,6 @@
             formData.append('districts_id', $('#districts_id').val());
             formData.append('hometowns_id', $('#hometowns_id').val());
             formData.append('villages_id', $('#villages_id').val());
-            formData.append('routers_id', $('#routers_id').val());
             formData.append('vlans_id', $('#vlans_id').val());
             formData.append('odcs_id', $('#odcs_id').val());
             formData.append('odps_id', $('#odps_id').val());
@@ -935,11 +925,6 @@
                     $('#villages_id').val(data.villages_id).trigger('change');
 
                     // Set multiple selects
-                    if (data.router && data.router.length > 0) {
-                        const routerIds = data.router.map(item => item.routers_id);
-                        $('#routers_id').val(routerIds).trigger('change');
-                    }
-
                     if (data.vlan && data.vlan.length > 0) {
                         const vlanIds = data.vlan.map(item => item.vlans_id);
                         $('#vlans_id').val(vlanIds).trigger('change');
