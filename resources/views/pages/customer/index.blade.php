@@ -139,6 +139,29 @@
                             <option value="belum_dicek">Belum Dicek</option>
                         </select>
                     @endcan
+
+                    <select name="type_id" id="type_id" class="org-input filter-select" style="min-width:145px;">
+                        <option value="">Semua Tipe Layanan</option>
+                        @foreach ($serviceTypes as $tp)
+                            <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="org-input filter-select" style="min-width:155px;">
+                        <option value="">Semua Tipe Pelanggan</option>
+                        @foreach ($customerTypes as $tp)
+                            <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                        @endforeach
+                    </select>
+
+                    @if (optional(auth()->user()->organization)->type !== 'mitra')
+                        <select name="organization_id" id="organization_id" class="org-input filter-select" style="min-width:170px;">
+                            <option value="">Semua Organisasi/Mitra</option>
+                            @foreach ($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
 
                 <div class="search-wrapper" style="min-width: 200px;">
@@ -311,6 +334,9 @@
                         d.micradius = $('#micradius').val();
                         d.email_verify = $('#email_verify').val();
                         d.wa_verify = $('#wa_verify').val();
+                        d.type_id = $('#type_id').val();
+                        d.tipe_pelanggan_id = $('#tipe_pelanggan_id').val();
+                        d.organization_id = $('#organization_id').val();
                         d.search = $('#search-input').val();
                     }
                 },

@@ -406,7 +406,7 @@
                 <img src="{{ asset('img/logo.jpg') }}" alt="Logo 1">
             </div>
             <h1>Pencarian Pelanggan</h1>
-            <p>Masukkan MAC Address untuk mencari data pelanggan dan melakukan pembayaran</p>
+            <p>Khusus pelanggan paket HOME / PPPoE, masukkan MAC Address untuk mencari data pelanggan dan melakukan pembayaran</p>
         </div>
 
         <div class="card-body-content">

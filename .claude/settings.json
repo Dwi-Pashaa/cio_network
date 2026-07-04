@@ -1,0 +1,9 @@
+{
+    "env": {
+        "OPENROUTER_API_KEY": "REDACTED",
+        "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
+        "ANTHROPIC_API_KEY": "",
+
+        "OPENROUTER_DEFAULT_MODEL": "qwen/qwen3-coder:free"
+    }
+}

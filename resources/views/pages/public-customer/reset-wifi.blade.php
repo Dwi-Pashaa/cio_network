@@ -440,7 +440,7 @@
             </div>
             <div class="badge-step" id="badge-step-text">Langkah 1 dari 3</div>
             <h1 id="header-title">Cek Data Pelanggan</h1>
-            <p id="header-desc">Masukkan MAC Address untuk mencari profil pelanggan dan detail router Anda</p>
+            <p id="header-desc">Khusus pelanggan paket HOME / PPPoE, masukkan MAC Address untuk mencari profil pelanggan dan detail router Anda</p>
         </div>
 
         <div class="card-body-content">
@@ -580,7 +580,7 @@
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        <span><strong>Informasi:</strong> Permintaan perubahan Anda akan dikirimkan ke tim ONC untuk divalidasi terlebih dahulu. Perubahan akan aktif di router/sistem setelah tim ONC memberikan persetujuan.</span>
+                        <span><strong>Informasi:</strong> Permintaan perubahan Anda akan dikirimkan ke tim ONC untuk divalidasi terlebih dahulu. Perubahan akan aktif di router/sistem setelah tim ONC memberikan persetujuan. Pastikan nomor WhatsApp yang terdaftar pada sistem kami adalah nomor WhatsApp yang aktif.</span>
                     </div>
 
                     <!-- New Wifi Name -->
@@ -665,7 +665,7 @@
                 if (stepId === 'search') {
                     $badgeStepText.text('Langkah 1 dari 3');
                     $headerTitle.text('Cek Data Pelanggan');
-                    $headerDesc.text('Masukkan MAC Address untuk mencari profil pelanggan dan detail router Anda');
+                    $headerDesc.text('Khusus pelanggan paket HOME / PPPoE, masukkan MAC Address untuk mencari profil pelanggan dan detail router Anda');
                     $stepSearch.addClass('active');
                 } else if (stepId === 'details') {
                     $badgeStepText.text('Langkah 2 dari 3');
@@ -756,7 +756,16 @@
                             }
 
                             $('#detail-wifi-name').text(currentCustomer.name_wifi || '-');
-                            $('#detail-wifi-password').text(currentCustomer.password_wifi || '-');
+                            
+                            // Mask WiFi password (hide some of the last characters with '*')
+                            const rawPassword = currentCustomer.password_wifi || '';
+                            let maskedPassword = '-';
+                            if (rawPassword) {
+                                const len = rawPassword.length;
+                                const visibleLen = Math.min(4, Math.max(1, Math.floor(len / 2)));
+                                maskedPassword = rawPassword.slice(0, visibleLen) + '*'.repeat(len - visibleLen);
+                            }
+                            $('#detail-wifi-password').text(maskedPassword);
 
                             // Set initial values on reset form step 3
                             $('#new_wifi_name').val(currentCustomer.name_wifi || '');

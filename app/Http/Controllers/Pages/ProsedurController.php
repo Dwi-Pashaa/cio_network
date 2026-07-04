@@ -66,7 +66,7 @@ class ProsedurController extends Controller
             ], 400);
         }
 
-        $query = Customer::with(['paket', 'type', 'tipePelanggan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie']);
+        $query = Customer::with(['paket', 'type', 'tipePelanggan', 'price', 'vlan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie']);
 
         if ($searchBy === 'mac') {
             // Normalize MAC: allow colons or hyphens, case-insensitive
@@ -76,8 +76,8 @@ class ProsedurController extends Controller
             // Search by uuid (ID Pelanggan), name, or pppoe_username
             $query->where(function ($q) use ($search) {
                 $q->where('uuid', $search)
-                  ->orWhere('pppoe_username', $search)
-                  ->orWhere('name', 'like', "%{$search}%");
+                    ->orWhere('pppoe_username', $search)
+                    ->orWhere('name', 'like', "%{$search}%");
             });
         }
 
@@ -118,14 +118,17 @@ class ProsedurController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => [
-                'db_id'       => $customer->id,
-                'id'          => $customer->uuid ?? $customer->id,
-                'name'        => $customer->name,
-                'tipe_layanan'=> $customer->type->name ?? $customer->tipePelanggan->name ?? 'Tidak diketahui',
-                'paket'       => $customer->paket->name ?? 'Tidak ada paket',
-                'alamat'      => $fullAddress,
-                'status'      => $customer->status ?? 'unknown',
-                'mac_address' => $customer->mac_address,
+                'db_id'            => $customer->id,
+                'id'               => $customer->uuid ?? $customer->id,
+                'name'             => $customer->name,
+                'tipe_layanan'     => $customer->type->name ?? $customer->tipePelanggan->name ?? 'Tidak diketahui',
+                'tipe_layanan_raw' => strtolower($customer->type->name ?? $customer->tipePelanggan->name ?? ''),
+                'tipe_pembayaran'  => strtoupper($customer->price->name ?? 'UNKNOWN'),
+                'paket'            => $customer->paket->name ?? 'Tidak ada paket',
+                'alamat'           => $fullAddress,
+                'status'           => $customer->status ?? 'unknown',
+                'mac_address'      => $customer->mac_address,
+                'vlan'             => $customer->vlan->name ?? null,
             ]
         ]);
     }
@@ -197,6 +200,19 @@ class ProsedurController extends Controller
                 $file->move(public_path($targetPath), $fileName);
                 $payload[$fileKey . '_path'] = $targetPath . '/' . $fileName;
                 unset($payload[$fileKey]);
+            }
+        }
+
+        // Override pppoe_username dan pppoe_password dengan format vlan/uuid dari data pelanggan
+        if ($request->input('prosedur_type') === 'pergantian-layanan'
+            && ($payload['service_type'] ?? '') === 'voucher-ke-pppoe') {
+            $custForPppoe = Customer::with('vlan')->find($request->input('customer_id'));
+            if ($custForPppoe) {
+                $uuid = strtoupper($custForPppoe->uuid ?? $custForPppoe->id);
+                $vlanName = $custForPppoe->vlan->name ?? null;
+                $pppoeValue = $vlanName ? strtoupper($vlanName) . '/' . $uuid : $uuid;
+                $payload['pppoe_username'] = $pppoeValue;
+                $payload['pppoe_password'] = $pppoeValue;
             }
         }
 
