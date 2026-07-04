@@ -11,6 +11,10 @@ use App\Models\Paket;
 use App\Models\Price;
 use App\Models\MicRadius;
 use App\Models\ProsedurSpam;
+use App\Models\Pages;
+use App\Models\PagesPaket;
+use App\Models\PagesPrice;
+use App\Models\PagesMicRadius;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -115,6 +119,65 @@ class ProsedurController extends Controller
         }
         $fullAddress = count($addressParts) > 0 ? implode(', ', $addressParts) : '-';
 
+        // Get filtered options from Pages based on customer's hometown
+        $hometownsId = $customer->hometowns_id;
+        $orgId = Auth::user()->organization_id;
+
+        $filteredPaketIds = collect();
+        $filteredPriceIds = collect();
+        $filteredMicRadiusIds = collect();
+        $filteredPages = collect();
+
+        if ($hometownsId) {
+            $filteredPages = Pages::where('hometowns_id', $hometownsId)
+                ->where('organization_id', $orgId)
+                ->get();
+
+            if ($filteredPages->isNotEmpty()) {
+                $pageIds = $filteredPages->pluck('id');
+
+                $filteredPaketIds = PagesPaket::whereIn('pages_id', $pageIds)->pluck('paket_id');
+                $filteredPriceIds = PagesPrice::whereIn('pages_id', $pageIds)->pluck('price_id');
+                $filteredMicRadiusIds = PagesMicRadius::whereIn('pages_id', $pageIds)->pluck('mic_radius_id');
+            }
+        }
+
+        // Also include pakets plotted to the current user (user_paket)
+        $userPaketIds = Auth::user()->paket()->pluck('paket.id');
+        $filteredPaketIds = $filteredPaketIds->merge($userPaketIds)->unique()->values();
+
+        // Fetch actual resources
+        $filteredPakets = collect();
+        $filteredPrices = collect();
+        $filteredMicRadiuses = collect();
+
+        if ($filteredPaketIds->isNotEmpty()) {
+            $filteredPakets = Paket::whereIn('id', $filteredPaketIds)
+                ->where('organization_id', $orgId)
+                ->get(['id', 'name']);
+        }
+        if ($filteredPriceIds->isNotEmpty()) {
+            $filteredPrices = Price::whereIn('id', $filteredPriceIds)
+                ->where('organization_id', $orgId)
+                ->get(['id', 'name']);
+        }
+        if ($filteredMicRadiusIds->isNotEmpty()) {
+            $filteredMicRadiuses = MicRadius::whereIn('id', $filteredMicRadiusIds)
+                ->where('organization_id', $orgId)
+                ->get(['id', 'code', 'name']);
+        }
+
+        // Fallback: all data for organization
+        if ($filteredPakets->isEmpty()) {
+            $filteredPakets = Paket::where('organization_id', $orgId)->get(['id', 'name']);
+        }
+        if ($filteredPrices->isEmpty()) {
+            $filteredPrices = Price::where('organization_id', $orgId)->get(['id', 'name']);
+        }
+        if ($filteredMicRadiuses->isEmpty()) {
+            $filteredMicRadiuses = MicRadius::where('organization_id', $orgId)->get(['id', 'code', 'name']);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -129,6 +192,13 @@ class ProsedurController extends Controller
                 'status'           => $customer->status ?? 'unknown',
                 'mac_address'      => $customer->mac_address,
                 'vlan'             => $customer->vlan->name ?? null,
+                'hometown_id'      => $hometownsId,
+                'filtered_options' => [
+                    'pakets'       => $filteredPakets,
+                    'prices'       => $filteredPrices,
+                    'mic_radiuses' => $filteredMicRadiuses,
+                    'filtered'     => $hometownsId && $filteredPages->isNotEmpty(),
+                ],
             ]
         ]);
     }

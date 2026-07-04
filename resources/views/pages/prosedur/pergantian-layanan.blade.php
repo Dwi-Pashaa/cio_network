@@ -752,26 +752,63 @@
                     $('#w-pane-2').removeClass('active');
                     $('#w-pane-4').addClass('active');
                 } else {
-                    // Go to Step 3 (PPPoE Config)
-                    if (loadedCustomerData) {
-                        const uuid = loadedCustomerData.id.toUpperCase();
-                        const vlan = loadedCustomerData.vlan ? loadedCustomerData.vlan.toUpperCase() : '';
-                        const pppoeValue = vlan ? `${vlan}/${uuid}` : uuid;
-                        $('#pppoe_username').val(pppoeValue);
-                        $('#pppoe_password').val(pppoeValue);
-                    }
-
-                    $('#hs-2').removeClass('active').addClass('completed');
-                    $('#hs-3').addClass('active');
-                    $('.h-step-line').eq(1).addClass('completed');
-
-                    // Switch panes
-                    $('#w-pane-2').removeClass('active');
-                    $('#w-pane-3').addClass('active');
-
-                    validateStep3();
+                    // Voucher -> PPPoE: apply filtered options from search result
+                    applyFilteredOptions();
+                    goToStep3();
                 }
             });
+
+            function applyFilteredOptions() {
+                if (!loadedCustomerData || !loadedCustomerData.filtered_options) return;
+
+                const opts = loadedCustomerData.filtered_options;
+
+                // Rebuild paket dropdown
+                const $paketSelect = $('#paket_id');
+                $paketSelect.find('option:not([value=""])').remove();
+                $.each(opts.pakets, function(i, item) {
+                    $paketSelect.append($('<option>', { value: item.id, text: item.name }));
+                });
+
+                // Rebuild price dropdown
+                const $priceSelect = $('#price_id');
+                $priceSelect.find('option:not([value=""])').remove();
+                $.each(opts.prices, function(i, item) {
+                    $priceSelect.append($('<option>', { value: item.id, text: item.name }));
+                });
+
+                // Rebuild mic_radius dropdown
+                const $micSelect = $('#mic_radius_id');
+                $micSelect.find('option:not([value=""])').remove();
+                $.each(opts.mic_radiuses, function(i, item) {
+                    $micSelect.append($('<option>', { value: item.id, text: item.code + ' - ' + item.name }));
+                });
+
+                // Show badge if data is filtered by hometown
+                if (opts.filtered) {
+                    $('#search-mode-badge').css('color', '#7c3aed');
+                    $('#search-mode-text').text('Filter by kampung: ' + loadedCustomerData.hometown_id);
+                }
+            }
+
+            function goToStep3() {
+                if (loadedCustomerData) {
+                    const uuid = loadedCustomerData.id.toUpperCase();
+                    const vlan = loadedCustomerData.vlan ? loadedCustomerData.vlan.toUpperCase() : '';
+                    const pppoeValue = vlan ? `${vlan}/${uuid}` : uuid;
+                    $('#pppoe_username').val(pppoeValue);
+                    $('#pppoe_password').val(pppoeValue);
+                }
+
+                $('#hs-2').removeClass('active').addClass('completed');
+                $('#hs-3').addClass('active');
+                $('.h-step-line').eq(1).addClass('completed');
+
+                $('#w-pane-2').removeClass('active');
+                $('#w-pane-3').addClass('active');
+
+                validateStep3();
+            }
 
             // Step 3 validation function
             function validateStep3() {
