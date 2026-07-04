@@ -20,4 +20,4 @@ yarn-error.log
 /.vscode
 docker*
 mysql*
-.claude/*.claude/
+.claude/*
