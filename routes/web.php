@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Pages\DashboardController;
 use App\Http\Controllers\Pages\ProsedurController;
 use App\Http\Controllers\Pages\PublicCustomerController;
+use App\Http\Controllers\Pages\TroubleshootController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pergantian', [ProsedurController::class, 'index'])->name('public.prosedur');
     Route::get('/pergantian/search-customer', [ProsedurController::class, 'searchCustomer'])->name('public.prosedur.search_customer');
     Route::get('/pergantian/get-router-by-mac', [ProsedurController::class, 'getRouterByMac'])->name('public.prosedur.get_router_by_mac');
+
+    // Troubleshoot Tracking
+    Route::get('/ticket/search-customer', [TroubleshootController::class, 'searchCustomer'])
+        ->name('troubleshoot.search-customer');
+    Route::resource('ticket', TroubleshootController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update'])
+        ->names([
+            'index'  => 'troubleshoot.index',
+            'create' => 'troubleshoot.create',
+            'store'  => 'troubleshoot.store',
+            'show'   => 'troubleshoot.show',
+            'edit'   => 'troubleshoot.edit',
+            'update' => 'troubleshoot.update',
+        ]);
+    Route::get('/ticket/{id}/tracking', [TroubleshootController::class, 'tracking'])
+        ->name('troubleshoot.tracking');
+    Route::put('/ticket/{id}/status', [TroubleshootController::class, 'updateStatus'])
+        ->name('troubleshoot.update-status');
+    Route::post('/ticket/update-location', [TroubleshootController::class, 'updateLocation'])
+        ->name('troubleshoot.update-location');
+    Route::get('/ticket/{id}/tracking-data', [TroubleshootController::class, 'getTrackingData'])
+        ->name('troubleshoot.tracking-data');
+    Route::post('/ticket/{id}/progress/{step}', [TroubleshootController::class, 'uploadProgress'])
+        ->name('troubleshoot.progress.upload');
 });
 
 // Route::prefix('complain')->group(function () {

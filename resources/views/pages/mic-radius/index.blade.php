@@ -8,26 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
     <style>
-        .map-container {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .map-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
         .select2-container--bootstrap-5 .select2-selection {
             border-color: #e2e8f0;
             border-radius: 10px;
@@ -115,7 +95,7 @@
                             <th>NAMA RADIUS</th>
                             <th>KAMPUNG</th>
                             <th>USER</th>
-                            <th class="text-center">LOKASI</th>
+
                             <th>CREATED</th>
                             @if (auth()->user()->can('ubah mic radius') || auth()->user()->can('hapus mic radius'))
                                 <th class="text-center">ACTION</th>
@@ -173,8 +153,7 @@
                 <div class="modal-body" style="padding:1.5rem;">
                     <input type="hidden" name="type" id="type">
                     <input type="hidden" name="id" id="id">
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
+
 
                     <div class="row g-3">
                         <div class="col-md-12">
@@ -216,22 +195,7 @@
                         </div>
                     </div>
 
-                    {{-- Map Area --}}
-                    <div class="map-container" id="map-container">
-                        <iframe id="map-frame" loading="lazy" allowfullscreen
-                            referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                    <div class="mt-2 text-muted small px-1 d-flex gap-1 align-items-center" id="loc-status"
-                        style="display:none !important">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="text-success">
-                            <path d="M12 21a9 9 0 0 0 9 -9H3a9 9 0 0 0 9 9z" />
-                            <path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9 -9z" />
-                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                        </svg>
-                        <span>Lokasi berhasil dideteksi otomatis.</span>
-                    </div>
+
                 </div>
 
                 {{-- Modal Footer --}}
@@ -260,7 +224,6 @@
             initializeDataTable();
             initializePaginationAndSearch();
             initializeModalHandlers();
-            initializeGeolocation();
             initializeSelect2();
         });
 
@@ -275,7 +238,7 @@
                     }
                 },
                 order: [
-                    [6, 'desc']
+                    [5, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -315,24 +278,7 @@
                             return '<span class="text-muted">-</span>';
                         }
                     },
-                    {
-                        data: 'location',
-                        orderable: false,
-                        searchable: false,
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            if (row.latitude && row.longitude) {
-                                return `<a href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" class="btn-action d-inline-flex" style="background:#ecfdf5;color:#10b981;border:none;" title="Lihat Peta">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
-                                    <path d="M9 4v13" /><path d="M15 7v5" />
-                                    <path d="M21 15v4.5a1.5 1.5 0 0 1 -3 0v-4.5a1.5 1.5 0 0 1 3 0" />
-                                </svg>
-                            </a>`;
-                            }
-                            return '<span class="text-muted">-</span>';
-                        }
-                    },
+
                     {
                         data: 'created_at',
                         render: function(data) {
@@ -433,10 +379,6 @@
                 $(".modal-title").text("Tambah Mic Radius");
                 $("#type").val('create');
 
-                // Re-trigger loc if needed
-                if (!$("#latitude").val() && navigator.geolocation) {
-                    initializeGeolocation();
-                }
             });
 
             $("#storeBtn").on('click', handleSave);
@@ -454,26 +396,6 @@
                     searching: () => "Mencari..."
                 }
             });
-        }
-
-        function initializeGeolocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        let latitude = position.coords.latitude;
-                        let longitude = position.coords.longitude;
-                        $("#latitude").val(latitude);
-                        $("#longitude").val(longitude);
-                        $("#map-container").css("display", "block");
-                        $("#loc-status").attr("style", "display: flex !important;");
-                        $("#map-frame").attr("src",
-                            `https://www.google.com/maps?q=${latitude},${longitude}&hl=id&z=15&output=embed`);
-                    },
-                    function(error) {
-                        console.error("Error mendapatkan lokasi:", error.message);
-                    }
-                );
-            }
         }
 
         function resetModal() {
@@ -507,8 +429,7 @@
             formData.append("name", $("#name").val());
             formData.append("code", $("#code").val());
             formData.append("hometowns_id", $("#hometowns_id").val());
-            formData.append("latitude", $("#latitude").val());
-            formData.append("longitude", $("#longitude").val());
+
 
             let users = $("#user_id").val() || [];
             users.forEach(u => formData.append("user_id[]", u));
@@ -554,20 +475,12 @@
                     $("#code").val(data.code);
                     $("#name").val(data.name);
                     $("#hometowns_id").val(data.hometowns_id);
-                    $("#latitude").val(data.latitude);
-                    $("#longitude").val(data.longitude);
                     $("#type").val('update');
 
                     let selectedUsers = data.user.map(u => u.id);
                     if (select2User) select2User.val(selectedUsers).trigger("change");
 
-                    if (data.latitude && data.longitude) {
-                        $("#map-container").css("display", "block");
-                        $("#loc-status").attr("style", "display: none !important;");
-                        $("#map-frame").attr("src",
-                            `https://www.google.com/maps?q=${data.latitude},${data.longitude}&hl=id&z=15&output=embed`
-                            );
-                    }
+
                 })
                 .fail(function() {
                     showErrorMessage("Terjadi kesalahan saat mengambil data");

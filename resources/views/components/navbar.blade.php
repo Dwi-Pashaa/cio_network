@@ -400,7 +400,13 @@
                                                 href="{{ route('activity.log.index') }}" rel="noopener">
                                                 History Log
                                             </a>
-                                        @endcan
+                                         @endcan
+                                         @canany(['kelola troubleshoot', 'lihat troubleshoot'])
+                                            <a class="dropdown-item {{ Route::is('troubleshoot*') ? 'active' : '' }}"
+                                                href="{{ route('troubleshoot.index') }}" rel="noopener">
+                                                Open Ticket
+                                            </a>
+                                         @endcanany
                                     </div>
                                 </li>
                             @endcanany

@@ -23,6 +23,8 @@ class User extends Authenticatable
         'olt_id',
         'mic_radius_id',
         'organization_id',
+        'latitude',
+        'longitude',
     ];
 
     protected $hidden = [
