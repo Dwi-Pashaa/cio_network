@@ -9,7 +9,6 @@ use App\Models\MicRadius;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class MicRadiusController extends Controller
@@ -115,32 +114,7 @@ class MicRadiusController extends Controller
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
 
-        try {
-            $response = Http::withoutVerifying()
-                ->get('https://mixcio.topsetting.com:973/rad-admin');
-
-            if (!$response->successful()) {
-                return response("Gagal memuat halaman login Mix Radius: " . $response->status(), 500);
-            }
-
-            $html = $response->body();
-
-            $html = str_replace(
-                'name="username"',
-                'name="username" value="' . e($micRadius->name) . '"',
-                $html
-            );
-
-            $html = str_replace(
-                'name="password"',
-                'name="password" value="' . e($micRadius->mix_password) . '"',
-                $html
-            );
-
-            return response($html);
-        } catch (\Exception $e) {
-            return response("Gagal memuat halaman login Mix Radius: " . $e->getMessage(), 500);
-        }
+        return view('pages.mic-radius.mix-login', compact('micRadius'));
     }
 
     /**
