@@ -193,6 +193,19 @@
                             </select>
                             <span class="invalid-feedback error_hometowns_id"></span>
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label" for="mix_password">Password Mix Radius</label>
+                            <div class="input-group">
+                                <input type="password" name="mix_password" id="mix_password" class="form-control" placeholder="Password login Mix Radius" autocomplete="off">
+                                <button type="button" class="btn btn-outline-secondary" id="togglePassword" onclick="togglePasswordVisibility()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="eyeIcon">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="invalid-feedback error_mix_password"></span>
+                        </div>
                     </div>
 
 
@@ -404,6 +417,7 @@
             $("#code").val('');
             $("#name").val('');
             $("#hometowns_id").val('');
+            $("#mix_password").val('');
             clearValidationErrors();
         }
 
@@ -429,7 +443,7 @@
             formData.append("name", $("#name").val());
             formData.append("code", $("#code").val());
             formData.append("hometowns_id", $("#hometowns_id").val());
-
+            formData.append("mix_password", $("#mix_password").val());
 
             let users = $("#user_id").val() || [];
             users.forEach(u => formData.append("user_id[]", u));
@@ -475,6 +489,7 @@
                     $("#code").val(data.code);
                     $("#name").val(data.name);
                     $("#hometowns_id").val(data.hometowns_id);
+                    $("#mix_password").val(data.mix_password);
                     $("#type").val('update');
 
                     let selectedUsers = data.user.map(u => u.id);
@@ -485,6 +500,31 @@
                 .fail(function() {
                     showErrorMessage("Terjadi kesalahan saat mengambil data");
                 });
+        }
+
+        function mixLogin(id) {
+            const url = BASE + '/' + id + '/mix-login';
+            window.open(url, '_blank');
+        }
+
+        function togglePasswordVisibility() {
+            const input = $("#mix_password");
+            const icon = $("#eyeIcon");
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                icon.html(`
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+                `);
+            } else {
+                input.attr('type', 'password');
+                icon.html(`
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                `);
+            }
         }
 
         function deleteMicRadius(id) {

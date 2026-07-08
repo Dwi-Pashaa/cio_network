@@ -36,18 +36,19 @@ class TroubleshootDataTable
                 return $row->creator->name ?? '-';
             })
             ->addColumn('action', function ($row) {
-                if ($row->status === 'done') {
-                    return '<span class="text-success fw-semibold" style="font-size:.85rem;">Ticket sudah selesai</span>';
-                }
-
                 $btn = '';
-                if ($row->customer && $row->customer->latitude && $row->customer->longitude) {
-                    $btn .= '<a href="' . route('troubleshoot.tracking', $row->id) . '" class="btn btn-outline-info me-1">Tracking</a>';
-                }
                 if (auth()->user()->can('kelola troubleshoot')) {
-                    $btn .= '<button class="btn btn-outline-warning" onclick="editModal(' . $row->id . ')">Edit</button>';
+                    $btn .= '<button class="btn btn-outline-info me-1" onclick="detailModal(' . $row->id . ')">Detail</button>';
+                    if ($row->status !== 'done') {
+                        $btn .= '<button class="btn btn-outline-warning me-1" onclick="editModal(' . $row->id . ')">Edit</button>';
+                        $btn .= '<button class="btn btn-outline-danger" onclick="deleteTicket(' . $row->id . ')">Hapus</button>';
+                    }
+                } elseif ($row->customer && $row->customer->latitude && $row->customer->longitude) {
+                    if ($row->status !== 'done') {
+                        $btn .= '<a href="' . route('troubleshoot.tracking', $row->id) . '" class="btn btn-outline-info me-1">Tracking</a>';
+                    }
                 }
-                return $btn;
+                return $btn ?: '<span class="text-muted fw-semibold" style="font-size:.85rem;">-</span>';
             })
             ->rawColumns(['status', 'action'])
             ->make(true);

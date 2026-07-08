@@ -221,6 +221,98 @@
         </div>
     </div>
 </div>
+{{-- Detail Modal --}}
+<div class="modal modal-blur fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content modal-content-premium">
+            <div class="modal-header modal-header-premium">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83a2 2 0 0 1 -2.83 0l-.06 -.06a1.65 1.65 0 0 0 -1.82 -.33a1.65 1.65 0 0 0 -1 1.51v.11a2 2 0 0 1 -2 2a2 2 0 0 1 -2 -2v-.06a1.65 1.65 0 0 0 -1.02 -1.51a1.65 1.65 0 0 0 -1.82 .33l-.06 .06a2 2 0 0 1 -2.83 0a2 2 0 0 1 0 -2.83l.06 -.06a1.65 1.65 0 0 0 .33 -1.82a1.65 1.65 0 0 0 -1.51 -1H3a2 2 0 0 1 -2 -2a2 2 0 0 1 2 -2h.06a1.65 1.65 0 0 0 1.51 -1.02a1.65 1.65 0 0 0 -.33 -1.82l-.06 -.06a2 2 0 0 1 0 -2.83a2 2 0 0 1 2.83 0l.06 .06a1.65 1.65 0 0 0 1.82 .33h.09a1.65 1.65 0 0 0 1.51 -1.02v-.12a2 2 0 0 1 2 -2a2 2 0 0 1 2 2v.06a1.65 1.65 0 0 0 1.02 1.51a1.65 1.65 0 0 0 1.82 -.33l.06 -.06a2 2 0 0 1 2.83 0a2 2 0 0 1 0 2.83l-.06 .06a1.65 1.65 0 0 0 -.33 1.82v.09a1.65 1.65 0 0 0 1.51 1.51h.11a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-.06a1.65 1.65 0 0 0 -1.51 1.02" />
+                        </svg>
+                    </div>
+                    <h5 class="modal-title mb-0">Detail Progress Ticket</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding:1.5rem; background:#f8fafc;">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="premium-card">
+                            <div class="premium-card-header d-flex align-items-center gap-2">
+                                <div class="icon-wrapper" style="background:rgba(14,165,233,.1);color:#0ea5e9;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                                    </svg>
+                                </div>
+                                <span class="fw-bold text-dark" style="font-size:.88rem;" id="detailTicketTitle">Informasi Ticket</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-premium">Pelanggan</label>
+                                        <p class="fw-semibold mb-0" id="detailCustomer" style="padding:.45rem 0;">-</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-premium">Teknisi</label>
+                                        <p class="fw-semibold mb-0" id="detailTechnician" style="padding:.45rem 0;">-</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-premium">Status</label>
+                                        <p class="mb-0" id="detailStatus" style="padding:.45rem 0;">-</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-premium">Tanggal Dibuat</label>
+                                        <p class="fw-semibold mb-0" id="detailDate" style="padding:.45rem 0;">-</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label-premium">Deskripsi</label>
+                                        <p class="fw-semibold mb-0" id="detailDescription" style="padding:.45rem 0;">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="premium-card">
+                            <div class="premium-card-header d-flex align-items-center gap-2">
+                                <div class="icon-wrapper" style="background:rgba(34,197,94,.1);color:#22c55e;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h11"/>
+                                    </svg>
+                                </div>
+                                <span class="fw-bold text-dark" style="font-size:.88rem;">Progress Teknisi</span>
+                            </div>
+                            <div class="card-body p-3" id="detailProgressList">
+                                <p class="text-muted text-center mb-0 py-3">Memuat data progress...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer px-4 py-3 bg-light" style="border-top:1px solid #e2e8f0;">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Image Preview Modal --}}
+<div class="modal modal-blur fade" id="imagePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content modal-content-premium" style="background:#000;">
+            <div class="modal-header" style="border:none; padding:0.75rem 1rem; position:absolute; top:0; right:0; z-index:10;">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center" style="min-height:60vh;">
+                <img id="previewImage" src="" alt="Preview" style="max-width:100%; max-height:80vh; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
 @endpush
 
 @push('js')
@@ -426,5 +518,116 @@
             editSelect2 = null;
         }
     });
+
+    function detailModal(id) {
+        $('#detailTicketTitle').text('Memuat data...');
+        $('#detailCustomer').text('-');
+        $('#detailTechnician').text('-');
+        $('#detailStatus').text('-');
+        $('#detailDate').text('-');
+        $('#detailDescription').text('-');
+        $('#detailProgressList').html('<p class="text-muted text-center mb-0 py-3">Memuat data progress...</p>');
+
+        $.get(BASE + '/' + id + '/detail')
+            .done(function(res) {
+                const t = res.troubleshoot;
+
+                let statusBadge = '';
+                const statusMap = {
+                    'open': 'badge bg-warning text-white',
+                    'menuju_lokasi': 'badge bg-info text-white',
+                    'tiba_lokasi': 'badge bg-primary text-white',
+                    'perbaikan': 'badge bg-indigo text-white',
+                    'done': 'badge bg-success text-white',
+                    'cancelled': 'badge bg-danger text-white',
+                };
+                const badgeClass = statusMap[t.status] || 'badge bg-secondary text-white';
+                const statusLabel = t.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                statusBadge = '<span class="' + badgeClass + '">' + statusLabel + '</span>';
+
+                $('#detailTicketTitle').text('Ticket #' + t.id + ' — ' + (t.customer?.name || '-'));
+                $('#detailCustomer').html('<span class="text-muted">' + (t.customer?.name || '-') + ' &middot; ' + (t.customer?.mac_address || '-') + '</span>');
+                $('#detailTechnician').text(t.technician?.name || '-');
+                $('#detailStatus').html(statusBadge);
+                $('#detailDate').text(t.created_at ? moment(t.created_at).format('DD/MM/YYYY HH:mm:ss') : '-');
+                $('#detailDescription').text(t.description || '-');
+
+                let progressHtml = '';
+                $.each(res.progress, function(i, p) {
+                    const isCompleted = p.status === 'completed';
+                    const iconColor = isCompleted ? '#22c55e' : '#94a3b8';
+                    const bgColor = isCompleted ? 'rgba(34,197,94,.1)' : 'rgba(148,163,184,.1)';
+                    const textColor = isCompleted ? 'text-success' : 'text-muted';
+
+                    progressHtml += `
+                        <div class="d-flex align-items-start gap-3 mb-3 p-3 rounded" style="background:${bgColor}; border: 1px solid ${isCompleted ? 'rgba(34,197,94,.2)' : 'rgba(148,163,184,.2)'};">
+                            <div class="flex-shrink-0" style="width:36px;height:36px;border-radius:50%;background:${iconColor};display:flex;align-items:center;justify-content:center;">
+                                ${isCompleted
+                                    ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+                                    : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>'
+                                }
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold ${textColor}" style="font-size:.9rem;">Langkah ${p.step}: ${p.label}</h6>
+                                    <span class="badge ${isCompleted ? 'bg-success' : 'bg-secondary'}">${isCompleted ? 'Selesai' : 'Belum'}</span>
+                                </div>
+                                ${isCompleted && p.photo
+                                    ? `<div class="mt-2">
+                                        <img src="${p.photo}" alt="Foto step ${p.step}" class="rounded cursor-pointer" style="max-width:180px;max-height:120px;object-fit:cover;border:1px solid #e2e8f0;cursor:pointer;" onclick="previewImage('${p.photo}')">
+                                        ${p.address ? `<p class="mt-1 mb-0 small ${textColor}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${p.address}</p>` : ''}
+                                        ${p.updated_at ? `<p class="mb-0 small ${textColor}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${p.updated_at}</p>` : ''}
+                                    </div>`
+                                    : (isCompleted && !p.photo
+                                        ? `<p class="mt-1 mb-0 small ${textColor}">Selesai (tanpa foto)</p>`
+                                        : `<p class="mt-1 mb-0 small text-muted">Belum dikerjakan</p>`)
+                                }
+                            </div>
+                        </div>
+                    `;
+                });
+
+                $('#detailProgressList').html(progressHtml);
+                $('#detailModal').modal('show');
+            })
+            .fail(function() {
+                Swal.fire('Error', 'Gagal memuat detail ticket.', 'error');
+            });
+    }
+
+    function previewImage(src) {
+        $('#previewImage').attr('src', src);
+        $('#imagePreviewModal').modal('show');
+    }
+
+    function deleteTicket(id) {
+        Swal.fire({
+            title: 'Hapus Ticket?',
+            text: 'Data ticket dan semua progress akan dihapus permanen!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: BASE + '/' + id,
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    success: function(res) {
+                        Swal.fire('Berhasil', res.message || 'Ticket berhasil dihapus.', 'success');
+                        table.ajax.reload();
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Gagal menghapus ticket.', 'error');
+                    }
+                });
+            }
+        });
+    }
 </script>
 @endpush

@@ -9,6 +9,7 @@ use App\Models\MicRadius;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class MicRadiusController extends Controller
@@ -38,7 +39,8 @@ class MicRadiusController extends Controller
             "name" => "required|string",
             "code" => "required|string",
             "hometowns_id" => "required|string",
-            "user_id" => "required|array"
+            "user_id" => "required|array",
+            "mix_password" => "nullable|string"
         ]);
 
         if ($validation->fails()) {
@@ -78,7 +80,8 @@ class MicRadiusController extends Controller
             "name" => "required|string",
             "code" => "required|string",
             "hometowns_id" => "required|string",
-            "user_id" => "required|array"
+            "user_id" => "required|array",
+            "mix_password" => "nullable|string"
         ]);
 
         if ($validation->fails()) {
@@ -99,6 +102,45 @@ class MicRadiusController extends Controller
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
+    }
+
+    /**
+     * Proxy the Mix Radius login page and inject autofill values.
+     */
+    public function mixLogin(string $id)
+    {
+        $micRadius = MicRadius::find($id);
+
+        if (!$micRadius) {
+            return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
+        }
+
+        try {
+            $response = Http::withoutVerifying()
+                ->get('https://mixcio.topsetting.com:973/rad-admin');
+
+            if (!$response->successful()) {
+                return response("Gagal memuat halaman login Mix Radius: " . $response->status(), 500);
+            }
+
+            $html = $response->body();
+
+            $html = str_replace(
+                'name="username"',
+                'name="username" value="' . e($micRadius->name) . '"',
+                $html
+            );
+
+            $html = str_replace(
+                'name="password"',
+                'name="password" value="' . e($micRadius->mix_password) . '"',
+                $html
+            );
+
+            return response($html);
+        } catch (\Exception $e) {
+            return response("Gagal memuat halaman login Mix Radius: " . $e->getMessage(), 500);
+        }
     }
 
     /**

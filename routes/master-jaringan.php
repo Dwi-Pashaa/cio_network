@@ -75,6 +75,7 @@ Route::prefix('master-network')->group(function () {
         Route::get('/{id}/show', [MicRadiusController::class, 'show'])->name('mic.radius.show');
         Route::put('/{id}/update', [MicRadiusController::class, 'update'])->name('mic.radius.update');
         Route::delete('/{id}/destroy', [MicRadiusController::class, 'destroy'])->name('mic.radius.destroy');
+        Route::get('/{id}/mix-login', [MicRadiusController::class, 'mixLogin'])->name('mic.radius.mixLogin');
     });
 });
 

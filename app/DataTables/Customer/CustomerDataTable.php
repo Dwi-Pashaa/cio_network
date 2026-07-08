@@ -186,11 +186,18 @@ class CustomerDataTable
             ->addColumn('mic_radius_info', function ($row) {
                 if (!$row->mic_radius) return '-';
 
-                return sprintf(
+                $text = sprintf(
                     '%s - %s',
                     $row->mic_radius->code ?? '-',
                     $row->mic_radius->name ?? '-'
                 );
+
+                if (Auth::user()->can('lihat mic radius')) {
+                    $id = $row->mic_radius->id;
+                    return '<a href="javascript:void(0)" onclick="mixLogin(' . $id . ')" style="color:#6366f1;text-decoration:underline;cursor:pointer;">' . e($text) . '</a>';
+                }
+
+                return e($text);
             })
 
             // Kolom Tipe Pembayaran
@@ -331,7 +338,7 @@ class CustomerDataTable
                 );
             })
 
-            ->rawColumns(['email', 'telp', 'lokasi', 'ktp', 'action', 'checkbox'])
+            ->rawColumns(['email', 'telp', 'lokasi', 'ktp', 'action', 'checkbox', 'mic_radius_info'])
             ->make(true);
     }
 

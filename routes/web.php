@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ticket/search-customer', [TroubleshootController::class, 'searchCustomer'])
         ->name('troubleshoot.search-customer');
     Route::resource('ticket', TroubleshootController::class)
-        ->only(['index', 'create', 'store', 'show', 'edit', 'update'])
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
         ->names([
             'index'  => 'troubleshoot.index',
             'create' => 'troubleshoot.create',
@@ -60,7 +60,10 @@ Route::middleware(['auth'])->group(function () {
             'show'   => 'troubleshoot.show',
             'edit'   => 'troubleshoot.edit',
             'update' => 'troubleshoot.update',
+            'destroy' => 'troubleshoot.destroy',
         ]);
+    Route::get('/ticket/{id}/detail', [TroubleshootController::class, 'detail'])
+        ->name('troubleshoot.detail');
     Route::get('/ticket/{id}/tracking', [TroubleshootController::class, 'tracking'])
         ->name('troubleshoot.tracking');
     Route::put('/ticket/{id}/status', [TroubleshootController::class, 'updateStatus'])

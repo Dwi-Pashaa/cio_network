@@ -10,7 +10,7 @@ class MicRadius extends Model
 {
     use HasFactory;
     protected $table = 'mic_radius';
-    protected $fillable = ['organization_id', 'hometowns_id', 'code', 'name', 'latitude', 'longitude'];
+    protected $fillable = ['organization_id', 'hometowns_id', 'code', 'name', 'latitude', 'longitude', 'mix_password'];
 
     public function hometown()
     {

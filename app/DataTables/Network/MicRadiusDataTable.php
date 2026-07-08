@@ -17,6 +17,18 @@ class MicRadiusDataTable
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
 
+                if ($auth->can('lihat mic radius')) {
+                    $btn .= '<a href="javascript:void(0)" onclick="mixLogin(' . $row->id . ')"
+                        class="btn-action" style="background:#eef2ff;color:#6366f1;" title="Login Mix Radius">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                    </a>';
+                }
+
                 // Notice the can parameter on this row is 'edit mic radius', it looks like a slight typo on permission seeder in original code, I am keeping it as is here.
                 if ($auth->can('edit mic radius') || $auth->can('ubah mic radius')) {
                     $btn .= '<a href="javascript:void(0)" onclick="editModal(' . $row->id . ')"

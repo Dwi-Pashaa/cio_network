@@ -308,6 +308,7 @@
 @push('js')
     <script>
         const BASE = "{{ route('customer.index') }}";
+        const MIC_RADIUS_BASE = "{{ route('mic.radius.index') }}";
         let table;
 
         $(function() {
@@ -851,6 +852,11 @@
                 icon: "info",
                 title: message
             });
+        }
+
+        function mixLogin(id) {
+            const url = MIC_RADIUS_BASE + '/' + id + '/mix-login';
+            window.open(url, '_blank');
         }
 
         function resetButton(btn, text) {
