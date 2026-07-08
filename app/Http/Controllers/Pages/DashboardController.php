@@ -19,36 +19,45 @@ class DashboardController extends Controller
     {
         $filter = $request->filter;
 
+        $user = Auth::user();
+        $orgType = optional($user->organization)->type;
+
         $text = "";
         $data = collect();
 
+        $customerFilter = function ($q) use ($user, $orgType) {
+            if ($orgType !== 'internal') {
+                $q->where('organization_id', $user->organization_id);
+            }
+        };
+
         switch ($filter) {
             case 'kabupaten':
-                $data = Regency::withCount('customer')->get();
+                $data = Regency::withCount(['customer' => $customerFilter])->get();
                 $text = "Kabupaten / Kota";
                 break;
             case 'kecamatan':
-                $data = District::withCount('customer')->get();
+                $data = District::withCount(['customer' => $customerFilter])->get();
                 $text = "kecamatan";
                 break;
             case 'desa':
-                $data = Village::withCount('customer')->get();
+                $data = Village::withCount(['customer' => $customerFilter])->get();
                 $text = "desa";
                 break;
             case 'kampung':
-                $data = HomeTown::withCount('customer')->get();
+                $data = HomeTown::withCount(['customer' => $customerFilter])->get();
                 $text = "kampung";
                 break;
             case 'vlan':
-                $data = Vlan::withCount('customer')->get();
+                $data = Vlan::withCount(['customer' => $customerFilter])->get();
                 $text = "vlan";
                 break;
             case 'olt':
-                $data = OLT::withCount('customer')->get();
+                $data = OLT::withCount(['customer' => $customerFilter])->get();
                 $text = "olt";
                 break;
             case 'voucher & ppoe':
-                $data = Type::withCount('customer')->get();
+                $data = Type::withCount(['customer' => $customerFilter])->get();
                 $text = "voucher & ppoe";
                 break;
 
@@ -68,35 +77,44 @@ class DashboardController extends Controller
 
     public function getDetailCount($id, $text)
     {
+        $user = Auth::user();
+        $orgType = optional($user->organization)->type;
+
+        $customerFilter = function ($q) use ($user, $orgType) {
+            if ($orgType !== 'internal') {
+                $q->where('organization_id', $user->organization_id);
+            }
+        };
+
         $data = collect();
 
         switch ($text) {
             case 'kabupaten':
-                $data = Regency::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = Regency::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "Kabupaten / Kota";
                 break;
             case 'kecamatan':
-                $data = District::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = District::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "kecamatan";
                 break;
             case 'desa':
-                $data = Village::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = Village::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "desa";
                 break;
             case 'kampung':
-                $data = HomeTown::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = HomeTown::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "kampung";
                 break;
             case 'vlan':
-                $data = Vlan::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = Vlan::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "vlan";
                 break;
             case 'olt':
-                $data = OLT::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = OLT::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "olt";
                 break;
             case 'voucher & ppoe':
-                $data = Type::with('customer.type', 'customer.router', 'customer.user')->find($id);
+                $data = Type::with(['customer' => $customerFilter, 'customer.type', 'customer.router', 'customer.user'])->find($id);
                 $text = "voucher & ppoe";
                 break;
 

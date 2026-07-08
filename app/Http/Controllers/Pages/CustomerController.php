@@ -178,6 +178,8 @@ class CustomerController extends Controller
             $data['pppoe_username'] = null;
             $data['pppoe_password'] = null;
             $data['mic_radius_id'] = null;
+            $data['paket_id'] = null;
+            $data['price_id'] = null;
         }
 
         if (array_key_exists('type_name', $data)) {
@@ -292,6 +294,8 @@ class CustomerController extends Controller
             $data['pppoe_username'] = null;
             $data['pppoe_password'] = null;
             $data['mic_radius_id'] = null;
+            $data['paket_id'] = null;
+            $data['price_id'] = null;
         }
 
         unset($data['type_name']);

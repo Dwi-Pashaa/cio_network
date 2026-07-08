@@ -179,7 +179,10 @@ class CustomerDataTable
 
             // Kolom Tipe Paket
             ->addColumn('paket_name', function ($row) {
-                return $row->paket->name ?? '-';
+                if ($row->type && $row->type->name === 'PPPOE') {
+                    return $row->paket->name ?? '-';
+                }
+                return '-';
             })
 
             // Kolom Mix Radius
@@ -202,7 +205,10 @@ class CustomerDataTable
 
             // Kolom Tipe Pembayaran
             ->addColumn('price_name', function ($row) {
-                return $row->price->name ?? '-';
+                if ($row->type && $row->type->name === 'PPPOE') {
+                    return $row->price->name ?? '-';
+                }
+                return '-';
             })
 
             // Kolom Lokasi (Google Maps)

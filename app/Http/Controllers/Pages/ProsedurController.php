@@ -142,9 +142,12 @@ class ProsedurController extends Controller
             }
         }
 
-        // Also include pakets plotted to the current user (user_paket)
+        // Intersect with user's assigned data (user_paket, user_mic_radius)
         $userPaketIds = Auth::user()->paket()->pluck('paket.id');
-        $filteredPaketIds = $filteredPaketIds->merge($userPaketIds)->unique()->values();
+        $filteredPaketIds = $filteredPaketIds->intersect($userPaketIds);
+
+        $userMicRadiusIds = Auth::user()->micRadius()->pluck('mic_radius.id');
+        $filteredMicRadiusIds = $filteredMicRadiusIds->intersect($userMicRadiusIds);
 
         // Fetch actual resources
         $filteredPakets = collect();
@@ -167,12 +170,22 @@ class ProsedurController extends Controller
                 ->get(['id', 'code', 'name']);
         }
 
-        // Fallback: all data for organization
+        // Fallback: user's assigned data first, then all organization data
+        if ($filteredPakets->isEmpty() && $userPaketIds->isNotEmpty()) {
+            $filteredPakets = Paket::whereIn('id', $userPaketIds)
+                ->where('organization_id', $orgId)
+                ->get(['id', 'name']);
+        }
         if ($filteredPakets->isEmpty()) {
             $filteredPakets = Paket::where('organization_id', $orgId)->get(['id', 'name']);
         }
         if ($filteredPrices->isEmpty()) {
             $filteredPrices = Price::where('organization_id', $orgId)->get(['id', 'name']);
+        }
+        if ($filteredMicRadiuses->isEmpty() && $userMicRadiusIds->isNotEmpty()) {
+            $filteredMicRadiuses = MicRadius::whereIn('id', $userMicRadiusIds)
+                ->where('organization_id', $orgId)
+                ->get(['id', 'code', 'name']);
         }
         if ($filteredMicRadiuses->isEmpty()) {
             $filteredMicRadiuses = MicRadius::where('organization_id', $orgId)->get(['id', 'code', 'name']);

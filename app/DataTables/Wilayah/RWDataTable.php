@@ -54,7 +54,7 @@ class RWDataTable
      */
     private function query()
     {
-        return RW::query();
+        return RW::where('organization_id', Auth::user()->organization_id);
     }
 
     /**

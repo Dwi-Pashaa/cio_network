@@ -977,6 +977,8 @@
                 } else {
                     document.getElementById('pppoe-show').style.display = 'none';
                     $("#type_name").val('')
+                    $("#paket_id").val('');
+                    $("#price_id").val('');
                 }
             });
         });

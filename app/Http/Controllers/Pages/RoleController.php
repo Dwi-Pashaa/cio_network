@@ -124,7 +124,68 @@ class RoleController extends Controller
 
         $permissions = Permission::all();
         $organizationPermissions = $role->permissions()->pluck('name')->toArray();
-        return view("pages.role.permission", compact("role", "permissions", "organizationPermissions"));
+
+        $groupedPermissions = [];
+        $source = auth()->user()->organization->type === 'internal'
+            ? $permissions->pluck('name')->toArray()
+            : $organizationPermissions;
+
+        foreach ($source as $permName) {
+            $group = $this->getPermissionGroup($permName);
+            $groupedPermissions[$group][] = $permName;
+        }
+
+        return view("pages.role.permission", compact("role", "groupedPermissions"));
+    }
+
+    private function getPermissionGroup(string $name): string
+    {
+        $groups = [
+            'Pelanggan'           => ['pelanggan'],
+            'Tipe Pelanggan'      => ['tipe pelanggan'],
+            'Tipe Layanan'        => ['tipe layanan'],
+            'Level'               => ['level'],
+            'User'                => ['user'],
+            'Organisasi'          => ['organisasi'],
+            'Router'              => ['router'],
+            'VLAN'                => ['vlan'],
+            'ODC'                 => ['odc'],
+            'ODP'                 => ['odp'],
+            'OLT'                 => ['olt'],
+            'Server'              => ['server'],
+            'Mic Radius'          => ['mic radius', 'mic_radius'],
+            'MAC Address'         => ['mac address', 'mac_address'],
+            'Patch Core'          => ['patch core', 'patch_core'],
+            'PLC'                 => ['plc'],
+            'Stock'               => ['stock', 'barang'],
+            'Paket'               => ['paket', 'tipe paket'],
+            'Pembayaran'          => ['pembayaran', 'tipe pembayaran'],
+            'Kabupaten'           => ['kabupaten'],
+            'Kecamatan'           => ['kecamatan'],
+            'Kampung'             => ['kampung'],
+            'Desa'                => ['desa'],
+            'RT'                  => [' rt'],
+            'RW'                  => [' rw'],
+            'Halaman'             => ['halaman'],
+            'Histori Pemasangan'  => ['histori'],
+            'Chatting'            => ['chatting'],
+            'Verifikasi'          => ['verifikasi'],
+            'Download'            => ['download'],
+            'Layanan'             => ['pergantian', 'pemutusan'],
+            'Prosedur'            => ['prosedur', 'antrean', 'rekap', 'validator', 'template'],
+            'Troubleshoot'        => ['troubleshoot'],
+            'Log'                 => ['log'],
+        ];
+
+        foreach ($groups as $group => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($name, $keyword)) {
+                    return $group;
+                }
+            }
+        }
+
+        return 'Lainnya';
     }
 
     public function savePermission(Request $request, string $id)
