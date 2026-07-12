@@ -13,6 +13,11 @@ class Router extends Model
     protected $table = 'router_networks';
     protected $fillable = ['code', 'name', 'organization_id'];
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
+
     protected static function boot()
     {
         parent::boot();

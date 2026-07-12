@@ -6,6 +6,7 @@ use App\DataTables\Network\OLTDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\OLT;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -22,8 +23,9 @@ class OLTController extends Controller
         }
 
         $hometown = HomeTown::select(['id', 'name'])->get();
+        $organizations = Organization::all();
 
-        return view("pages.olt.index", compact("hometown"));
+        return view("pages.olt.index", compact("hometown", "organizations"));
     }
 
     public function generateCode()

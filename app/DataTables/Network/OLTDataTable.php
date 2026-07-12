@@ -2,7 +2,6 @@
 
 namespace App\DataTables\Network;
 
-use App\Models\ODP;
 use App\Models\OLT;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -11,13 +10,14 @@ class OLTDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
             ->filter(function ($query) {
                 $this->search($query);
             }, false)
-
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
@@ -48,21 +48,32 @@ class OLTDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return OLT::with([
-            'hometown'
-        ])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->select('olt_networks.*');
+        $query = OLT::with(['hometown'])
+            ->join('organization', 'organization.id', '=', 'olt_networks.organization_id')
+            ->select('olt_networks.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('olt_networks.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('olt_networks.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     private function search($query)
@@ -72,9 +83,10 @@ class OLTDataTable
         if (!$search) return;
 
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%")
-                ->orWhere('address', 'like', "%{$search}%")
+            $q->where('olt_networks.name', 'like', "%{$search}%")
+                ->orWhere('olt_networks.code', 'like', "%{$search}%")
+                ->orWhere('olt_networks.address', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

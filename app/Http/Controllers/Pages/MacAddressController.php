@@ -6,6 +6,7 @@ use App\DataTables\Network\MacAddressDataTable;
 use App\Exports\MacAddressLabelExport;
 use App\Http\Controllers\Controller;
 use App\Models\MacAddress;
+use App\Models\Organization;
 use App\Models\Router;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,8 +26,9 @@ class MacAddressController extends Controller
 
         $user = User::all();
         $router = Router::all();
+        $organizations = Organization::all();
 
-        return view('pages.mac-address.index', compact('user', 'router'));
+        return view('pages.mac-address.index', compact('user', 'router', 'organizations'));
     }
 
     public function statistic(Request $request)

@@ -27,4 +27,9 @@ class UserRouter extends Model
             ->withPivot('total')
             ->withTimestamps();
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
 }

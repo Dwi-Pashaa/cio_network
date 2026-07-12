@@ -19,6 +19,11 @@ class Server extends Model
         return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     protected static function boot()
     {
         parent::boot();

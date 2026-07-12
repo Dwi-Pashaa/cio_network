@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Stock\PLCDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\PLC;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,9 @@ class PLCController extends Controller
             return (new PLCDataTable)->get();
         }
 
-        return view("pages.plc.index");
+        $organizations = Organization::all();
+
+        return view("pages.plc.index", compact('organizations'));
     }
 
     /**

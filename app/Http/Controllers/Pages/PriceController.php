@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Customer\CustomerPriceDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Price;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,9 @@ class PriceController extends Controller
             return (new CustomerPriceDataTable)->get();
         }
 
-        return view("pages.price.index");
+        $organizations = Organization::all();
+
+        return view("pages.price.index", compact('organizations'));
     }
 
     /**

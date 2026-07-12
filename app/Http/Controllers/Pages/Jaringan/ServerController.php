@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages\Jaringan;
 use App\DataTables\Network\ServerDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
+use App\Models\Organization;
 use App\Models\Server;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,8 +23,9 @@ class ServerController extends Controller
         }
 
         $hometown = HomeTown::select(['id', 'name'])->get();
+        $organizations = Organization::all();
 
-        return view("pages.server.index", compact("hometown"));
+        return view("pages.server.index", compact("hometown", "organizations"));
     }
 
     public function generateCode()

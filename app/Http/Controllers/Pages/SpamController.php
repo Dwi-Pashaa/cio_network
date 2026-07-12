@@ -6,6 +6,7 @@ use App\DataTables\Pages\SpamDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\MacAddress;
+use App\Models\Organization;
 use App\Models\SwitchDevice;
 use App\Models\UserPatchCore;
 use App\Models\UserRouter;
@@ -50,7 +51,9 @@ class SpamController extends Controller
             ->paginate($sort);
 
 
-        return view("pages.spam.index", compact("switchs"));
+        $organizations = Organization::all();
+
+        return view("pages.spam.index", compact("switchs", "organizations"));
     }
 
     public function outSpam($id)

@@ -6,6 +6,7 @@ use App\DataTables\Network\MicRadiusDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\MicRadius;
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,8 +26,9 @@ class MicRadiusController extends Controller
         $hometown = HomeTown::all();
 
         $user = User::all();
+        $organizations = Organization::all();
 
-        return view("pages.mic-radius.index", compact("hometown", "user"));
+        return view("pages.mic-radius.index", compact("hometown", "user", "organizations"));
     }
 
     /**

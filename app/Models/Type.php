@@ -17,4 +17,9 @@ class Type extends Model
     {
         return $this->hasMany(Customer::class, 'types_id', 'id');
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
 }

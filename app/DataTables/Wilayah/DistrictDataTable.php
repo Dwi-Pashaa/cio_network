@@ -17,6 +17,7 @@ class DistrictDataTable
                 $this->search($query);
             }, false)
 
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $editId = $row->id;
                 $deleteId = $row->id;
@@ -56,9 +57,21 @@ class DistrictDataTable
      */
     private function query()
     {
-        return District::with('regencie')
-            ->where('organization_id', auth()->user()->organization_id)
-            ->select('districts.*');
+        $query = District::with('regencie')
+            ->join('organization', 'organization.id', '=', 'districts.organization_id')
+            ->select('districts.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('districts.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('districts.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**
@@ -75,8 +88,9 @@ class DistrictDataTable
         }
 
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%")
+            $q->where('districts.name', 'like', "%{$search}%")
+                ->orWhere('districts.code', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('regencie', function ($r) use ($search) {
                     $r->where('name', 'like', "%{$search}%");
                 });

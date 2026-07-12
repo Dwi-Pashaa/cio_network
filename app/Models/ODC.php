@@ -37,4 +37,9 @@ class ODC extends Model
     {
         return $this->belongsTo(PLC::class, 'plc_id', 'id');
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
 }

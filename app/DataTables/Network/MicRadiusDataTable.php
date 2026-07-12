@@ -10,9 +10,11 @@ class MicRadiusDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
@@ -29,7 +31,6 @@ class MicRadiusDataTable
                     </a>';
                 }
 
-                // Notice the can parameter on this row is 'edit mic radius', it looks like a slight typo on permission seeder in original code, I am keeping it as is here.
                 if ($auth->can('edit mic radius') || $auth->can('ubah mic radius')) {
                     $btn .= '<a href="javascript:void(0)" onclick="editModal(' . $row->id . ')"
                         class="btn-action btn-action-edit" title="Edit">
@@ -56,42 +57,49 @@ class MicRadiusDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->filter(function ($query) {
                 $this->search($query);
             }, false)
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return MicRadius::with(['hometown', 'user'])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->select('mic_radius.*')
-            ->orderBy('id', 'DESC');
+        $query = MicRadius::with(['hometown', 'user'])
+            ->join('organization', 'organization.id', '=', 'mic_radius.organization_id')
+            ->select('mic_radius.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('mic_radius.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('mic_radius.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
-    /**
-     * Custom search
-     */
     private function search($query)
     {
         $search = request('search.value');
         if (!$search) return;
 
         $query->where(function ($q) use ($search) {
-            $q->where('code', 'like', "%{$search}%")
-                ->orWhere('name', 'like', "%{$search}%")
-
+            $q->where('mic_radius.code', 'like', "%{$search}%")
+                ->orWhere('mic_radius.name', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('user', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

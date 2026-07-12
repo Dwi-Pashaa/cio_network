@@ -36,6 +36,7 @@ class ValidationController extends Controller
 
             if ($tab === 'queue') {
                 $query = ProsedurSpam::with([
+                    'organization',
                     'customer.olt',
                     'customer.mic_radius',
                     'customer.router',
@@ -58,6 +59,10 @@ class ValidationController extends Controller
                 // Filter per jenis prosedur jika diminta (dari tab Data Spam)
                 if ($type) {
                     $query->where('prosedur_type', $type);
+                }
+
+                if (auth()->user()->hasPermissionTo('filter organization') && $request->input('organization_id')) {
+                    $query->where('organization_id', $request->input('organization_id'));
                 }
 
                 $items = $query->orderBy('created_at', 'desc')
@@ -110,6 +115,7 @@ class ValidationController extends Controller
 
             // Tab rekap historis (approved & rejected)
             $query = ProsedurSpam::with([
+                'organization',
                 'customer.olt',
                 'customer.mic_radius',
                 'customer.router',
@@ -133,6 +139,10 @@ class ValidationController extends Controller
 
             if ($type) {
                 $query->where('prosedur_type', $type);
+            }
+
+            if (auth()->user()->hasPermissionTo('filter organization') && $request->input('organization_id')) {
+                $query->where('organization_id', $request->input('organization_id'));
             }
 
             $perPage = $request->input('per_page', 10);

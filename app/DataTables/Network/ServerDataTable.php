@@ -10,13 +10,14 @@ class ServerDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
             ->filter(function ($query) {
                 $this->search($query);
             }, false)
-
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
@@ -47,21 +48,32 @@ class ServerDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return Server::with([
-            'hometown'
-        ])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->select('server.*');
+        $query = Server::with(['hometown'])
+            ->join('organization', 'organization.id', '=', 'server.organization_id')
+            ->select('server.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('server.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('server.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     private function search($query)
@@ -71,10 +83,11 @@ class ServerDataTable
         if (!$search) return;
 
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%")
-                ->orWhere('address', 'like', "%{$search}%")
-                ->orWhere('link', 'like', "%{$search}%")
+            $q->where('server.name', 'like', "%{$search}%")
+                ->orWhere('server.code', 'like', "%{$search}%")
+                ->orWhere('server.address', 'like', "%{$search}%")
+                ->orWhere('server.link', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

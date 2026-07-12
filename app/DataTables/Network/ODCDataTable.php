@@ -10,14 +10,14 @@ class ODCDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
-            // 🔥 INI WAJIB ADA
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
             ->filter(function ($query) {
                 $this->search($query);
-            }, false) // false = MATIKAN DEFAULT SEARCH
-
+            }, false)
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
@@ -48,25 +48,38 @@ class ODCDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return ODC::with([
+        $query = ODC::with([
             'plc',
             'patchCore',
             'rt',
             'rw',
             'hometown'
         ])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->select('odc_networks.*');
+            ->join('organization', 'organization.id', '=', 'odc_networks.organization_id')
+            ->select('odc_networks.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('odc_networks.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('odc_networks.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     private function search($query)
@@ -78,23 +91,19 @@ class ODCDataTable
         $query->where(function ($q) use ($search) {
             $q->where('home_odc', 'like', "%{$search}%")
                 ->orWhere('code', 'like', "%{$search}%")
-
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('rt', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('rw', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('plc', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('patchCore', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

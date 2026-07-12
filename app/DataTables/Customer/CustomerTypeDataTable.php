@@ -2,6 +2,7 @@
 
 namespace App\DataTables\Customer;
 
+use App\Models\Organization;
 use App\Models\Type;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -19,6 +20,7 @@ class CustomerTypeDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 return '<div class="d-flex justify-content-center gap-2">
                     <a href="javascript:void(0)" onclick="editModal(' . $row->id . ')" class="btn-action btn-edit" title="Edit">
@@ -35,11 +37,27 @@ class CustomerTypeDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return Type::where('status', '0')
-            ->where('organization_id', Auth::user()->organization_id);
+        $query = Type::query()
+            ->join('organization', 'organization.id', '=', 'customer_types.organization_id')
+            ->select('customer_types.*', 'organization.name as organization_name')
+            ->where('status', '0');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('customer_types.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('customer_types.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**

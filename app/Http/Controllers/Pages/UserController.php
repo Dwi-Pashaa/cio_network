@@ -10,6 +10,7 @@ use App\Models\OLT;
 use App\Models\OLTUser;
 use App\Models\Pages;
 use App\Models\Regency;
+use App\Models\Organization;
 use App\Models\User;
 use Google\Service\Analytics\RemarketingAudienceAudienceDefinition;
 use Illuminate\Http\Request;
@@ -28,7 +29,9 @@ class UserController extends Controller
             return (new UserDataTable)->get();
         }
 
-        return view("pages.user.index");
+        $organizations = Organization::all();
+
+        return view("pages.user.index", compact('organizations'));
     }
 
     /**

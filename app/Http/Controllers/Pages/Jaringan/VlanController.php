@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages\Jaringan;
 
 use App\DataTables\Network\VlanDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Router;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
@@ -21,7 +22,9 @@ class VlanController extends Controller
             return (new VlanDataTable)->get();
         }
 
-        return view("pages.vlan.index");
+        $organizations = Organization::all();
+
+        return view("pages.vlan.index", compact('organizations'));
     }
 
     /**

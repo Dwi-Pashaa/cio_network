@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\HomeTown;
 use App\Models\OLT;
+use App\Models\Organization;
 use App\Models\Regency;
 use App\Models\Type;
 use App\Models\Village;
@@ -70,9 +71,16 @@ class DashboardController extends Controller
         $userRouter = Auth::user()->router()->get();
         $userPatchCore = Auth::user()->patchCore()->get();
 
-        $userPages = Auth::user()->pages()->with(['regencie', 'district', 'village', 'vlan.vlan'])->get();
+        $userPagesQuery = Auth::user()->pages()->with(['regencie', 'district', 'village', 'vlan.vlan']);
 
-        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages"));
+        if (auth()->user()->hasPermissionTo('filter organization') && $request->filled('organization_id')) {
+            $userPagesQuery->where('organization_id', $request->input('organization_id'));
+        }
+
+        $userPages = $userPagesQuery->get();
+        $organizations = Organization::all();
+
+        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages", "organizations"));
     }
 
     public function getDetailCount($id, $text)

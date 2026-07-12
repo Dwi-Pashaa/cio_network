@@ -50,6 +50,18 @@
                 data
             </div>
 
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; font-weight:600; color:var(--text-muted);">
+                    Organisasi
+                    <select id="filter-organization" class="org-input" style="padding: .35rem .6rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="search-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -72,6 +84,9 @@
                         <th style="text-align:center;">Akses Hal.</th>
                         <th style="text-align:center;">OLT</th>
                         <th style="text-align:center;">Mic Radius</th>
+                                                        @if (Auth::user()->organization->type === 'internal')
+                                                            <th style="text-align:center;">Organisasi/Mitra</th>
+                                                        @endif
                         <th>Created At</th>
                         <th style="text-align:right;">Aksi</th>
                     </tr>
@@ -139,7 +154,7 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[8, 'desc']], // Created At Sorting Default
+            order: [[{{ Auth::user()->organization->type === 'internal' ? 9 : 8 }}, 'desc']], // Created At Sorting Default
             pageLength: 10,
             dom: 'rt', 
             language: {
@@ -170,6 +185,9 @@
                 { data: 'pages', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Halaman') },
                 { data: 'olt', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses OLT') },
                 { data: 'mix_radius', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Mikrotik / Radius') },
+                @if (Auth::user()->organization->type === 'internal')
+                { data: 'organization_name', orderable: false, className: 'text-center' },
+                @endif
                 { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
                 { data: 'action', orderable: false, searchable: false, className: 'text-end' },
             ],
@@ -185,6 +203,10 @@
 
         $("#search-input").on('keyup', function() {
             table.search(this.value).draw();
+        });
+
+        $("#filter-organization").change(function() {
+            table.ajax.url(BASE + '?organization_id=' + this.value).load();
         });
     });
 

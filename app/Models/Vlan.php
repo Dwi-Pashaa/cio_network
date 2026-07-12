@@ -18,6 +18,11 @@ class Vlan extends Model
         return $this->hasMany(Customer::class, 'vlans_id', 'id');
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     protected static function boot()
     {
         parent::boot();

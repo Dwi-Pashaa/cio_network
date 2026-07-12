@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Customer\CustomerTipeDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,9 @@ class TypeCustomerController extends Controller
             return (new CustomerTipeDataTable)->get();
         }
 
-        return view("pages.type-customer.index");
+        $organizations = Organization::all();
+
+        return view("pages.type-customer.index", compact('organizations'));
     }
 
     /**

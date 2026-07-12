@@ -762,10 +762,32 @@
                         </div>
                         Halaman Dapat Diakses — <span style="color:#16a34a;">{{ Auth::user()->name }}</span>
                     </div>
-                    <span
-                        style="background:#dcfce7;color:#16a34a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
-                        {{ $userPages->count() }} Halaman
-                    </span>
+                    <div class="d-flex align-items-center gap-3">
+                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                            <form action="" method="GET" style="margin:0;">
+                                @if(request('filter'))
+                                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                @endif
+                                <select name="organization_id" onchange="this.form.submit()"
+                                    style="font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid #e2e8f0;background:white;color:#475569;cursor:pointer;">
+                                    <option value="">Semua Organisasi</option>
+                                    @foreach ($organizations as $org)
+                                        <option value="{{ $org->id }}" {{ request('organization_id') == $org->id ? 'selected' : '' }}>
+                                            {{ $org->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if(request('organization_id'))
+                                    <a href="{{ request('filter') ? url()->current() . '?filter=' . request('filter') : url()->current() }}"
+                                        style="font-size:.7rem;color:#ef4444;text-decoration:none;margin-left:4px;font-weight:600;">&times;</a>
+                                @endif
+                            </form>
+                        @endif
+                        <span
+                            style="background:#dcfce7;color:#16a34a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
+                            {{ $userPages->count() }} Halaman
+                        </span>
+                    </div>
                 </div>
 
                 @if ($userPages->count() > 0)

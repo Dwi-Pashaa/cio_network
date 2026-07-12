@@ -197,6 +197,17 @@
                     @endforeach
                 </select>
             </div>
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-bold">Organisasi</span>
+                    <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             <div class="search-wrapper ms-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,6 +225,9 @@
                         <th class="w-1">No</th>
                         <th>Nama</th>
                         <th>No Telephone</th>
+                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                            <th>Organisasi/Mitra</th>
+                        @endif
                         <th>Fitur KTP</th>
                         <th>Created</th>
                         <th>Action</th>
@@ -528,10 +542,11 @@
                         d._token = $('meta[name="csrf-token"]').attr('content');
                         d.filter_hometown = $('#filter_hometown').val();
                         d.filter_village = $('#filter_village').val();
+                        d.organization_id = $('#filter-organization').val();
                     }
                 },
                 order: [
-                    [4, 'desc']
+                    [{{ auth()->user()->hasPermissionTo('filter organization') ? 5 : 4 }}, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -548,6 +563,12 @@
                         data: 'telp',
                         defaultContent: '-'
                     },
+@if (auth()->user()->hasPermissionTo('filter organization'))
+                    {
+                        data: 'organization_name',
+                        defaultContent: '-'
+                    },
+@endif
                     {
                         data: 'is_ktp',
                         render: function(data) {
@@ -679,6 +700,10 @@
             });
 
             $('#filter_hometown, #filter_village').on('change', function() {
+                table.ajax.reload();
+            });
+
+            $("#filter-organization").on('change', function() {
                 table.ajax.reload();
             });
         }

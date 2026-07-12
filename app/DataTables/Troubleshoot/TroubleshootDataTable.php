@@ -29,6 +29,9 @@ class TroubleshootDataTable
             ->addColumn('customer_name', function ($row) {
                 return $row->customer->name ?? '-';
             })
+            ->addColumn('organization_name', function ($row) {
+                return optional(optional($row->customer)->organization)->name ?? '-';
+            })
             ->addColumn('technician_name', function ($row) {
                 return $row->technician->name ?? '-';
             })
@@ -58,11 +61,23 @@ class TroubleshootDataTable
     {
         $request = request();
         $search  = $request->search['value'] ?? null;
+        $user    = Auth::user();
 
-        $query = Troubleshoot::with(['customer', 'technician', 'creator'])
-            ->whereHas('customer', function ($q) {
-                $q->where('organization_id', Auth::user()->organization_id);
+        $query = Troubleshoot::with(['customer.organization', 'technician', 'creator']);
+
+        // Mitra scope: only see tickets from their organization's customers
+        if ($user->organization && $user->organization->type === 'mitra') {
+            $query->whereHas('customer', function ($q) use ($user) {
+                $q->where('organization_id', $user->organization_id);
             });
+        }
+
+        // Filter by organization (for internal users with permission)
+        if ($user->hasPermissionTo('filter organization') && $request->filled('organization_id')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('organization_id', $request->input('organization_id'));
+            });
+        }
 
         if (!auth()->user()->can('kelola troubleshoot')) {
             $query->where('technician_id', Auth::id())

@@ -10,20 +10,19 @@ class MacAddressDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
-            // ⛔ Matikan default search → pakai custom
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
             ->filter(function ($query) {
                 $this->search($query);
             }, false)
-
             ->addColumn('created_at_formatted', function ($row) {
                 return $row->created_at
                     ? $row->created_at->format('d/m/Y H:i:s')
                     : '-';
             })
-
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
@@ -54,47 +53,46 @@ class MacAddressDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
-     * =========================
-     * BASE QUERY (FILTER ONLY)
-     * =========================
+     * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        $authUser = Auth::user();
-
         $query = MacAddress::with(['customer', 'user', 'router'])
-            ->where('organization_id', $authUser->organization_id)
-            ->orderByDesc('id');
+            ->join('organization', 'organization.id', '=', 'mac_address.organization_id')
+            ->select('mac_address.*', 'organization.name as organization_name');
 
-        // 🔐 Non-admin hanya datanya sendiri
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('mac_address.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('mac_address.organization_id', request('organization_id'));
+        }
+
         if (!$authUser->hasRole('Admin')) {
-            $query->where('user_id', $authUser->id);
+            $query->where('mac_address.user_id', $authUser->id);
         }
 
-        // 👤 Filter user
         if (request()->filled('user')) {
-            $query->where('user_id', request('user'));
+            $query->where('mac_address.user_id', request('user'));
         }
 
-        // 📅 Filter tanggal
         if (request()->filled('date')) {
-            $query->whereDate('created_at', request('date'));
+            $query->whereDate('mac_address.created_at', request('date'));
         }
 
         return $query;
     }
 
-    /**
-     * =========================
-     * GLOBAL SEARCH
-     * =========================
-     */
     private function search($query)
     {
         $search = request('search.value');
@@ -102,16 +100,14 @@ class MacAddressDataTable
         if (!$search) return;
 
         $query->where(function ($q) use ($search) {
-            $q->where('mac_address', 'like', "%{$search}%")
-
+            $q->where('mac_address.mac_address', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('customer', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('router', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })
-
                 ->orWhereHas('user', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 });

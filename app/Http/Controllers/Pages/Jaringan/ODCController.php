@@ -6,6 +6,7 @@ use App\DataTables\Network\ODCDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\HomeTown;
 use App\Models\ODC;
+use App\Models\Organization;
 use App\Models\PatchCore;
 use App\Models\PLC;
 use App\Models\RT;
@@ -33,8 +34,9 @@ class ODCController extends Controller
         $rws = RW::select(['id', 'name'])->get();
         $plcs = PLC::select(['id', 'name'])->get();
         $patchCores = PatchCore::select(['id', 'name'])->get();
+        $organizations = Organization::all();
 
-        return view("pages.odc.index", compact("hometown", "rts", "rws", "plcs", "patchCores"));
+        return view("pages.odc.index", compact("hometown", "rts", "rws", "plcs", "patchCores", "organizations"));
     }
 
     /**

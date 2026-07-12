@@ -17,6 +17,7 @@ class UserPatchCoreDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $user = Auth::user();
                 $buttons = '<div class="d-flex justify-content-center gap-2">';
@@ -52,18 +53,35 @@ class UserPatchCoreDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return UserPatchCore::query()
+        $query = UserPatchCore::query()
             ->join('users', 'users.id', '=', 'user_patch_core.user_id')
             ->join('patch_core', 'patch_core.id', '=', 'user_patch_core.patch_core_id')
+            ->join('organization', 'organization.id', '=', 'user_patch_core.organization_id')
             ->select([
                 'user_patch_core.*',
                 'users.name as user_name',
-                'patch_core.name as patch_core_name'
-            ])
-            ->where('user_patch_core.organization_id', Auth::user()->organization_id);
+                'patch_core.name as patch_core_name',
+                'organization.name as organization_name'
+            ]);
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        // Jika user login bertipe mitra, batasi ke organization_id yang sama
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('user_patch_core.organization_id', $authUser->organization_id);
+        }
+
+        // Filter by organization (hanya user dengan permission filter organization)
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('user_patch_core.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**

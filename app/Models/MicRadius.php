@@ -17,6 +17,11 @@ class MicRadius extends Model
         return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(

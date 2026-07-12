@@ -17,6 +17,7 @@ class VlanDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $editId = $row->id;
                 $deleteId = $row->id;
@@ -55,10 +56,26 @@ class VlanDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return Vlan::where('organization_id', Auth::user()->organization_id);
+        $query = Vlan::query()
+            ->join('organization', 'organization.id', '=', 'vlan_networks.organization_id')
+            ->select('vlan_networks.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('vlan_networks.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('vlan_networks.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**
@@ -69,7 +86,7 @@ class VlanDataTable
         $search = request('search.value');
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('vlan_networks.name', 'like', "%{$search}%");
         }
     }
 }

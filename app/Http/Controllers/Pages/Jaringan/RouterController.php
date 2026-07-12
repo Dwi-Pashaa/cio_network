@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages\Jaringan;
 
 use App\DataTables\Network\RouterDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Router;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -19,7 +20,9 @@ class RouterController extends Controller
             return (new RouterDataTable)->get();
         }
 
-        return view("pages.router.index");
+        $organizations = Organization::all();
+
+        return view("pages.router.index", compact('organizations'));
     }
 
     /**

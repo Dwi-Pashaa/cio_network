@@ -198,9 +198,6 @@
                                     <label for="technician_id" class="form-label-premium">Pilih Teknisi <span style="color:#ef4444;">*</span></label>
                                     <select name="technician_id" id="technician_id" class="form-select">
                                         <option value="">-- Pilih Teknisi --</option>
-                                        @foreach ($technicians as $technician)
-                                            <option value="{{ $technician->id }}">{{ $technician->name }}</option>
-                                        @endforeach
                                     </select>
                                     <span class="invalid-feedback error_technician_id"></span>
                                 </div>
@@ -283,12 +280,42 @@
             goToStep(currentStep - 1);
         });
 
-        $('#technician_id').select2({
-            theme: 'bootstrap-5',
-            placeholder: '-- Pilih Teknisi --',
-            allowClear: true,
-            width: '100%'
-        });
+        function populateTechSelect(orgId) {
+            const techSelect = $('#technician_id');
+            if (techSelect.data('select2')) {
+                techSelect.select2('destroy');
+            }
+            techSelect.empty().append('<option value="">-- Pilih Teknisi --</option>');
+
+            $.get('{{ route("troubleshoot.technicians-by-organization") }}', { organization_id: orgId })
+                .done(function(technicians) {
+                    if (technicians.length === 0) {
+                        techSelect.append('<option value="" disabled>Tidak ada teknisi</option>');
+                    } else {
+                        $.each(technicians, function(i, tech) {
+                            techSelect.append('<option value="' + tech.id + '">' + tech.name + '</option>');
+                        });
+                    }
+                    techSelect.select2({
+                        theme: 'bootstrap-5',
+                        placeholder: '-- Pilih Teknisi --',
+                        allowClear: true,
+                        width: '100%'
+                    });
+                })
+                .fail(function() {
+                    techSelect.append('<option value="" disabled>Gagal memuat teknisi</option>');
+                    techSelect.select2({
+                        theme: 'bootstrap-5',
+                        placeholder: '-- Pilih Teknisi --',
+                        allowClear: true,
+                        width: '100%'
+                    });
+                });
+        }
+
+        // Initial load: teknisi berdasarkan organisasi user login
+        populateTechSelect('');
 
         function initCustomerMap(lat, lng, name) {
             if (customerMap) { customerMap.remove(); customerMap = null; }
@@ -339,6 +366,9 @@
                         customerFound = true;
                         if (hasCoord) initCustomerMap(parseFloat(d.latitude), parseFloat(d.longitude), d.name);
                         else document.getElementById('customerMap').style.display = 'none';
+
+                        // Load teknisi berdasarkan organisasi pelanggan
+                        populateTechSelect(d.organization_id);
 
                         goToStep(2);
                     }

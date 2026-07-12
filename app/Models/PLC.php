@@ -15,4 +15,9 @@ class PLC extends Model
         'serial_number',
         'organization_id'
     ];
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
 }

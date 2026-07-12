@@ -61,6 +61,19 @@
                         @endforeach
                     </select>
                 </div>
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #475569;">ORGANISASI</label>
+                        <select name="organization_id" class="form-select" style="border-radius: 8px;">
+                            <option value="">Semua Organisasi</option>
+                            @foreach($organizations as $org)
+                                <option value="{{ $org->id }}" {{ request('organization_id') == $org->id ? 'selected' : '' }}>
+                                    {{ $org->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
                 <div class="col-md-3 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary w-100" style="border-radius: 8px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); font-weight: 700;">
                         Cari
@@ -108,6 +121,9 @@
                     @endif
                     @if(request('model_type'))
                         <input type="hidden" name="model_type" value="{{ request('model_type') }}">
+                    @endif
+                    @if(request('organization_id'))
+                        <input type="hidden" name="organization_id" value="{{ request('organization_id') }}">
                     @endif
                     @if(request('sort'))
                         <input type="hidden" name="sort" value="{{ request('sort') }}">

@@ -24,6 +24,19 @@
     @endforeach
 </div>
 
+{{-- Toolbar ─────────────────────────────────────────────── ── --}}
+@if (auth()->user()->hasPermissionTo('filter organization'))
+    <div style="padding: 1rem 1.5rem 0; display: flex; align-items: center; gap: 12px; justify-content: flex-end;">
+        <span style="font-size:0.82rem;font-weight:700;color:#94a3b8;">Organisasi</span>
+        <select id="filter-org-{{ $prosedur_type }}" class="org-input" style="width:auto;padding:0.35rem 0.8rem;font-size:0.82rem;">
+            <option value="">Semua</option>
+            @foreach (\App\Models\Organization::all() as $org)
+                <option value="{{ $org->id }}">{{ $org->name }}</option>
+            @endforeach
+        </select>
+    </div>
+@endif
+
 {{-- Content Area ──────────────────────────────────────────── --}}
 <div style="padding: 1.25rem 1.5rem;">
     {{-- Loading spinner --}}

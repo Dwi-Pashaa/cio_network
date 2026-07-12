@@ -46,6 +46,18 @@
                 data
             </div>
 
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; font-weight:600; color:var(--text-muted);">
+                    Organisasi
+                    <select id="filter-organization" class="org-input" style="padding: .35rem .6rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="search-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -65,6 +77,9 @@
                         <th>Nama Patch Core</th>
                         <th>Created At</th>
                         <th>Updated At</th>
+                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                            <th style="text-align:center;">Organisasi/Mitra</th>
+                        @endif
                         <th style="text-align:right;">Aksi</th>
                     </tr>
                 </thead>
@@ -125,7 +140,7 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[2, 'desc']], // Kolom 'Created At' default ordering
+            order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 3 : 2 }}, 'desc']], // Kolom 'Created At' default ordering
             pageLength: 10,
             dom: 'rt', // Menghilangkan default filter dan info
             language: {
@@ -137,6 +152,9 @@
                 { data: 'name', className: 'fw-bold text-dark' },
                 { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
                 { data: 'updated_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                { data: 'organization_name', orderable: false, searchable: false, className: 'text-center' },
+                @endif
                 { data: 'action', orderable: false, searchable: false, className: 'text-end' },
             ],
             drawCallback: function(settings) {
@@ -153,6 +171,11 @@
         // Search trigger
         $("#search-input").on('keyup', function(){
             table.search(this.value).draw();
+        });
+
+        // Filter organisasi
+        $("#filter-organization").on('change', function() {
+            table.ajax.url(BASE + '?organization_id=' + this.value).load();
         });
     });
 

@@ -8,6 +8,47 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        #customer-table tbody tr { cursor: pointer; }
+        #customer-table tbody tr.shown td:first-child { position: relative; }
+
+        .detail-wrap { padding: 20px 24px !important; background: #f1f5f9; }
+        .detail-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+        .detail-actions .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: .15s; border: none; }
+        .detail-actions .btn-edit-detail { background: #f59e0b; color: #fff; }
+        .detail-actions .btn-edit-detail:hover { background: #d97706; }
+        .detail-actions .btn-delete-detail { background: #ef4444; color: #fff; }
+        .detail-actions .btn-delete-detail:hover { background: #dc2626; }
+
+        .detail-section { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04); margin-bottom: 16px; overflow: hidden; }
+        .detail-section-header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; cursor: pointer; user-select: none; border-bottom: 1px solid #e9edf2; }
+        .detail-section-header .icon-wrap { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+        .detail-section-header .icon-wrap.icon-user { background: #e0e7ff; color: #4f46e5; }
+        .detail-section-header .icon-wrap.icon-wifi { background: #dbeafe; color: #2563eb; }
+        .detail-section-header .icon-wrap.icon-network { background: #e0f2fe; color: #0891b2; }
+        .detail-section-header .icon-wrap.icon-map { background: #ecfdf5; color: #059669; }
+        .detail-section-header .icon-wrap.icon-file { background: #fef3c7; color: #d97706; }
+        .detail-section-header h6 { font-size: 14px; font-weight: 700; color: #1e293b; margin: 0; flex: 1; }
+        .detail-section-header .collapse-toggle { font-size: 16px; color: #94a3b8; transition: transform .2s; }
+        .detail-section-header .collapse-toggle.collapsed { transform: rotate(-90deg); }
+
+        .detail-section-body { padding: 16px 18px; }
+        .detail-section-body.collapsed { display: none; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .detail-field { display: flex; flex-direction: column; gap: 2px; }
+        .detail-field .label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; font-weight: 600; }
+        .detail-field .value { font-size: 13px; font-weight: 600; color: #0f172a; word-break: break-word; }
+        .detail-field .value .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+        .detail-field .value .badge.bg-success { background: #dcfce7; color: #16a34a; }
+        .detail-field .value .badge.bg-danger { background: #fee2e2; color: #dc2626; }
+        .detail-field .value .badge.bg-secondary { background: #f1f5f9; color: #64748b; }
+        .detail-field .value .btn-outline-link { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; text-decoration: none; border: 1.5px solid #6366f1; color: #6366f1; background: transparent; transition: .15s; }
+        .detail-field .value .btn-outline-link:hover { background: #eef2ff; }
+        .detail-field .value .btn-outline-green { border-color: #10b981; color: #10b981; }
+        .detail-field .value .btn-outline-green:hover { background: #ecfdf5; }
+
+        .btn-action.btn-chat:hover { color: #0ea5e9; border-color: #0ea5e9; background: #f0f9ff; }
+    </style>
 @endpush
 
 @section('content')
@@ -179,43 +220,14 @@
                 <table class="org-table" id="customer-table">
                     <thead>
                         <tr>
-                            <th style="width:50px;">NO</th>
+                            <th style="width:40px;">NO</th>
                             <th>ID PELANGGAN</th>
                             <th>TIPE PELANGGAN</th>
                             <th>TIPE LAYANAN</th>
-                            <th>NIK</th>
-                            <th>NAMA PELANGGAN</th>
-                            <th>EMAIL</th>
-                            <th>NO TELEPHONE</th>
+                            <th>NAMA</th>
                             <th>MAC ADDRESS</th>
-                            <th>JENIS ROUTER</th>
-                            <th>KAMPUNG</th>
-                            <th>DESA</th>
-                            <th>RT</th>
-                            <th>RW</th>
-                            <th>KECAMATAN</th>
-                            <th>KABUPATEN/KOTA</th>
-                            <th>VLAN</th>
-                            <th>ALAMAT ODC</th>
-                            <th>ALAMAT ODP</th>
-                            <th>ALAMAT OLT</th>
-                            <th>NAMA WIFI</th>
-                            <th>PASSWORD WIFI</th>
-                            <th>PPOE USERNAME</th>
-                            <th>PPOE PASSWORD</th>
-                            <th>TIPE PAKET</th>
-                            <th>MIX RADIUS</th>
-                            <th>TIPE PEMBAYARAN</th>
-                            <th>LOKASI</th>
-                            <th>FOTO KTP</th>
-                            <th>ORGANISASI/MITRA</th>
-                            <th>DI INPUT OLEH</th>
                             <th>CREATED</th>
-                            <th>DI UBAH OLEH</th>
-                            <th>UPDATED</th>
-                            @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
-                                <th class="text-center">ACTION</th>
-                            @endif
+                            <th class="text-center" style="width:120px;">ACTION</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -308,6 +320,7 @@
 @push('js')
     <script>
         const BASE = "{{ route('customer.index') }}";
+        const EDIT_BASE = "{{ route('customer.edit', '__ID__') }}";
         const MIC_RADIUS_BASE = "{{ route('mic.radius.index') }}";
         let table;
 
@@ -342,14 +355,17 @@
                     }
                 },
                 order: [
-                    [29, 'desc']
+                    [6, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
                 columns: [{
-                        data: 'checkbox',
-                        orderable: false,
-                        searchable: false,
+                        data: 'DT_RowIndex',
+                        width: '40px',
+                        render: function(data, type, row) {
+                            let checkbox = '<input class="form-check-input row-check m-0" type="checkbox" name="selected[]" value="' + row.id + '"> ';
+                            return checkbox + data;
+                        }
                     },
                     {
                         data: 'uuid',
@@ -363,96 +379,10 @@
                         data: 'type_name'
                     },
                     {
-                        data: 'nik',
-                        defaultContent: '-'
-                    },
-                    {
                         data: 'name'
                     },
                     {
-                        data: 'email'
-                    },
-                    {
-                        data: 'telp'
-                    },
-                    {
                         data: 'mac_address'
-                    },
-                    {
-                        data: 'router_name'
-                    },
-                    {
-                        data: 'hometown_name'
-                    },
-                    {
-                        data: 'village_name'
-                    },
-                    {
-                        data: 'rt_name'
-                    },
-                    {
-                        data: 'rw_name'
-                    },
-                    {
-                        data: 'district_name'
-                    },
-                    {
-                        data: 'regencie_name'
-                    },
-                    {
-                        data: 'vlan_name'
-                    },
-                    {
-                        data: 'odc_info',
-                    },
-                    {
-                        data: 'odp_info',
-                    },
-                    {
-                        data: 'olt_info',
-                    },
-                    {
-                        data: 'name_wifi',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'password_wifi',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'pppoe_username',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'pppoe_password',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'paket_name',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'mic_radius_info',
-                    },
-                    {
-                        data: 'price_name',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'lokasi',
-                        orderable: false,
-                    },
-                    {
-                        data: 'ktp',
-                        orderable: false,
-                    },
-                    {
-                        data: 'organization',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'input_by',
-                        defaultContent: '-'
                     },
                     {
                         data: 'created_at',
@@ -461,17 +391,10 @@
                         }
                     },
                     {
-                        data: 'edited_by',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'updated_at_formatted',
-                        defaultContent: '-'
-                    },
-                    {
                         data: 'action',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center'
                     }
                 ],
                 drawCallback: function(settings) {
@@ -479,6 +402,115 @@
                     updateCustomPagination();
                 }
             });
+
+            // Row click expand/collapse (accordion: tutup yg lain)
+            $('#customer-table tbody').on('click', 'tr', function(e) {
+                if ($(e.target).is('input, button, a, svg, path, .btn-action')) return;
+                let row = table.row(this);
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    $(this).removeClass('shown');
+                } else {
+                    table.rows().every(function() {
+                        if (this.child.isShown()) {
+                            this.child.hide();
+                            $(this.node()).removeClass('shown');
+                        }
+                    });
+                    row.child(formatDetail(row.data())).show();
+                    $(this).addClass('shown');
+                }
+            });
+        }
+
+        function formatDetail(data) {
+            const v = (val) => val && val !== '-' ? val : '<span class="text-muted fst-italic">-</span>';
+
+            function section(title, iconClass, iconSvg, fields, collapsed) {
+                let items = fields.map(function(f) {
+                    return '<div class="detail-field"><div class="label">' + f.label + '</div><div class="value">' + v(f.val) + '</div></div>';
+                }).join('');
+                let collapsedAttr = collapsed ? ' collapsed' : '';
+                let bodyShow = collapsed ? ' collapsed' : '';
+                return '<div class="detail-section">' +
+                    '<div class="detail-section-header" onclick="toggleSection(this)">' +
+                        '<div class="icon-wrap ' + iconClass + '">' + iconSvg + '</div>' +
+                        '<h6>' + title + '</h6>' +
+                        '<span class="collapse-toggle' + collapsedAttr + '">&#9660;</span>' +
+                    '</div>' +
+                    '<div class="detail-section-body' + bodyShow + '"><div class="detail-grid">' + items + '</div></div>' +
+                '</div>';
+            }
+
+            let sections = '';
+            sections += section('Informasi Pelanggan', 'icon-user',
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+                [
+                    { label: 'ID Pelanggan', val: data.uuid },
+                    { label: 'Nama', val: data.name },
+                    { label: 'NIK', val: data.nik },
+                    { label: 'Email', val: data.email },
+                    { label: 'No Telepon', val: data.telp },
+                    { label: 'Tipe Pelanggan', val: data.tipe_pelanggan },
+                ]
+            );
+            sections += section('Informasi Layanan', 'icon-wifi',
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>',
+                [
+                    { label: 'Tipe Layanan', val: data.type_name },
+                    { label: 'Jenis Router', val: data.router_name },
+                    { label: 'VLAN', val: data.vlan_name },
+                    { label: 'Tipe Paket', val: data.paket_name },
+                    { label: 'Mix Radius', val: data.mic_radius_info },
+                    { label: 'Tipe Pembayaran', val: data.price_name },
+                ]
+            );
+            sections += section('Informasi Jaringan', 'icon-network',
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+                [
+                    { label: 'MAC Address', val: data.mac_address },
+                    { label: 'Nama WiFi', val: data.name_wifi },
+                    { label: 'Password WiFi', val: data.password_wifi },
+                    { label: 'PPPoE Username', val: data.pppoe_username },
+                    { label: 'PPPoE Password', val: data.pppoe_password },
+                ]
+            );
+            sections += section('Alamat Instalasi', 'icon-map',
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+                [
+                    { label: 'Kampung', val: data.hometown_name },
+                    { label: 'Desa', val: data.village_name },
+                    { label: 'RT / RW', val: data.rt_name && data.rw_name ? data.rt_name + ' / ' + data.rw_name : (data.rt_name || data.rw_name || '-') },
+                    { label: 'Kecamatan', val: data.district_name },
+                    { label: 'Kabupaten/Kota', val: data.regencie_name },
+                    { label: 'Alamat ODC', val: data.odc_info },
+                    { label: 'Alamat ODP', val: data.odp_info },
+                    { label: 'Alamat OLT', val: data.olt_info },
+                    { label: 'Lokasi', val: data.lokasi },
+                ]
+            );
+            sections += section('Dokumen & Administrasi', 'icon-file',
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+                [
+                    { label: 'Foto KTP', val: data.ktp },
+                    { label: 'Organisasi/Mitra', val: data.organization },
+                    { label: 'Diinput Oleh', val: data.input_by },
+                    { label: 'Diubah Oleh', val: data.edited_by },
+                    { label: 'Created', val: data.created_at ? moment(data.created_at).format('DD/MM/YYYY HH:mm:ss') : '-' },
+                    { label: 'Updated', val: data.updated_at_formatted },
+                ]
+            );
+
+            return '<div class="detail-wrap">' +
+                sections +
+                '</div>';
+        }
+
+        function toggleSection(el) {
+            let body = el.nextElementSibling;
+            let toggle = el.querySelector('.collapse-toggle');
+            body.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
         }
 
         // ===========================
@@ -928,15 +960,44 @@
         }
 
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('copy-btn')) {
+            const btn = e.target.closest('.copy-btn');
+            if (btn) {
+                const id = btn.dataset.id;
+                const tr = btn.closest('tr');
+                const rowData = table.row(tr).data();
+                if (!rowData) return;
 
-                const raw = e.target.dataset.copy;
-                if (!raw) return;
+                const fields = {
+                    'UUID': rowData.uuid,
+                    'Tipe Pelanggan': rowData.tipe_pelanggan,
+                    'Tipe Layanan': rowData.type_name,
+                    'NIK': rowData.nik,
+                    'NAMA': rowData.name,
+                    'EMAIL': rowData.email ? $('<div>').html(rowData.email).text() : null,
+                    'TELP': rowData.telp ? $('<div>').html(rowData.telp).text() : null,
+                    'MAC ADDRESS': rowData.mac_address,
+                    'ROUTER': rowData.router_name,
+                    'KAMPUNG': rowData.hometown_name,
+                    'DESA': rowData.village_name,
+                    'RT': rowData.rt_name,
+                    'RW': rowData.rw_name,
+                    'KECAMATAN': rowData.district_name,
+                    'KAB/KOTA': rowData.regencie_name,
+                    'VLAN': rowData.vlan_name,
+                    'OLT': rowData.olt_info,
+                    'ODP': rowData.odp_info,
+                    'WIFI': rowData.name_wifi,
+                    'PASSWORD WIFI': rowData.password_wifi,
+                    'PPPOE USER': rowData.pppoe_username,
+                    'PPPOE PASS': rowData.pppoe_password,
+                    'PAKET': rowData.paket_name,
+                    'PEMBAYARAN': rowData.price_name,
+                    'ORGANISASI/MITRA': rowData.organization,
+                    'INPUT OLEH': rowData.input_by,
+                };
 
-                const data = JSON.parse(raw);
                 let text = '';
-
-                Object.entries(data).forEach(([k, v]) => {
+                Object.entries(fields).forEach(([k, v]) => {
                     if (v) text += `${k} : ${v}\n`;
                 });
 

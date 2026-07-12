@@ -124,6 +124,17 @@
                 </select>
                 <span class="text-muted" style="font-size: 0.88rem;">entri</span>
             </div>
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-bold">Organisasi</span>
+                    <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             <div class="search-wrapper ms-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2">
@@ -143,6 +154,9 @@
                         <th>Di Input Oleh</th>
                         <th>ID Pelanggan</th>
                         <th>Nama Pelanggan</th>
+                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                            <th>Organisasi/Mitra</th>
+                        @endif
                         <th>Kampung</th>
                         <th>Desa</th>
                         <th>Created</th>
@@ -185,10 +199,11 @@
                         d.filter_user = $('#filter_user').val();
                         d.filter_start = $('#filter_start').val();
                         d.filter_end = $('#filter_end').val();
+                        d.organization_id = $('#filter-organization').val();
                     }
                 },
                 order: [
-                    [6, 'desc']
+                    [{{ auth()->user()->hasPermissionTo('filter organization') ? 7 : 6 }}, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -214,6 +229,12 @@
                         name: 'name',
                         defaultContent: '-'
                     },
+@if (auth()->user()->hasPermissionTo('filter organization'))
+                    {
+                        data: 'organization_name',
+                        defaultContent: '-'
+                    },
+@endif
                     {
                         data: 'hometown_name',
                         name: 'hometown.name',
@@ -263,6 +284,10 @@
 
         function initializeFilters() {
             $('#filter_user, #filter_start, #filter_end').on('change', function() {
+                table.ajax.reload();
+            });
+
+            $("#filter-organization").on('change', function() {
                 table.ajax.reload();
             });
 

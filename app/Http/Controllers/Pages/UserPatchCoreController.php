@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Stock\UserPatchCoreDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\PatchCore;
 use App\Models\Role;
 use App\Models\User;
@@ -26,8 +27,9 @@ class UserPatchCoreController extends Controller
 
         $patchCore = PatchCore::where('organization_id', Auth::user()->organization_id)->get();
         $role = Role::where('organization_id', Auth::user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view("pages.user-patch-core.index", compact("patchCore", "role"));
+        return view("pages.user-patch-core.index", compact("patchCore", "role", "organizations"));
     }
 
     public function store(Request $request)

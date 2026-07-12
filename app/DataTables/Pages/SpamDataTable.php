@@ -146,6 +146,7 @@ class SpamDataTable
             ->addColumn('created_at', function ($row) {
                 return $row->created_at ? $row->created_at->format('d/m/Y H:i:s') : '-';
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $btn = '';
 
@@ -247,11 +248,16 @@ class SpamDataTable
             'user',
             'tipePelanggan',
         ])
+            ->join('organization', 'organization.id', '=', 'customers.organization_id')
             ->where('status', 'spam')
-            ->select('customers.*');
+            ->select('customers.*', 'organization.name as organization_name');
 
         if ($orgType !== 'internal') {
             $query->where('customers.organization_id', $user->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('customers.organization_id', request('organization_id'));
         }
 
         return $query;

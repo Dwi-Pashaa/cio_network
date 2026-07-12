@@ -13,6 +13,11 @@ class Regency extends Model
     protected $table = 'regencies';
     protected $fillable = ['organization_id', 'code', 'name'];
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     public function customer()
     {
         return $this->hasMany(Customer::class, 'regencies_id', 'id');

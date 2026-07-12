@@ -14,6 +14,7 @@ class PagesDataTable
 
         return DataTables::of($query)
             ->addIndexColumn()
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $btn = '';
 
@@ -62,8 +63,10 @@ class PagesDataTable
         }
 
         $query = Pages::with(['hometown', 'village'])
+            ->join('organization', 'organization.id', '=', 'pages.organization_id')
             ->whereIn('id', $authUserPages)
             ->where('type', 'pages')
+            ->select('pages.*', 'organization.name as organization_name')
             ->when($hometown, function ($q) use ($hometown) {
                 return $q->where('hometowns_id', $hometown);
             })
@@ -71,11 +74,22 @@ class PagesDataTable
                 return $q->where('villages_id', $village);
             });
 
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('pages.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('pages.organization_id', request('organization_id'));
+        }
+
         // Apply search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('pages.name', 'like', "%{$search}%")
                     ->orWhere('pages.telp', 'like', "%{$search}%")
+                    ->orWhere('organization.name', 'like', "%{$search}%")
                     ->orWhereHas('hometown', function ($s) use ($search) {
                         $s->where('name', 'like', "%{$search}%");
                     })
@@ -85,6 +99,6 @@ class PagesDataTable
             });
         }
 
-        return $query->orderByDesc('id');
+        return $query->orderByDesc('pages.id');
     }
 }

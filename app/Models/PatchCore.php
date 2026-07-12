@@ -25,4 +25,9 @@ class PatchCore extends Model
             'user_id'            // FK user
         )->withTimestamps();
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
 }

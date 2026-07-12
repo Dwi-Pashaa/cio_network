@@ -2,7 +2,6 @@
 
 namespace App\DataTables\Wilayah;
 
-use App\Models\PatchCore;
 use App\Models\Regency;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -18,6 +17,7 @@ class CityDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $editId = $row->id;
                 $deleteId = $row->id;
@@ -54,7 +54,20 @@ class CityDataTable
      */
     private function query()
     {
-        return Regency::where('organization_id', auth()->user()->organization_id);
+        $query = Regency::join('organization', 'organization.id', '=', 'regencies.organization_id')
+            ->select('regencies.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('regencies.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('regencies.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**
@@ -64,8 +77,11 @@ class CityDataTable
     {
         $search = request('search.value');
         if ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('regencies.name', 'like', "%{$search}%")
+                    ->orWhere('regencies.code', 'like', "%{$search}%")
+                    ->orWhere('organization.name', 'like', "%{$search}%");
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Pages\HistoryDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,8 @@ class HistoryController extends Controller
         }
 
         $user = User::where('organization_id', Auth::user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view('pages.history.index', compact('user'));
+        return view('pages.history.index', compact('user', 'organizations'));
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Stock\UserPLCDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\PLC;
 use App\Models\Role;
 use App\Models\User;
@@ -26,8 +27,9 @@ class UserPLCController extends Controller
 
         $plc = PLC::where('organization_id', Auth::user()->organization_id)->get();
         $role = Role::where('organization_id', Auth::user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view("pages.user-plc.index", compact("plc", "role"));
+        return view("pages.user-plc.index", compact("plc", "role", "organizations"));
     }
 
     public function store(Request $request)

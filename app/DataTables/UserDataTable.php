@@ -47,6 +47,8 @@ class UserDataTable
                     ? $row->pages->map(fn($r) => '<span class="badge bg-primary text-white mb-2">' . $r->name . '</span>')->implode('<br>')
                     : '-'
             )
+            // Organization name (for internal users)
+            ->addColumn('organization_name', fn($row) => $row->organization?->name ?? '-')
             // Action
             ->addColumn('action', function ($row) {
                 $editUrl  = route('user.edit', $row->id);
@@ -70,12 +72,27 @@ class UserDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan user dalam organisasi yang sama
+     * - Internal: tampilkan semua user
      */
     private function query()
     {
-        return User::with(['mixRadius', 'olts', 'regencie', 'pages', 'roles'])
-            ->where('organization_id', auth()->user()->organization_id)
-            ->select('users.*'); // default sorting
+        $query = User::with(['mixRadius', 'olts', 'regencie', 'pages', 'roles', 'organization'])
+            ->select('users.*');
+
+        $authUser = auth()->user()->loadMissing('organization');
+
+        // Jika user login bertipe mitra, batasi ke organization_id yang sama
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('organization_id', $authUser->organization_id);
+        }
+
+        // Filter by organization (hanya user dengan permission filter organization)
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**

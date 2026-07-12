@@ -13,6 +13,11 @@ class District extends Model
     protected $table = 'districts';
     protected $fillable = ['code', 'name', 'regencie_id', 'organization_id'];
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     public function customer()
     {
         return $this->hasMany(Customer::class, 'districts_id', 'id');

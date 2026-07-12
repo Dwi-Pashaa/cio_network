@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use App\Models\User;
+use App\Models\Organization;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityLogController extends Controller
 {
@@ -15,6 +17,22 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         $query = Activity::with(['causer', 'subject'])->latest();
+
+        $user = Auth::user();
+
+        // Mitra scope: only see activity logs from their organization
+        if ($user->organization && $user->organization->type === 'mitra') {
+            $query->whereHasMorph('causer', [User::class], function ($q) use ($user) {
+                $q->where('organization_id', $user->organization_id);
+            });
+        }
+
+        // Filter by organization (for internal users with permission)
+        if ($user->hasPermissionTo('filter organization') && $request->filled('organization_id')) {
+            $query->whereHasMorph('causer', [User::class], function ($q) use ($request) {
+                $q->where('organization_id', $request->input('organization_id'));
+            });
+        }
 
         // Limit / pagination size
         $sort = $request->integer('sort', 10);
@@ -164,10 +182,12 @@ class ActivityLogController extends Controller
             'Pages' => 'Data Halaman'
         ];
 
+        $organizations = Organization::all();
+
         if ($request->ajax()) {
-            return view('pages.activity-log.table', compact('logs', 'modelNames'));
+            return view('pages.activity-log.table', compact('logs', 'modelNames', 'organizations'));
         }
 
-        return view('pages.activity-log.index', compact('logs', 'filterUsers', 'filterModelTypes', 'modelNames'));
+        return view('pages.activity-log.index', compact('logs', 'filterUsers', 'filterModelTypes', 'modelNames', 'organizations'));
     }
 }

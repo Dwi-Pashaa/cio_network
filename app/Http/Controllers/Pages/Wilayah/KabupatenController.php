@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages\Wilayah;
 
 use App\DataTables\Wilayah\CityDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Regency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -19,7 +20,9 @@ class KabupatenController extends Controller
             return (new CityDataTable)->get();
         }
 
-        return view("pages.kabupaten.index");
+        $organizations = Organization::all();
+
+        return view("pages.kabupaten.index", compact('organizations'));
     }
 
     /**

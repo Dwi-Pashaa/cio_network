@@ -49,6 +49,18 @@
                 data
             </div>
 
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; font-weight:600; color:var(--text-muted);">
+                    Organisasi
+                    <select id="filter-organization" class="org-input" style="padding: .35rem .6rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="search-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -69,6 +81,9 @@
                         <th>Nama Router</th>
                         <th>Jumlah Alokasi</th>
                         <th>Created At</th>
+                        @if (Auth::user()->organization->type === 'internal')
+                            <th style="text-align:center;">Organisasi/Mitra</th>
+                        @endif
                         <th style="text-align:right;">Aksi</th>
                     </tr>
                 </thead>
@@ -203,7 +218,7 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[4, 'desc']],
+            order: [[{{ Auth::user()->organization->type === 'internal' ? 5 : 4 }}, 'desc']],
             pageLength: 10,
             dom: 'rt', // Menghilangkan default filter dan info
             language: {
@@ -216,6 +231,9 @@
                 { data: 'router.name', render: data => `<div style="font-family: inherit; font-size: 0.82rem; font-weight: bold; background: #eef2ff; color:#6366f1; padding: 4px 10px; border-radius: 6px; display: inline-block;">${data}</div>` },
                 { data: 'total', render: data => `<div style="font-family: monospace; font-size: 0.9rem; font-weight: bold; background: #fffbeb; color:#d97706; padding: 5px 12px; border-radius: 8px; display: inline-block;">${data} Unit</div>` },
                 { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY - HH:mm') },
+                @if (Auth::user()->organization->type === 'internal')
+                { data: 'organization_name', orderable: false, searchable: false, className: 'text-center' },
+                @endif
                 { data: 'action', orderable: false, searchable: false, className: 'text-end' }
             ],
             drawCallback: function(settings) {
@@ -237,6 +255,11 @@
         // Search trigger
         $("#search-input").on('keyup', function() {
             table.search(this.value).draw();
+        });
+
+        // Filter organisasi (internal only)
+        $("#filter-organization").on('change', function() {
+            table.ajax.url(BASE + '?organization_id=' + this.value).load();
         });
     }
 

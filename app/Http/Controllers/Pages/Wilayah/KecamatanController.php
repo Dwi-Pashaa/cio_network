@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages\Wilayah;
 use App\DataTables\Wilayah\DistrictDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\District;
+use App\Models\Organization;
 use App\Models\Regency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,8 +22,9 @@ class KecamatanController extends Controller
         }
 
         $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view("pages.kecamatan.index", compact("regencie"));
+        return view("pages.kecamatan.index", compact("regencie", "organizations"));
     }
 
     /**

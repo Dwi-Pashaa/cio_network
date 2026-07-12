@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Stock\UserRouterDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Router;
 use App\Models\User;
 use App\Models\UserRouter;
@@ -26,8 +27,9 @@ class UserRouterController extends Controller
 
         $router = Router::where('organization_id', Auth::user()->organization_id)->get();
         $users = User::where('organization_id', Auth::user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view("pages.user-router.index", compact("router", "users"));
+        return view("pages.user-router.index", compact("router", "users", "organizations"));
     }
 
     public function store(Request $request)

@@ -57,8 +57,9 @@ class PermissionSeeder extends Seeder
             // 'kelola template chat',
 
             // Troubleshoot Tracking
-            'kelola troubleshoot',
-            'lihat troubleshoot',
+            // 'kelola troubleshoot',
+            // 'lihat troubleshoot',
+            'filter organization'
         ];
 
         foreach ($permissions as $permission) {

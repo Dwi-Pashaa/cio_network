@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Customer\CustomerPaketDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\Paket;
 use App\Models\User;
 use App\Models\UserPaket;
@@ -23,8 +24,9 @@ class PaketController extends Controller
         }
 
         $user = User::where('organization_id', Auth::user()->organization_id)->get();
+        $organizations = Organization::all();
 
-        return view("pages.paket.index", compact("user"));
+        return view("pages.paket.index", compact("user", "organizations"));
     }
 
     /**

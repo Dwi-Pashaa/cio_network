@@ -166,6 +166,18 @@
                     <span class="text-muted small fw-bold d-none d-lg-inline">ENTRIES</span>
                 </div>
 
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small fw-bold">Organisasi</span>
+                        <select id="filter-organization" class="form-select shadow-none" style="width:auto;height:40px;border-radius:8px;padding:0.35rem 0.8rem;">
+                            <option value="">Semua</option>
+                            @foreach ($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
                 <div
                     class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 ms-md-auto w-100 w-md-auto">
                     @role('Admin')
@@ -236,6 +248,9 @@
                             <th class="text-center">CUSTOMER</th>
                             <th>DI INPUT OLEH</th>
                             <th>CREATED AT</th>
+                            @if (auth()->user()->hasPermissionTo('filter organization'))
+                                <th class="text-center">Organisasi/Mitra</th>
+                            @endif
                             @canany(['edit mac address', 'hapus mac address'])
                                 <th class="text-center">ACTION</th>
                             @endcanany
@@ -529,6 +544,14 @@
                         </span>`;
                         }
                     },
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                    {
+                        data: 'organization_name',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    @endif
                     {
                         data: 'action',
                         orderable: false,
@@ -564,6 +587,10 @@
                 $("#filter_date").val('');
                 table.ajax.reload();
                 loadStatistics();
+            });
+
+            $("#filter-organization").on('change', function() {
+                table.ajax.url(BASE + '?organization_id=' + this.value).load();
             });
         }
 

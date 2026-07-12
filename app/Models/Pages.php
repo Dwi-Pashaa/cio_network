@@ -13,6 +13,11 @@ class Pages extends Model
     protected $table = 'pages';
     protected $guarded = [];
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
     public function hometown()
     {
         return $this->belongsTo(HomeTown::class, 'hometowns_id', 'id');

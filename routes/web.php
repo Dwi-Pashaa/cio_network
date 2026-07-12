@@ -51,6 +51,8 @@ Route::middleware(['auth'])->group(function () {
     // Troubleshoot Tracking
     Route::get('/ticket/search-customer', [TroubleshootController::class, 'searchCustomer'])
         ->name('troubleshoot.search-customer');
+    Route::get('/ticket/technicians-by-organization', [TroubleshootController::class, 'getTechniciansByOrganization'])
+        ->name('troubleshoot.technicians-by-organization');
     Route::resource('ticket', TroubleshootController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
         ->names([

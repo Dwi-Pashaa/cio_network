@@ -14,6 +14,7 @@ class HistoryDataTable
 
         return DataTables::of($query)
             ->addIndexColumn()
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('user_name', function ($row) {
                 return $row->user->name ?? '-';
             })
@@ -68,9 +69,19 @@ class HistoryDataTable
         $orgId = $user->organization_id;
 
         $query = Customer::with(['user', 'hometown', 'village'])
-            ->select('customers.*')
-            ->where('customers.organization_id', $orgId)  // scope per organisasi
-            ->orderByDesc('created_at');
+            ->join('organization', 'organization.id', '=', 'customers.organization_id')
+            ->select('customers.*', 'organization.name as organization_name')
+            ->orderByDesc('customers.created_at');
+
+        $authUser = $user->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('customers.organization_id', $orgId);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('customers.organization_id', request('organization_id'));
+        }
 
         // Non-Admin hanya lihat data yang ia sendiri input
         if ($role !== 'Admin') {

@@ -52,6 +52,9 @@
                 <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9; width: 150px;">Aksi</th>
                 <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9; width: 180px;">Menu</th>
                 <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9;">Pengguna</th>
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                    <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9;">Organisasi/Mitra</th>
+                @endif
                 <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9;">Detail Aksi & Waktu</th>
                 <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; border-bottom: 1.5px solid #f1f5f9; text-align: right; width: 150px;">Detail Data</th>
             </tr>
@@ -101,6 +104,15 @@
                             <span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">Sistem / Guest</span>
                         @endif
                     </td>
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                        <td style="padding: 1.25rem 1.5rem; border-bottom: none; vertical-align: middle;">
+                            @if($log->causer && $log->causer instanceof \App\Models\User && $log->causer->organization)
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ $log->causer->organization->name }}</span>
+                            @else
+                                <span style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">-</span>
+                            @endif
+                        </td>
+                    @endif
                     <td style="padding: 1.25rem 1.5rem; border-bottom: none; vertical-align: middle;">
                         <div style="color: #334155; font-size: 0.85rem; margin-bottom: 2px;">
                             Melakukan aksi <strong>{{ $translateEvent($log->description) }}</strong> pada data {!! $getFriendlySubjectName($log) !!}
@@ -137,7 +149,7 @@
                         $allKeys = array_unique(array_merge(array_keys($attributes), array_keys($old)));
                     @endphp
                     <tr class="collapse" id="details-{{ $log->id }}" style="background: #f8fafc;">
-                        <td colspan="6" style="padding: 1rem 1.5rem; border-top: none; border-bottom: 1px solid #e2e8f0;">
+                        <td colspan="{{ auth()->user()->hasPermissionTo('filter organization') ? 7 : 6 }}" style="padding: 1rem 1.5rem; border-top: none; border-bottom: 1px solid #e2e8f0;">
                             <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                                 <h5 style="font-size: 0.8rem; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 0.75rem;">
                                     Perbandingan Perubahan Data
@@ -191,7 +203,7 @@
                 @endif
             @empty
                 <tr>
-                    <td colspan="6" style="padding: 3rem 1.5rem; text-align: center; color: #94a3b8; border-bottom: none;">
+                    <td colspan="{{ auth()->user()->hasPermissionTo('filter organization') ? 7 : 6 }}" style="padding: 3rem 1.5rem; text-align: center; color: #94a3b8; border-bottom: none;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem; color: #cbd5e1;">
                             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                         </svg>

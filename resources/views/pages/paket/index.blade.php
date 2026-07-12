@@ -55,6 +55,18 @@
                     <span class="text-muted small fw-bold d-none d-sm-inline">ENTRIES</span>
                 </div>
 
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small fw-bold">Organisasi</span>
+                        <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
+                            <option value="">Semua</option>
+                            @foreach ($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
                 <div class="search-wrapper w-100 w-sm-auto mt-3 mt-sm-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +85,9 @@
                             <th>TIPE PAKET</th>
                             <th>USER</th>
                             <th>TANGGAL DIBUAT</th>
+                            @if (auth()->user()->hasPermissionTo('filter organization'))
+                                <th class="text-center">Organisasi/Mitra</th>
+                            @endif
                             <th class="text-center" style="width: 100px;">ACTION</th>
                         </tr>
                     </thead>
@@ -91,6 +106,24 @@
 @endsection
 
 @push('modal')
+    <div class="modal modal-blur fade" id="modal-users" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">👥 Daftar User Paket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3" id="modal-users-paket-name"></p>
+                    <div id="modal-users-list" class="d-flex flex-column gap-2"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal modal-blur fade" id="modal-simple" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -166,9 +199,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: BASE,
-                order: [
-                    [3, 'desc']
-                ],
+                order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 4 : 3 }}, 'desc']],
                 pageLength: 10,
                 dom: 'rt',
                 columns: [{
@@ -192,18 +223,11 @@
                             if (!data || data.length === 0) {
                                 return `<span class="text-muted fst-italic">-</span>`;
                             }
-
-                            let badges = '';
-                            // Menggunakan avatar-initial modern-layout
-                            data.forEach(function(usr) {
-                                let initial = usr.name.charAt(0).toUpperCase();
-                                badges += `
-                                <div class="d-inline-flex align-items-center gap-2 me-3 mb-1">
-                                    <span class="avatar-initial rounded bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px;">${initial}</span>
-                                    <span class="fw-medium">${usr.name}</span>
-                                </div>`;
-                            });
-                            return badges;
+                            let count = data.length;
+                            return `<button onclick="showUsers(${row.id})" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                ${count} User
+                            </button>`;
                         }
                     },
                     {
@@ -215,6 +239,14 @@
                         </div>`;
                         }
                     },
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                    {
+                        data: 'organization_name',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    @endif
                     {
                         data: 'action',
                         orderable: false,
@@ -248,6 +280,10 @@
             // Search on button click
             $("#search-btn").on('click', function() {
                 table.search($("#search-input").val()).draw();
+            });
+
+            $("#filter-organization").on('change', function() {
+                table.ajax.url(BASE + '?organization_id=' + this.value).load();
             });
         }
 
@@ -489,6 +525,43 @@
                         });
                 }
             });
+        }
+
+        // ===========================
+        // User List Modal
+        // ===========================
+        function showUsers(id) {
+            $.get(BASE + '/' + id + '/show')
+                .done(function(response) {
+                    const data = response.data;
+                    const users = data.user || [];
+
+                    $('#modal-users-paket-name').text('Paket: ' + data.name);
+                    const list = $('#modal-users-list');
+                    list.empty();
+
+                    if (users.length === 0) {
+                        list.html('<span class="text-muted fst-italic">Tidak ada user</span>');
+                    } else {
+                        users.forEach(function(usr) {
+                            let initial = usr.name.charAt(0).toUpperCase();
+                            list.append(`
+                                <div class="d-flex align-items-center gap-3 p-2 rounded border">
+                                    <span class="avatar-initial rounded bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;">${initial}</span>
+                                    <div>
+                                        <div class="fw-semibold">${usr.name}</div>
+                                        <div class="text-muted small">${usr.email || ''}</div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+
+                    $('#modal-users').modal('show');
+                })
+                .fail(function() {
+                    showErrorMessage("Terjadi kesalahan saat mengambil data");
+                });
         }
 
         // ===========================

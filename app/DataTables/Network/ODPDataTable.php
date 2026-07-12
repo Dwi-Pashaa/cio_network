@@ -10,17 +10,17 @@ class ODPDataTable
 {
     public function get()
     {
-        return DataTables::eloquent($this->query())
-            ->addIndexColumn()
+        $query = $this->query();
 
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
             ->filter(function ($query) {
                 $this->search($query);
             }, false)
-
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
-
                 if ($auth->can('ubah odp')) {
                     $btn .= '<a href="javascript:void(0)" onclick="editModal(' . $row->id . ')"
                         class="btn-action btn-action-edit" title="Edit">
@@ -31,7 +31,6 @@ class ODPDataTable
                         </svg>
                     </a>';
                 }
-
                 if ($auth->can('hapus odp')) {
                     $btn .= '<button onclick="deleteODP(' . $row->id . ')"
                         class="btn-action btn-action-delete" title="Hapus">
@@ -43,40 +42,45 @@ class ODPDataTable
                         </svg>
                     </button>';
                 }
-
                 $btn .= '</div>';
                 return $btn;
             })
-
             ->rawColumns(['action'])
             ->make(true);
     }
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return ODP::with([
-            'plc',
-            'patchCore',
-            'rt',
-            'rw',
-            'hometown'
-        ])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->select('odp_networks.*');
+        $query = ODP::with(['plc', 'patchCore', 'rt', 'rw', 'hometown'])
+            ->join('organization', 'organization.id', '=', 'odp_networks.organization_id')
+            ->select('odp_networks.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('odp_networks.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('odp_networks.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     private function search($query)
     {
         $search = request('search.value');
-
         if (!$search) return;
-
         $query->where(function ($q) use ($search) {
             $q->where('home_odc', 'like', "%{$search}%")
                 ->orWhere('code', 'like', "%{$search}%")
+                ->orWhere('organization.name', 'like', "%{$search}%")
                 ->orWhereHas('hometown', function ($s) use ($search) {
                     $s->where('name', 'like', "%{$search}%");
                 })

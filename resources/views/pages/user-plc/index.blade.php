@@ -60,7 +60,18 @@
                     <span class="text-muted" style="font-size:.88rem">entri</span>
                 </div>
 
-                <div class="search-wrapper ms-auto">
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="text-muted" style="font-size:.88rem">Organisasi</span>
+                        <select id="filter-organization" class="org-input" style="padding: 0.35rem 0.8rem;">
+                            <option value="">Semua</option>
+                            @foreach ($organizations as $org)
+                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+                <div class="search-wrapper ms-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -80,6 +91,9 @@
                             <th>TIPE PLC</th>
                             <th class="text-center">JUMLAH</th>
                             <th>TANGGAL DISTRIBUSI</th>
+                            @if (auth()->user()->hasPermissionTo('filter organization'))
+                                <th class="text-center">Organisasi/Mitra</th>
+                            @endif
                             <th class="text-center">ACTION</th>
                         </tr>
                     </thead>
@@ -218,9 +232,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: BASE,
-                order: [
-                    [4, 'desc']
-                ],
+                order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 5 : 4 }}, 'desc']],
                 pageLength: 10,
                 dom: 'rt',
                 columns: [{
@@ -261,6 +273,14 @@
                         </div>`;
                         }
                     },
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                    {
+                        data: 'organization_name',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    @endif
                     {
                         data: 'action',
                         orderable: false,
@@ -283,6 +303,11 @@
             // Live search
             $("#search-input").on('input', function() {
                 table.search(this.value).draw();
+            });
+
+            // Filter organisasi
+            $("#filter-organization").on('change', function() {
+                table.ajax.url(BASE + '?organization_id=' + this.value).load();
             });
         }
 

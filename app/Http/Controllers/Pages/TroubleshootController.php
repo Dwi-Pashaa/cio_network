@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Troubleshoot\TroubleshootDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Organization;
 use App\Models\Troubleshoot;
 use App\Models\TroubleshootProgress;
 use App\Models\User;
@@ -20,14 +21,32 @@ class TroubleshootController extends Controller
             return (new TroubleshootDataTable)->get();
         }
 
-        return view('pages.troubleshoot.index');
+        $organizations = Organization::all();
+
+        return view('pages.troubleshoot.index', compact('organizations'));
     }
 
     public function create()
     {
-        $technicians = User::where('organization_id', Auth::user()->organization_id)->get();
+        return view('pages.troubleshoot.create');
+    }
 
-        return view('pages.troubleshoot.create', compact('technicians'));
+    public function getTechniciansByOrganization(Request $request)
+    {
+        $orgId = $request->input('organization_id');
+
+        if (!$orgId) {
+            $user = Auth::user();
+            if ($user->organization && $user->organization->type === 'mitra') {
+                $orgId = $user->organization_id;
+            }
+        }
+
+        $technicians = $orgId
+            ? User::where('organization_id', $orgId)->get()
+            : User::all();
+
+        return response()->json($technicians);
     }
 
     public function store(Request $request)
@@ -121,11 +140,17 @@ class TroubleshootController extends Controller
         }
 
         $normalizedMac = strtoupper(str_replace('-', ':', $mac));
+        $user = Auth::user();
 
-        $customer = Customer::with(['paket', 'type', 'tipePelanggan', 'price', 'vlan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie'])
-            ->where('organization_id', Auth::user()->organization_id)
-            ->where('mac_address', $normalizedMac)
-            ->first();
+        $customerQuery = Customer::with(['paket', 'type', 'tipePelanggan', 'price', 'vlan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie'])
+            ->where('mac_address', $normalizedMac);
+
+        // Mitra hanya cari di organisasinya sendiri
+        if ($user->organization && $user->organization->type === 'mitra') {
+            $customerQuery->where('organization_id', $user->organization_id);
+        }
+
+        $customer = $customerQuery->first();
 
         if (!$customer) {
             return response()->json(['status' => 'error', 'message' => 'Pelanggan dengan MAC Address tersebut tidak ditemukan.'], 404);
@@ -154,6 +179,7 @@ class TroubleshootController extends Controller
                 'status'          => $customer->status ?? 'unknown',
                 'latitude'        => $customer->latitude,
                 'longitude'       => $customer->longitude,
+                'organization_id' => $customer->organization_id,
             ],
         ]);
     }

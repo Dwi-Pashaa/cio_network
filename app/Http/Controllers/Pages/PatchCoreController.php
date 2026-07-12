@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Stock\PatchCoreDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Organization;
 use App\Models\PatchCore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,9 @@ class PatchCoreController extends Controller
             return (new PatchCoreDataTable)->get();
         }
 
-        return view("pages.patch-core.index");
+        $organizations = Organization::all();
+
+        return view("pages.patch-core.index", compact('organizations'));
     }
 
     /**

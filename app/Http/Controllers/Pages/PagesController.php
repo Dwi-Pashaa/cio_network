@@ -16,6 +16,7 @@ use App\Models\MicRadius;
 use App\Models\ODC;
 use App\Models\ODP;
 use App\Models\OLT;
+use App\Models\Organization;
 use App\Models\Pages;
 use App\Models\Paket;
 use App\Models\Price;
@@ -67,6 +68,8 @@ class PagesController extends Controller
         $price = Price::where('organization_id', auth()->user()->organization_id)->get();
         $tipePelanggan = Type::where('organization_id', auth()->user()->organization_id)->where('status', '1')->get();
 
+        $organizations = Organization::all();
+
         return view("pages.pages.index", compact(
             "hometown",
             "regencies",
@@ -79,7 +82,8 @@ class PagesController extends Controller
             "paket",
             "micRadius",
             "price",
-            "tipePelanggan"
+            "tipePelanggan",
+            "organizations"
         ));
     }
 

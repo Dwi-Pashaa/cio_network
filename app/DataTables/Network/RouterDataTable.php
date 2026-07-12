@@ -2,6 +2,7 @@
 
 namespace App\DataTables\Network;
 
+use App\Models\Organization;
 use App\Models\Router;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ class RouterDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $editId   = $row->id;
                 $deleteId = $row->id;
@@ -55,10 +57,26 @@ class RouterDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return Router::where('organization_id', Auth::user()->organization_id);
+        $query = Router::query()
+            ->join('organization', 'organization.id', '=', 'router_networks.organization_id')
+            ->select('router_networks.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('router_networks.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('router_networks.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**

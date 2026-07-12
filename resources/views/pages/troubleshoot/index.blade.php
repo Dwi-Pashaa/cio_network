@@ -104,6 +104,17 @@
                 </select>
                 <span class="text-muted" style="font-size: 0.88rem;">data</span>
             </div>
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-bold">Organisasi</span>
+                    <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
+                        <option value="">Semua</option>
+                        @foreach ($organizations as $org)
+                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             <div class="search-wrapper ms-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8" />
@@ -119,6 +130,9 @@
                     <tr>
                         <th style="width:50px; text-align:center;">No</th>
                         <th>Pelanggan</th>
+                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                            <th>Organisasi/Mitra</th>
+                        @endif
                         <th>Teknisi</th>
                         <th>Status</th>
                         <th>Dibuat Oleh</th>
@@ -323,6 +337,8 @@
     let editSelect2;
 
     $(function() {
+        const hasOrgFilter = {{ auth()->user()->hasPermissionTo('filter organization') ? 'true' : 'false' }};
+
         table = $('#troubleshoot-table').DataTable({
             processing: true,
             serverSide: true,
@@ -330,14 +346,20 @@
                 url: BASE,
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
+                    if (hasOrgFilter) {
+                        d.organization_id = $('#filter-organization').val();
+                    }
                 }
             },
-            order: [[5, 'desc']],
+            order: [[hasOrgFilter ? 6 : 5, 'desc']],
             pageLength: 10,
             dom: 'rt',
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'customer_name', defaultContent: '-' },
+                @if (auth()->user()->hasPermissionTo('filter organization'))
+                { data: 'organization_name', defaultContent: '-' },
+                @endif
                 { data: 'technician_name', defaultContent: '-' },
                 { data: 'status', defaultContent: '-' },
                 { data: 'creator_name', defaultContent: '-' },
@@ -370,6 +392,12 @@
                 table.search(this.value).draw();
             }
         });
+
+        @if (auth()->user()->hasPermissionTo('filter organization'))
+        $('#filter-organization').on('change', function() {
+            table.ajax.reload();
+        });
+        @endif
     });
 
     function updatePaginationInfo(settings) {

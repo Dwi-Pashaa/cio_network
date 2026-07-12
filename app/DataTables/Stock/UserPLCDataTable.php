@@ -2,6 +2,7 @@
 
 namespace App\DataTables\Stock;
 
+use App\Models\Organization;
 use App\Models\UserPLC;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -17,6 +18,7 @@ class UserPLCDataTable
             ->filter(function ($query) {
                 $this->search($query);
             })
+            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
             ->addColumn('action', function ($row) {
                 $user = Auth::user();
                 $buttons = '<div class="d-flex justify-content-center gap-2">';
@@ -52,12 +54,26 @@ class UserPLCDataTable
 
     /**
      * Base query
+     * - Mitra  : hanya tampilkan data dalam organisasi yang sama
+     * - Internal: tampilkan semua data
      */
     private function query()
     {
-        return UserPLC::with('user', 'plc')
-            ->select('user_plc.*')
-            ->where('user_plc.organization_id', Auth::user()->organization_id);
+        $query = UserPLC::with('user', 'plc')
+            ->join('organization', 'organization.id', '=', 'user_plc.organization_id')
+            ->select('user_plc.*', 'organization.name as organization_name');
+
+        $authUser = Auth::user()->loadMissing('organization');
+
+        if ($authUser->organization?->type === 'mitra') {
+            $query->where('user_plc.organization_id', $authUser->organization_id);
+        }
+
+        if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {
+            $query->where('user_plc.organization_id', request('organization_id'));
+        }
+
+        return $query;
     }
 
     /**

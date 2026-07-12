@@ -521,7 +521,18 @@
                         </select>
                         <span class="text-muted" style="font-size: 0.88rem;">entri</span>
                     </div>
-                    <div class="search-wrapper ms-auto">
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                        <div class="d-flex align-items-center gap-2 ms-auto">
+                            <span class="text-muted small fw-bold">Organisasi</span>
+                            <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
+                                <option value="">Semua</option>
+                                @foreach ($organizations as $org)
+                                    <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                    <div class="search-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
@@ -562,6 +573,9 @@
                                 <th>Tipe Pembayaran</th>
                                 <th>Lokasi</th>
                                 <th>Foto KTP</th>
+                                @if (auth()->user()->hasPermissionTo('filter organization'))
+                                    <th>Organisasi/Mitra</th>
+                                @endif
                                 <th>Di Input Oleh</th>
                                 <th>Created</th>
                                 @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
@@ -633,8 +647,19 @@
         ══════════════════════════════════════════════════════ --}}
         @can('lihat rekap prosedur')
             <div class="spam-panel" id="panel-rekap">
-                <div class="level-legend">
+                <div class="level-legend" style="display:flex;align-items:center;justify-content:space-between;">
                     <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em;">Rekap Hasil Validasi Prosedur</span>
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="font-size:0.82rem;font-weight:700;color:#94a3b8;">Organisasi</span>
+                            <select id="filter-org-rekap" class="org-input" style="width:auto;padding:0.35rem 0.8rem;font-size:0.82rem;">
+                                <option value="">Semua</option>
+                                @foreach ($organizations as $org)
+                                    <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 </div>
                 <div style="padding: 1.25rem 1.5rem;">
                     <div class="loading-spin" id="val-loading-rekap">
@@ -973,7 +998,8 @@ function loadValidationPanel(type) {
     if (loadingEl) loadingEl.style.display = 'block';
     if (contentEl) contentEl.innerHTML = '';
 
-    $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
+    const orgId = $('#filter-org-' + type).val() || '';
+    $.get(VAL_BASE, { tab: 'queue', type: type, organization_id: orgId }, function(res) {
         if (loadingEl) loadingEl.style.display = 'none';
         const items = res.data || [];
         currentItems = items;
@@ -1001,6 +1027,15 @@ function loadValidationPanel(type) {
     });
 }
 
+$(document).on('change', '[id^="filter-org-"]', function() {
+    const type = this.id.replace('filter-org-', '');
+    if (type === 'rekap') {
+        loadRekapPanel();
+    } else {
+        loadValidationPanel(type);
+    }
+});
+
 // ── REKAP HISTORIS LOADER ─────────────────────────────────────────────────────
 let currentRekapPage = 1;
 
@@ -1014,7 +1049,8 @@ function loadRekapPanel(page = 1) {
     if (contentEl) contentEl.innerHTML = '';
     if (footerEl) footerEl.style.setProperty('display', 'none', 'important');
 
-    $.get(VAL_BASE, { tab: 'rekap', page: page }, function(res) {
+    const orgId = $('#filter-org-rekap').val() || '';
+    $.get(VAL_BASE, { tab: 'rekap', page: page, organization_id: orgId }, function(res) {
         if (loadingEl) loadingEl.style.display = 'none';
         const items = res.data || [];
         currentItems = items;
@@ -2117,6 +2153,7 @@ function renderValCard(item, isPending = true) {
                     <span class="sep">|</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     ${item.submitted_by?.name || '-'}
+                    ${item.organization ? `<span class="sep">|</span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> ${item.organization.name}` : ''}
                 </div>
             </div>
             <span style="font-size:0.72rem;font-weight:700;color:${progressColor};background:${progressColor}15;padding:4px 12px;border-radius:20px;flex-shrink:0;letter-spacing:0.02em;">${progressText}</span>
@@ -2260,13 +2297,14 @@ function initializeDataTable() {
     table = $('#spam-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: {
-            url: SPAM_BASE,
-            data: function(d) {
-                d._token = CSRF;
-            }
-        },
-        order: [[29, 'desc']],
+                ajax: {
+                    url: SPAM_BASE,
+                    data: function(d) {
+                        d._token = CSRF;
+                        d.organization_id = $('#filter-organization').val();
+                    }
+                },
+                order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 31 : 29 }}, 'desc']],
         pageLength: 10,
         dom: 'rt',
         columns: [
@@ -2299,6 +2337,9 @@ function initializeDataTable() {
             { data: 'price_name', defaultContent: '-' },
             { data: 'location', orderable: false, searchable: false },
             { data: 'ktp_photo', orderable: false, searchable: false },
+            @if (auth()->user()->hasPermissionTo('filter organization'))
+                { data: 'organization_name', defaultContent: '-' },
+            @endif
             { data: 'user_name', defaultContent: '-' },
             { data: 'created_at', render: data => moment(data).format('DD/MM/YYYY HH:mm:ss') },
             @if (auth()->user()->can('ubah pelanggan') || auth()->user()->can('hapus pelanggan'))
@@ -2326,6 +2367,9 @@ function initializePaginationAndSearch() {
     $("#sort").on('change', function() { table.page.len($(this).val()).draw(); });
     $("#search-input").on('keypress', function(e) {
         if (e.which === 13) { e.preventDefault(); table.search(this.value).draw(); }
+    });
+    $("#filter-organization").on('change', function() {
+        table.ajax.reload();
     });
 }
 
