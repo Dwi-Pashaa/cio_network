@@ -54,7 +54,7 @@ class RTDataTable
      */
     private function query()
     {
-        return RT::where('organization_id', Auth::user()->organization_id);
+        return RT::query();
     }
 
     /**
