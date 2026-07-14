@@ -64,14 +64,14 @@ class PagesDataTable
 
         $query = Pages::with(['hometown', 'village'])
             ->join('organization', 'organization.id', '=', 'pages.organization_id')
-            ->whereIn('id', $authUserPages)
-            ->where('type', 'pages')
+            ->whereIn('pages.id', $authUserPages)
+            ->where('pages.type', 'pages')
             ->select('pages.*', 'organization.name as organization_name')
             ->when($hometown, function ($q) use ($hometown) {
-                return $q->where('hometowns_id', $hometown);
+                return $q->where('pages.hometowns_id', $hometown);
             })
             ->when($village, function ($q) use ($village) {
-                return $q->where('villages_id', $village);
+                return $q->where('pages.villages_id', $village);
             });
 
         $authUser = Auth::user()->loadMissing('organization');
