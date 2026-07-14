@@ -22,7 +22,14 @@ class ServerController extends Controller
             return (new ServerDataTable)->get();
         }
 
-        $hometown = HomeTown::select(['id', 'name'])->get();
+        $user = auth()->user();
+        $orgType = optional($user->organization)->type;
+
+        if ($orgType === 'internal') {
+            $hometown = HomeTown::select(['id', 'name'])->get();
+        } else {
+            $hometown = HomeTown::where('organization_id', $user->organization_id)->select(['id', 'name'])->get();
+        }
         $organizations = Organization::all();
 
         return view("pages.server.index", compact("hometown", "organizations"));

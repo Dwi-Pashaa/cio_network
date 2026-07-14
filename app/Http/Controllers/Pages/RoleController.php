@@ -42,6 +42,16 @@ class RoleController extends Controller
             auth()->user()->organization_id
         );
 
+        if (auth()->user()->organization && auth()->user()->organization->type !== 'internal') {
+            $orgPermissions = \App\Models\OrganizationPermission::where('organization_id', auth()->user()->organization_id)
+                ->with('permission')
+                ->get()
+                ->pluck('permission')
+                ->filter();
+
+            $role->syncPermissions($orgPermissions);
+        }
+
         return response()->json([
             'code' => 200,
             'status' => 'success',
@@ -123,7 +133,12 @@ class RoleController extends Controller
             ->firstOrFail();
 
         $permissions = Permission::all();
-        $organizationPermissions = $role->permissions()->pluck('name')->toArray();
+        $organizationPermissions = \App\Models\OrganizationPermission::where('organization_id', auth()->user()->organization_id)
+            ->with('permission')
+            ->get()
+            ->pluck('permission.name')
+            ->filter()
+            ->toArray();
 
         $groupedPermissions = [];
         $source = auth()->user()->organization->type === 'internal'

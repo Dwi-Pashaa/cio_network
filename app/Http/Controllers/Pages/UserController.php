@@ -100,11 +100,16 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::find($id);
-        $role = Role::where('organization_id', auth()->user()->organization_id)->get();
-        $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
-        $micRadius = MicRadius::where('organization_id', auth()->user()->organization_id)->get();
-        $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
-        $pages = Pages::where('organization_id', auth()->user()->organization_id)->get();
+        if (!$user) {
+            return back()->with('error', 'Data user tidak ditemukan.');
+        }
+
+        $orgId = $user->organization_id;
+        $role = Role::where('organization_id', $orgId)->get();
+        $olts = OLT::where('organization_id', $orgId)->get();
+        $micRadius = MicRadius::where('organization_id', $orgId)->get();
+        $regencie = Regency::where('organization_id', $orgId)->get();
+        $pages = Pages::where('organization_id', $orgId)->get();
 
         return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie", "pages"));
     }
@@ -143,7 +148,6 @@ class UserController extends Controller
             unset($data['password']);
         }
 
-        $data['organization_id'] = auth()->user()->organization_id;
         $user->update($data);
 
         $user->syncRoles([$request->role]);

@@ -40,12 +40,14 @@
                                         <span class="nav-link-title">Manajemen</span>
                                     </a>
                                     <div class="dropdown-menu">
-                                        @can('lihat organisasi')
-                                            <a class="dropdown-item {{ Route::is('organization*') ? 'active' : '' }}"
-                                                href="{{ route('organization.index') }}" rel="noopener">
-                                                Data Organisasi/Mitra
-                                            </a>
-                                        @endcan
+                                        @if(auth()->user()->organization && auth()->user()->organization->type === 'internal' && auth()->user()->hasRole('Admin'))
+                                            @can('lihat organisasi')
+                                                <a class="dropdown-item {{ Route::is('organization*') ? 'active' : '' }}"
+                                                    href="{{ route('organization.index') }}" rel="noopener">
+                                                    Data Organisasi/Mitra
+                                                </a>
+                                            @endcan
+                                        @endif
                                         @can('lihat level')
                                             <a class="dropdown-item {{ Route::is('role*') ? 'active' : '' }}"
                                                 href="{{ route('role.index') }}" rel="noopener">

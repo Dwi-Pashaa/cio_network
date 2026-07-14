@@ -22,7 +22,14 @@ class OLTController extends Controller
             return (new OLTDataTable)->get();
         }
 
-        $hometown = HomeTown::select(['id', 'name'])->get();
+        $user = auth()->user();
+        $orgType = optional($user->organization)->type;
+
+        if ($orgType === 'internal') {
+            $hometown = HomeTown::select(['id', 'name'])->get();
+        } else {
+            $hometown = HomeTown::where('organization_id', $user->organization_id)->select(['id', 'name'])->get();
+        }
         $organizations = Organization::all();
 
         return view("pages.olt.index", compact("hometown", "organizations"));

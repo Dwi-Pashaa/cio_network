@@ -16,6 +16,17 @@ use Spatie\Permission\Models\Permission;
 
 class OrganizationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!$user || optional($user->organization)->type !== 'internal' || !$user->hasRole('Admin')) {
+                abort(403, 'Unauthorized action.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
         if ($request->ajax()) {

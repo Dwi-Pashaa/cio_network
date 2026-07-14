@@ -23,9 +23,17 @@ class MicRadiusController extends Controller
             return (new MicRadiusDataTable)->get();
         }
 
-        $hometown = HomeTown::all();
+        $authUser = auth()->user();
+        $orgType = optional($authUser->organization)->type;
 
-        $user = User::all();
+        if ($orgType === 'internal') {
+            $hometown = HomeTown::all();
+            $user = User::all();
+        } else {
+            $orgId = $authUser->organization_id;
+            $hometown = HomeTown::where('organization_id', $orgId)->get();
+            $user = User::where('organization_id', $orgId)->get();
+        }
         $organizations = Organization::all();
 
         return view("pages.mic-radius.index", compact("hometown", "user", "organizations"));

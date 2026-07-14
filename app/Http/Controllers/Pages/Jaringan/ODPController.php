@@ -29,11 +29,23 @@ class ODPController extends Controller
             return (new ODPDataTable)->get();
         }
 
-        $hometown = HomeTown::select(['id', 'name'])->get();
+        $user = auth()->user();
+        $orgType = optional($user->organization)->type;
+
+        if ($orgType === 'internal') {
+            $hometown = HomeTown::select(['id', 'name'])->get();
+            $rts = RT::select(['id', 'name'])->get();
+            $rws = RW::select(['id', 'name'])->get();
+            $plcs = PLC::select(['id', 'name'])->get();
+            $patchCores = PatchCore::select(['id', 'name'])->get();
+        } else {
+            $orgId = $user->organization_id;
+            $hometown = HomeTown::where('organization_id', $orgId)->select(['id', 'name'])->get();
+            $plcs = PLC::where('organization_id', $orgId)->select(['id', 'name'])->get();
+            $patchCores = PatchCore::where('organization_id', $orgId)->select(['id', 'name'])->get();
+        }
         $rts = RT::select(['id', 'name'])->get();
         $rws = RW::select(['id', 'name'])->get();
-        $plcs = PLC::select(['id', 'name'])->get();
-        $patchCores = PatchCore::select(['id', 'name'])->get();
         $organizations = Organization::all();
 
         return view("pages.odp.index", compact("hometown", "rts", "rws", "plcs", "patchCores", "organizations"));

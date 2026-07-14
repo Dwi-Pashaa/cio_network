@@ -24,8 +24,17 @@ class MacAddressController extends Controller
             return (new MacAddressDataTable)->get();
         }
 
-        $user = User::all();
-        $router = Router::all();
+        $authUser = auth()->user();
+        $orgType = optional($authUser->organization)->type;
+
+        if ($orgType === 'internal') {
+            $user = User::all();
+            $router = Router::all();
+        } else {
+            $orgId = $authUser->organization_id;
+            $user = User::where('organization_id', $orgId)->get();
+            $router = Router::where('organization_id', $orgId)->get();
+        }
         $organizations = Organization::all();
 
         return view('pages.mac-address.index', compact('user', 'router', 'organizations'));
