@@ -82,6 +82,8 @@
                         <th>Level</th>
                         <th style="text-align:center;">Penempatan</th>
                         <th style="text-align:center;">Akses Hal.</th>
+                        <th style="text-align:center;">Akses Router</th>
+                        <th style="text-align:center;">Akses Patch Core</th>
                         <th style="text-align:center;">OLT</th>
                         <th style="text-align:center;">Mic Radius</th>
                                                         @if (Auth::user()->organization->type === 'internal')
@@ -154,7 +156,7 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[{{ Auth::user()->organization->type === 'internal' ? 9 : 8 }}, 'desc']], // Created At Sorting Default
+            order: [[{{ Auth::user()->organization->type === 'internal' ? 11 : 10 }}, 'desc']], // Created At Sorting Default
             pageLength: 10,
             dom: 'rt', 
             language: {
@@ -183,6 +185,8 @@
                 },
                 { data: 'regencie', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Penempatan Wilayah') },
                 { data: 'pages', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Halaman') },
+                { data: 'router_access', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Router') },
+                { data: 'patch_core_access', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Patch Core') },
                 { data: 'olt', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses OLT') },
                 { data: 'mix_radius', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Mikrotik / Radius') },
                 @if (Auth::user()->organization->type === 'internal')

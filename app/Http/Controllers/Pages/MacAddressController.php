@@ -27,13 +27,13 @@ class MacAddressController extends Controller
         $authUser = auth()->user();
         $orgType = optional($authUser->organization)->type;
 
+        $router = Router::whereIn('id', $authUser->routerAccess->pluck('id'))->get();
+
         if ($orgType === 'internal') {
             $user = User::all();
-            $router = Router::all();
         } else {
             $orgId = $authUser->organization_id;
             $user = User::where('organization_id', $orgId)->get();
-            $router = Router::where('organization_id', $orgId)->get();
         }
         $organizations = Organization::all();
 
@@ -45,8 +45,11 @@ class MacAddressController extends Controller
         $this->syncStatusesForCurrentOrganization();
 
         $authUser = auth()->user();
+        $allowedRouterIds = $authUser->routerAccess->pluck('id')->toArray();
 
-        $query = MacAddress::query()->where('organization_id', $authUser->organization_id);
+        $query = MacAddress::query()
+            ->whereIn('router_id', $allowedRouterIds)
+            ->where('organization_id', $authUser->organization_id);
 
         if ($request->filled('filter_user')) {
             $query->where('user_id', $request->filter_user);

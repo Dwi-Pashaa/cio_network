@@ -367,8 +367,25 @@
                         if (hasCoord) initCustomerMap(parseFloat(d.latitude), parseFloat(d.longitude), d.name);
                         else document.getElementById('customerMap').style.display = 'none';
 
-                        // Load teknisi berdasarkan organisasi pelanggan
-                        populateTechSelect(d.organization_id);
+                        // Load teknisi dari response searchCustomer
+                        const techSelect = $('#technician_id');
+                        if (techSelect.data('select2')) {
+                            techSelect.select2('destroy');
+                        }
+                        techSelect.empty().append('<option value="">-- Pilih Teknisi --</option>');
+                        if (res.technicians && res.technicians.length > 0) {
+                            $.each(res.technicians, function(i, tech) {
+                                techSelect.append('<option value="' + tech.id + '">' + tech.name + '</option>');
+                            });
+                        } else {
+                            techSelect.append('<option value="" disabled>Tidak ada teknisi</option>');
+                        }
+                        techSelect.select2({
+                            theme: 'bootstrap-5',
+                            placeholder: '-- Pilih Teknisi --',
+                            allowClear: true,
+                            width: '100%'
+                        });
 
                         goToStep(2);
                     }

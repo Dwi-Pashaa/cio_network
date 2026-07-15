@@ -68,8 +68,13 @@ class DashboardController extends Controller
                 break;
         }
 
-        $userRouter = Auth::user()->router()->get();
-        $userPatchCore = Auth::user()->patchCore()->get();
+        $authUser = Auth::user()->loadMissing('routerAccess', 'patchCoreAccess');
+
+        $allowedRouterIds = $authUser->routerAccess->pluck('id')->toArray();
+        $userRouter = $authUser->router()->whereIn('router_networks.id', $allowedRouterIds)->get();
+
+        $allowedPatchCoreIds = $authUser->patchCoreAccess->pluck('id')->toArray();
+        $userPatchCore = $authUser->patchCore()->whereIn('patch_core.id', $allowedPatchCoreIds)->get();
 
         $userPagesQuery = Auth::user()->pages()->with(['regencie', 'district', 'village', 'vlan.vlan']);
 

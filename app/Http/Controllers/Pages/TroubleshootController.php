@@ -142,8 +142,11 @@ class TroubleshootController extends Controller
         $normalizedMac = strtoupper(str_replace('-', ':', $mac));
         $user = Auth::user();
 
+        $allowedRouterIds = $user->routerAccess->pluck('id')->toArray();
+
         $customerQuery = Customer::with(['paket', 'type', 'tipePelanggan', 'price', 'vlan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie'])
-            ->where('mac_address', $normalizedMac);
+            ->where('mac_address', $normalizedMac)
+            ->whereIn('routers_id', $allowedRouterIds);
 
         // Mitra hanya cari di organisasinya sendiri
         if ($user->organization && $user->organization->type === 'mitra') {
@@ -155,6 +158,17 @@ class TroubleshootController extends Controller
         if (!$customer) {
             return response()->json(['status' => 'error', 'message' => 'Pelanggan dengan MAC Address tersebut tidak ditemukan.'], 404);
         }
+
+        $customerRouterId = $customer->routers_id;
+
+        $technicians = User::whereHas('routerAccess', function ($q) use ($customerRouterId) {
+                $q->where('router_networks.id', $customerRouterId);
+            })
+            ->whereHas('router', function ($q) use ($customerRouterId) {
+                $q->where('router_networks.id', $customerRouterId);
+            })
+            ->where('organization_id', $customer->organization_id)
+            ->get(['id', 'name']);
 
         $addressParts = [];
         if (!empty($customer->hometown->name)) $addressParts[] = 'Kampung ' . $customer->hometown->name;
@@ -181,6 +195,7 @@ class TroubleshootController extends Controller
                 'longitude'       => $customer->longitude,
                 'organization_id' => $customer->organization_id,
             ],
+            'technicians' => $technicians,
         ]);
     }
 

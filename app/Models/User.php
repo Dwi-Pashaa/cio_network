@@ -109,6 +109,18 @@ class User extends Authenticatable
         );
     }
 
+    public function routerAccess(): BelongsToMany
+    {
+        return $this->belongsToMany(Router::class, 'user_router_access', 'user_id', 'router_id')
+            ->withTimestamps();
+    }
+
+    public function patchCoreAccess(): BelongsToMany
+    {
+        return $this->belongsToMany(PatchCore::class, 'user_patch_core_access', 'user_id', 'patch_core_id')
+            ->withTimestamps();
+    }
+
     public function pages()
     {
         return $this->belongsToMany(Pages::class, 'user_pages', 'user_id', 'pages_id')

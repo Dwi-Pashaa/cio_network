@@ -9,8 +9,10 @@ use App\Models\MixRadiusUser;
 use App\Models\OLT;
 use App\Models\OLTUser;
 use App\Models\Pages;
+use App\Models\PatchCore;
 use App\Models\Regency;
 use App\Models\Organization;
+use App\Models\Router;
 use App\Models\User;
 use Google\Service\Analytics\RemarketingAudienceAudienceDefinition;
 use Illuminate\Http\Request;
@@ -44,8 +46,10 @@ class UserController extends Controller
         $micRadius = MicRadius::where('organization_id', auth()->user()->organization_id)->get();
         $regencie = Regency::where('organization_id', auth()->user()->organization_id)->get();
         $pages = Pages::where('organization_id', auth()->user()->organization_id)->get();
+        $routers = Router::where('organization_id', auth()->user()->organization_id)->get();
+        $patchCores = PatchCore::where('organization_id', auth()->user()->organization_id)->get();
 
-        return view("pages.user.create", compact("role", "olts", "micRadius", "regencie", "pages"));
+        return view("pages.user.create", compact("role", "olts", "micRadius", "regencie", "pages", "routers", "patchCores"));
     }
 
     public function store(Request $request)
@@ -60,6 +64,8 @@ class UserController extends Controller
             'regencie_id.*' => 'exists:regencies,id',
             "password" => "required|string|min:8|confirmed",
             'pages_id' => 'required|array',
+            'router_id' => 'nullable|array',
+            'patch_core_id' => 'nullable|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -81,6 +87,9 @@ class UserController extends Controller
         $user->regencie()->sync($validated['regencie_id']);
 
         $user->pages()->sync($validated['pages_id']);
+
+        $user->routerAccess()->sync($request->router_id ?? []);
+        $user->patchCoreAccess()->sync($request->patch_core_id ?? []);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->attach($request->olt_id);
@@ -110,8 +119,10 @@ class UserController extends Controller
         $micRadius = MicRadius::where('organization_id', $orgId)->get();
         $regencie = Regency::where('organization_id', $orgId)->get();
         $pages = Pages::where('organization_id', $orgId)->get();
+        $routers = Router::where('organization_id', $orgId)->get();
+        $patchCores = PatchCore::where('organization_id', $orgId)->get();
 
-        return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie", "pages"));
+        return view("pages.user.edit", compact("user", "role", "olts", "micRadius", "regencie", "pages", "routers", "patchCores"));
     }
 
     public function update(Request $request, $id)
@@ -131,6 +142,8 @@ class UserController extends Controller
             "password" => "nullable|string|min:8|confirmed",
             'regencie_id' => 'required|array',
             'pages_id' => 'required|array',
+            'router_id' => 'nullable|array',
+            'patch_core_id' => 'nullable|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -155,6 +168,9 @@ class UserController extends Controller
         $user->regencie()->sync($request->regencie_id);
 
         $user->pages()->sync($request->pages_id);
+
+        $user->routerAccess()->sync($request->router_id ?? []);
+        $user->patchCoreAccess()->sync($request->patch_core_id ?? []);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->sync($request->olt_id);
@@ -186,6 +202,8 @@ class UserController extends Controller
             $user->olts()->detach();
             $user->mixRadius()->detach();
             $user->router()->detach();
+            $user->routerAccess()->detach();
+            $user->patchCoreAccess()->detach();
             $user->regencie()->detach();
 
             $user->delete();

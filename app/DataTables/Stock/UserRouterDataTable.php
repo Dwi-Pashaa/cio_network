@@ -53,12 +53,10 @@ class UserRouterDataTable
             ->join('organization', 'organization.id', '=', 'user_router.organization_id')
             ->select('user_router.*', 'organization.name as organization_name');
 
-        $authUser = Auth::user()->loadMissing('organization');
+        $authUser = Auth::user()->loadMissing('routerAccess');
 
-        // Jika user login bertipe mitra, batasi ke organization_id yang sama
-        if ($authUser->organization?->type === 'mitra') {
-            $query->where('user_router.organization_id', $authUser->organization_id);
-        }
+        $allowedRouterIds = $authUser->routerAccess->pluck('id')->toArray();
+        $query->whereIn('user_router.router_id', $allowedRouterIds);
 
         // Filter by organization (hanya user dengan permission filter organization)
         if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {

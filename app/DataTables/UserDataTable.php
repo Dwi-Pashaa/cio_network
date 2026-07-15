@@ -47,6 +47,20 @@ class UserDataTable
                     ? $row->pages->map(fn($r) => '<span class="badge bg-primary text-white mb-2">' . $r->name . '</span>')->implode('<br>')
                     : '-'
             )
+            ->addColumn(
+                'router_access',
+                fn($row) =>
+                $row->routerAccess->isNotEmpty()
+                    ? $row->routerAccess->map(fn($r) => '<span class="badge bg-primary text-white mb-2">' . $r->name . ' (' . $r->code . ')</span>')->implode('<br>')
+                    : '-'
+            )
+            ->addColumn(
+                'patch_core_access',
+                fn($row) =>
+                $row->patchCoreAccess->isNotEmpty()
+                    ? $row->patchCoreAccess->map(fn($r) => '<span class="badge bg-primary text-white mb-2">' . $r->name . '</span>')->implode('<br>')
+                    : '-'
+            )
             // Organization name (for internal users)
             ->addColumn('organization_name', fn($row) => $row->organization?->name ?? '-')
             // Action
@@ -66,7 +80,7 @@ class UserDataTable
 
                 return $buttons ?: '-';
             })
-            ->rawColumns(['mix_radius', 'olt', 'regencie', 'pages', 'action'])
+            ->rawColumns(['mix_radius', 'olt', 'regencie', 'pages', 'router_access', 'patch_core_access', 'action'])
             ->make(true);
     }
 
@@ -77,7 +91,7 @@ class UserDataTable
      */
     private function query()
     {
-        $query = User::with(['mixRadius', 'olts', 'regencie', 'pages', 'roles', 'organization'])
+        $query = User::with(['mixRadius', 'olts', 'regencie', 'pages', 'roles', 'organization', 'routerAccess', 'patchCoreAccess'])
             ->select('users.*');
 
         $authUser = auth()->user()->loadMissing('organization');

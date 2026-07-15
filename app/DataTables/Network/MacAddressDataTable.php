@@ -82,6 +82,9 @@ class MacAddressDataTable
             $query->where('mac_address.user_id', $authUser->id);
         }
 
+        $allowedRouterIds = $authUser->routerAccess->pluck('id')->toArray();
+        $query->whereIn('mac_address.router_id', $allowedRouterIds);
+
         if (request()->filled('user')) {
             $query->where('mac_address.user_id', request('user'));
         }

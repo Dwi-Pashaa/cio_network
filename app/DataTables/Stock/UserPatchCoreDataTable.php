@@ -69,12 +69,10 @@ class UserPatchCoreDataTable
                 'organization.name as organization_name'
             ]);
 
-        $authUser = Auth::user()->loadMissing('organization');
+        $authUser = Auth::user()->loadMissing('patchCoreAccess');
 
-        // Jika user login bertipe mitra, batasi ke organization_id yang sama
-        if ($authUser->organization?->type === 'mitra') {
-            $query->where('user_patch_core.organization_id', $authUser->organization_id);
-        }
+        $allowedPatchCoreIds = $authUser->patchCoreAccess->pluck('id')->toArray();
+        $query->whereIn('user_patch_core.patch_core_id', $allowedPatchCoreIds);
 
         // Filter by organization (hanya user dengan permission filter organization)
         if (auth()->user()->hasPermissionTo('filter organization') && request('organization_id')) {

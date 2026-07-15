@@ -88,7 +88,10 @@ class CustomerController extends Controller
     public function create()
     {
         $type = Type::where('organization_id', Auth::user()->organization_id)->get();
-        $router = Router::where('organization_id', Auth::user()->organization_id)->get();
+        $user = Auth::user();
+        $router = Router::where('organization_id', $user->organization_id)
+            ->whereIn('id', $user->routerAccess->pluck('id'))
+            ->get();
         $hometown = HomeTown::select(['id', 'name'])->get();
         $village = Village::select(['id', 'name'])->get();
         $rt = RT::select(['id', 'name'])->get();
@@ -197,7 +200,11 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $type = Type::select(['id', 'name'])->get();
-        $router = Router::select(['id', 'name'])->get();
+        $user = Auth::user();
+        $router = Router::select(['id', 'name'])
+            ->where('organization_id', $user->organization_id)
+            ->whereIn('id', $user->routerAccess->pluck('id'))
+            ->get();
         $hometown = HomeTown::select(['id', 'name'])->get();
         $village = Village::select(['id', 'name'])->get();
         $rt = RT::select(['id', 'name'])->get();

@@ -79,6 +79,11 @@ class TroubleshootDataTable
             });
         }
 
+        $allowedRouterIds = $user->routerAccess->pluck('id')->toArray();
+        $query->whereHas('customer', function ($q) use ($allowedRouterIds) {
+            $q->whereIn('routers_id', $allowedRouterIds);
+        });
+
         if (!auth()->user()->can('kelola troubleshoot')) {
             $query->where('technician_id', Auth::id())
                 ->where('status', '!=', 'done');

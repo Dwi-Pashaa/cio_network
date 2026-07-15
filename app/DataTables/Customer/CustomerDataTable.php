@@ -410,6 +410,9 @@ class CustomerDataTable
             $query->where('customers.organization_id', $user->organization_id);
         }
 
+        $allowedRouterIds = $user->routerAccess->pluck('id')->toArray();
+        $query->whereIn('customers.routers_id', $allowedRouterIds);
+
         return $query
             ->when($request->search ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {

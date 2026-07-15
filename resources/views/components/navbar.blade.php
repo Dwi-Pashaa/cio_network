@@ -93,8 +93,10 @@
                                                 Data PLC
                                             </a>
                                         @endcan
-                                        @canany(['lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
+                                        @canany(['lihat patch core', 'lihat plc'])
                                             <div class="dropdown-divider"></div>
+                                        @endcanany
+                                        @canany(['lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
                                             @can('lihat stock router')
                                                 <a class="dropdown-item {{ Route::is('user.router*') ? 'active' : '' }}"
                                                     href="{{ route('user.router.index') }}" rel="noopener">
@@ -361,7 +363,7 @@
                             @endcan
 
                             {{-- ==================== Lainnya ==================== --}}
-                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas'])
+                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas', 'kelola troubleshoot', 'lihat troubleshoot'])
                                 <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-lainnya"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"

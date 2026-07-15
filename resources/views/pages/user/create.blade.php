@@ -307,6 +307,32 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label for="select-router" class="modern-label">Akses Data Router</label>
+                        <select name="router_id[]" id="select-router"
+                            class="form-select @error('router_id') is-invalid @enderror" multiple>
+                            @foreach ($routers as $router)
+                                <option value="{{ $router->id }}">{{ $router->name }} ({{ $router->code }})</option>
+                            @endforeach
+                        </select>
+                        @error('router_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="select-patch-core" class="modern-label">Akses Data Patch Core</label>
+                        <select name="patch_core_id[]" id="select-patch-core"
+                            class="form-select @error('patch_core_id') is-invalid @enderror" multiple>
+                            @foreach ($patchCores as $patchCore)
+                                <option value="{{ $patchCore->id }}">{{ $patchCore->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('patch_core_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- ── Password ── --}}
@@ -394,6 +420,14 @@
             new TomSelect("#select-pages", {
                 ...tsConfig,
                 placeholder: "Pilih Akses Halaman"
+            });
+            new TomSelect("#select-router", {
+                ...tsConfig,
+                placeholder: "Pilih Akses Router"
+            });
+            new TomSelect("#select-patch-core", {
+                ...tsConfig,
+                placeholder: "Pilih Patch Core"
             });
 
             // Role → show/hide conditional fields
