@@ -418,7 +418,10 @@
             // ─── Auto-detect input type as user types ───
             const MAC_REGEX  = /^([0-9a-fA-F]{2}[:\-]){1,}[0-9a-fA-F]{0,2}$/;
             const MAC_FULL   = /^([0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}$/;
-            const MAC_LIKE   = /^([0-9a-zA-Z]{2}[:\-]){5}[0-9a-zA-Z]{2}$/;
+            // MAC_LIKE: 17-char format XX:XX:XX:XX:XX:XX with at least one non-hex char
+            const MAC_LIKE   = /^([0-9a-fA-F]{0,2}[^0-9a-fA-F:\-][0-9a-zA-Z]{0,1}[:\-]|[0-9a-zA-Z]{0,1}[^0-9a-fA-F:\-][0-9a-fA-F]{0,2}[:\-]|[0-9a-fA-F]{2}[:\-]){5}([0-9a-fA-F]{0,2}[^0-9a-fA-F\s][0-9a-zA-Z]{0,1}|[0-9a-zA-Z]{0,1}[^0-9a-fA-F\s][0-9a-fA-F]{0,2}|[0-9a-fA-F]{2})$/;
+            // MAC_HAS_SEP: detects any input with colon/dash separator pattern (looks like a MAC being typed)
+            const MAC_HAS_SEP = /^[0-9a-zA-Z]{1,2}([:\-][0-9a-zA-Z]{0,2})+$/;
 
             const svgId  = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
             const svgMac = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="10" y1="12" x2="10.01" y2="12"/></svg>';
@@ -441,9 +444,10 @@
                     $modeText.text('Mode: MAC Address ✓');
                     $modeBadge.find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
                     $inputIcon.html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
-                } else if (MAC_LIKE.test(val)) {
+                } else if (MAC_HAS_SEP.test(val) && !MAC_REGEX.test(val)) {
+                    // Has separator pattern but contains non-hex character
                     $modeBadge.css('color', '#ef4444');
-                    $modeText.text('Mode: MAC Address (format tidak valid)');
+                    $modeText.text('Mode: MAC Address (karakter tidak valid, gunakan 0-9 dan A-F)');
                     $modeBadge.find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
                     $inputIcon.html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
                 } else if (MAC_REGEX.test(val)) {
@@ -496,11 +500,11 @@
 
                 // Auto-detect search mode
                 const isMacValid = MAC_FULL.test(val);
-                const isMacLike  = MAC_LIKE.test(val);
+                const isMacHasSep = MAC_HAS_SEP.test(val);
                 const isMac      = isMacValid || MAC_REGEX.test(val);
                 const searchBy = isMac ? 'mac' : 'id';
 
-                if (isMacLike && !isMacValid) {
+                if (isMacHasSep && !isMac) {
                     $searchAlert.find('span').text('Format MAC Address tidak valid. Gunakan karakter heksadesimal (0-9, A-F) dengan format XX:XX:XX:XX:XX:XX');
                     $searchAlert.css('display', 'flex').hide().slideDown(200);
                     $btnSearch.prop('disabled', false);
