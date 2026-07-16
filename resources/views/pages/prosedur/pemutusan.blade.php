@@ -433,12 +433,6 @@
                     $('#search-mode-text').text('Mode: MAC Address ✓');
                     $('#search-mode-badge').find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
                     $('#search-input-icon').html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
-                } else if (MAC_HAS_SEP.test(val) && !MAC_REGEX.test(val)) {
-                    // Has separator pattern but contains non-hex character
-                    $('#search-mode-badge').css('color', '#ef4444');
-                    $('#search-mode-text').text('Mode: MAC Address (karakter tidak valid, gunakan 0-9 dan A-F)');
-                    $('#search-mode-badge').find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
-                    $('#search-input-icon').html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
                 } else if (MAC_REGEX.test(val)) {
                     $('#search-mode-badge').css('color', '#7c3aed');
                     $('#search-mode-text').text('Mode: MAC Address (lanjutkan mengetik...)');
