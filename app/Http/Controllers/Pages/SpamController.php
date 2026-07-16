@@ -124,6 +124,21 @@ class SpamController extends Controller
     public function outSwitch($id)
     {
         $switch = SwitchDevice::find($id);
+        $customer = Customer::find($switch->customer_id);
+
+        if ($customer && $customer->routers_id && $customer->user_id) {
+            UserRouter::where('user_id', $customer->user_id)
+                ->where('router_id', $customer->routers_id)
+                ->first()
+                ?->increment('total');
+        }
+
+        if ($customer && $switch->router_new_id && $customer->user_id) {
+            UserRouter::where('user_id', $customer->user_id)
+                ->where('router_id', $switch->router_new_id)
+                ->first()
+                ?->decrement('total');
+        }
 
         Customer::where('id', $switch->customer_id)
             ->update([

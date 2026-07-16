@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\MacAddressHelper;
 use App\Models\Customer;
 use App\Models\MacAddress;
 use App\Models\ProsedurSpam;
@@ -439,6 +440,38 @@ class ValidationController extends Controller
                 'user_update_id' => $submittedBy,
             ]);
         }
+
+        if (!empty($payload['router_new_id'])) {
+            if ($customer->routers_id && $customer->user_id) {
+                UserRouter::where('user_id', $customer->user_id)
+                    ->where('router_id', $customer->routers_id)
+                    ->first()
+                    ?->increment('total');
+            }
+            Customer::where('id', $customer->id)->update(['routers_id' => $payload['router_new_id']]);
+            if ($customer->user_id) {
+                UserRouter::where('user_id', $customer->user_id)
+                    ->where('router_id', $payload['router_new_id'])
+                    ->first()
+                    ?->decrement('total');
+            }
+        }
+
+        if (!empty($payload['patch_core_new_id'])) {
+            if ($customer->patch_core_id && $customer->user_id) {
+                UserPatchCore::where('user_id', $customer->user_id)
+                    ->where('patch_core_id', $customer->patch_core_id)
+                    ->first()
+                    ?->increment('total');
+            }
+            Customer::where('id', $customer->id)->update(['patch_core_id' => $payload['patch_core_new_id']]);
+            if ($customer->user_id) {
+                UserPatchCore::where('user_id', $customer->user_id)
+                    ->where('patch_core_id', $payload['patch_core_new_id'])
+                    ->first()
+                    ?->decrement('total');
+            }
+        }
     }
 
     private function executeOnuRouter(Customer $customer, array $payload, int $submittedBy): void
@@ -447,7 +480,8 @@ class ValidationController extends Controller
         $updateData = [];
 
         if (!empty($payload['mac_address_new'])) {
-            $updateData['mac_address'] = $payload['mac_address_new'];
+            // Normalize MAC baru sebelum disimpan (bug fix: format konsisten)
+            $updateData['mac_address'] = MacAddressHelper::normalize($payload['mac_address_new']);
         }
 
         if (!empty($payload['router_new_id'])) {
@@ -467,6 +501,24 @@ class ValidationController extends Controller
                     ->where('router_id', $payload['router_new_id'])
                     ->first();
                 $userRouter?->decrement('total');
+            }
+        }
+
+        if (!empty($payload['patch_core_new_id'])) {
+            if ($customer->patch_core_id && $customer->user_id) {
+                $userPatchCore = UserPatchCore::where('user_id', $customer->user_id)
+                    ->where('patch_core_id', $customer->patch_core_id)
+                    ->first();
+                $userPatchCore?->increment('total');
+            }
+
+            $updateData['patch_core_id'] = $payload['patch_core_new_id'];
+
+            if ($customer->user_id) {
+                $userPatchCore = UserPatchCore::where('user_id', $customer->user_id)
+                    ->where('patch_core_id', $payload['patch_core_new_id'])
+                    ->first();
+                $userPatchCore?->decrement('total');
             }
         }
 
