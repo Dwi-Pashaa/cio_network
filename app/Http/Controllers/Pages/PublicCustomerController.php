@@ -34,10 +34,10 @@ class PublicCustomerController extends Controller
         }
 
         $macAddress = trim($request->input('mac_address'));
-        // Normalize MAC: allow hyphens/colons, make uppercase
-        $macAddress = strtoupper(str_replace('-', ':', $macAddress));
+        // Normalize MAC: strip all colons and hyphens and make uppercase to support format-insensitive search
+        $cleanMac = strtoupper(str_replace([':', '-'], '', $macAddress));
 
-        $customer = Customer::where('mac_address', $macAddress)
+        $customer = Customer::whereRaw("UPPER(TRIM(REPLACE(REPLACE(mac_address, ':', ''), '-', ''))) = ?", [$cleanMac])
             ->whereHas('type', function ($q) {
                 $q->where('name', 'PPPOE');
             })
@@ -134,10 +134,10 @@ class PublicCustomerController extends Controller
         }
 
         $macAddress = trim($request->input('mac_address'));
-        // Normalize MAC: allow hyphens/colons, make uppercase
-        $macAddress = strtoupper(str_replace('-', ':', $macAddress));
+        // Normalize MAC: strip all colons and hyphens and make uppercase to support format-insensitive search
+        $cleanMac = strtoupper(str_replace([':', '-'], '', $macAddress));
 
-        $customer = Customer::where('mac_address', $macAddress)
+        $customer = Customer::whereRaw("UPPER(TRIM(REPLACE(REPLACE(mac_address, ':', ''), '-', ''))) = ?", [$cleanMac])
             ->whereHas('type', function ($q) {
                 $q->where('name', 'PPPOE');
             })

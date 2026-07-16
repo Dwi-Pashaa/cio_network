@@ -74,10 +74,9 @@ class ProsedurController extends Controller
         $query = Customer::with(['paket', 'type', 'tipePelanggan', 'price', 'vlan', 'hometown', 'rt', 'rw', 'village', 'district', 'regencie']);
 
         if ($searchBy === 'mac') {
-            // Normalize MAC: allow colons or hyphens, case-insensitive
-            // Gunakan whereRaw UPPER(TRIM()) agar tidak bergantung MySQL collation
-            $normalizedMac = MacAddressHelper::normalize($search);
-            $query->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac]);
+            // Normalize MAC: strip all colons and hyphens and make uppercase to support format-insensitive search
+            $cleanSearch = strtoupper(str_replace([':', '-'], '', $search));
+            $query->whereRaw("UPPER(TRIM(REPLACE(REPLACE(mac_address, ':', ''), '-', ''))) = ?", [$cleanSearch]);
         } else {
             // Search by uuid (ID Pelanggan), name, or pppoe_username
             $query->where(function ($q) use ($search) {
@@ -232,12 +231,12 @@ class ProsedurController extends Controller
             ], 400);
         }
 
-        // Normalize MAC (bug fix: router mitra bisa kirim format lowercase/hyphen)
-        $mac = MacAddressHelper::normalize($rawMac);
+        // Normalize MAC: strip all colons and hyphens and make uppercase to support format-insensitive search
+        $cleanMac = strtoupper(str_replace([':', '-'], '', $rawMac));
 
-        // Find MacAddress dengan case-insensitive search
+        // Find MacAddress dengan case-insensitive and format-insensitive search
         $macRecord = MacAddress::with('router')
-            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$mac])
+            ->whereRaw("UPPER(TRIM(REPLACE(REPLACE(mac_address, ':', ''), '-', ''))) = ?", [$cleanMac])
             ->first();
 
         if (!$macRecord) {
