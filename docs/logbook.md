@@ -61,3 +61,30 @@ Saat prosedur **Pergantian Perangkat (ONU/Router)** dan **Pergantian Layanan** d
 ### Catatan
 - Table menggunakan `table-responsive` (horizontal scroll) untuk menampung 35 kolom, sesuai pattern menu lain (OLT, ODP, dll).
 - Tombol Copy Data sekarang berada di kolom NO paling kiri, bersebelahan dengan checkbox seleksi.
+
+## 2026-07-16 — Fix Auto-Detect MAC Address di Wizard Prosedur
+
+### Masalah
+Saat input MAC Address dengan karakter heksadesimal tidak valid (contoh: `12:AB:83:00:11:HB`), sistem gagal mengenali sebagai MAC dan salah menganggap sebagai **ID Pelanggan**, menyebabkan pencarian gagal dengan pesan "Pelanggan tidak ditemukan".
+
+### Perbaikan
+Tambahkan regex `MAC_LIKE` di 3 file prosedur untuk deteksi format MAC tanpa validasi heksadesimal:
+
+#### 1. `pemutusan.blade.php`, `onu-router.blade.php`, `pergantian-layanan.blade.php`
+- Tambah konstanta `MAC_LIKE = /^([0-9a-zA-Z]{2}[:\-]){5}[0-9a-zA-Z]{2}$/` untuk deteksi format MAC secara luas (termasuk karakter non-heksadesimal).
+- Ubah prioritas deteksi mode di `input` handler:
+  1. `MAC_FULL` valid → "Mode: MAC Address ✓"
+  2. `MAC_LIKE` tapi hex tidak valid → "Mode: MAC Address (format tidak valid)" (warna merah)
+  3. `MAC_REGEX` (partial) → "Mode: MAC Address (lanjutkan mengetik...)"
+  4. Selainnya → "Mode: ID Pelanggan"
+- Tambah validasi di `search` handler: jika format seperti MAC tapi hex tidak valid, tampilkan error spesifik dan batalkan pencarian.
+
+### File yang Diubah
+| File | Perubahan |
+|------|-----------|
+| `resources/views/pages/prosedur/pemutusan.blade.php` | +MAC_LIKE regex, update input & search handler |
+| `resources/views/pages/prosedur/onu-router.blade.php` | +MAC_LIKE regex, update input & search handler |
+| `resources/views/pages/prosedur/pergantian-layanan.blade.php` | +MAC_LIKE regex, update input & search handler |
+
+### Catatan
+- Perbaikan diterapkan seragam di ketiga wizard prosedur (pemutusan, onu-router, pergantian-layanan).
