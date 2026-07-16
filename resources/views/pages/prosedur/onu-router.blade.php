@@ -501,17 +501,8 @@
                 // Auto-detect search mode
                 const isMacValid = MAC_FULL.test(val);
                 const isMacHasSep = MAC_HAS_SEP.test(val);
-                const isMac      = isMacValid || MAC_REGEX.test(val);
+                const isMac      = isMacValid || MAC_REGEX.test(val) || isMacHasSep;
                 const searchBy = isMac ? 'mac' : 'id';
-
-                if (isMacHasSep && !isMac) {
-                    $searchAlert.find('span').text('Format MAC Address tidak valid. Gunakan karakter heksadesimal (0-9, A-F) dengan format XX:XX:XX:XX:XX:XX');
-                    $searchAlert.css('display', 'flex').hide().slideDown(200);
-                    $btnSearch.prop('disabled', false);
-                    $spinner.hide();
-                    $btnText.show();
-                    return;
-                }
 
                 $searchAlert.hide();
                 $btnSearch.prop('disabled', true);
