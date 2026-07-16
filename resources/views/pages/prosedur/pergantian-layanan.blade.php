@@ -611,6 +611,11 @@
                     $modeText.text('Mode: MAC Address (lanjutkan mengetik...)');
                     $modeBadge.find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
                     $inputIcon.html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
+                } else if (MAC_HAS_SEP.test(val)) {
+                    $modeBadge.css('color', '#7c3aed');
+                    $modeText.text('Mode: MAC Address');
+                    $modeBadge.find('svg').replaceWith($(svgMac).css({width:'12px',height:'12px'}));
+                    $inputIcon.html(svgMac.replace('width="12"','width="18"').replace('height="12"','height="18"'));
                 } else {
                     $modeBadge.css('color', '#2563eb');
                     $modeText.text('Mode: ID Pelanggan');
