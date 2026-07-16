@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pages;
 use App\DataTables\Customer\CustomerDataTable;
 use App\Events\ChatSent;
 use App\Exports\CustomerExport;
+use App\Helpers\MacAddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Chat;
@@ -189,6 +190,11 @@ class CustomerController extends Controller
             unset($data['type_name']);
         }
 
+        // Normalize MAC Address sebelum disimpan (bug fix: pastikan format konsisten)
+        if (!empty($data['mac_address'])) {
+            $data['mac_address'] = MacAddressHelper::normalize($data['mac_address']);
+        }
+
         Customer::create($data);
 
         return redirect()->route('customer.index')->with('success', 'Data pelanggan berhasil ditambahkan!');
@@ -306,6 +312,11 @@ class CustomerController extends Controller
         }
 
         unset($data['type_name']);
+
+        // Normalize MAC Address sebelum disimpan (bug fix: pastikan format konsisten)
+        if (!empty($data['mac_address'])) {
+            $data['mac_address'] = MacAddressHelper::normalize($data['mac_address']);
+        }
 
         // Update data customer
         $customer->update($data);

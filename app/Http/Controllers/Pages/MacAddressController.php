@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Network\MacAddressDataTable;
 use App\Exports\MacAddressLabelExport;
+use App\Helpers\MacAddressHelper;
 use App\Http\Controllers\Controller;
 use App\Models\MacAddress;
 use App\Models\Organization;
@@ -77,7 +78,8 @@ class MacAddressController extends Controller
     public function store(Request $request)
     {
         $request->merge([
-            'mac_address' => strtoupper(trim($request->mac_address))
+            // Bug fix: normalize sebelum validasi (handle hyphen, lowercase)
+            'mac_address' => MacAddressHelper::normalize($request->mac_address)
         ]);
 
         $validation = Validator::make($request->all(), [

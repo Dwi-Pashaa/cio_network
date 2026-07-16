@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\DataTables\Pages\PagesDataTable;
 use App\Events\ChatSent;
+use App\Helpers\MacAddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePagesRequest;
 use App\Models\Chat;
@@ -618,8 +619,10 @@ class PagesController extends Controller
 
             if ($isMacValidationActive) {
 
+                $normalizedMac = MacAddressHelper::normalize($data['mac_address']);
+
                 $mac = DB::table('mac_address')
-                    ->where('mac_address', $data['mac_address'])
+                    ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
                     ->lockForUpdate()
                     ->first();
 
@@ -815,12 +818,14 @@ class PagesController extends Controller
             ]);
         }
 
+        // Bug fix: normalize MAC sebelum query (case-insensitive, handle hyphen/colon)
+        $normalizedMac = MacAddressHelper::normalize($request->mac_address);
+
         $mac = DB::table('mac_address')
-            ->where('mac_address', $request->mac_address)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac])
             ->first();
 
-        $router = Router::where('id', $mac->router_id)->first();
-
+        // Bug fix: cek null SEBELUM mengakses property $mac->router_id
         if (!$mac) {
             return response()->json([
                 'valid' => false,
@@ -828,6 +833,8 @@ class PagesController extends Controller
                 'message' => 'MAC Address tidak terdaftar'
             ], 422);
         }
+
+        $router = Router::where('id', $mac->router_id)->first();
 
         if ($mac->status === 'used') {
             return response()->json([

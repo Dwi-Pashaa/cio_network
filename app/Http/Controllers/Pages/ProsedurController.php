@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\MacAddressHelper;
 use Illuminate\Http\Request;
 
 use App\Models\Customer;
@@ -74,8 +75,9 @@ class ProsedurController extends Controller
 
         if ($searchBy === 'mac') {
             // Normalize MAC: allow colons or hyphens, case-insensitive
-            $normalizedMac = strtoupper(str_replace('-', ':', $search));
-            $query->where('mac_address', $normalizedMac);
+            // Gunakan whereRaw UPPER(TRIM()) agar tidak bergantung MySQL collation
+            $normalizedMac = MacAddressHelper::normalize($search);
+            $query->whereRaw('UPPER(TRIM(mac_address)) = ?', [$normalizedMac]);
         } else {
             // Search by uuid (ID Pelanggan), name, or pppoe_username
             $query->where(function ($q) use ($search) {
@@ -221,18 +223,21 @@ class ProsedurController extends Controller
      */
     public function getRouterByMac(Request $request)
     {
-        $mac = trim($request->query('mac'));
+        $rawMac = trim($request->query('mac', ''));
 
-        if (!$mac) {
+        if (!$rawMac) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'MAC Address tidak boleh kosong.'
             ], 400);
         }
 
-        // Find MacAddress
+        // Normalize MAC (bug fix: router mitra bisa kirim format lowercase/hyphen)
+        $mac = MacAddressHelper::normalize($rawMac);
+
+        // Find MacAddress dengan case-insensitive search
         $macRecord = MacAddress::with('router')
-            ->where('mac_address', $mac)
+            ->whereRaw('UPPER(TRIM(mac_address)) = ?', [$mac])
             ->first();
 
         if (!$macRecord) {
