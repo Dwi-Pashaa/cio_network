@@ -160,6 +160,7 @@
         $selectedPages = $user->pages->pluck('id')->toArray();
         $selectedRouters = $user->routerAccess->pluck('id')->toArray();
         $selectedPatchCores = $user->patchCoreAccess->pluck('id')->toArray();
+        $selectedMicRadiusAccess = $user->micRadiusAccess->pluck('id')->toArray();
 
         $currentRole = old('role', $user->roles->first()->name ?? '');
     @endphp
@@ -369,6 +370,22 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label for="select-mic-radius-access" class="modern-label">Akses Data Mic Radius</label>
+                        <select name="mic_radius_access_id[]" id="select-mic-radius-access"
+                            class="form-select @error('mic_radius_access_id') is-invalid @enderror" multiple>
+                            @foreach ($micRadius as $mc)
+                                <option value="{{ $mc->id }}"
+                                    {{ in_array($mc->id, old('mic_radius_access_id', $selectedMicRadiusAccess)) ? 'selected' : '' }}>
+                                    {{ $mc->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('mic_radius_access_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- ── Password ── --}}
@@ -456,6 +473,10 @@
             new TomSelect("#select-patch-core", {
                 ...tsConfig,
                 placeholder: "Pilih Patch Core"
+            });
+            new TomSelect("#select-mic-radius-access", {
+                ...tsConfig,
+                placeholder: "Pilih Akses Mic Radius"
             });
 
             // Role → show/hide conditional fields

@@ -86,6 +86,7 @@
                         <th style="text-align:center;">Akses Patch Core</th>
                         <th style="text-align:center;">OLT</th>
                         <th style="text-align:center;">Mic Radius</th>
+                        <th style="text-align:center;">Akses Mic Rad.</th>
                                                         @if (Auth::user()->organization->type === 'internal')
                                                             <th style="text-align:center;">Organisasi/Mitra</th>
                                                         @endif
@@ -156,7 +157,7 @@
             processing: true,
             serverSide: true,
             ajax: BASE,
-            order: [[{{ Auth::user()->organization->type === 'internal' ? 11 : 10 }}, 'desc']], // Created At Sorting Default
+            order: [[{{ Auth::user()->organization->type === 'internal' ? 12 : 11 }}, 'desc']], // Created At Sorting Default
             pageLength: 10,
             dom: 'rt', 
             language: {
@@ -189,6 +190,7 @@
                 { data: 'patch_core_access', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Patch Core') },
                 { data: 'olt', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses OLT') },
                 { data: 'mix_radius', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Mikrotik / Radius') },
+                { data: 'mic_radius_access', orderable: false, className: 'text-center', render: (data, t, r, m) => renderDetailButton(data, t, r, m, 'Akses Mic Radius') },
                 @if (Auth::user()->organization->type === 'internal')
                 { data: 'organization_name', orderable: false, className: 'text-center' },
                 @endif

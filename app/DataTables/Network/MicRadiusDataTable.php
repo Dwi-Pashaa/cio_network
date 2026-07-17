@@ -10,16 +10,16 @@ class MicRadiusDataTable
 {
     public function get()
     {
+        $auth = Auth::user()->loadMissing('micRadiusAccess');
         $query = $this->query();
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
             ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
-            ->addColumn('action', function ($row) {
-                $auth = Auth::user();
+            ->addColumn('action', function ($row) use ($auth) {
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
 
-                if ($auth->can('lihat mic radius')) {
+                if ($auth->can('lihat mic radius') && $auth->micRadiusAccess->contains('id', $row->id)) {
                     $btn .= '<a href="javascript:void(0)" onclick="mixLogin(' . $row->id . ')"
                         class="btn-action" style="background:#eef2ff;color:#6366f1;" title="Login Mix Radius">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"

@@ -731,6 +731,9 @@
                 // Switch panes
                 $('#w-pane-1').removeClass('active');
                 $('#w-pane-2').addClass('active');
+
+                // Filter service options based on current customer service type
+                filterServiceOptionsByType();
             });
 
             // Step 2: Back to Step 1
@@ -771,6 +774,24 @@
                     goToStep3();
                 }
             });
+
+            function filterServiceOptionsByType() {
+                if (!loadedCustomerData) { $('.service-card').show(); return; }
+                var tipe = (loadedCustomerData.tipe_layanan || '').toLowerCase();
+                $('.service-card').show();
+
+                if (tipe.indexOf('pppoe') !== -1) {
+                    $('.service-card[data-value="voucher-ke-pppoe"]').hide();
+                    if (selectedServiceType === 'voucher-ke-pppoe') {
+                        $('.service-card[data-value="pppoe-ke-voucher"]').trigger('click');
+                    }
+                } else if (tipe.indexOf('voucher') !== -1) {
+                    $('.service-card[data-value="pppoe-ke-voucher"]').hide();
+                    if (selectedServiceType === 'pppoe-ke-voucher') {
+                        $('.service-card[data-value="voucher-ke-pppoe"]').trigger('click');
+                    }
+                }
+            }
 
             function applyFilteredOptions() {
                 if (!loadedCustomerData || !loadedCustomerData.filtered_options) return;
@@ -1002,7 +1023,7 @@
                 $('#mic_radius_id').val('');
                 
                 // Reset step selection
-                $('.service-card').removeClass('selected');
+                $('.service-card').show().removeClass('selected');
                 $('.service-card[data-value="voucher-ke-pppoe"]').addClass('selected');
                 $('#radio-v-to-p').prop('checked', true);
                 selectedServiceType = 'voucher-ke-pppoe';

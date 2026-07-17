@@ -66,6 +66,7 @@ class UserController extends Controller
             'pages_id' => 'required|array',
             'router_id' => 'nullable|array',
             'patch_core_id' => 'nullable|array',
+            'mic_radius_access_id' => 'nullable|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -90,6 +91,7 @@ class UserController extends Controller
 
         $user->routerAccess()->sync($request->router_id ?? []);
         $user->patchCoreAccess()->sync($request->patch_core_id ?? []);
+        $user->micRadiusAccess()->sync($request->mic_radius_access_id ?? []);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->attach($request->olt_id);
@@ -144,6 +146,7 @@ class UserController extends Controller
             'pages_id' => 'required|array',
             'router_id' => 'nullable|array',
             'patch_core_id' => 'nullable|array',
+            'mic_radius_access_id' => 'nullable|array',
         ];
 
         if ($request->role === "Operator OLT") {
@@ -171,6 +174,7 @@ class UserController extends Controller
 
         $user->routerAccess()->sync($request->router_id ?? []);
         $user->patchCoreAccess()->sync($request->patch_core_id ?? []);
+        $user->micRadiusAccess()->sync($request->mic_radius_access_id ?? []);
 
         if ($request->role === "Operator OLT") {
             $user->olts()->sync($request->olt_id);
@@ -204,6 +208,7 @@ class UserController extends Controller
             $user->router()->detach();
             $user->routerAccess()->detach();
             $user->patchCoreAccess()->detach();
+            $user->micRadiusAccess()->detach();
             $user->regencie()->detach();
 
             $user->delete();

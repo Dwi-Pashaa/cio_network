@@ -109,6 +109,16 @@ class User extends Authenticatable
         );
     }
 
+    public function micRadiusAccess(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MicRadius::class,
+            'user_mic_radius_access',
+            'user_id',
+            'mic_radius_id'
+        );
+    }
+
     public function routerAccess(): BelongsToMany
     {
         return $this->belongsToMany(Router::class, 'user_router_access', 'user_id', 'router_id')

@@ -333,6 +333,19 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label for="select-mic-radius-access" class="modern-label">Akses Data Mic Radius</label>
+                        <select name="mic_radius_access_id[]" id="select-mic-radius-access"
+                            class="form-select @error('mic_radius_access_id') is-invalid @enderror" multiple>
+                            @foreach ($micRadius as $mc)
+                                <option value="{{ $mc->id }}">{{ $mc->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('mic_radius_access_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- ── Password ── --}}
@@ -428,6 +441,10 @@
             new TomSelect("#select-patch-core", {
                 ...tsConfig,
                 placeholder: "Pilih Patch Core"
+            });
+            new TomSelect("#select-mic-radius-access", {
+                ...tsConfig,
+                placeholder: "Pilih Akses Mic Radius"
             });
 
             // Role → show/hide conditional fields

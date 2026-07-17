@@ -88,3 +88,79 @@ Tambahkan regex `MAC_LIKE` di 3 file prosedur untuk deteksi format MAC tanpa val
 
 ### Catatan
 - Perbaikan diterapkan seragam di ketiga wizard prosedur (pemutusan, onu-router, pergantian-layanan).
+
+## 2026-07-17 — Filter Opsi Pergantian Layanan Berdasarkan Tipe Layanan Saat Ini
+
+### Masalah
+Di wizard **Pergantian Layanan** step 2, kedua pilihan "Voucher ke PPPoE" dan "PPPoE ke Voucher" selalu ditampilkan, meskipun tipe layanan pelanggan saat ini sudah diketahui. Hal ini memungkinkan user memilih opsi yang tidak relevan (contoh: memilih "Voucher ke PPPoE" padahal pelanggan sudah PPPoE).
+
+### Perbaikan
+
+#### `resources/views/pages/prosedur/pergantian-layanan.blade.php`
+- Tambah fungsi JavaScript `filterServiceOptionsByType()` yang membaca `loadedCustomerData.tipe_layanan` dan menyembunyikan card yang tidak sesuai:
+  - Jika tipe = **PPPoE** → sembunyikan card **"Voucher ke PPPoE"**, auto-pilih **"PPPoE ke Voucher"**
+  - Jika tipe = **Voucher** → sembunyikan card **"PPPoE ke Voucher"**, auto-pilih **"Voucher ke PPPoE"**
+- Panggil `filterServiceOptionsByType()` di handler `$btnWizardNext1.on('click')` setelah switch ke pane 2.
+- Tambah `$('.service-card').show()` di tombol restart wizard untuk mereset tampilan kedua card.
+
+### File yang Diubah
+| File | Perubahan |
+|------|-----------|
+| `resources/views/pages/prosedur/pergantian-layanan.blade.php` | +17 baris (fungsi filter + pemanggilan + reset) |
+
+## 2026-07-17 — Implementasi Akses MIC Radius (user_mic_radius_access)
+
+### Masalah
+- User index page menampilkan kolom "Mic Radius" (penugasan Operator Mic Radius), tapi belum ada kolom **Akses Mic Rad.** yang independen dari role.
+- Tombol login Mix Radius di halaman customer & mic-radius hanya mengecek permission `lihat mic radius`, tidak mengecek apakah user login memiliki akses spesifik ke device tersebut.
+
+### Perbaikan
+
+#### 1. Migration — Tabel `user_mic_radius_access`
+Buat tabel pivot baru mengikuti pola `user_router_access` / `user_patch_core_access`:
+- `id`, `user_id` (FK → users), `mic_radius_id` (FK → mic_radius), `timestamps`
+- Unique constraint `[user_id, mic_radius_id]`
+
+#### 2. `app/Models/User.php` — Relasi Baru
+Tambah `micRadiusAccess()` → BelongsToMany via `user_mic_radius_access`
+
+#### 3. `app/Http/Controllers/Pages/UserController.php`
+- **store()**: tambah rule `mic_radius_access_id` + sync
+- **update()**: tambah rule `mic_radius_access_id` + sync
+- **destroy()**: tambah `micRadiusAccess()->detach()`
+
+#### 4. Views User Create/Edit
+Tambah select "Akses Data Mic Radius" (multiple, TomSelect) di section Level & Akses.
+
+#### 5. `app/DataTables/UserDataTable.php`
+- Tambah eager loading `micRadiusAccess`
+- Tambah column `mic_radius_access` (render badges)
+
+#### 6. `resources/views/pages/user/index.blade.php`
+- Tambah header kolom "Akses Mic Rad."
+- Tambah column DataTable `mic_radius_access`
+
+#### 7. `app/DataTables/Customer/CustomerDataTable.php`
+- `mic_radius_info` → nama MIC Radius clickable **hanya jika** user login memiliki akses ke device tsb (`$authUser->micRadiusAccess->contains('id', ...)`)
+- Load `micRadiusAccess` di awal method `get()`
+
+#### 8. `app/DataTables/Network/MicRadiusDataTable.php`
+- Tombol login **hanya tampil** jika user login memiliki akses ke device tsb
+- Load `micRadiusAccess` dan pass via `use ($auth)` ke closure action
+
+### File yang Diubah
+| File | Perubahan |
+|------|-----------|
+| `database/migrations/2026_07_17_000000_create_user_mic_radius_access_table.php` | +35 baris (migration baru) |
+| `app/Models/User.php` | +9 baris (relasi micRadiusAccess) |
+| `app/Http/Controllers/Pages/UserController.php` | +4 baris (store rule + sync, update rule + sync, destroy detach) |
+| `app/DataTables/UserDataTable.php` | +13 baris (eager loading, column, rawColumns) |
+| `app/DataTables/Customer/CustomerDataTable.php` | +5 baris (loadMissing, contains check) |
+| `app/DataTables/Network/MicRadiusDataTable.php` | +3 baris (loadMissing, use closure, contains check) |
+| `resources/views/pages/user/create.blade.php` | +15 baris (select field + TomSelect init) |
+| `resources/views/pages/user/edit.blade.php` | +19 baris (selected ids, select field + TomSelect init) |
+| `resources/views/pages/user/index.blade.php` | +2 baris (header kolom + column JS, adjust order index) |
+
+### Catatan
+- Semua user (termasuk internal) wajib didaftarkan ke `user_mic_radius_access` untuk bisa mengklik nama MIC Radius di customer page atau melihat tombol login di mic-radius page.
+- Penugasan Operator Mic Radius (`mix_radius_users`) tetap terpisah dan tidak terpengaruh — hanya mengontrol apakah user bisa login ke Mix Radius. Akses view-only via `micRadiusAccess`.|

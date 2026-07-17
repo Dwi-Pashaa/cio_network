@@ -10,6 +10,8 @@ class CustomerDataTable
 {
     public function get()
     {
+        Auth::user()->loadMissing('micRadiusAccess');
+
         return DataTables::eloquent($this->query())
             ->addIndexColumn()
 
@@ -195,7 +197,9 @@ class CustomerDataTable
                     $row->mic_radius->name ?? '-'
                 );
 
-                if (Auth::user()->can('lihat mic radius')) {
+                $authUser = Auth::user();
+
+                if ($authUser->can('lihat mic radius') && $authUser->micRadiusAccess->contains('id', $row->mic_radius->id)) {
                     $id = $row->mic_radius->id;
                     return '<a href="javascript:void(0)" onclick="mixLogin(' . $id . ')" style="color:#6366f1;text-decoration:underline;cursor:pointer;">' . e($text) . '</a>';
                 }
