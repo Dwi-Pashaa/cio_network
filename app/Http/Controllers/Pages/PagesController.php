@@ -19,6 +19,7 @@ use App\Models\ODP;
 use App\Models\OLT;
 use App\Models\Organization;
 use App\Models\Pages;
+use App\Models\Pendaftaran;
 use App\Models\Paket;
 use App\Models\Price;
 use App\Models\Regency;
@@ -715,6 +716,12 @@ class PagesController extends Controller
 
                     broadcast(new ChatSent($chat))->toOthers();
                 }
+            }
+
+            // Jika berasal dari form konfigurasi pendaftaran online, ubah status pendaftaran menjadi 'selesai'
+            if (!empty($request->pendaftaran_id)) {
+                Pendaftaran::where('id', $request->pendaftaran_id)
+                    ->update(['status' => 'selesai']);
             }
 
             return redirect()->route('chatting.index')

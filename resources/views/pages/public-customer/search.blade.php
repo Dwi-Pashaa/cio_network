@@ -9,22 +9,12 @@
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background: radial-gradient(circle at 10% 20%, rgba(30, 41, 59, 0.05) 0%, rgba(37, 99, 235, 0.05) 90%), #f8fafc;
             min-height: 100vh;
-            position: relative;
             overflow-x: hidden;
-            display: block !important;
-            padding: 0;
-        }
-
-        .page {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: flex-start !important;
-            min-height: 100vh !important;
-            padding: 3.5rem 1.5rem 5rem !important;
-            background: transparent !important;
-            width: 100% !important;
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3.5rem 1.5rem 5rem;
+            margin: 0;
         }
 
         .ambient-orb-1 {
@@ -335,8 +325,8 @@
 
         /* ── RESPONSIVE MEDIA QUERIES ── */
         @media (max-width: 480px) {
-            .page {
-                padding: 2.5rem 1rem 6rem !important;
+            body {
+                padding: 2.5rem 1rem 6rem;
             }
             .search-card {
                 border-radius: 20px;

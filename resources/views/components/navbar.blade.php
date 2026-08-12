@@ -65,7 +65,7 @@
                             @endcanany
 
                             {{-- ==================== Barang ==================== --}}
-                            @canany(['lihat barang', 'lihat mac address', 'lihat patch core', 'lihat plc', 'lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
+                            @canany(['lihat router', 'lihat barang', 'lihat mac address', 'lihat patch core', 'lihat plc', 'lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
                                 <li class="nav-item dropdown {{ request()->is('barang*') || request()->is('patch.core*') || request()->is('plc*') || request()->is('user.router*') || request()->is('user.patch.core*') || request()->is('user.plc*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-barang"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
@@ -81,6 +81,12 @@
                                         <span class="nav-link-title">Barang</span>
                                     </a>
                                     <div class="dropdown-menu">
+                                        @can('lihat router')
+                                            <a class="dropdown-item {{ Route::is('router*') ? 'active' : '' }}"
+                                                href="{{ route('router.index') }}" rel="noopener">
+                                                Data Router
+                                            </a>
+                                        @endcan
                                         @can('lihat patch core')
                                             <a class="dropdown-item {{ Route::is('patch.core*') ? 'active' : '' }}"
                                                 href="{{ route('patch.core.index') }}" rel="noopener">
@@ -176,7 +182,7 @@
                             @endcanany
 
                             {{-- ==================== Jaringan ==================== --}}
-                            @canany(['lihat router', 'lihat vlan', 'lihat odc', 'lihat odp', 'lihat olt', 'lihat server', 'lihat mic radius', 'lihat mac address'])
+                            @canany(['lihat vlan', 'lihat odc', 'lihat odp', 'lihat olt', 'lihat server', 'lihat mic radius', 'lihat mac address'])
                                 <li class="nav-item dropdown {{ request()->is('master-network*') || request()->is('router*') || request()->is('vlan*') || request()->is('odc*') || request()->is('odp*') || request()->is('olt*') || request()->is('server*') || request()->is('mic.radius*') || request()->is('mac.address*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-jaringan"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
@@ -194,12 +200,6 @@
                                         <span class="nav-link-title">Jaringan</span>
                                     </a>
                                     <div class="dropdown-menu">
-                                        @can('lihat router')
-                                            <a class="dropdown-item {{ Route::is('router*') ? 'active' : '' }}"
-                                                href="{{ route('router.index') }}" rel="noopener">
-                                                Data Router
-                                            </a>
-                                        @endcan
                                         @can('lihat vlan')
                                             <a class="dropdown-item {{ Route::is('vlan*') ? 'active' : '' }}"
                                                 href="{{ route('vlan.index') }}" rel="noopener">
@@ -304,7 +304,7 @@
                             @endcanany
 
                             {{-- ==================== Prosedur ==================== --}}
-                            @canany(['lihat halaman', 'pergantian perangkat', 'pemutusan layanan', 'pergantian layanan'])
+                            @canany(['lihat halaman', 'lihat pendaftaran baru', 'pergantian perangkat', 'pemutusan layanan', 'pergantian layanan', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
                                 <li class="nav-item dropdown {{ request()->is('master-pages*') || request()->is('prosedur*') || request()->is('halaman*') || request()->is('spam*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-prosedur"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
@@ -328,7 +328,7 @@
                                                 Data Halaman
                                             </a>
                                          @endcan
-                                         @canany(['lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+                                         @canany(['lihat pendaftaran baru', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
                                             <a class="dropdown-item {{ Route::is('spam*') || Route::is('validasi.prosedur*') ? 'active' : '' }}"
                                                 href="{{ route('spam.index') }}" rel="noopener">
                                                 Data Spam & Validasi
@@ -363,8 +363,8 @@
                             @endcan
 
                             {{-- ==================== Lainnya ==================== --}}
-                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas', 'kelola troubleshoot', 'lihat troubleshoot'])
-                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') ? 'active' : '' }}">
+                            @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas', 'kelola troubleshoot', 'lihat troubleshoot', 'lihat persetujuan'])
+                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') || request()->is('persetujuan*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-lainnya"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                         role="button" aria-expanded="false">
@@ -411,6 +411,12 @@
                                                 Open Ticket
                                             </a>
                                          @endcanany
+                                         @can('lihat persetujuan')
+                                            <a class="dropdown-item {{ Route::is('persetujuan*') ? 'active' : '' }}"
+                                                href="{{ route('persetujuan.index') }}" rel="noopener">
+                                                Persetujuan
+                                            </a>
+                                         @endcan
                                     </div>
                                 </li>
                             @endcanany

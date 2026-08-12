@@ -152,6 +152,13 @@
                             placeholder="Masukkan tipe paket">
                         <span class="invalid-feedback error_name"></span>
                     </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="hidden" name="is_public" value="0">
+                            <input type="checkbox" name="is_public" id="is_public" class="form-check-input" value="1" checked>
+                            <label class="form-check-label" for="is_public">Tampilkan di Publik</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-link link-secondary me-auto"
@@ -402,6 +409,7 @@
 
         function resetModal() {
             $("#name").val('');
+            $("#is_public").prop('checked', true);
             $("#id").val('');
             $("#user_id").val(null).trigger('change');
             clearValidationErrors();
@@ -429,6 +437,7 @@
             formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
             formData.append("_method", type === 'create' ? "POST" : "PUT");
             formData.append("name", $("#name").val());
+            formData.append("is_public", $("#is_public").is(':checked') ? 1 : 0);
 
             // Append multiple user_id
             let users = $("#user_id").val() || [];
@@ -476,6 +485,7 @@
 
                     $("#id").val(data.id);
                     $("#name").val(data.name);
+                    $("#is_public").prop('checked', data.is_public == 1 || data.is_public === true);
                     $("#type").val('update');
 
                     // Set selected users

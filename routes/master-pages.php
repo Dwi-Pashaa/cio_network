@@ -42,6 +42,22 @@ Route::prefix('master-pages')->group(function () {
         Route::put('/{id}/outSpam', [SpamController::class, 'outSpam'])->name('spam.outSpam');
         Route::put('/{id}/outSwitch', [SpamController::class, 'outSwitch'])->name('spam.outSwitch');
         Route::delete('/{id}/reject', [SpamController::class, 'reject'])->name('spam.reject');
+
+        // Pendaftaran Baru (Inbox)
+        Route::get('/pendaftaran', [SpamController::class, 'getDataPendaftaran'])
+            ->name('spam.pendaftaran')
+            ->middleware('permission:lihat pendaftaran baru');
+        Route::get('/pendaftaran/technicians', [SpamController::class, 'getTechnicians'])
+            ->name('spam.pendaftaran.technicians')
+            ->middleware('permission:assign pendaftaran');
+        Route::put('/pendaftaran/{id}/assign', [SpamController::class, 'assignPendaftaran'])
+            ->name('spam.pendaftaran.assign')
+            ->middleware('permission:assign pendaftaran');
+        Route::put('/pendaftaran/{id}/tolak', [SpamController::class, 'tolakPendaftaran'])
+            ->name('spam.pendaftaran.tolak')
+            ->middleware('permission:tolak pendaftaran');
+        Route::get('/pendaftaran/{id}/konfigurasi', [SpamController::class, 'konfigurasiPendaftaran'])
+            ->name('spam.pendaftaran.konfigurasi');
     });
 });
 
@@ -94,5 +110,16 @@ Route::prefix('activity-log')->group(function () {
         ->name('activity.log.index')
         ->middleware('permission:lihat log aktivitas');
 });
+
+// Persetujuan (Single data per organisasi)
+Route::prefix('persetujuan')->group(function () {
+    Route::get('/', [\App\Http\Controllers\PersetujuanController::class, 'index'])
+        ->name('persetujuan.index')
+        ->middleware('permission:lihat persetujuan');
+    Route::post('/store', [\App\Http\Controllers\PersetujuanController::class, 'store'])
+        ->name('persetujuan.store')
+        ->middleware('permission:lihat persetujuan');
+});
+
 
 

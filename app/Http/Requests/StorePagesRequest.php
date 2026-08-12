@@ -38,8 +38,8 @@ class StorePagesRequest extends FormRequest
             'odps_id'      => 'required',
             'olts_id'      => 'required',
             'status'       => "required",
-            'latitude'       => "required",
-            'longitude'       => "required",
+            'latitude'     => "nullable",
+            'longitude'    => "nullable",
             'uuid'         => 'required',
             'paket_id' => 'nullable',
             'price_id' => 'nullable',
@@ -49,6 +49,7 @@ class StorePagesRequest extends FormRequest
             'mic_radius_id' => 'nullable',
             'patch_core_id' => 'required',
             'tipe_pelanggan_id' => 'required',
+            'pendaftaran_id' => 'nullable|integer',
         ];
     }
 

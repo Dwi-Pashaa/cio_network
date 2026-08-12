@@ -59,7 +59,16 @@ class PermissionSeeder extends Seeder
             // Troubleshoot Tracking
             // 'kelola troubleshoot',
             // 'lihat troubleshoot',
-            'filter organization'
+            // 'filter organization'
+
+            // ── PERSETUJUAN (konten publik) ──
+            'lihat persetujuan',
+
+            // ── PENDAFTARAN BARU (inbox customer) ──
+            'lihat pendaftaran baru',
+            'assign pendaftaran',
+            'tolak pendaftaran',
+            'spam pemasangan',
         ];
 
         foreach ($permissions as $permission) {

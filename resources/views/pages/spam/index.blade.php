@@ -6,34 +6,74 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/modern-layout.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <style>
         /* ─── MASTER TABS ─────────────────────────────────────── */
         .spam-tabs-nav {
             display: flex;
-            gap: 0;
-            border-bottom: 2px solid #f1f5f9;
-            padding: 0 1.5rem;
+            gap: 8px;
+            padding: 1rem 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1.5px solid #e2e8f0;
             overflow-x: auto;
+            flex-wrap: wrap;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .spam-tabs-nav::-webkit-scrollbar {
+            height: 5px;
+        }
+        .spam-tabs-nav::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
         .spam-tab-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 0.9rem 1.3rem;
-            font-size: 0.84rem; font-weight: 700; color: #94a3b8;
-            background: transparent; border: none;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px; cursor: pointer; white-space: nowrap;
-            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.65rem 1.15rem;
+            font-size: 0.85rem;
+            font-weight: 750;
+            color: #64748b;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
-        .spam-tab-btn:hover { color: #475569; }
-        .spam-tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .spam-tab-btn:hover {
+            color: #1e293b;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .spam-tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
         .spam-tab-btn .tab-pill {
-            font-size: 0.68rem; font-weight: 800;
-            padding: 2px 8px; border-radius: 20px;
-            background: #f1f5f9; color: #64748b;
-            min-width: 22px; text-align: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            min-width: 22px;
+            text-align: center;
             transition: all 0.2s;
         }
-        .spam-tab-btn.active .tab-pill { background: rgba(37,99,235,0.12); color: #2563eb; }
+        .spam-tab-btn:hover .tab-pill {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        .spam-tab-btn.active .tab-pill {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
 
         /* ─── TAB PANELS ──────────────────────────────────────── */
         .spam-panel { display: none; }
@@ -250,9 +290,92 @@
         /* ─── ACTION BUTTONS ──────────────────────────────────── */
         .req-actions {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.65rem;
             align-items: center;
             flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        /* ─── PENDAFTARAN ONLINE PREMIUM BUTTONS ───────────────── */
+        .btn-action-pendaftaran {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0.6rem 1.15rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none !important;
+            line-height: 1;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-action-pendaftaran::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            background: rgba(255,255,255,0.15);
+            transition: opacity 0.2s;
+        }
+        .btn-action-pendaftaran:hover::before { opacity: 1; }
+        .btn-action-pendaftaran:active { transform: translateY(1px) !important; }
+
+        .btn-act-detail {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1.5px solid #bfdbfe;
+        }
+        .btn-act-detail:hover {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(29, 78, 216, 0.18);
+        }
+
+        .btn-act-pdf {
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1.5px solid #fecdd3;
+        }
+        .btn-act-pdf:hover {
+            background: #ffe4e6;
+            color: #be123c;
+            border-color: #fda4af;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(225, 29, 72, 0.18);
+        }
+
+        .btn-act-alokasi {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border: 1.5px solid transparent;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-act-alokasi:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-act-tolak {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1.5px solid #fecaca;
+        }
+        .btn-act-tolak:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fca5a5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.18);
         }
         .btn-approve {
             display: inline-flex;
@@ -447,52 +570,65 @@
 
         {{-- ── MASTER TAB NAV ── --}}
         <div class="spam-tabs-nav">
-            @can('lihat halaman')
-            <button class="spam-tab-btn active" id="nav-pemasangan" onclick="switchSpamTab('pemasangan')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                Pemasangan Baru
-                <span class="tab-pill" id="pill-pemasangan">0</span>
-            </button>
+            @can('spam pemasangan')
+                <button class="spam-tab-btn active" id="nav-pemasangan" onclick="switchSpamTab('pemasangan')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Pemasangan Baru
+                    <span class="tab-pill" id="pill-pemasangan">0</span>
+                </button>
             @endcan
 
-            <button class="spam-tab-btn {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="nav-pemutusan" onclick="switchSpamTab('pemutusan')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
-                    <line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/>
-                </svg>
-                Pemutusan Pelanggan
-                <span class="tab-pill" id="pill-pemutusan">0</span>
-            </button>
+            @can('lihat pendaftaran baru')
+                <button class="spam-tab-btn {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="nav-pendaftaran-baru" onclick="switchSpamTab('pendaftaran-baru')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/>
+                    </svg>
+                    Pendaftaran Online
+                    <span class="tab-pill" id="pill-pendaftaran-baru">0</span>
+                </button>
+            @endcan
 
-            <button class="spam-tab-btn" id="nav-pergantian-layanan" onclick="switchSpamTab('pergantian-layanan')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                </svg>
-                Pergantian Layanan
-                <span class="tab-pill" id="pill-pergantian-layanan">0</span>
-            </button>
+            @canany(['lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+                <button class="spam-tab-btn {{ !auth()->user()->can('lihat halaman') && !auth()->user()->can('lihat pendaftaran baru') ? 'active' : '' }}" id="nav-pemutusan" onclick="switchSpamTab('pemutusan')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                        <line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/>
+                    </svg>
+                    Pemutusan Pelanggan
+                    <span class="tab-pill" id="pill-pemutusan">0</span>
+                </button>
 
-            <button class="spam-tab-btn" id="nav-onu-router" onclick="switchSpamTab('onu-router')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-                    <line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
-                </svg>
-                Pergantian Perangkat
-                <span class="tab-pill" id="pill-onu-router">0</span>
-            </button>
+                <button class="spam-tab-btn" id="nav-pergantian-layanan" onclick="switchSpamTab('pergantian-layanan')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                    Pergantian Layanan
+                    <span class="tab-pill" id="pill-pergantian-layanan">0</span>
+                </button>
 
-            <button class="spam-tab-btn" id="nav-pergantian-password" onclick="switchSpamTab('pergantian-password')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                Pergantian Password
-                <span class="tab-pill" id="pill-pergantian-password">0</span>
-            </button>
+                <button class="spam-tab-btn" id="nav-onu-router" onclick="switchSpamTab('onu-router')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                        <line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+                    </svg>
+                    Pergantian Perangkat
+                    <span class="tab-pill" id="pill-onu-router">0</span>
+                </button>
+
+                <button class="spam-tab-btn" id="nav-pergantian-password" onclick="switchSpamTab('pergantian-password')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    Pergantian Password
+                    <span class="tab-pill" id="pill-pergantian-password">0</span>
+                </button>
+            @endcanany
 
             @can('lihat rekap prosedur')
             <button class="spam-tab-btn" id="nav-rekap" onclick="switchSpamTab('rekap')">
@@ -509,7 +645,7 @@
              TAB 1: PEMASANGAN BARU (existing spam table)
         ══════════════════════════════════════════════════════ --}}
         @can('lihat halaman')
-            <div class="spam-panel active" id="panel-pemasangan">
+            <div class="spam-panel {{ auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="panel-pemasangan">
                 <div class="org-toolbar">
                     <div class="d-flex align-items-center gap-2">
                         <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
@@ -599,9 +735,63 @@
         @endcan
 
         {{-- ══════════════════════════════════════════════════════
+             TAB: PENDAFTARAN BARU
+        ══════════════════════════════════════════════════════ --}}
+        @can('lihat pendaftaran baru')
+            <div class="spam-panel {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="panel-pendaftaran-baru">
+                <div class="org-toolbar">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted" style="font-size: 0.88rem;">Tampilkan</span>
+                        <select name="sort_pendaftaran" id="sort_pendaftaran" class="org-input" style="width: 80px; padding: 0.35rem 0.8rem;" onchange="loadPendaftaranBaru(1)">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-muted" style="font-size: 0.88rem;">entri</span>
+                    </div>
+                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                        <div class="d-flex align-items-center gap-2 ms-auto">
+                            <span class="text-muted small fw-bold">Organisasi</span>
+                            <select id="filter-org-pendaftaran" class="org-input" style="width:auto;padding:0.35rem 0.8rem;" onchange="loadPendaftaranBaru(1)">
+                                <option value="">Semua</option>
+                                @foreach ($organizations as $org)
+                                    <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                    <div class="search-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" class="org-input" id="search-pendaftaran" placeholder="Cari pendaftaran online..." autocomplete="off" onkeyup="loadPendaftaranBaru(1)">
+                    </div>
+                </div>
+
+                <div style="padding: 1.25rem 1.5rem;">
+                    <div class="loading-spin" id="loading-pendaftaran-baru" style="display: none;">
+                        <div class="spinner-border" style="width: 2rem; height: 2rem; color: #2563eb;" role="status"></div>
+                        <p style="margin-top: 0.6rem; font-size: 0.82rem;">Memuat data pendaftaran online...</p>
+                    </div>
+                    <div id="content-pendaftaran-baru"></div>
+                </div>
+
+                <div class="org-footer border-top py-3 px-4 d-flex align-items-center justify-content-between" id="pendaftaran-pagination-footer" style="display: none;">
+                    <p class="m-0 text-muted" style="font-size: 0.88rem;">
+                        Showing <span id="pendaftaran-start-entry" class="fw-medium">0</span>
+                        to <span id="pendaftaran-end-entry" class="fw-medium">0</span> of
+                        <span id="pendaftaran-total-entries" class="fw-medium">0</span> entries
+                    </p>
+                    <ul class="pagination m-0" id="pendaftaran-pagination"></ul>
+                </div>
+            </div>
+        @endcan
+
+        {{-- ══════════════════════════════════════════════════════
              TAB 2: PEMUTUSAN PELANGGAN
         ══════════════════════════════════════════════════════ --}}
-        <div class="spam-panel {{ !auth()->user()->can('lihat halaman') ? 'active' : '' }}" id="panel-pemutusan">
+        @canany(['lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+        <div class="spam-panel {{ !auth()->user()->can('lihat halaman') && !auth()->user()->can('lihat pendaftaran baru') ? 'active' : '' }}" id="panel-pemutusan">
             @include('pages.validasi.partials.validasi-panel', [
                 'prosedur_type'  => 'pemutusan',
                 'panel_title'    => 'Pemutusan Pelanggan',
@@ -641,6 +831,7 @@
                 'panel_color'    => '#0ea5e9',
             ])
         </div>
+        @endcanany
 
         {{-- ══════════════════════════════════════════════════════
              TAB 5: REKAP HISTORIS
@@ -942,9 +1133,138 @@
         </div>
     </div>
 
+    {{-- ══ DETAIL PENDAFTARAN MODAL ══════════════════════════════════════ --}}
+    <div class="modal fade" id="detailPendaftaranModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(37,99,235,0.1); color: #2563eb; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;" id="detail-pendaftaran-title">Detail Pendaftaran Online</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;" id="detail-pendaftaran-subtitle">Informasi pendaftaran mandiri pelanggan</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 1rem 1.75rem 1.5rem;" id="detail-pendaftaran-body">
+                    <!-- Dynamic detail content -->
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0.75rem 1.75rem 1.75rem; justify-content: space-between;">
+                    <button id="detail-pdf-btn" type="button" class="btn btn-outline-primary" style="border-radius: 10px; font-weight: 700; padding: 0.55rem 1.25rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Preview Surat Perjanjian (PDF)
+                    </button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; font-weight: 700; padding: 0.55rem 1.25rem;">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══ PREVIEW PDF MODAL ══════════════════════════════════════ --}}
+    <div class="modal fade" id="previewPdfModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 90vw;">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15); height: 88vh;">
+                <div class="modal-header" style="border: none; padding: 1.25rem 1.75rem 0.5rem;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(37,99,235,0.1); color: #2563eb; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;" id="preview-pdf-title">Pratinjau Surat Perjanjian</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;" id="preview-pdf-subtitle">Dokumen PDF Perjanjian Pendaftaran</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" style="flex: 1; background: #525659; overflow: hidden; position: relative;">
+                    <iframe id="iframe-pdf-preview" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0.75rem 1.75rem 1rem; justify-content: space-between;">
+                    <a id="btn-open-pdf-tab" href="#" target="_blank" class="btn btn-outline-secondary fw-bold" style="border-radius: 9px; padding: 0.5rem 1.1rem; font-size: 0.82rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M18 13v6a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2V8a2 2 0 0 0 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Buka di Tab Baru / Download
+                    </a>
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal" style="border-radius: 9px; padding: 0.5rem 1.1rem; font-size: 0.82rem;">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══ ASSIGN PENDAFTARAN MODAL ══════════════════════════════════════ --}}
+    @can('assign pendaftaran')
+    <div class="modal fade" id="assignPendaftaranModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(37,99,235,0.1); color: #2563eb; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Alokasi Pendaftaran ke Teknisi</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;" id="assign-pendaftaran-subtitle">Pilih teknisi yang akan menangani pendaftaran ini.</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formAssignPendaftaran">
+                    <input type="hidden" id="assign-pendaftaran-id">
+                    <div class="modal-body" style="padding: 1rem 1.75rem 0.5rem;">
+                        <div class="mb-3">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.4rem;">Pilih Teknisi Alokasi <span style="color: #ef4444;">*</span></label>
+                            <select id="assign-technician-id" class="form-select" required style="border-radius: 10px; border: 1.5px solid #e2e8f0; font-size: 0.88rem;">
+                                <option value="">Memuat daftar teknisi...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.4rem;">Catatan Admin (opsional)</label>
+                            <textarea id="assign-catatan" class="form-control" rows="3" placeholder="Tambahkan catatan instruksi jika ada..." style="border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.88rem; resize: none;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border: none; padding: 0.5rem 1.75rem 1.75rem;">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; font-weight: 700;">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="btnSubmitAssignPendaftaran" style="border-radius: 10px; font-weight: 700;">Alokasikan Tugas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
+
+    {{-- ══ TOLAK PENDAFTARAN MODAL ══════════════════════════════════════ --}}
+    @can('tolak pendaftaran')
+    <div class="modal fade" id="tolakPendaftaranModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(15,23,42,0.15);">
+                <div class="modal-header" style="border: none; padding: 1.75rem 1.75rem 0.5rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 13px; background: rgba(239,68,68,0.1); color: #ef4444; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title" style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin: 0;">Tolak Pendaftaran Baru</h5>
+                        <p style="margin: 0; font-size: 0.82rem; color: #64748b;" id="tolak-pendaftaran-subtitle">Pendaftaran ini akan ditolak.</p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formTolakPendaftaran">
+                    <input type="hidden" id="tolak-pendaftaran-id">
+                    <div class="modal-body" style="padding: 1rem 1.75rem 0.5rem;">
+                        <div class="mb-3">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.4rem;">Alasan Penolakan <span style="color: #ef4444;">*</span></label>
+                            <textarea id="tolak-catatan" class="form-control" rows="3" required placeholder="Tuliskan alasan penolakan pendaftaran ini..." style="border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.88rem; resize: none;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border: none; padding: 0.5rem 1.75rem 1.75rem;">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; font-weight: 700;">Batal</button>
+                        <button type="submit" class="btn btn-danger" id="btnSubmitTolakPendaftaran" style="border-radius: 10px; font-weight: 700;">Tolak Pendaftaran</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
+
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const SPAM_BASE = "{{ route('spam.index') }}";
@@ -958,7 +1278,7 @@ const userLevels = [];
 @if(Auth::user()->hasPermissionTo('validasi prosedur level 3')) userLevels.push(3); @endif
 @if(Auth::user()->hasPermissionTo('validasi prosedur level 4')) userLevels.push(4); @endif
 
-let activeSpamTab = document.getElementById('nav-pemasangan') ? 'pemasangan' : 'pemutusan';
+let activeSpamTab = document.getElementById('nav-pemasangan') ? 'pemasangan' : (document.getElementById('nav-pendaftaran-baru') ? 'pendaftaran-baru' : 'pemutusan');
 let pendingId     = null;
 let currentItems  = [];
 
@@ -969,7 +1289,7 @@ const Toast = Swal.mixin({
 });
 
 // ── TAB SWITCH ────────────────────────────────────────────────────────────────
-const PROSEDUR_TABS = ['pemasangan', 'pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password', 'rekap'];
+const PROSEDUR_TABS = ['pemasangan', 'pendaftaran-baru', 'pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password', 'rekap'];
 
 function switchSpamTab(tab) {
     activeSpamTab = tab;
@@ -983,6 +1303,8 @@ function switchSpamTab(tab) {
 
     if (tab === 'pemasangan') {
         if (typeof table !== 'undefined') table.ajax.reload();
+    } else if (tab === 'pendaftaran-baru') {
+        loadPendaftaranBaru(1);
     } else if (tab === 'rekap') {
         loadRekapPanel();
     } else {
@@ -2801,5 +3123,545 @@ function fallbackCopyText(text) {
     }
     document.body.removeChild(tempTextArea);
 }
+
+// ── PENDAFTARAN BARU HANDLERS ─────────────────────────────────────────────────
+let currentPendaftaranPage = 1;
+let currentPendaftaranItems = [];
+let assignTomSelect = null;
+
+function loadPendaftaranBaru(page = 1) {
+    currentPendaftaranPage = page;
+    const loadingEl = document.getElementById('loading-pendaftaran-baru');
+    const contentEl = document.getElementById('content-pendaftaran-baru');
+    const footerEl  = document.getElementById('pendaftaran-pagination-footer');
+
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (contentEl) contentEl.innerHTML = '';
+
+    const perPage = $('#sort_pendaftaran').val() || 10;
+    const search  = $('#search-pendaftaran').val() || '';
+    const orgId   = $('#filter-org-pendaftaran').val() || '';
+
+    $.get("{{ route('spam.pendaftaran') }}", {
+        page: page,
+        per_page: perPage,
+        search: search,
+        organization_id: orgId
+    }, function(res) {
+        if (loadingEl) loadingEl.style.display = 'none';
+        const items = res.data || [];
+        currentPendaftaranItems = items;
+
+        // Update pill count
+        const pill = document.getElementById('pill-pendaftaran-baru');
+        if (pill) pill.textContent = res.total || 0;
+
+        if (!items.length) {
+            contentEl.innerHTML = `
+                <div class="empty-val">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/>
+                    </svg>
+                    <h5>Tidak ada pendaftaran online</h5>
+                    <p>Pendaftaran online dari pelanggan akan muncul di sini.</p>
+                </div>`;
+            if (footerEl) footerEl.style.display = 'none';
+            return;
+        }
+
+        contentEl.innerHTML = items.map(item => renderPendaftaranCard(item)).join('');
+        renderPendaftaranPagination(res);
+    }).fail(function() {
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (contentEl) contentEl.innerHTML = `<div class="empty-val"><h5 class="text-danger">Gagal memuat data pendaftaran.</h5></div>`;
+    });
+}
+
+function renderPendaftaranCard(item) {
+    const isAssigned = item.status === 'assigned';
+
+    const canAssign = @json(Auth::user()->can('assign pendaftaran'));
+    const canTolak  = @json(Auth::user()->can('tolak pendaftaran'));
+
+    const village = item.village  ? item.village.name  : '-';
+    const kampung = item.hometown ? item.hometown.name : '-';
+    const dateStr = item.created_at ? moment(item.created_at).format('DD MMM YYYY, HH:mm') : '-';
+    const layanan = item.tipe_layanan ? item.tipe_layanan.name : '-';
+
+    // ── Status badge ──────────────────────────────────────────────
+    const statusBadge = isAssigned
+        ? `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:800;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 2px 6px rgba(22,163,74,0.3);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+               Dialokasikan
+           </span>`
+        : `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,0.3);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+               Menunggu Alokasi
+           </span>`;
+
+    // ── Kode chip ─────────────────────────────────────────────────
+    const kodeChip = `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:800;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;letter-spacing:0.03em;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        ${item.kode}
+    </span>`;
+
+    // ── Info chips ────────────────────────────────────────────────
+    const chip = (icon, text, color = '#64748b', bg = '#f8fafc', border = '#e2e8f0') =>
+        `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:0.75rem;font-weight:600;background:${bg};color:${color};border:1px solid ${border};">
+            ${icon}${text}
+        </span>`;
+
+    const phoneIcon  = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 2.09 5.18 2 2 0 0 1 4 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 5.91 5.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+    const emailIcon  = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+    const layananIcon= `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
+    const lokasiIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const clockIcon  = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
+    const paketName = item.paket ? item.paket.name : '-';
+    const priceName = item.price ? item.price.name : '-';
+
+    const paketIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    const paymentIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`;
+
+    const chips = [
+        chip(phoneIcon,  item.no_telepon || '-'),
+        chip(emailIcon,  item.email || '-'),
+        chip(layananIcon, layanan, '#7c3aed', '#f5f3ff', '#e9d5ff'),
+        chip(paketIcon, paketName, '#b45309', '#fffbeb', '#fde68a'),
+        chip(paymentIcon, priceName, '#166534', '#f0fdf4', '#bbf7d0'),
+        chip(lokasiIcon, `${village} · ${kampung}`, '#0369a1', '#f0f9ff', '#bae6fd'),
+        chip(clockIcon,  dateStr, '#475569', '#f8fafc', '#e2e8f0'),
+    ].join('');
+
+    // ── Alokasi info bar ──────────────────────────────────────────
+    let alokasiBanner = '';
+    if (item.assigned_to) {
+        const assignedTime = item.assigned_at ? moment(item.assigned_at).format('DD MMM YYYY, HH:mm') : '-';
+        alokasiBanner = `
+        <div style="display:flex;align-items:center;gap:10px;margin-top:0.85rem;padding:8px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:10px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#15803d);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.68rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.06em;">Dialokasikan ke</div>
+                <div style="font-size:0.82rem;font-weight:800;color:#14532d;">${item.assigned_to.name}
+                    <span style="font-weight:500;color:#16a34a;margin-left:6px;">${assignedTime}</span>
+                </div>
+                ${item.catatan_admin ? `<div style="font-size:0.75rem;color:#166534;margin-top:2px;font-style:italic;">📝 ${item.catatan_admin}</div>` : ''}
+            </div>
+        </div>`;
+    }
+
+    const isTeknisi = @json(Auth::user()->hasRole('Teknisi') || Auth::user()->hasRole('teknisi'));
+
+    // ── Action buttons ────────────────────────────────────────────
+    const detailBtn = !isTeknisi ? `<button class="btn-action-pendaftaran btn-act-detail" onclick="openDetailPendaftaranModal(${item.id})">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Detail
+    </button>` : '';
+
+    const pdfBtn = !isTeknisi ? `<button class="btn-action-pendaftaran btn-act-pdf" onclick="openPreviewPdfModal('${item.kode}', '${item.nama}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        PDF Perjanjian
+    </button>` : '';
+
+    let assignBtn = '';
+    if (canAssign) {
+        assignBtn = `<button class="btn-action-pendaftaran btn-act-alokasi" onclick="openAssignModal(${item.id}, '${item.kode}', '${item.nama}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+            ${isAssigned ? 'Re-Alokasi' : 'Alokasi Teknisi'}
+        </button>`;
+    }
+
+    let tolakBtn = '';
+    if (canTolak && !isAssigned) {
+        tolakBtn = `<button class="btn-action-pendaftaran btn-act-tolak" onclick="openTolakModal(${item.id}, '${item.kode}', '${item.nama}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Tolak
+        </button>`;
+    }
+
+    // ── Avatar initials ───────────────────────────────────────────
+    const initials = item.nama ? item.nama.trim().split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() : '?';
+    const avatarColors = isAssigned
+        ? { bg: 'linear-gradient(135deg,#16a34a,#15803d)', border: '#bbf7d0' }
+        : { bg: 'linear-gradient(135deg,#2563eb,#1d4ed8)', border: '#bfdbfe' };
+
+    const configBtn = `<a href="/master-pages/spam/pendaftaran/${item.id}/konfigurasi" class="btn-action-pendaftaran btn-act-detail" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Konfigurasi
+    </a>`;
+
+    return `
+    <div style="background:#fff;border:1.5px solid #e8eef6;border-radius:16px;margin-bottom:1rem;overflow:hidden;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);box-shadow:0 2px 8px rgba(15,23,42,0.06);" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(15,23,42,0.10)';this.style.borderColor='#c7d8f0'" onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(15,23,42,0.06)';this.style.borderColor='#e8eef6'">
+
+        {{-- Accent bar top --}}
+        <div style="height:3px;background:${isAssigned ? 'linear-gradient(90deg,#16a34a,#4ade80)' : 'linear-gradient(90deg,#2563eb,#60a5fa)'};"></div>
+
+        {{-- Card body --}}
+        <div style="padding:1rem 1.25rem;">
+
+            {{-- Top row: avatar + info + actions --}}
+            <div style="display:flex;align-items:flex-start;gap:1rem;">
+
+                {{-- Avatar --}}
+                <div style="width:46px;height:46px;border-radius:12px;background:${avatarColors.bg};border:2px solid ${avatarColors.border};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;font-weight:800;color:#fff;letter-spacing:-0.02em;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+                    ${initials}
+                </div>
+
+                {{-- Name + badges + chips --}}
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                        <span style="font-size:1rem;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">${item.nama}</span>
+                        ${kodeChip}
+                        ${statusBadge}
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        ${chips}
+                    </div>
+                    ${alokasiBanner}
+                </div>
+
+                {{-- Actions --}}
+                <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end;">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                        ${configBtn}
+                        ${detailBtn}
+                        ${pdfBtn}
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                        ${assignBtn}
+                        ${tolakBtn}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>`;
+}
+
+function openPreviewPdfModal(kode, nama) {
+    const pdfUrl = `/pendaftaran-baru/${kode}/download`;
+    $('#preview-pdf-title').text(`Surat Perjanjian - ${kode}`);
+    $('#preview-pdf-subtitle').text(`Pemohon: ${nama}`);
+    $('#iframe-pdf-preview').attr('src', pdfUrl);
+    $('#btn-open-pdf-tab').attr('href', pdfUrl);
+
+    new bootstrap.Modal(document.getElementById('previewPdfModal')).show();
+}
+
+function openDetailPendaftaranModal(id) {
+    const item = currentPendaftaranItems.find(x => x.id === id);
+    if (!item) return;
+
+    $('#detail-pendaftaran-title').text(`Detail Pendaftaran — ${item.kode}`);
+    $('#detail-pendaftaran-subtitle').text(`Pemohon: ${item.nama}`);
+    $('#detail-pdf-btn').attr('onclick', `openPreviewPdfModal('${item.kode}', '${item.nama}')`);
+
+    const desa    = item.village    ? item.village.name    : '-';
+    const kampung = item.hometown   ? item.hometown.name   : '-';
+    const pageName = item.pages     ? item.pages.name      : '-';
+    const orgName  = item.organization ? item.organization.name : '-';
+    const dateStr  = item.created_at  ? moment(item.created_at).format('DD MMM YYYY, HH:mm')  : '-';
+    const assignedTime = item.assigned_at ? moment(item.assigned_at).format('DD MMM YYYY, HH:mm') : '-';
+
+    const isAssigned = item.status === 'assigned';
+    const statusBadge = isAssigned
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:0.78rem;font-weight:800;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 2px 8px rgba(22,163,74,0.25);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+               Dialokasikan
+           </span>`
+        : `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:0.78rem;font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 8px rgba(245,158,11,0.25);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+               Menunggu Alokasi
+           </span>`;
+
+    let ttdHtml = `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:1rem;background:#f8fafc;border:2px dashed #e2e8f0;border-radius:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span style="font-size:0.78rem;color:#94a3b8;font-weight:600;">Tanda tangan tidak tersedia</span>
+    </div>`;
+    if (item.tanda_tangan_customer) {
+        let ttdSrc = item.tanda_tangan_customer;
+        if (!ttdSrc.startsWith('/') && !ttdSrc.startsWith('http')) ttdSrc = '/' + ttdSrc;
+        ttdHtml = `<div style="display:flex;justify-content:center;padding:1rem;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;">
+            <img src="${ttdSrc}" alt="Tanda Tangan" style="max-height:130px;border-radius:8px;background:#fff;padding:8px;">
+        </div>`;
+    }
+
+    const infoRow = (icon, label, value, mono = false) => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:0.55rem 0;border-bottom:1px solid #f1f5f9;">
+            <div style="width:30px;height:30px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#64748b;">${icon}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;">${label}</div>
+                <div style="font-size:0.88rem;font-weight:700;color:#1e293b;${mono ? 'font-family:monospace;' : ''}">${value}</div>
+            </div>
+        </div>`;
+
+    const sectionHead = (color, icon, title) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:2px solid ${color}20;">
+            <div style="width:32px;height:32px;border-radius:9px;background:${color}15;color:${color};display:flex;align-items:center;justify-content:center;">${icon}</div>
+            <span style="font-size:0.82rem;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:0.07em;">${title}</span>
+        </div>`;
+
+    const card = (content, style = '') => `
+        <div style="background:#fff;border:1.5px solid #e8eef6;border-radius:14px;padding:1.1rem 1.25rem;${style}">${content}</div>`;
+
+    let wifiSection = '';
+    if (item.name_wifi || item.password_wifi) {
+        wifiSection = `<div style="margin-bottom:0.75rem;">
+            ${card(
+                sectionHead('#7c3aed','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>','Informasi WiFi') +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>', 'Nama WiFi (SSID)', item.name_wifi || '-') +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>', 'Password WiFi', item.password_wifi || '-', true)
+            )}
+        </div>`;
+    }
+
+    const assignedTechHtml = item.assigned_to
+        ? `<div style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:20px;">
+               <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#15803d);display:flex;align-items:center;justify-content:center;">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+               </div>
+               <span style="font-size:0.83rem;font-weight:800;color:#15803d;">${item.assigned_to.name}</span>
+           </div>`
+        : `<div style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;background:#fef9f0;border:1.5px solid #fde68a;border-radius:20px;">
+               <div style="width:26px;height:26px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+               </div>
+               <span style="font-size:0.83rem;font-weight:800;color:#b45309;">Belum dialokasikan</span>
+           </div>`;
+
+    const html = `
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        {{-- Row 1: Pemohon + Lokasi --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            ${card(
+                sectionHead('#2563eb','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>','Data Pemohon') +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>', 'Kode Pendaftaran', `<span style="background:#eff6ff;color:#1d4ed8;padding:3px 10px;border-radius:6px;font-size:0.82rem;">${item.kode}</span>`) +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', 'Nama Lengkap', item.nama) +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 2.09 5.18 2 2 0 0 1 4 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 5.91 5.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', 'No. Telepon / WA', item.no_telepon || '-') +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', 'Email', item.email || '-')
+            )}
+            ${card(
+                sectionHead('#0ea5e9','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>','Lokasi & Layanan') +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>', 'Tipe Layanan', `<span style="background:#f3e8ff;color:#7c3aed;padding:3px 10px;border-radius:6px;font-size:0.82rem;font-weight:800;">${item.tipe_layanan ? item.tipe_layanan.name : '-'}</span>`) +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>', 'Desa / Kelurahan', desa) +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5 8 14 8 14s8-9 8-14a8 8 0 0 0-8-8z"/></svg>', 'Kampung / Dusun', kampung) +
+                infoRow('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', 'Halaman Pendaftaran', pageName)
+            )}
+        </div>
+
+        ${wifiSection}
+
+        {{-- Status Penugasan --}}
+        ${card(`
+            ${sectionHead('#16a34a','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>','Status Penugasan & Sistem')}
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:0.5rem;">
+                <div style="background:#f8fafc;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid #e2e8f0;">
+                    <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Status</div>
+                    ${statusBadge}
+                </div>
+                <div style="background:#f8fafc;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid #e2e8f0;">
+                    <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Teknisi Alokasi</div>
+                    ${assignedTechHtml}
+                </div>
+                <div style="background:#f8fafc;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid #e2e8f0;">
+                    <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Tanggal Register</div>
+                    <div style="font-size:0.83rem;font-weight:700;color:#1e293b;">${dateStr}</div>
+                </div>
+                ${isAssigned ? `
+                <div style="background:#f0fdf4;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid #bbf7d0;">
+                    <div style="font-size:0.68rem;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Tanggal Dialokasikan</div>
+                    <div style="font-size:0.83rem;font-weight:700;color:#15803d;">${assignedTime}</div>
+                </div>` : ''}
+                ${item.organization ? `
+                <div style="background:#f8fafc;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid #e2e8f0;">
+                    <div style="font-size:0.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Organisasi / Mitra</div>
+                    <div style="font-size:0.83rem;font-weight:700;color:#1e293b;">${orgName}</div>
+                </div>` : ''}
+            </div>
+            ${item.catatan_admin ? `
+            <div style="margin-top:0.75rem;padding:0.75rem 1rem;background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;">
+                <div style="font-size:0.68rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">📝 Catatan Admin</div>
+                <div style="font-size:0.84rem;color:#78350f;">${item.catatan_admin}</div>
+            </div>` : ''}
+        `)}
+
+        {{-- Tanda Tangan --}}
+        <div>
+            <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Tanda Tangan Digital Pemohon
+            </div>
+            ${ttdHtml}
+        </div>
+
+    </div>`;
+
+    $('#detail-pendaftaran-body').html(html);
+    new bootstrap.Modal(document.getElementById('detailPendaftaranModal')).show();
+
+}
+
+function openAssignModal(id, kode, nama) {
+    $('#assign-pendaftaran-id').val(id);
+    $('#assign-pendaftaran-subtitle').text(`Alokasi pendaftaran ${kode} (${nama}) ke teknisi.`);
+    $('#assign-catatan').val('');
+    $('#assign-catatan').val('');
+    
+    if (assignTomSelect) {
+        assignTomSelect.destroy();
+        assignTomSelect = null;
+    }
+
+    const select = $('#assign-technician-id');
+    select.html('<option value="">Memuat daftar teknisi...</option>');
+
+    $.get("{{ route('spam.pendaftaran.technicians') }}", function(res) {
+        const list = res.data || [];
+        if (!list.length) {
+            select.html('<option value="">Tidak ada teknisi tersedia</option>');
+            return;
+        }
+        let html = '<option value="">-- Pilih / Cari Teknisi --</option>';
+        list.forEach(t => {
+            html += `<option value="${t.id}">${t.name} (${t.email})</option>`;
+        });
+        select.html(html);
+
+        if (typeof TomSelect !== 'undefined') {
+            assignTomSelect = new TomSelect('#assign-technician-id', {
+                create: false,
+                placeholder: '-- Pilih / Cari Teknisi --',
+                allowEmptyOption: true
+            });
+        }
+    });
+
+    new bootstrap.Modal(document.getElementById('assignPendaftaranModal')).show();
+}
+
+$('#formAssignPendaftaran').on('submit', function(e) {
+    e.preventDefault();
+    const id = $('#assign-pendaftaran-id').val();
+    const techId = $('#assign-technician-id').val();
+    const catatan = $('#assign-catatan').val();
+
+    if (!techId) {
+        Toast.fire({ icon: 'warning', title: 'Pilih teknisi terlebih dahulu.' });
+        return;
+    }
+
+    const btn = $('#btnSubmitAssignPendaftaran');
+    btn.prop('disabled', true).text('Menyimpan...');
+
+    $.ajax({
+        url: `/master-pages/spam/pendaftaran/${id}/assign`,
+        type: 'PUT',
+        data: {
+            _token: CSRF,
+            assigned_to: techId,
+            catatan_admin: catatan
+        },
+        success: function(res) {
+            btn.prop('disabled', false).text('Alokasikan Tugas');
+            bootstrap.Modal.getInstance(document.getElementById('assignPendaftaranModal')).hide();
+            Toast.fire({ icon: 'success', title: res.message || 'Berhasil dialokasikan' });
+            loadPendaftaranBaru(currentPendaftaranPage);
+        },
+        error: function(err) {
+            btn.prop('disabled', false).text('Alokasikan Tugas');
+            const msg = err.responseJSON ? err.responseJSON.message : 'Gagal mengalokasikan teknisi.';
+            Toast.fire({ icon: 'error', title: msg });
+        }
+    });
+});
+
+function openTolakModal(id, kode, nama) {
+    $('#tolak-pendaftaran-id').val(id);
+    $('#tolak-pendaftaran-subtitle').text(`Tolak pendaftaran ${kode} (${nama}).`);
+    $('#tolak-catatan').val('');
+    new bootstrap.Modal(document.getElementById('tolakPendaftaranModal')).show();
+}
+
+$('#formTolakPendaftaran').on('submit', function(e) {
+    e.preventDefault();
+    const id = $('#tolak-pendaftaran-id').val();
+    const catatan = $('#tolak-catatan').val();
+
+    if (!catatan) {
+        Toast.fire({ icon: 'warning', title: 'Alasan penolakan wajib diisi.' });
+        return;
+    }
+
+    const btn = $('#btnSubmitTolakPendaftaran');
+    btn.prop('disabled', true).text('Menolak...');
+
+    $.ajax({
+        url: `/master-pages/spam/pendaftaran/${id}/tolak`,
+        type: 'PUT',
+        data: {
+            _token: CSRF,
+            catatan_admin: catatan
+        },
+        success: function(res) {
+            btn.prop('disabled', false).text('Tolak Pendaftaran');
+            bootstrap.Modal.getInstance(document.getElementById('tolakPendaftaranModal')).hide();
+            Toast.fire({ icon: 'success', title: res.message || 'Pendaftaran ditolak' });
+            loadPendaftaranBaru(currentPendaftaranPage);
+        },
+        error: function(err) {
+            btn.prop('disabled', false).text('Tolak Pendaftaran');
+            const msg = err.responseJSON ? err.responseJSON.message : 'Gagal menolak pendaftaran.';
+            Toast.fire({ icon: 'error', title: msg });
+        }
+    });
+});
+
+function renderPendaftaranPagination(res) {
+    const footerEl = document.getElementById('pendaftaran-pagination-footer');
+    const startEl  = document.getElementById('pendaftaran-start-entry');
+    const endEl    = document.getElementById('pendaftaran-end-entry');
+    const totalEl  = document.getElementById('pendaftaran-total-entries');
+    const pagEl    = document.getElementById('pendaftaran-pagination');
+
+    if (!res || !res.total) {
+        if (footerEl) footerEl.style.display = 'none';
+        return;
+    }
+
+    if (footerEl) footerEl.style.display = 'flex';
+    if (startEl) startEl.textContent = res.from || 0;
+    if (endEl) endEl.textContent = res.to || 0;
+    if (totalEl) totalEl.textContent = res.total || 0;
+
+    let html = '';
+    const curr = res.current_page;
+    const last = res.last_page;
+
+    if (curr > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="loadPendaftaranBaru(${curr - 1}); return false;">Prev</a></li>`;
+    }
+
+    for (let p = 1; p <= last; p++) {
+        if (p === 1 || p === last || (p >= curr - 2 && p <= curr + 2)) {
+            html += `<li class="page-item ${p === curr ? 'active' : ''}"><a class="page-link" href="#" onclick="loadPendaftaranBaru(${p}); return false;">${p}</a></li>`;
+        } else if (p === curr - 3 || p === curr + 3) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+
+    if (curr < last) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="loadPendaftaranBaru(${curr + 1}); return false;">Next</a></li>`;
+    }
+
+    if (pagEl) pagEl.innerHTML = html;
+}
+
+$(document).ready(function() {
+    switchSpamTab(activeSpamTab);
+});
 </script>
 @endpush

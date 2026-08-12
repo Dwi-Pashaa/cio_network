@@ -40,7 +40,7 @@ class Role extends SpatieRole
         $role = static::withoutGlobalScopes()
             ->where('name', $name)
             ->where('guard_name', $guardName)
-            ->where('organization_id', auth()->user()?->organization_id)
+            ->when(auth()->check(), fn($q) => $q->where('organization_id', auth()->user()->organization_id))
             ->first();
 
         if (! $role) {
@@ -57,7 +57,7 @@ class Role extends SpatieRole
     ): self {
 
         $guardName = $guardName ?? config('auth.defaults.guard');
-        $organizationId = $organizationId ?? auth()->user()?->organization_id;
+        $organizationId = $organizationId ?? (auth()->check() ? auth()->user()->organization_id : null);
 
         $role = static::withoutGlobalScopes()
             ->where('name', $name)

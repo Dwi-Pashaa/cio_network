@@ -9,10 +9,11 @@
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background: radial-gradient(circle at 10% 20%, rgba(30, 41, 59, 0.05) 0%, rgba(37, 99, 235, 0.05) 90%), #f8fafc;
             min-height: 100vh;
-            position: relative;
             overflow-x: hidden;
-            display: block !important;
-            padding: 0 0 5rem 0 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
         }
 
         .page-container {

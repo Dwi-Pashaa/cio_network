@@ -12,7 +12,15 @@ class Price extends Model
 {
     use HasFactory, LogsActivityHelper;
     protected $table = 'price';
-    protected $fillable = ['name', 'organization_id'];
+    protected $fillable = ['name', 'description', 'is_public', 'use_bukti_bayar', 'organization_id'];
+
+    protected function casts(): array
+    {
+        return [
+            'is_public' => 'boolean',
+            'use_bukti_bayar' => 'boolean',
+        ];
+    }
 
     public function organization(): BelongsTo
     {

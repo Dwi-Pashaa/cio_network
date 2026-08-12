@@ -32,7 +32,10 @@ class PriceController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "name" => "required|string"
+            "name"            => "required|string",
+            "description"     => "nullable|string",
+            "is_public"       => "nullable|boolean",
+            "use_bukti_bayar" => "nullable|boolean",
         ]);
 
         if ($validation->fails()) {
@@ -41,6 +44,8 @@ class PriceController extends Controller
 
         $post = $request->all();
         $post['organization_id'] = Auth::user()->organization_id;
+        $post['is_public'] = $request->boolean('is_public', true);
+        $post['use_bukti_bayar'] = $request->boolean('use_bukti_bayar', false);
 
         Price::create($post);
 
@@ -67,14 +72,19 @@ class PriceController extends Controller
     public function update(Request $request, string $id)
     {
         $validation = Validator::make($request->all(), [
-            "name" => "required|string"
+            "name"            => "required|string",
+            "description"     => "nullable|string",
+            "is_public"       => "nullable|boolean",
+            "use_bukti_bayar" => "nullable|boolean",
         ]);
 
         if ($validation->fails()) {
             return response()->json(['code' => 400, 'errors' => $validation->errors()]);
         }
 
-        $put = $request->only('name');
+        $put = $request->only(['name', 'description']);
+        $put['is_public'] = $request->boolean('is_public', true);
+        $put['use_bukti_bayar'] = $request->boolean('use_bukti_bayar', false);
         $put['organization_id'] = Auth::user()->organization_id;
 
         $type = Price::find($id);

@@ -68,6 +68,11 @@ class Pages extends Model
         return $this->hasMany(PagesPaket::class, 'pages_id', 'id');
     }
 
+    public function pakets()
+    {
+        return $this->belongsToMany(Paket::class, 'pages_paket', 'pages_id', 'paket_id');
+    }
+
     public function mic_radius()
     {
         return $this->hasMany(PagesMicRadius::class, 'pages_id', 'id');
@@ -76,6 +81,11 @@ class Pages extends Model
     public function price()
     {
         return $this->hasMany(PagesPrice::class, 'pages_id', 'id');
+    }
+
+    public function prices()
+    {
+        return $this->belongsToMany(Price::class, 'pages_price', 'pages_id', 'price_id');
     }
 
     public function tipePelanggan()

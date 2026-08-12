@@ -5,6 +5,13 @@
 @endsection
 
 @push('css')
+    <link href="{{asset('')}}css/tabler.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/tabler-flags.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/tabler-socials.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/tabler-payments.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/tabler-vendors.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/tabler-marketing.min.css?1738096682" rel="stylesheet" />
+    <link href="{{asset('')}}css/demo.min.css?1738096682" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/modern-layout.css') }}">
     <link rel="stylesheet" href="{{ asset('css/pages.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
@@ -506,6 +513,7 @@
                                     <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Nama WiFi</label>
                                         <input type="text" name="name_wifi" id="name_wifi"
+                                            value="{{ old('name_wifi', isset($pendaftaran) ? $pendaftaran->name_wifi : '') }}"
                                             class="form-control @error('name_wifi') is-invalid @enderror"
                                             placeholder="Nama SSID WiFi">
                                         @error('name_wifi')
@@ -515,6 +523,7 @@
                                     <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <label class="form-label">Password WiFi</label>
                                         <input type="text" name="password_wifi" id="password_wifi"
+                                            value="{{ old('password_wifi', isset($pendaftaran) ? $pendaftaran->password_wifi : '') }}"
                                             class="form-control @error('password_wifi') is-invalid @enderror"
                                             placeholder="Password WiFi">
                                         @error('password_wifi')

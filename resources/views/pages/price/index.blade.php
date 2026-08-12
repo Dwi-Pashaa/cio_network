@@ -118,6 +118,26 @@
                             placeholder="Masukkan tipe pembayaran">
                         <span class="invalid-feedback error_name"></span>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Keterangan / Detail Pembayaran</label>
+                        <textarea name="description" id="description" class="form-control" rows="3"
+                            placeholder="Contoh: DANA a.n. CIO Network - 081234567890"></textarea>
+                        <span class="invalid-feedback error_description"></span>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="hidden" name="is_public" value="0">
+                            <input type="checkbox" name="is_public" id="is_public" class="form-check-input" value="1" checked>
+                            <label class="form-check-label" for="is_public">Tampilkan di Publik</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="hidden" name="use_bukti_bayar" value="0">
+                            <input type="checkbox" name="use_bukti_bayar" id="use_bukti_bayar" class="form-check-input" value="1">
+                            <label class="form-check-label" for="use_bukti_bayar">Gunakan Bukti Bayar</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-link link-secondary me-auto"
@@ -337,6 +357,9 @@
 
         function resetModal() {
             $("#name").val('');
+            $("#description").val('');
+            $("#is_public").prop('checked', true);
+            $("#use_bukti_bayar").prop('checked', false);
             $("#id").val('');
             clearValidationErrors();
         }
@@ -356,6 +379,9 @@
             const id = $("#id").val();
             const data = {
                 name: $("#name").val(),
+                description: $("#description").val(),
+                is_public: $("#is_public").is(':checked') ? 1 : 0,
+                use_bukti_bayar: $("#use_bukti_bayar").is(':checked') ? 1 : 0,
                 _token: $('meta[name="csrf-token"]').attr('content')
             };
 
@@ -401,6 +427,9 @@
 
                     $("#id").val(data.id);
                     $("#name").val(data.name);
+                    $("#description").val(data.description);
+                    $("#is_public").prop('checked', data.is_public == 1 || data.is_public === true);
+                    $("#use_bukti_bayar").prop('checked', data.use_bukti_bayar == 1 || data.use_bukti_bayar === true);
                     $("#type").val('update');
                 })
                 .fail(function() {

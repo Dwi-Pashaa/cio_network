@@ -13,7 +13,14 @@ class Paket extends Model
 {
     use HasFactory, LogsActivityHelper;
     protected $table = 'paket';
-    protected $fillable = ['name', 'organization_id'];
+    protected $fillable = ['name', 'is_public', 'organization_id'];
+
+    protected function casts(): array
+    {
+        return [
+            'is_public' => 'boolean',
+        ];
+    }
 
     public function organization(): BelongsTo
     {

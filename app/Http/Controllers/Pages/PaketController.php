@@ -35,8 +35,9 @@ class PaketController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            "name"    => "required|string",
-            "user_id" => "required|array",
+            "name"      => "required|string",
+            "user_id"   => "required|array",
+            "is_public" => "nullable|boolean",
         ]);
 
         if ($validation->fails()) {
@@ -44,6 +45,7 @@ class PaketController extends Controller
         }
 
         $paketData = $request->only("name");
+        $paketData['is_public'] = $request->boolean('is_public', true);
         $paketData['organization_id'] = Auth::user()->organization_id;
         $paket = Paket::create($paketData);
 
@@ -76,6 +78,7 @@ class PaketController extends Controller
             "name"      => "required|string",
             "user_id"   => "required|array",
             "user_id.*" => "exists:users,id",
+            "is_public" => "nullable|boolean",
         ]);
 
         if ($validation->fails()) {
@@ -92,7 +95,9 @@ class PaketController extends Controller
             ]);
         }
 
-        $paket->update(['name' => $request->name]);
+        $updateData = ['name' => $request->name];
+        $updateData['is_public'] = $request->boolean('is_public', true);
+        $paket->update($updateData);
 
         $paket->user()->detach();
 

@@ -25,6 +25,9 @@ Route::post('/login', [LoginController::class, 'login'])->name('post.login');
 Broadcast::routes(['middleware' => ['auth']]);
 require base_path('routes/channels.php');
 
+// Public Registration Wizard (tanpa auth) — harus sebelum grup auth karena /pendaftaran-baru/{id} di master-pendaftaran
+require __DIR__ . '/public-pendaftaran.php';
+
 Route::middleware(['auth'])->group(function () {
     // logout
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -64,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'troubleshoot.update',
             'destroy' => 'troubleshoot.destroy',
         ]);
+
     Route::get('/ticket/{id}/detail', [TroubleshootController::class, 'detail'])
         ->name('troubleshoot.detail');
     Route::get('/ticket/{id}/tracking', [TroubleshootController::class, 'tracking'])
@@ -94,5 +98,4 @@ Route::post('/search-customer', [PublicCustomerController::class, 'search'])->na
 Route::get('/clientarea-login', [PublicCustomerController::class, 'proxyLogin'])->name('public.customer.clientarea_login');
 
 Route::get('/reset-wifi', [PublicCustomerController::class, 'resetWifiPage'])->name('public.customer.reset_wifi');
-Route::post('/reset-wifi/search', [PublicCustomerController::class, 'searchCustomerForReset'])->name('public.customer.reset_wifi.search');
-Route::post('/reset-wifi/submit', [PublicCustomerController::class, 'submitResetPassword'])->name('public.customer.reset_wifi.submit');
+Route::get('/reset-wifi/submit', [PublicCustomerController::class, 'submitResetPassword'])->name('public.customer.reset_wifi.submit');

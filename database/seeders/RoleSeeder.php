@@ -17,7 +17,8 @@ class RoleSeeder extends Seeder
         // Daftar Role
         $roles = [
             "Admin",
-            "Teknisi"
+            "Teknisi",
+            "Data Entry"
         ];
 
         foreach ($roles as $value) {
