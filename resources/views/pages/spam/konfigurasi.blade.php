@@ -245,6 +245,12 @@
             outline: none !important;
         }
 
+        .form-control-custom.is-invalid, .ts-wrapper.is-invalid .ts-control {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
+
         .form-control-readonly {
             background-color: #f8fafc !important;
             color: #64748b !important;
@@ -416,7 +422,7 @@
                                     <div class="col-md-12">
                                         <label class="form-label-custom">Tipe Pelanggan <span class="text-danger">*</span></label>
                                         @if ($tipePelanggan->count() === 1)
-                                            @php $singleTpl = $tipePelanggan->first(); @endphp
+                                             @php $singleTpl = $tipePelanggan->first(); @endphp
                                             <select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="form-control form-control-custom">
                                                 <option value="{{ $singleTpl->id }}" selected>{{ $singleTpl->name }}</option>
                                             </select>
@@ -436,8 +442,8 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Email Pelanggan</label>
-                                        <input value="{{ old('email', $pendaftaran->email) }}" type="text" name="email" id="email" class="form-control form-control-custom" placeholder="contoh@email.com">
+                                        <label class="form-label-custom">Email Pelanggan <span class="text-danger">*</span></label>
+                                        <input value="{{ old('email', $pendaftaran->email) }}" type="email" name="email" id="email" class="form-control form-control-custom" placeholder="contoh@email.com">
                                     </div>
 
                                     <div class="col-md-6">
@@ -446,7 +452,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">MAC Address Modem / Router</label>
+                                        <label class="form-label-custom">MAC Address Modem / Router <span class="text-danger">*</span></label>
                                         <input value="{{ old('mac_address') }}" type="text" name="mac_address" id="mac_address" class="form-control form-control-custom" placeholder="XX:XX:XX:XX:XX:XX" autocomplete="off">
                                         <small id="macFeedback" class="d-block mt-1" style="font-size: 0.8rem; font-weight: 600;"></small>
                                     </div>
@@ -484,8 +490,8 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Jenis Router Terpasang</label>
-                                        <input type="text" name="router_name" id="router_name" class="form-control form-control-custom form-control-readonly" disabled placeholder="Terisi otomatis berdasarkan tipe">
+                                        <label class="form-label-custom">Jenis Router Terpasang <span class="text-danger">*</span></label>
+                                        <input type="text" name="router_name" id="router_name" class="form-control form-control-custom form-control-readonly" disabled placeholder="Terisi otomatis berdasarkan MAC Address">
                                         <input type="hidden" name="routers_id" id="routers_id">
                                     </div>
                                 </div>
@@ -500,17 +506,17 @@
 
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label-custom">Nama WiFi (SSID)</label>
+                                            <label class="form-label-custom">Nama WiFi (SSID) <span class="text-danger">*</span></label>
                                             <input type="text" name="name_wifi" id="name_wifi" value="{{ old('name_wifi', $pendaftaran->name_wifi) }}" class="form-control form-control-custom" placeholder="Nama SSID WiFi Pelanggan">
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label-custom">Password WiFi</label>
-                                            <input type="text" name="password_wifi" id="password_wifi" value="{{ old('password_wifi', $pendaftaran->password_wifi) }}" class="form-control form-control-custom" placeholder="Password WPA WiFi">
+                                            <label class="form-label-custom">Password WiFi <span class="text-danger">*</span></label>
+                                            <input type="text" name="password_wifi" id="password_wifi" value="{{ old('password_wifi', $pendaftaran->password_wifi) }}" class="form-control form-control-custom" placeholder="Password WPA WiFi (Min. 8 karakter)">
                                         </div>
 
                                         <div class="col-md-4">
-                                            <label class="form-label-custom">Pilihan Tipe Paket</label>
+                                            <label class="form-label-custom">Pilihan Tipe Paket <span class="text-danger">*</span></label>
                                             <select name="paket_id" id="paket_id" class="form-control form-control-custom">
                                                 <option value="">-- Pilih Paket --</option>
                                                 @foreach ($paket as $pkt)
@@ -520,7 +526,7 @@
                                         </div>
 
                                         <div class="col-md-4">
-                                            <label class="form-label-custom">Profile Mix Radius</label>
+                                            <label class="form-label-custom">Profile Mix Radius <span class="text-danger">*</span></label>
                                             <select name="mic_radius_id" id="mic_radius_id" class="form-control form-control-custom">
                                                 <option value="">-- Pilih Mix Radius --</option>
                                                 @foreach ($micRadius as $mc)
@@ -530,7 +536,7 @@
                                         </div>
 
                                         <div class="col-md-4">
-                                            <label class="form-label-custom">Skema Pembayaran</label>
+                                            <label class="form-label-custom">Skema Pembayaran <span class="text-danger">*</span></label>
                                             <select name="price_id" id="price_id" class="form-control form-control-custom">
                                                 <option value="">-- Pilih Tipe Pembayaran --</option>
                                                 @foreach ($price as $prc)
@@ -559,14 +565,14 @@
                             <div class="config-card-body">
                                 <div class="row g-3">
                                     <div class="col-md-12">
-                                        <label class="form-label-custom">Kampung / Dusun</label>
+                                        <label class="form-label-custom">Kampung / Dusun <span class="text-danger">*</span></label>
                                         <select name="hometowns_id" id="hometowns_id" class="form-control form-control-custom">
                                             <option value="{{ $pages->hometowns_id }}">{{ $pendaftaran->hometown ? $pendaftaran->hometown->name : $pages->hometown->name }}</option>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">RT</label>
+                                        <label class="form-label-custom">RT <span class="text-danger">*</span></label>
                                         <select name="rts_id" id="rts_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih RT --</option>
                                             @foreach ($rts as $rt)
@@ -576,7 +582,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">RW</label>
+                                        <label class="form-label-custom">RW <span class="text-danger">*</span></label>
                                         <select name="rws_id" id="rws_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih RW --</option>
                                             @foreach ($rws as $rw)
@@ -586,21 +592,21 @@
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label class="form-label-custom">Desa / Kelurahan</label>
+                                        <label class="form-label-custom">Desa / Kelurahan <span class="text-danger">*</span></label>
                                         <select name="villages_id" id="villages_id" class="form-control form-control-custom">
                                             <option value="{{ $pages->villages_id }}">{{ $pendaftaran->village ? $pendaftaran->village->name : $pages->village->name }}</option>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Kabupaten / Kota</label>
+                                        <label class="form-label-custom">Kabupaten / Kota <span class="text-danger">*</span></label>
                                         <select name="regencies_id" id="regencies_id" class="form-control form-control-custom">
                                             <option value="{{ $pages->regencies_id }}">{{ $pages->regencie->name }}</option>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Kecamatan</label>
+                                        <label class="form-label-custom">Kecamatan <span class="text-danger">*</span></label>
                                         <select name="districts_id" id="districts_id" class="form-control form-control-custom">
                                             <option value="{{ $pages->districts_id }}">{{ $pages->district->name }}</option>
                                         </select>
@@ -625,7 +631,7 @@
                             <div class="config-card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Pilihan VLAN Network</label>
+                                        <label class="form-label-custom">Pilihan VLAN Network <span class="text-danger">*</span></label>
                                         <select name="vlans_id" id="vlans_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih VLAN --</option>
                                             @foreach ($vlans as $vln)
@@ -635,7 +641,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Alokasi ODC (Optical Distribution Center)</label>
+                                        <label class="form-label-custom">Alokasi ODC (Optical Distribution Center) <span class="text-danger">*</span></label>
                                         <select name="odcs_id" id="odcs_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih ODC --</option>
                                             @foreach ($odcs as $odc)
@@ -645,7 +651,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Alokasi ODP (Optical Distribution Point)</label>
+                                        <label class="form-label-custom">Alokasi ODP (Optical Distribution Point) <span class="text-danger">*</span></label>
                                         <select name="odps_id" id="odps_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih ODP --</option>
                                             @foreach ($odps as $odp)
@@ -655,7 +661,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Alokasi OLT (Optical Line Terminal)</label>
+                                        <label class="form-label-custom">Alokasi OLT (Optical Line Terminal) <span class="text-danger">*</span></label>
                                         <select name="olts_id" id="olts_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih OLT --</option>
                                             @foreach ($olts as $olt)
@@ -719,7 +725,8 @@
                             </button>
                             <button type="submit" class="btn-wizard-nav btn-wizard-submit" id="btn-submit" style="display: none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
-                                Simpan Konfigurasi
+                                <span id="btn-submit-text">Simpan Konfigurasi</span>
+                                <span id="btn-submit-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
                             </button>
                         </div>
                     </div>
@@ -731,16 +738,250 @@
 @endsection
 
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>
         let currentWizardStep = 1;
         const totalWizardSteps = 4;
+
+        // Inisialisasi Toast SweetAlert2
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        function showStepWarning(message, element) {
+            Toast.fire({
+                icon: 'warning',
+                title: message
+            });
+
+            if (element) {
+                element.classList.add('is-invalid');
+                const tsControl = element.closest('.ts-wrapper');
+                if (tsControl) {
+                    tsControl.classList.add('is-invalid');
+                }
+                setTimeout(() => {
+                    element.focus();
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        // Hapus penanda invalid saat input diubah
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.classList.contains('is-invalid')) {
+                e.target.classList.remove('is-invalid');
+                const tsWrapper = e.target.closest('.ts-wrapper');
+                if (tsWrapper) tsWrapper.classList.remove('is-invalid');
+            }
+        });
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('is-invalid')) {
+                e.target.classList.remove('is-invalid');
+                const tsWrapper = e.target.closest('.ts-wrapper');
+                if (tsWrapper) tsWrapper.classList.remove('is-invalid');
+            }
+        });
+
+        /**
+         * Validasi input untuk setiap step
+         */
+        function validateStep(stepNumber, showNotification = true) {
+            // Bersihkan error sebelum validasi
+            const currentPanel = document.getElementById(`step-panel-${stepNumber}`);
+            if (currentPanel) {
+                currentPanel.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            }
+
+            if (stepNumber === 1) {
+                const tipePelanggan = document.getElementById('tipe_pelanggan_id');
+                if (tipePelanggan && !tipePelanggan.value.trim()) {
+                    if (showNotification) showStepWarning('Tipe Pelanggan wajib dipilih.', tipePelanggan);
+                    return false;
+                }
+
+                const nameInput = document.getElementById('name');
+                if (!nameInput || !nameInput.value.trim()) {
+                    if (showNotification) showStepWarning('Nama Lengkap Pelanggan wajib diisi.', nameInput);
+                    return false;
+                }
+
+                const emailInput = document.getElementById('email');
+                const emailVal = emailInput ? emailInput.value.trim() : '';
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailVal) {
+                    if (showNotification) showStepWarning('Email Pelanggan wajib diisi.', emailInput);
+                    return false;
+                } else if (!emailRegex.test(emailVal)) {
+                    if (showNotification) showStepWarning('Format Email Pelanggan tidak valid (contoh@email.com).', emailInput);
+                    return false;
+                }
+
+                const telpInput = document.getElementById('telp');
+                const telpVal = telpInput ? telpInput.value.trim() : '';
+                const telpRegex = /^[0-9]{10,15}$/;
+                if (!telpVal) {
+                    if (showNotification) showStepWarning('Nomor Telepon / WA wajib diisi.', telpInput);
+                    return false;
+                } else if (!telpRegex.test(telpVal.replace(/[-\s]/g, ''))) {
+                    if (showNotification) showStepWarning('Nomor Telepon / WA harus berupa 10 - 15 digit angka.', telpInput);
+                    return false;
+                }
+
+                const macInput = document.getElementById('mac_address');
+                const macVal = macInput ? macInput.value.trim() : '';
+                if (!macVal) {
+                    if (showNotification) showStepWarning('MAC Address Modem / Router wajib diisi.', macInput);
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (stepNumber === 2) {
+                const typesSelect = document.getElementById('types_id');
+                if (!typesSelect || !typesSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Tipe Layanan Internet wajib dipilih.', typesSelect);
+                    return false;
+                }
+
+                const selectedTypeOption = typesSelect.options[typesSelect.selectedIndex];
+                const typeLabel = selectedTypeOption ? (selectedTypeOption.getAttribute('data-label') || selectedTypeOption.text || '') : '';
+                const isPPPOE = typeLabel.toUpperCase().includes('PPPOE');
+
+                if (isPPPOE) {
+                    const wifiName = document.getElementById('name_wifi');
+                    if (!wifiName || !wifiName.value.trim()) {
+                        if (showNotification) showStepWarning('Nama WiFi (SSID) wajib diisi untuk layanan PPPOE.', wifiName);
+                        return false;
+                    }
+
+                    const wifiPassword = document.getElementById('password_wifi');
+                    const passVal = wifiPassword ? wifiPassword.value.trim() : '';
+                    if (!passVal) {
+                        if (showNotification) showStepWarning('Password WiFi wajib diisi untuk layanan PPPOE.', wifiPassword);
+                        return false;
+                    } else if (passVal.length < 8) {
+                        if (showNotification) showStepWarning('Password WiFi minimal 8 karakter.', wifiPassword);
+                        return false;
+                    }
+
+                    const paketSelect = document.getElementById('paket_id');
+                    if (!paketSelect || !paketSelect.value.trim()) {
+                        if (showNotification) showStepWarning('Pilihan Tipe Paket wajib dipilih.', paketSelect);
+                        return false;
+                    }
+
+                    const micRadiusSelect = document.getElementById('mic_radius_id');
+                    if (!micRadiusSelect || !micRadiusSelect.value.trim()) {
+                        if (showNotification) showStepWarning('Profile Mix Radius wajib dipilih.', micRadiusSelect);
+                        return false;
+                    }
+
+                    const priceSelect = document.getElementById('price_id');
+                    if (!priceSelect || !priceSelect.value.trim()) {
+                        if (showNotification) showStepWarning('Skema Pembayaran wajib dipilih.', priceSelect);
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            if (stepNumber === 3) {
+                const hometownSelect = document.getElementById('hometowns_id');
+                if (!hometownSelect || !hometownSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Kampung / Dusun wajib dipilih.', hometownSelect);
+                    return false;
+                }
+
+                const rtSelect = document.getElementById('rts_id');
+                if (!rtSelect || !rtSelect.value.trim()) {
+                    if (showNotification) showStepWarning('RT wajib dipilih.', rtSelect);
+                    return false;
+                }
+
+                const rwSelect = document.getElementById('rws_id');
+                if (!rwSelect || !rwSelect.value.trim()) {
+                    if (showNotification) showStepWarning('RW wajib dipilih.', rwSelect);
+                    return false;
+                }
+
+                const villageSelect = document.getElementById('villages_id');
+                if (!villageSelect || !villageSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Desa / Kelurahan wajib dipilih.', villageSelect);
+                    return false;
+                }
+
+                const regencySelect = document.getElementById('regencies_id');
+                if (!regencySelect || !regencySelect.value.trim()) {
+                    if (showNotification) showStepWarning('Kabupaten / Kota wajib dipilih.', regencySelect);
+                    return false;
+                }
+
+                const districtSelect = document.getElementById('districts_id');
+                if (!districtSelect || !districtSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Kecamatan wajib dipilih.', districtSelect);
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (stepNumber === 4) {
+                const vlanSelect = document.getElementById('vlans_id');
+                if (!vlanSelect || !vlanSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Pilihan VLAN Network wajib dipilih.', vlanSelect);
+                    return false;
+                }
+
+                const odcSelect = document.getElementById('odcs_id');
+                if (!odcSelect || !odcSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Alokasi ODC wajib dipilih.', odcSelect);
+                    return false;
+                }
+
+                const odpSelect = document.getElementById('odps_id');
+                if (!odpSelect || !odpSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Alokasi ODP wajib dipilih.', odpSelect);
+                    return false;
+                }
+
+                const oltSelect = document.getElementById('olts_id');
+                if (!oltSelect || !oltSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Alokasi OLT wajib dipilih.', oltSelect);
+                    return false;
+                }
+
+                const patchCoreSelect = document.getElementById('patch_core_id');
+                if (!patchCoreSelect || !patchCoreSelect.value.trim()) {
+                    if (showNotification) showStepWarning('Ukuran Patch Core wajib dipilih.', patchCoreSelect);
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        }
 
         function updateWizardUI() {
             // Update panels
             for (let i = 1; i <= totalWizardSteps; i++) {
                 const panel = document.getElementById(`step-panel-${i}`);
                 const circle = document.getElementById(`circle-${i}`);
-                const stepItem = circle.closest('.wizard-step-item');
+                const stepItem = circle ? circle.closest('.wizard-step-item') : null;
+
+                if (!panel || !circle || !stepItem) continue;
 
                 if (i === currentWizardStep) {
                     panel.classList.add('active');
@@ -761,55 +1002,128 @@
 
             // Update Progress Bar Width
             const progressPercentage = ((currentWizardStep - 1) / (totalWizardSteps - 1)) * 80;
-            document.getElementById('wizard-progress').style.width = `${progressPercentage}%`;
+            const progressBar = document.getElementById('wizard-progress');
+            if (progressBar) progressBar.style.width = `${progressPercentage}%`;
 
             // Update Nav Buttons
             const btnPrev = document.getElementById('btn-prev');
             const btnNext = document.getElementById('btn-next');
             const btnSubmit = document.getElementById('btn-submit');
 
-            btnPrev.style.visibility = currentWizardStep === 1 ? 'hidden' : 'visible';
+            if (btnPrev) btnPrev.style.visibility = currentWizardStep === 1 ? 'hidden' : 'visible';
 
             if (currentWizardStep === totalWizardSteps) {
-                btnNext.style.display = 'none';
-                btnSubmit.style.display = 'inline-flex';
+                if (btnNext) btnNext.style.display = 'none';
+                if (btnSubmit) btnSubmit.style.display = 'inline-flex';
             } else {
-                btnNext.style.display = 'inline-flex';
-                btnSubmit.style.display = 'none';
+                if (btnNext) btnNext.style.display = 'inline-flex';
+                if (btnSubmit) btnSubmit.style.display = 'none';
             }
 
             window.scrollTo({ top: 150, behavior: 'smooth' });
         }
 
         function changeStep(delta) {
+            if (delta > 0) {
+                // Periksa validasi step saat ini sebelum maju
+                if (!validateStep(currentWizardStep)) {
+                    return;
+                }
+            }
+
             const nextStep = currentWizardStep + delta;
             if (nextStep >= 1 && nextStep <= totalWizardSteps) {
                 currentWizardStep = nextStep;
                 updateWizardUI();
-                // Auto-deteksi lokasi saat masuk step 4
-                if (nextStep === 4 && navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(pos) {
-                        document.getElementById('latitude').value = pos.coords.latitude;
-                        document.getElementById('longitude').value = pos.coords.longitude;
-                        const latDisplay = document.getElementById('latitude_display');
-                        const lngDisplay = document.getElementById('longitude_display');
-                        if (latDisplay) latDisplay.value = pos.coords.latitude;
-                        if (lngDisplay) lngDisplay.value = pos.coords.longitude;
-                    });
-                }
+                if (nextStep === 4) triggerGpsDetection();
             }
         }
 
         function goToStep(step) {
+            if (step > currentWizardStep) {
+                // Periksa validasi semua step perantara
+                for (let s = currentWizardStep; s < step; s++) {
+                    if (!validateStep(s)) {
+                        currentWizardStep = s;
+                        updateWizardUI();
+                        return;
+                    }
+                }
+            }
+
             if (step >= 1 && step <= totalWizardSteps) {
                 currentWizardStep = step;
                 updateWizardUI();
+                if (step === 4) triggerGpsDetection();
+            }
+        }
+
+        function triggerGpsDetection() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const latHidden = document.getElementById('latitude');
+                    const lngHidden = document.getElementById('longitude');
+                    const latDisplay = document.getElementById('latitude_display');
+                    const lngDisplay = document.getElementById('longitude_display');
+
+                    if (latHidden) latHidden.value = lat;
+                    if (lngHidden) lngHidden.value = lng;
+                    if (latDisplay) latDisplay.value = lat;
+                    if (lngDisplay) lngDisplay.value = lng;
+                });
+            }
+        }
+
+        // Toggle PPPoE View
+        function syncPppoeView() {
+            const typesSelect = document.getElementById('types_id');
+            const pppoeContainer = document.getElementById('pppoe-show');
+            const typeNameInput = document.getElementById('type_name');
+
+            if (!typesSelect || !pppoeContainer) return;
+
+            const selectedOption = typesSelect.options[typesSelect.selectedIndex];
+            const typeLabel = selectedOption ? (selectedOption.getAttribute('data-label') || selectedOption.text || '') : '';
+            const isPPPOE = typeLabel.toUpperCase().includes('PPPOE');
+
+            if (isPPPOE) {
+                pppoeContainer.style.display = 'block';
+                if (typeNameInput) typeNameInput.value = 'PPPOE';
+            } else {
+                pppoeContainer.style.display = 'none';
+                if (typeNameInput) typeNameInput.value = '';
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             updateWizardUI();
+            syncPppoeView();
 
+            const typesSelect = document.getElementById('types_id');
+            if (typesSelect) {
+                typesSelect.addEventListener('change', syncPppoeView);
+            }
+
+            // Inisialisasi TomSelect untuk elemen select bertanda .select-tom
+            document.querySelectorAll('select.select-tom').forEach(function(el) {
+                const placeholder = el.querySelector('option[value=""]')?.textContent?.trim() ?? '-- Pilih --';
+                const ts = new TomSelect(el, {
+                    allowEmptyOption: true,
+                    placeholder: placeholder,
+                    create: false
+                });
+
+                ts.on('change', function() {
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    el.classList.remove('is-invalid');
+                    const tsWrap = el.closest('.ts-wrapper');
+                    if (tsWrap) tsWrap.classList.remove('is-invalid');
+                });
+            });
+
+            // MAC Address validation
             const macInput = document.getElementById('mac_address');
             if (macInput) {
                 macInput.addEventListener('blur', function() {
@@ -848,52 +1162,59 @@
                     });
                 });
             }
+
+            // Validasi submit keseluruhan formulir
+            const configForm = document.getElementById('config-form');
+            if (configForm) {
+                configForm.addEventListener('submit', function(e) {
+                    for (let s = 1; s <= totalWizardSteps; s++) {
+                        if (!validateStep(s)) {
+                            e.preventDefault();
+                            currentWizardStep = s;
+                            updateWizardUI();
+                            return false;
+                        }
+                    }
+
+                    // Tampilkan indikator loading saat submit berhasil lolos validasi
+                    const btnSubmit = document.getElementById('btn-submit');
+                    const submitText = document.getElementById('btn-submit-text');
+                    const submitLoading = document.getElementById('btn-submit-loading');
+
+                    if (btnSubmit) {
+                        btnSubmit.disabled = true;
+                        if (submitText) submitText.textContent = 'Menyimpan...';
+                        if (submitLoading) submitLoading.classList.remove('d-none');
+                    }
+                });
+            }
         });
 
-        // Deteksi lokasi GPS
+        // Deteksi lokasi GPS manual
         function detectLocation() {
             if (!navigator.geolocation) {
-                alert('Browser tidak mendukung geolocation.');
+                Toast.fire({ icon: 'error', title: 'Browser tidak mendukung Geolocation.' });
                 return;
             }
             navigator.geolocation.getCurrentPosition(function(pos) {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
 
-                document.getElementById('latitude').value = lat;
-                document.getElementById('longitude').value = lng;
-
+                const latHidden = document.getElementById('latitude');
+                const lngHidden = document.getElementById('longitude');
                 const latDisplay = document.getElementById('latitude_display');
                 const lngDisplay = document.getElementById('longitude_display');
+
+                if (latHidden) latHidden.value = lat;
+                if (lngHidden) lngHidden.value = lng;
                 if (latDisplay) latDisplay.value = lat;
                 if (lngDisplay) lngDisplay.value = lng;
+
+                Toast.fire({ icon: 'success', title: 'Lokasi GPS berhasil dideteksi.' });
             }, function(err) {
-                alert('Gagal mendeteksi lokasi: ' + err.message);
+                Toast.fire({ icon: 'error', title: 'Gagal mendeteksi lokasi: ' + err.message });
             });
         }
-
-        // Auto-detect GPS saat user masuk ke step 4
-        const originalUpdateWizardUI = window.updateWizardUICallback || null;
-        document.addEventListener('DOMContentLoaded', function() {
-            const origChange = window.changeStep;
-        });
-
-        // Override goToStep to auto-trigger GPS on step 4
-        const _origGoToStep = window.goToStep;
-        window.goToStepWithGPS = function(step) {
-            goToStep(step);
-            if (step === 4 && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(pos) {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    document.getElementById('latitude').value = lat;
-                    document.getElementById('longitude').value = lng;
-                    const latDisplay = document.getElementById('latitude_display');
-                    const lngDisplay = document.getElementById('longitude_display');
-                    if (latDisplay) latDisplay.value = lat;
-                    if (lngDisplay) lngDisplay.value = lng;
-                });
-            }
-        };
     </script>
 @endpush
+
