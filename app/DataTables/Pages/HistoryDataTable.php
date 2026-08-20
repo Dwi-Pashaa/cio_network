@@ -33,6 +33,9 @@ class HistoryDataTable
             ->addColumn('created_at', function ($row) {
                 return $row->created_at ? $row->created_at->format('d/m/Y H:i:s') : '-';
             })
+            ->orderColumn('created_at', function ($query, $order) {
+                $query->orderBy('customers.created_at', $order);
+            })
             ->filterColumn('user_name', function ($query, $keyword) {
                 $query->whereHas('user', function ($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%");
@@ -85,7 +88,7 @@ class HistoryDataTable
 
         // Non-Admin hanya lihat data yang ia sendiri input
         if ($role !== 'Admin') {
-            $query->where('user_id', $user->id);
+            $query->where('customers.user_id', $user->id);
         }
 
         return $query;
@@ -105,20 +108,17 @@ class HistoryDataTable
 
         // Filter by user (hanya untuk Admin)
         if ($user_id && Auth::user()->hasRole('Admin')) {
-            $query->where('user_id', $user_id);
+            $query->where('customers.user_id', $user_id);
         }
 
         // Filter by date range
         if ($start && $end) {
-            $query->whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
+            $query->whereBetween('customers.created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
         } elseif ($start && !$end) {
-            $query->whereDate('created_at', '>=', $start);
+            $query->whereDate('customers.created_at', '>=', $start);
         } elseif (!$start && $end) {
-            $query->whereDate('created_at', '<=', $end);
+            $query->whereDate('customers.created_at', '<=', $end);
         }
-
-        // Jika tidak ada filter sama sekali, tampilkan semua data (tidak dikosongkan)
-        // Hapus bagian whereRaw('1 = 0') agar data tetap muncul
 
         return $query;
     }

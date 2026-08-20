@@ -247,7 +247,7 @@
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at'
+                        name: 'customers.created_at'
                     }
                 ],
                 drawCallback: function(settings) {
