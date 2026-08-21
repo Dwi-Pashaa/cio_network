@@ -399,6 +399,26 @@
                         </div>
                     @endif
 
+                    @if (session()->has('warning'))
+                        <div class="alert alert-warning shadow-sm border-0 rounded-3 mb-4">
+                            <strong>Peringatan:</strong> {{ session()->get('warning') }}
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <strong>Terdapat Kesalahan Validasi:</strong>
+                            </div>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- STEP 1: DATA PELANGGAN -->
                     <div class="step-panel active" id="step-panel-1">
                         <div class="config-card">
@@ -430,7 +450,7 @@
                                             <select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="form-control form-control-custom select-tom">
                                                 <option value="">-- Pilih Tipe Pelanggan --</option>
                                                 @foreach ($tipePelanggan as $tpl)
-                                                    <option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}">{{ $tpl->name }}</option>
+                                                    <option data-label="{{ $tpl->name }}" value="{{ $tpl->id }}" {{ old('tipe_pelanggan_id') == $tpl->id ? 'selected' : '' }}>{{ $tpl->name }}</option>
                                                 @endforeach
                                             </select>
                                         @endif
@@ -480,7 +500,7 @@
                                         <select name="types_id" id="types_id" class="form-control form-control-custom">
                                             <option value="">-- Pilih Tipe Layanan --</option>
                                             @foreach ($types as $tp)
-                                                @php $pTipeId = optional($pendaftaran->tipeLayanan ?? $pendaftaran->tipe_layanan)->id; @endphp
+                                                @php $pTipeId = old('types_id', optional($pendaftaran->tipeLayanan ?? $pendaftaran->tipe_layanan)->id); @endphp
                                                 <option data-label="{{ $tp->name }}" value="{{ $tp->id }}" {{ $pTipeId == $tp->id ? 'selected' : '' }}>
                                                     {{ $tp->name }}
                                                 </option>
@@ -491,8 +511,22 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Jenis Router Terpasang <span class="text-danger">*</span></label>
-                                        <input type="text" name="router_name" id="router_name" class="form-control form-control-custom form-control-readonly" disabled placeholder="Terisi otomatis berdasarkan MAC Address">
-                                        <input type="hidden" name="routers_id" id="routers_id">
+                                        <div id="router_autodetect_wrap">
+                                            <input type="text" name="router_name" id="router_name" class="form-control form-control-custom form-control-readonly" readonly placeholder="Terisi otomatis berdasarkan MAC Address">
+                                            <input type="hidden" name="routers_id" id="routers_id" value="{{ old('routers_id') }}">
+                                        </div>
+                                        <div id="router_manual_wrap" class="mt-2" style="{{ old('routers_id') ? 'display: block;' : 'display: none;' }}">
+                                            <small class="text-muted d-block mb-1" style="font-size: 0.78rem; font-weight: 600;">Atau pilih router manual jika tidak terdeteksi otomatis:</small>
+                                            <select id="manual_router_select" class="form-control form-control-custom">
+                                                <option value="">-- Pilih Router Tersedia --</option>
+                                                @foreach ($routers as $rtr)
+                                                    @php $rtrId = $rtr->routers_id ?? $rtr->id; @endphp
+                                                    <option value="{{ $rtrId }}" data-name="{{ $rtr->name ?? $rtr->code }}" {{ old('routers_id') == $rtrId ? 'selected' : '' }}>
+                                                        {{ $rtr->name ?? $rtr->code }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -854,6 +888,17 @@
                     return false;
                 }
 
+                const routersId = document.getElementById('routers_id');
+                if (!routersId || !routersId.value.trim()) {
+                    const routerManualWrap = document.getElementById('router_manual_wrap');
+                    if (routerManualWrap) routerManualWrap.style.display = 'block';
+                    const manualSelect = document.getElementById('manual_router_select');
+                    if (showNotification) {
+                        showStepWarning('Jenis Router Terpasang belum dipilih atau belum terdeteksi. Silakan periksa MAC Address atau pilih router secara manual.', manualSelect || document.getElementById('router_name'));
+                    }
+                    return false;
+                }
+
                 const selectedTypeOption = typesSelect.options[typesSelect.selectedIndex];
                 const typeLabel = selectedTypeOption ? (selectedTypeOption.getAttribute('data-label') || selectedTypeOption.text || '') : '';
                 const isPPPOE = typeLabel.toUpperCase().includes('PPPOE');
@@ -1123,44 +1168,78 @@
                 });
             });
 
-            // MAC Address validation
+            // Handler Router Manual Select
+            const manualRouterSelect = document.getElementById('manual_router_select');
+            if (manualRouterSelect) {
+                manualRouterSelect.addEventListener('change', function() {
+                    const selectedOpt = this.options[this.selectedIndex];
+                    const routerName = document.getElementById('router_name');
+                    const routersId = document.getElementById('routers_id');
+                    if (this.value) {
+                        if (routersId) routersId.value = this.value;
+                        if (routerName) routerName.value = selectedOpt.getAttribute('data-name') || selectedOpt.text;
+                    } else {
+                        if (routersId) routersId.value = '';
+                        if (routerName) routerName.value = '';
+                    }
+                });
+            }
+
+            // MAC Address validation & Router auto-detection
+            function runCheckMac(macVal) {
+                if (!macVal) return;
+
+                fetch("{{ route('input.data.checkMacAddress') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ mac_address: macVal })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const feedback = document.getElementById('macFeedback');
+                    if (feedback) {
+                        feedback.textContent = data.message || '';
+                        feedback.style.color = data.valid ? '#16a34a' : '#dc2626';
+                    }
+
+                    let routerName = document.getElementById('router_name');
+                    let routersId = document.getElementById('routers_id');
+                    let manualWrap = document.getElementById('router_manual_wrap');
+                    let manualSelect = document.getElementById('manual_router_select');
+
+                    if (data.valid && data.router) {
+                        if (routerName) routerName.value = data.router.name || '';
+                        if (routersId) routersId.value = data.router.id || '';
+                        if (manualWrap) manualWrap.style.display = 'none';
+                    } else {
+                        if (manualWrap) manualWrap.style.display = 'block';
+                        if (manualSelect && manualSelect.value) {
+                            if (routersId) routersId.value = manualSelect.value;
+                            if (routerName) routerName.value = manualSelect.options[manualSelect.selectedIndex]?.getAttribute('data-name') || '';
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Error checking MAC address:", err);
+                    const manualWrap = document.getElementById('router_manual_wrap');
+                    if (manualWrap) manualWrap.style.display = 'block';
+                });
+            }
+
             const macInput = document.getElementById('mac_address');
             if (macInput) {
                 macInput.addEventListener('blur', function() {
-                    const macVal = this.value.trim();
-                    if (!macVal) return;
-
-                    fetch("{{ route('input.data.checkMacAddress') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ mac_address: macVal })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        const feedback = document.getElementById('macFeedback');
-                        if (feedback) {
-                            feedback.textContent = data.message || '';
-                            feedback.style.color = data.valid ? '#16a34a' : '#dc2626';
-                        }
-
-                        let routerName = document.getElementById('router_name');
-                        let routersId = document.getElementById('routers_id');
-
-                        if (data.valid && data.router) {
-                            if (routerName) routerName.value = data.router.name || '';
-                            if (routersId) routersId.value = data.router.id || '';
-                        } else {
-                            if (routerName) routerName.value = '';
-                            if (routersId) routersId.value = '';
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Error checking MAC address:", err);
-                    });
+                    runCheckMac(this.value.trim());
                 });
+                macInput.addEventListener('change', function() {
+                    runCheckMac(this.value.trim());
+                });
+                if (macInput.value.trim()) {
+                    runCheckMac(macInput.value.trim());
+                }
             }
 
             // Validasi submit keseluruhan formulir

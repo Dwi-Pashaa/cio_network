@@ -488,35 +488,36 @@ class PagesController extends Controller
 
         // ── Validasi email via MyEmailVerifier API ──
         if (!empty($data['email'])) {
-            $emailVerifier = new MyEmailVerifierService();
-            $result = $emailVerifier->verify($data['email']);
-
-            if (($result['status'] ?? null) !== 'register') {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors(['email' => 'Email tidak valid atau tidak terdaftar: ' . $result['message']]);
+            try {
+                $emailVerifier = new MyEmailVerifierService();
+                $result = $emailVerifier->verify($data['email']);
+                $data['email_verify_at'] = ($result['status'] ?? null) === 'register' ? 'register' : ($result['status'] ?? null);
+            } catch (\Throwable $e) {
+                Log::warning('Email verification failed: ' . $e->getMessage());
+                $data['email_verify_at'] = null;
             }
-
-            $data['email_verify_at'] = 'register';
         } else {
             $data['email_verify_at'] = null;
         }
 
         // ── Validasi nomor telepon via Fonnte API ──
         if (!empty($data['telp'])) {
-            $phoneService = new FontePhoneCheckService();
-            $phoneResult  = $phoneService->check($data['telp']);
+            try {
+                $phoneService = new FontePhoneCheckService();
+                $phoneResult  = $phoneService->check($data['telp']);
 
-            if (!$phoneResult['is_valid']) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors(['telp' => 'Nomor tidak terdaftar di WhatsApp: ' . $phoneResult['message']]);
+                if (($phoneResult['status'] ?? null) === 'not_registered') {
+                    return redirect()
+                        ->back()
+                        ->withInput()
+                        ->withErrors(['telp' => 'Nomor tidak terdaftar di WhatsApp: ' . ($phoneResult['message'] ?? '')]);
+                }
+
+                $data['wa_verifiy_at'] = ($phoneResult['status'] ?? null) === 'registered' ? 'registered' : null;
+            } catch (\Throwable $e) {
+                Log::warning('WhatsApp verification failed: ' . $e->getMessage());
+                $data['wa_verifiy_at'] = null;
             }
-
-            // Tandai WA sudah terverifikasi
-            $data['wa_verifiy_at'] = 'registered';
         } else {
             $data['wa_verifiy_at'] = null;
         }
@@ -531,7 +532,7 @@ class PagesController extends Controller
                 $ktpUrl = asset($ktpResult['path']);
             } catch (\Exception $e) {
                 Log::error('Error processing KTP photo: ' . $e->getMessage());
-                return back()->with('error', 'Gagal memproses foto KTP: ');
+                return back()->withInput()->with('error', 'Gagal memproses foto KTP.');
             }
         } else {
             $data['ktp_photo'] = null;
@@ -545,11 +546,11 @@ class PagesController extends Controller
                 ->first();
 
             if (!$userRouter) {
-                return back()->with('error', 'Router tidak ditemukan atau tidak terdaftar untuk user ini.');
+                return back()->withInput()->with('error', 'Router tidak ditemukan atau belum dialokasikan untuk teknisi ini.');
             }
 
             if ($userRouter->total <= 0) {
-                return back()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
+                return back()->withInput()->with('error', 'Kuota router Anda sudah habis. Tidak dapat menambah pelanggan baru.');
             }
 
             $userPatchCore = UserPatchCore::where('user_id', Auth::id())
@@ -558,11 +559,11 @@ class PagesController extends Controller
                 ->first();
 
             if (!$userPatchCore) {
-                return back()->with('error', 'Patch Core tidak ditemukan atau tidak terdaftar untuk user ini.');
+                return back()->withInput()->with('error', 'Patch Core tidak ditemukan atau belum dialokasikan untuk teknisi ini.');
             }
 
             if ($userPatchCore->total <= 0) {
-                return back()->with('error', 'Kuota Patch Core Anda sudah habis. Tidak dapat menambah pelanggan baru.');
+                return back()->withInput()->with('error', 'Kuota Patch Core Anda sudah habis. Tidak dapat menambah pelanggan baru.');
             }
 
             $userRouter->decrement('total');
@@ -628,15 +629,15 @@ class PagesController extends Controller
                     ->first();
 
                 if (!$mac) {
-                    return back()->with('error', 'MAC Address tidak terdaftar.');
+                    return back()->withInput()->with('error', 'MAC Address tidak terdaftar di sistem.');
                 }
 
                 if ($mac->status === 'used') {
-                    return back()->with('error', 'MAC Address sudah digunakan.');
+                    return back()->withInput()->with('error', 'MAC Address sudah digunakan oleh pelanggan lain.');
                 }
 
                 if ($mac->status === 'blocked') {
-                    return back()->with('error', 'MAC Address diblokir.');
+                    return back()->withInput()->with('error', 'MAC Address diblokir.');
                 }
 
                 DB::table('mac_address')
@@ -645,45 +646,61 @@ class PagesController extends Controller
             }
 
             $data['organization_id'] = Auth::user()->organization_id;
+            $data['status'] = $data['status'] ?? 'spam';
             $customer = Customer::create($data);
 
             $userName = Auth::user()->name;
 
-            $type      = Type::find($request->types_id);
-            $tipePelanggan      = Type::find($request->tipe_pelanggan_id);
-            $router    = Router::find($request->routers_id);
-            $hometown  = HomeTown::find($request->hometowns_id);
-            $rt        = RT::find($request->rts_id);
-            $rw        = RW::find($request->rws_id);
-            $village   = Village::find($request->villages_id);
-            $district  = District::find($request->districts_id);
-            $regency   = Regency::find($request->regencies_id);
-            $vlan      = Vlan::find($request->vlans_id);
-            $odc       = ODC::with(['hometown', 'rt', 'rw'])->find($request->odcs_id);
-            $odp       = ODP::with(['hometown', 'rt', 'rw'])->find($request->odps_id);
-            $olt       = OLT::with(['hometown'])->find($request->olts_id);
+            $type          = Type::find($request->types_id);
+            $tipePelanggan = Type::find($request->tipe_pelanggan_id);
+            $router        = Router::find($request->routers_id);
+            $hometown      = HomeTown::find($request->hometowns_id);
+            $rt            = RT::find($request->rts_id);
+            $rw            = RW::find($request->rws_id);
+            $village       = Village::find($request->villages_id);
+            $district      = District::find($request->districts_id);
+            $regency       = Regency::find($request->regencies_id);
+            $vlan          = Vlan::find($request->vlans_id);
+            $odc           = ODC::with(['hometown', 'rt', 'rw'])->find($request->odcs_id);
+            $odp           = ODP::with(['hometown', 'rt', 'rw'])->find($request->odps_id);
+            $olt           = OLT::with(['hometown'])->find($request->olts_id);
+
+            $typeNameVal     = $type?->name ?? '-';
+            $tipePelangganVal= $tipePelanggan?->name ?? '-';
+            $routerNameVal   = $router?->name ?? '-';
+            $hometownNameVal = $hometown?->name ?? '-';
+            $rtNameVal       = $rt?->name ?? '-';
+            $rwNameVal       = $rw?->name ?? '-';
+            $villageNameVal  = $village?->name ?? '-';
+            $districtNameVal = $district?->name ?? '-';
+            $regencyNameVal  = $regency?->name ?? '-';
+            $vlanNameVal     = $vlan?->name ?? '-';
+
+            $odcInfo = $odc ? "{$odc->code} - " . ($odc->hometown?->name ?? '-') . " - " . ($odc->rt?->name ?? '-') . " - " . ($odc->rw?->name ?? '-') . " - {$odc->home_odc}" : '-';
+            $odpInfo = $odp ? "{$odp->code} - " . ($odp->hometown?->name ?? '-') . " - " . ($odp->rt?->name ?? '-') . " - " . ($odp->rw?->name ?? '-') . " - {$odp->home_odc}" : '-';
+            $oltInfo = $olt ? "{$olt->hometown?->name} - {$olt->name}" : '-';
 
             $message = "*Di Input Oleh : {$userName}*\n"
                 . "*ID Pelanggan*: {$customer->uuid}\n"
-                . "*Tipe Pelanggan*: {$tipePelanggan->name}\n"
+                . "*Tipe Pelanggan*: {$tipePelangganVal}\n"
                 . "*Nama Pelanggan*: {$customer->name}\n"
                 . "*Mac Address*: {$customer->mac_address}\n"
-                . "*Jenis Router*: {$router->name}\n"
-                . "*Type Pelanggan*: {$type->name}\n"
-                . "*Kampung*: {$hometown->name}\n"
-                . "*RT*: {$rt->name}\n"
-                . "*RW*: {$rw->name}\n"
-                . "*Desa*: {$village->name}\n"
-                . "*Kecamatan*: {$district->name}\n"
-                . "*Kabupaten*: {$regency->name}\n"
-                . "*VLAN*: {$vlan->name}\n"
-                . "*Alamat ODC*: {$odc->code} - {$odc->hometown->name} - {$odc->rt->name} - {$odc->rw->name} - {$odc->home_odc}\n"
-                . "*Alamat ODP*: {$odp->code} - {$odp->hometown->name} - {$odp->rt->name} - {$odp->rw->name} - {$odp->home_odc}\n"
-                . "*Alamat OLT: <a href=\"{$olt->link}\" target=\"_blank\">{$olt->hometown->name} - {$olt->name}</a>\n"
+                . "*Jenis Router*: {$routerNameVal}\n"
+                . "*Type Pelanggan*: {$typeNameVal}\n"
+                . "*Kampung*: {$hometownNameVal}\n"
+                . "*RT*: {$rtNameVal}\n"
+                . "*RW*: {$rwNameVal}\n"
+                . "*Desa*: {$villageNameVal}\n"
+                . "*Kecamatan*: {$districtNameVal}\n"
+                . "*Kabupaten*: {$regencyNameVal}\n"
+                . "*VLAN*: {$vlanNameVal}\n"
+                . "*Alamat ODC*: {$odcInfo}\n"
+                . "*Alamat ODP*: {$odpInfo}\n"
+                . "*Alamat OLT*: {$oltInfo}\n"
                 . "*NO HP / WA*: {$customer->telp}\n"
                 . "*Email*: {$customer->email}\n"
                 . "*Lokasi Maps*: https://www.google.com/maps?q={$customer->latitude},{$customer->longitude}\n"
-                . "*Foto KTP*: <a href=\"{$ktpUrl}\" target=\"_blank\">Foto KTP</a>\n";
+                . "*Foto KTP*: " . ($ktpUrl ? "<a href=\"{$ktpUrl}\" target=\"_blank\">Foto KTP</a>" : "-") . "\n";
 
             if ($typeName === "PPPOE") {
                 $wifiName  = $customer->name_wifi;
@@ -698,24 +715,27 @@ class PagesController extends Controller
                     . "*Password WiFi*: {$wifiPass}\n"
                     . "*Username PPPoE*: {$customer->pppoe_username}\n"
                     . "*Password PPPoE*: {$customer->pppoe_password}\n"
-                    . "*MiX Radius*: {$micRadius->code} - {$micRadius->name}\n"
-                    . "*Paket*: {$paket->name}\n"
-                    . "*Tipe Pembayaran*: {$typePrice->name}\n";
+                    . "*MiX Radius*: " . ($micRadius ? "{$micRadius->code} - {$micRadius->name}" : "-") . "\n"
+                    . "*Paket*: " . ($paket?->name ?? '-') . "\n"
+                    . "*Tipe Pembayaran*: " . ($typePrice?->name ?? '-') . "\n";
             }
 
-            $receivers = User::role(['Admin', 'Manager', 'Data Entry'])->get();
+            try {
+                $receivers = User::role(['Admin', 'Manager', 'Data Entry'])->get();
 
-            if ($receivers->count() > 0) {
-                foreach ($receivers as $receiver) {
+                if ($receivers->count() > 0) {
+                    foreach ($receivers as $receiver) {
+                        $chat = Chat::create([
+                            'sender_id'   => Auth::id(),
+                            'receiver_id' => $receiver->id,
+                            'message'     => $message,
+                        ]);
 
-                    $chat = Chat::create([
-                        'sender_id'   => Auth::id(),
-                        'receiver_id' => $receiver->id,
-                        'message'     => $message,
-                    ]);
-
-                    broadcast(new ChatSent($chat))->toOthers();
+                        broadcast(new ChatSent($chat))->toOthers();
+                    }
                 }
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending chat notification: ' . $e->getMessage());
             }
 
             // Jika berasal dari form konfigurasi pendaftaran online, ubah status pendaftaran menjadi 'selesai'
@@ -724,8 +744,8 @@ class PagesController extends Controller
                     ->update(['status' => 'selesai']);
             }
 
-            return redirect()->route('chatting.index')
-                ->with('success', 'Data pelanggan berhasil disimpan dan pesan dikirim!');
+            return redirect()->route('spam.index')
+                ->with('success', 'Data pendaftaran ' . $customer->name . ' (' . $customer->uuid . ') berhasil dikonfigurasi dan masuk ke daftar pelanggan SPAM!');
         });
     }
 
