@@ -323,6 +323,215 @@
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
             color: #ffffff;
         }
+
+        /* ── KTP Camera Section ─────────────────────────────── */
+        .ktp-section-card {
+            background: #ffffff;
+            border: 2px dashed #2563eb;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .ktp-section-header {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #bfdbfe;
+        }
+
+        .ktp-section-header .ktp-icon {
+            width: 36px;
+            height: 36px;
+            background: #2563eb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .ktp-section-header .ktp-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1e40af;
+            margin: 0;
+        }
+
+        .ktp-section-header .ktp-badge-required {
+            margin-left: auto;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ktp-section-body {
+            padding: 1.5rem;
+        }
+
+        .ktp-camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 14px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .ktp-camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ktp-guide-frame {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            right: 5%;
+            bottom: 10%;
+            border: 2.5px solid rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .ktp-guide-frame::before,
+        .ktp-guide-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: #60a5fa;
+            border-style: solid;
+        }
+
+        .ktp-guide-frame::before {
+            top: -2px;
+            left: -2px;
+            border-width: 3px 0 0 3px;
+            border-radius: 4px 0 0 0;
+        }
+
+        .ktp-guide-frame::after {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 3px 3px 0;
+            border-radius: 0 0 4px 0;
+        }
+
+        .ktp-canvas { display: none; }
+
+        .ktp-photo-preview {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            border-radius: 14px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .ktp-photo-preview img {
+            width: 100%;
+            display: block;
+            border-radius: 14px;
+        }
+
+        .ktp-camera-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,23,42,0.85);
+            color: #fff;
+            font-size: 0.88rem;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .ktp-permission-alert {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 14px;
+        }
+
+        .ktp-permission-alert .pa-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .ktp-permission-alert h5 { color: #f1f5f9; font-weight: 700; margin-bottom: 0.5rem; }
+        .ktp-permission-alert p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem; }
+
+        .ktp-btn-capture,
+        .ktp-btn-retake {
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 0.65rem 1.5rem;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .ktp-btn-capture {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+        }
+
+        .ktp-btn-capture:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37,99,235,0.45);
+        }
+
+        .ktp-btn-retake {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1.5px solid #cbd5e1;
+        }
+
+        .ktp-btn-retake:hover {
+            background: #e2e8f0;
+        }
+
+        .ktp-ocr-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+        }
+
+        .ktp-ocr-status.processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .ktp-ocr-status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .ktp-ocr-status.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 @endpush
 
@@ -586,6 +795,77 @@
 
                     <!-- STEP 3: ALAMAT & LOKASI -->
                     <div class="step-panel" id="step-panel-3">
+
+                        @if ($pages->is_ktp === 'aktif')
+                        {{-- ── KTP Camera Section ── --}}
+                        <div class="ktp-section-card">
+                            <div class="ktp-section-header">
+                                <div class="ktp-icon">🪪</div>
+                                <p class="ktp-title">Foto KTP Pelanggan</p>
+                                <span class="ktp-badge-required">Wajib</span>
+                            </div>
+                            <div class="ktp-section-body">
+                                <p class="text-muted small mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    Posisikan KTP di dalam bingkai panduan, lalu tekan <strong>Ambil Foto</strong>. Sistem akan otomatis membaca NIK dari foto.
+                                </p>
+
+                                {{-- Camera View --}}
+                                <div id="ktp-camera-wrap" class="ktp-camera-container mb-3">
+                                    <video id="ktp-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+                                    <div class="ktp-guide-frame"></div>
+                                </div>
+
+                                <canvas id="ktp-canvas" class="ktp-canvas"></canvas>
+                                <input type="hidden" name="ktp_photo" id="ktp_photo">
+
+                                {{-- Photo Preview --}}
+                                <div class="ktp-photo-preview" id="ktp-photo-preview">
+                                    <img id="ktp-captured-img" src="" alt="Foto KTP">
+                                </div>
+
+                                {{-- OCR Status Badge --}}
+                                <div id="ktp-ocr-status" style="display:none;" class="ktp-ocr-status processing">
+                                    <span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span>
+                                    Membaca NIK dari foto...
+                                </div>
+
+                                {{-- Buttons --}}
+                                <div class="text-center mt-3 d-flex justify-content-center gap-2">
+                                    <button type="button" id="ktp-btn-capture" class="ktp-btn-capture" onclick="ktpCapturePhoto()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 7.828 3h.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 11.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/><path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/></svg>
+                                        Ambil Foto KTP
+                                    </button>
+                                    <button type="button" id="ktp-btn-retake" class="ktp-btn-retake" onclick="ktpRetakePhoto()" style="display:none;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
+                                        Ulangi Foto
+                                    </button>
+                                </div>
+
+                                {{-- NIK Input (auto-filled) --}}
+                                <div class="row mt-3">
+                                    <div class="col-md-8 offset-md-2">
+                                        <label class="form-label-custom">NIK <span class="text-danger">*</span>
+                                            <span class="ms-1 text-info" style="font-size:0.7rem;font-weight:600;text-transform:none;">(Terisi otomatis dari OCR)</span>
+                                        </label>
+                                        <input type="text" name="nik" id="nik"
+                                            class="form-control form-control-custom @error('nik') is-invalid @enderror"
+                                            placeholder="NIK akan terisi otomatis setelah foto diambil"
+                                            value="{{ old('nik') }}"
+                                            maxlength="16">
+                                        @error('nik')
+                                            <span class="invalid-feedback d-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        {{-- Jika KTP tidak aktif, tetap kirim nik dan ktp_photo sebagai nullable --}}
+                        <input type="hidden" name="nik" id="nik" value="">
+                        <input type="hidden" name="ktp_photo" id="ktp_photo" value="">
+                        @endif
+
                         <div class="config-card">
                             <div class="config-card-header">
                                 <div class="config-card-title">
@@ -773,10 +1053,209 @@
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>
         let currentWizardStep = 1;
         const totalWizardSteps = 4;
+        const isKtpAktif = "{{ $pages->is_ktp }}" === 'aktif';
+
+        // ── KTP Camera & OCR State ──────────────────────────────
+        let ktpStream = null;
+        let ktpVideo = null;
+        let ktpCanvas = null;
+        let ktpCapturedImg = null;
+        let ktpPhotoPreview = null;
+        let ktpCameraWrap = null;
+        let ktpBtnCapture = null;
+        let ktpBtnRetake = null;
+        let ktpPhotoInput = null;
+        let ktpNikInput = null;
+        let ktpOcrStatus = null;
+
+        function initKtpElements() {
+            ktpVideo        = document.getElementById('ktp-video');
+            ktpCanvas       = document.getElementById('ktp-canvas');
+            ktpCapturedImg  = document.getElementById('ktp-captured-img');
+            ktpPhotoPreview = document.getElementById('ktp-photo-preview');
+            ktpCameraWrap   = document.getElementById('ktp-camera-wrap');
+            ktpBtnCapture   = document.getElementById('ktp-btn-capture');
+            ktpBtnRetake    = document.getElementById('ktp-btn-retake');
+            ktpPhotoInput   = document.getElementById('ktp_photo');
+            ktpNikInput     = document.getElementById('nik');
+            ktpOcrStatus    = document.getElementById('ktp-ocr-status');
+        }
+
+        async function startKtpCamera() {
+            if (!isKtpAktif) return;
+            initKtpElements();
+            if (!ktpVideo || !ktpCameraWrap) return;
+            if (ktpPhotoInput && ktpPhotoInput.value) return; // Sudah ada foto
+
+            // Hentikan stream sebelumnya jika ada
+            stopKtpCamera();
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'ktp-camera-loading';
+            loadingDiv.id = 'ktp-cam-loader';
+            loadingDiv.innerHTML = '<div class="spinner-border text-light mb-2"></div><div>Memuat kamera...</div>';
+            ktpCameraWrap.appendChild(loadingDiv);
+
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920, min: 1280 },
+                        height: { ideal: 1080, min: 720 },
+                        aspectRatio: { ideal: 16 / 9 }
+                    },
+                    audio: false
+                };
+
+                ktpStream = await navigator.mediaDevices.getUserMedia(constraints);
+                ktpVideo.srcObject = ktpStream;
+
+                ktpVideo.addEventListener('loadedmetadata', function() {
+                    const loader = document.getElementById('ktp-cam-loader');
+                    if (loader) loader.remove();
+                }, { once: true });
+            } catch (err) {
+                console.error("Gagal membuka kamera:", err);
+                const loader = document.getElementById('ktp-cam-loader');
+                if (loader) {
+                    loader.innerHTML = `
+                        <div class="p-3 text-center">
+                            <div class="text-warning mb-2" style="font-size:1.5rem;">⚠️</div>
+                            <div class="fw-bold mb-1">Akses Kamera Gagal</div>
+                            <small class="text-slate-300 d-block mb-2">${err.message || 'Periksa izin kamera pada browser.'}</small>
+                            <button type="button" class="btn btn-sm btn-light" onclick="startKtpCamera()">Coba Lagi</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function stopKtpCamera() {
+            if (ktpStream) {
+                ktpStream.getTracks().forEach(track => track.stop());
+                ktpStream = null;
+            }
+        }
+
+        function ktpCapturePhoto() {
+            initKtpElements();
+            if (!ktpVideo || !ktpCanvas) return;
+
+            if (ktpVideo.videoWidth === 0 || ktpVideo.videoHeight === 0) {
+                Toast.fire({ icon: 'warning', title: 'Kamera belum siap, tunggu sebentar.' });
+                return;
+            }
+
+            ktpCanvas.width = ktpVideo.videoWidth;
+            ktpCanvas.height = ktpVideo.videoHeight;
+            const ctx = ktpCanvas.getContext('2d');
+            ctx.drawImage(ktpVideo, 0, 0, ktpCanvas.width, ktpCanvas.height);
+
+            const imageData = ktpCanvas.toDataURL('image/jpeg', 0.92);
+            if (ktpPhotoInput) ktpPhotoInput.value = imageData;
+            if (ktpCapturedImg) ktpCapturedImg.src = imageData;
+
+            if (ktpPhotoPreview) ktpPhotoPreview.style.display = 'block';
+            if (ktpCameraWrap) ktpCameraWrap.style.display = 'none';
+            if (ktpBtnCapture) ktpBtnCapture.style.display = 'none';
+            if (ktpBtnRetake) ktpBtnRetake.style.display = 'inline-flex';
+
+            stopKtpCamera();
+            extractNikFromKtp(imageData);
+        }
+
+        function ktpRetakePhoto() {
+            initKtpElements();
+            if (ktpPhotoInput) ktpPhotoInput.value = '';
+            if (ktpCapturedImg) ktpCapturedImg.src = '';
+            if (ktpPhotoPreview) ktpPhotoPreview.style.display = 'none';
+            if (ktpCameraWrap) ktpCameraWrap.style.display = 'block';
+            if (ktpBtnCapture) ktpBtnCapture.style.display = 'inline-flex';
+            if (ktpBtnRetake) ktpBtnRetake.style.display = 'none';
+            if (ktpOcrStatus) ktpOcrStatus.style.display = 'none';
+
+            startKtpCamera();
+        }
+
+        function extractNikFromKtp(imageData) {
+            initKtpElements();
+            if (!ktpOcrStatus) return;
+
+            ktpOcrStatus.style.display = 'inline-flex';
+            ktpOcrStatus.className = 'ktp-ocr-status processing';
+            ktpOcrStatus.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span> Membaca NIK dari foto...';
+
+            if (typeof Tesseract === 'undefined') {
+                ktpOcrStatus.className = 'ktp-ocr-status failed';
+                ktpOcrStatus.innerHTML = '⚠️ Library OCR tidak termuat. Silakan isi NIK secara manual.';
+                return;
+            }
+
+            Tesseract.recognize(imageData, 'ind', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        const pct = Math.round((m.progress || 0) * 100);
+                        ktpOcrStatus.innerHTML = `<span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span> Memproses OCR (${pct}%)...`;
+                    }
+                }
+            })
+            .then(({ data: { text } }) => {
+                console.log("OCR Result Text:", text);
+
+                // Pola 1: 16 digit angka berurutan
+                let nikMatch = text.match(/\b\d{16}\b/);
+
+                // Pola 2: coba bersihkan karakter non-digit di baris NIK jika pola 1 tidak dapat
+                if (!nikMatch) {
+                    const lines = text.split('\n');
+                    for (const line of lines) {
+                        if (/nik|nomor|induk/i.test(line)) {
+                            const digitsOnly = line.replace(/\D/g, '');
+                            if (digitsOnly.length === 16) {
+                                nikMatch = [digitsOnly];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Pola 3: gabungan digit jika terpisah spasi (misal 32 01 23 ...)
+                if (!nikMatch) {
+                    const cleanText = text.replace(/[\s\-_]/g, '');
+                    const fallbackMatch = cleanText.match(/\d{16}/);
+                    if (fallbackMatch) {
+                        nikMatch = [fallbackMatch[0]];
+                    }
+                }
+
+                if (nikMatch && nikMatch[0]) {
+                    const foundNik = nikMatch[0];
+                    if (ktpNikInput) {
+                        ktpNikInput.value = foundNik;
+                        ktpNikInput.classList.remove('is-invalid');
+                    }
+                    ktpOcrStatus.className = 'ktp-ocr-status success';
+                    ktpOcrStatus.innerHTML = `✓ NIK Terdeteksi: <strong>${foundNik}</strong>`;
+                    Toast.fire({ icon: 'success', title: `NIK (${foundNik}) berhasil terdeteksi!` });
+                } else {
+                    ktpOcrStatus.className = 'ktp-ocr-status failed';
+                    ktpOcrStatus.innerHTML = '⚠️ NIK tak terbaca jelas. Silakan periksa atau isi manual.';
+                    Toast.fire({ icon: 'warning', title: 'NIK tidak terbaca otomatis dari foto, silakan isi manual.' });
+                    if (ktpNikInput) ktpNikInput.focus();
+                }
+            })
+            .catch(err => {
+                console.error("OCR Error:", err);
+                ktpOcrStatus.className = 'ktp-ocr-status failed';
+                ktpOcrStatus.innerHTML = '⚠️ Gagal membaca NIK. Silakan isi NIK manual.';
+                Toast.fire({ icon: 'warning', title: 'Gagal membaca NIK, silakan ketik manual.' });
+            });
+        }
 
         // Inisialisasi Toast SweetAlert2
         const Toast = Swal.mixin({
@@ -943,6 +1422,26 @@
             }
 
             if (stepNumber === 3) {
+                if (isKtpAktif) {
+                    const photoEl = document.getElementById('ktp_photo');
+                    if (!photoEl || !photoEl.value) {
+                        if (showNotification) {
+                            showStepWarning('Foto KTP wajib diambil sebelum melanjutkan.', document.getElementById('ktp-camera-wrap') || document.getElementById('nik'));
+                        }
+                        return false;
+                    }
+
+                    const nikInput = document.getElementById('nik');
+                    const nikVal = nikInput ? nikInput.value.trim() : '';
+                    if (!nikVal) {
+                        if (showNotification) showStepWarning('NIK wajib diisi.', nikInput);
+                        return false;
+                    } else if (nikVal.length !== 16 || !/^\d{16}$/.test(nikVal)) {
+                        if (showNotification) showStepWarning('NIK harus terdiri dari 16 digit angka.', nikInput);
+                        return false;
+                    }
+                }
+
                 const hometownSelect = document.getElementById('hometowns_id');
                 if (!hometownSelect || !hometownSelect.value.trim()) {
                     if (showNotification) showStepWarning('Kampung / Dusun wajib dipilih.', hometownSelect);
@@ -1063,6 +1562,18 @@
             } else {
                 if (btnNext) btnNext.style.display = 'inline-flex';
                 if (btnSubmit) btnSubmit.style.display = 'none';
+            }
+
+            // KTP Camera handling saat aktif di Step 3
+            if (isKtpAktif) {
+                if (currentWizardStep === 3) {
+                    const photoInput = document.getElementById('ktp_photo');
+                    if (!photoInput || !photoInput.value) {
+                        setTimeout(() => startKtpCamera(), 150);
+                    }
+                } else {
+                    stopKtpCamera();
+                }
             }
 
             window.scrollTo({ top: 150, behavior: 'smooth' });
@@ -1294,6 +1805,22 @@
                 Toast.fire({ icon: 'error', title: 'Gagal mendeteksi lokasi: ' + err.message });
             });
         }
+
+        // Camera lifecycle listeners
+        window.addEventListener('beforeunload', function() {
+            stopKtpCamera();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopKtpCamera();
+            } else if (currentWizardStep === 3 && isKtpAktif) {
+                const photoInput = document.getElementById('ktp_photo');
+                if (!photoInput || !photoInput.value) {
+                    startKtpCamera();
+                }
+            }
+        });
     </script>
 @endpush
 

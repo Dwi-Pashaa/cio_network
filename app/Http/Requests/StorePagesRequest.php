@@ -20,7 +20,8 @@ class StorePagesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nik' => $this->input('is_ktp') === 'aktif' ? 'required|digits:16|unique:customers,nik' : 'nullable|digits:16',
+            'nik'       => $this->input('is_ktp') === 'aktif' ? 'required|digits:16|unique:customers,nik' : 'nullable|digits:16',
+            'ktp_photo' => $this->input('is_ktp') === 'aktif' ? 'required|string' : 'nullable|string',
             'types_id'    => 'required',
             'name'        => 'required|string|max:255',
             'email'       => 'required',
@@ -85,6 +86,7 @@ class StorePagesRequest extends FormRequest
             'nik.required' => 'NIK wajib diisi ketika fitur KTP aktif.',
             'nik.digits'   => 'NIK harus terdiri dari 16 digit.',
             'nik.unique'   => 'NIK sudah terdaftar di pelanggan lain.',
+            'ktp_photo.required' => 'Foto KTP wajib diambil ketika fitur KTP aktif.',
             'tipe_pelanggan_id.required' => 'Tipe pelanggan wajib dipilih.',
         ];
     }
