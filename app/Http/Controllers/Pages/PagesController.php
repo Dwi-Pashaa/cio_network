@@ -614,6 +614,9 @@ class PagesController extends Controller
             }
 
             unset($data['type_name']);
+            unset($data['pendaftaran_id']);
+            unset($data['is_ktp']);
+            unset($data['wa_phone']);
 
             $isMacValidationActive = DB::table('setting')
                 ->where('key', 'mac_address_validation')
