@@ -105,7 +105,16 @@ class SpamDataTable
             })
             ->addColumn('mic_radius', function ($row) {
                 if ($row->mic_radius) {
-                    return ($row->mic_radius->code ?? '-') . ' - ' . ($row->mic_radius->name ?? '-');
+                    $url = route('mic.radius.mixLogin', $row->mic_radius->id);
+                    $text = ($row->mic_radius->code ?? '-') . ' - ' . ($row->mic_radius->name ?? '-');
+                    return '<a href="' . $url . '" target="_blank" class="badge bg-blue-subtle text-primary border border-primary-subtle text-decoration-none px-2 py-1" style="font-size:0.8rem;display:inline-flex;align-items:center;gap:4px;cursor:pointer;" title="Klik untuk login otomatis ke Mix Radius ' . e($row->mic_radius->name) . '">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        ' . e($text) . '
+                    </a>';
                 }
                 return '-';
             })
@@ -211,7 +220,13 @@ class SpamDataTable
                     $q->where('name', 'like', "%{$keyword}%");
                 });
             })
-            ->rawColumns(['location', 'ktp_photo', 'action'])
+            ->filterColumn('mic_radius', function ($query, $keyword) {
+                $query->whereHas('mic_radius', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                      ->orWhere('code', 'like', "%{$keyword}%");
+                });
+            })
+            ->rawColumns(['location', 'ktp_photo', 'action', 'mic_radius'])
             ->make(true);
     }
 
