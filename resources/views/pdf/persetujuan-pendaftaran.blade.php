@@ -288,10 +288,16 @@
     @endphp
     @php
         use App\Models\Customer;
-        $customerObj = Customer::where('name', $pendaftaran->nama)->first();
-        $ttdPath = $customerObj?->tanda_tangan_customer;
-        $namaPelanggan = $customerObj?->name;
+        // Cari customer berdasarkan nama ATAU telepon yang sama
+        $customerObj = Customer::where('name', $pendaftaran->nama)
+            ->where('telp', $pendaftaran->no_telepon)
+            ->first();
+
+        // Utamakan dari Customer, jika belum ada (masih pendaftaran) pakai data Pendaftaran
+        $ttdPath = $customerObj?->tanda_tangan_customer ?? $pendaftaran->tanda_tangan_customer;
+        $namaPelanggan = $customerObj?->name ?? $pendaftaran->nama;
     @endphp
+
     <table class="ttd-table" style="page-break-inside: avoid;">
         <tr>
             <td class="sig-cell">
