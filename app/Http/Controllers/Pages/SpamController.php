@@ -191,20 +191,37 @@ class SpamController extends Controller
 
     public function getTechnicians(Request $request)
     {
-        $user = Auth::user();
-        $orgId = $request->input('organization_id');
+        $user    = Auth::user();
+        $orgId   = $request->input('organization_id');
+        $paketId = $request->input('paket_id');
 
         if (!$orgId && $user->organization_id) {
             $orgId = $user->organization_id;
         }
 
-        $technicians = $orgId
-            ? User::where('organization_id', $orgId)->select('id', 'name', 'email')->get()
-            : User::select('id', 'name', 'email')->get();
+        $query = User::select('users.id', 'users.name', 'users.email');
+
+        // Filter berdasarkan paket → ambil user yang ada di pivot user_paket
+        if ($paketId) {
+            $query->join('user_paket', 'users.id', '=', 'user_paket.user_id')
+                ->where('user_paket.paket_id', $paketId);
+        }
+
+        // Filter berdasarkan organisasi
+        if ($orgId) {
+            $query->where('users.organization_id', $orgId);
+        }
+
+        $technicians = $query->distinct()->get();
+
+        // Jika filter paket tidak menghasilkan user, kirim flag agar FE bisa info
+        $filtered = $paketId && $technicians->isNotEmpty();
 
         return response()->json([
-            'status' => 'success',
-            'data'   => $technicians,
+            'status'    => 'success',
+            'data'      => $technicians,
+            'filtered'  => $filtered,
+            'paket_id'  => $paketId,
         ]);
     }
 

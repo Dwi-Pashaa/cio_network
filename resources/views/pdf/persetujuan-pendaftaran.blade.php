@@ -263,7 +263,6 @@
             @endif
             <tr><td>Kampung</td><td class="colon">:</td><td>{{ $pendaftaran->hometown?->name ?? '-' }}</td></tr>
             <tr><td>Desa</td><td class="colon">:</td><td>{{ $pendaftaran->village?->name ?? '-' }}</td></tr>
-            <tr><td>Halaman Wilayah</td><td class="colon">:</td><td>{{ $pendaftaran->pages?->name ?? '-' }}</td></tr>
             <tr><td>Tipe Paket</td><td class="colon">:</td><td>{{ $pendaftaran->paket?->name ?? '-' }}</td></tr>
             <tr><td>Tipe Pembayaran / Harga</td><td class="colon">:</td><td>{{ $pendaftaran->price?->name ?? '-' }}</td></tr>
             <tr><td>Tanggal Registrasi</td><td class="colon">:</td><td>{{ $pendaftaran->created_at->format('d/m/Y H:i') }} WIB</td></tr>

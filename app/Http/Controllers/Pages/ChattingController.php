@@ -49,13 +49,33 @@ class ChattingController extends Controller
                     ->latest()
                     ->first();
 
-                $usr->last_message = $lastChat?->message;
+                $usr->last_message      = $lastChat?->message;
+                $usr->last_message_at   = $lastChat?->created_at; // Carbon instance untuk sort
                 $usr->last_message_time = $lastChat?->created_at?->diffForHumans();
+
+                // Hitung pesan belum dibaca: pesan dari user ini ke kita, setelah last_seen
+                $sessionKey  = 'chat_last_seen_' . $authId . '_' . $usr->id;
+                $lastSeenAt  = session($sessionKey);
+
+                $unreadQuery = Chat::where('sender_id', $usr->id)
+                    ->where('receiver_id', $authId);
+
+                if ($lastSeenAt) {
+                    $unreadQuery->where('created_at', '>', $lastSeenAt);
+                }
+
+                $usr->unread_count = $unreadQuery->count();
 
                 return $usr;
             })
-            ->sortByDesc('last_message_time')
+            ->sortByDesc('last_message_at') // sort by Carbon timestamp, bukan string
             ->values();
+
+        // Tandai conversation yang sedang dibuka sebagai sudah dibaca
+        if ($userId) {
+            $sessionKey = 'chat_last_seen_' . $authId . '_' . $userId;
+            session([$sessionKey => now()->toDateTimeString()]);
+        }
 
         $chats = collect();
 

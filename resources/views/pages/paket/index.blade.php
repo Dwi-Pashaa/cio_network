@@ -205,7 +205,13 @@
             table = $('#paket-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: BASE,
+                ajax: {
+                    url: BASE,
+                    data: function(d) {
+                        d.search_custom = $('#search-input').val();
+                        d.organization_id = $('#filter-organization').val();
+                    }
+                },
                 order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 4 : 3 }}, 'desc']],
                 pageLength: 10,
                 dom: 'rt',
@@ -280,17 +286,21 @@
             // Search on Enter key
             $("#search-input").on('keypress', function(e) {
                 if (e.which === 13) {
-                    table.search(this.value).draw();
+                    table.ajax.reload();
                 }
             });
 
-            // Search on button click
-            $("#search-btn").on('click', function() {
-                table.search($("#search-input").val()).draw();
+            // Search real-time dengan debounce
+            let searchTimer;
+            $("#search-input").on('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function() {
+                    table.ajax.reload();
+                }, 400);
             });
 
             $("#filter-organization").on('change', function() {
-                table.ajax.url(BASE + '?organization_id=' + this.value).load();
+                table.ajax.reload();
             });
         }
 

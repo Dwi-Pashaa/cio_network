@@ -1209,6 +1209,7 @@
                     <div class="modal-body" style="padding: 1rem 1.75rem 0.5rem;">
                         <div class="mb-3">
                             <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.4rem;">Pilih Teknisi Alokasi <span style="color: #ef4444;">*</span></label>
+                            <div id="assign-paket-badge" style="display:none; margin-bottom: 0.5rem;"></div>
                             <select id="assign-technician-id" class="form-select" required style="border-radius: 10px; border: 1.5px solid #e2e8f0; font-size: 0.88rem;">
                                 <option value="">Memuat daftar teknisi...</option>
                             </select>
@@ -3268,7 +3269,9 @@ function renderPendaftaranCard(item) {
 
     let assignBtn = '';
     if (canAssign) {
-        assignBtn = `<button class="btn-action-pendaftaran btn-act-alokasi" onclick="openAssignModal(${item.id}, '${item.kode}', '${item.nama}')">
+        const paketId = item.paket ? item.paket.id : '';
+        const paketName = item.paket ? item.paket.name : '';
+        assignBtn = `<button class="btn-action-pendaftaran btn-act-alokasi" onclick="openAssignModal(${item.id}, '${item.kode}', '${item.nama}', '${paketId}', '${paketName}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
             ${isAssigned ? 'Re-Alokasi' : 'Alokasi Teknisi'}
         </button>`;
@@ -3505,12 +3508,14 @@ function openDetailPendaftaranModal(id) {
 
 }
 
-function openAssignModal(id, kode, nama) {
+function openAssignModal(id, kode, nama, paketId, paketName) {
     $('#assign-pendaftaran-id').val(id);
     $('#assign-pendaftaran-subtitle').text(`Alokasi pendaftaran ${kode} (${nama}) ke teknisi.`);
     $('#assign-catatan').val('');
-    $('#assign-catatan').val('');
-    
+
+    // Sembunyikan badge paket dulu
+    $('#assign-paket-badge').hide().html('');
+
     if (assignTomSelect) {
         assignTomSelect.destroy();
         assignTomSelect = null;
@@ -3519,28 +3524,68 @@ function openAssignModal(id, kode, nama) {
     const select = $('#assign-technician-id');
     select.html('<option value="">Memuat daftar teknisi...</option>');
 
-    $.get("{{ route('spam.pendaftaran.technicians') }}", function(res) {
+    // Buat URL dengan filter paket_id jika ada
+    const url = paketId
+        ? `{{ route('spam.pendaftaran.technicians') }}?paket_id=${paketId}`
+        : `{{ route('spam.pendaftaran.technicians') }}`;
+
+    $.get(url, function(res) {
         const list = res.data || [];
+
+        // Tampilkan badge filter paket
+        if (paketId && paketName) {
+            if (list.length > 0) {
+                $('#assign-paket-badge').show().html(
+                    `<span style="font-size:0.75rem;background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:4px 10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/></svg>
+                        ${list.length} teknisi tersedia untuk paket <strong>${paketName}</strong>
+                    </span>`
+                );
+            } else {
+                // Tidak ada teknisi khusus untuk paket ini — fallback ke semua user
+                $('#assign-paket-badge').show().html(
+                    `<span style="font-size:0.75rem;background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Belum ada teknisi untuk paket <strong>${paketName}</strong> — menampilkan semua teknisi
+                    </span>`
+                );
+                // Fallback: load semua teknisi tanpa filter paket
+                return $.get(`{{ route('spam.pendaftaran.technicians') }}`, function(res2) {
+                    buildTechnicianSelect(select, res2.data || []);
+                });
+            }
+        }
+
         if (!list.length) {
             select.html('<option value="">Tidak ada teknisi tersedia</option>');
             return;
         }
-        let html = '<option value="">-- Pilih / Cari Teknisi --</option>';
-        list.forEach(t => {
-            html += `<option value="${t.id}">${t.name} (${t.email})</option>`;
-        });
-        select.html(html);
 
-        if (typeof TomSelect !== 'undefined') {
-            assignTomSelect = new TomSelect('#assign-technician-id', {
-                create: false,
-                placeholder: '-- Pilih / Cari Teknisi --',
-                allowEmptyOption: true
-            });
-        }
+        buildTechnicianSelect(select, list);
     });
 
     new bootstrap.Modal(document.getElementById('assignPendaftaranModal')).show();
+}
+
+function buildTechnicianSelect(select, list) {
+    if (!list.length) {
+        select.html('<option value="">Tidak ada teknisi tersedia</option>');
+        return;
+    }
+    let html = '<option value="">-- Pilih / Cari Teknisi --</option>';
+    list.forEach(t => {
+        html += `<option value="${t.id}">${t.name} (${t.email})</option>`;
+    });
+    select.html(html);
+
+    if (typeof TomSelect !== 'undefined') {
+        if (assignTomSelect) { assignTomSelect.destroy(); assignTomSelect = null; }
+        assignTomSelect = new TomSelect('#assign-technician-id', {
+            create: false,
+            placeholder: '-- Pilih / Cari Teknisi --',
+            allowEmptyOption: true
+        });
+    }
 }
 
 $('#formAssignPendaftaran').on('submit', function(e) {

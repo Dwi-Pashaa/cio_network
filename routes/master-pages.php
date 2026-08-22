@@ -68,6 +68,7 @@ Route::prefix('input-datas')->group(function () {
     Route::post('/check-mac-address', [PagesController::class, 'checkMacAddress'])->name('input.data.checkMacAddress');
     Route::post('/check-email', [PagesController::class, 'checkEmail'])->name('input.data.checkEmail');
     Route::post('/check-phone', [PagesController::class, 'checkPhone'])->name('input.data.checkPhone');
+    Route::get('/download-persetujuan/{uuid}', [PagesController::class, 'downloadPersetujuan'])->name('input.data.downloadPersetujuan');
 });
 
 Route::prefix('chatting')->group(function () {

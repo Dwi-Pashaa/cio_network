@@ -62,7 +62,7 @@ class CustomerPriceDataTable
      */
     private function search($query)
     {
-        $search = request('search.value');
+        $search = request('search_custom') ?? request('search.value');
 
         if ($search) {
             $query->where('name', 'like', "%{$search}%");

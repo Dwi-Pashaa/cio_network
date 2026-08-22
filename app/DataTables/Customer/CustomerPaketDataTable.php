@@ -58,14 +58,14 @@ class CustomerPaketDataTable
     }
 
     /**
-     * Custom search
+     * Custom search — membaca search_custom (dari ajax.reload) atau search.value (fallback)
      */
     private function search($query)
     {
-        $search = request('search.value');
+        $search = request('search_custom') ?? request('search.value');
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('paket.name', 'like', "%{$search}%");
         }
     }
 }

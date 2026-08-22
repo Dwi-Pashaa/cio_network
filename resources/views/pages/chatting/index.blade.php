@@ -419,6 +419,84 @@
                 font-size: .85rem;
             }
         }
+        /* Links inside chat bubbles */
+        .msg-row:not(.me) .msg-bubble a {
+            color: #2563eb;
+            text-decoration: underline;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .msg-row.me .msg-bubble a {
+            color: #bfdbfe;
+            text-decoration: underline;
+        }
+
+        .msg-row:not(.me) .msg-bubble a:hover { color: #1d4ed8; }
+        .msg-row.me .msg-bubble a:hover { color: #fff; }
+
+        /* ── Unread badge & time in sidebar ── */
+        .contact-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .25rem;
+            flex-shrink: 0;
+            margin-left: .5rem;
+        }
+
+        .contact-time {
+            font-size: .72rem;
+            color: #9ca3af;
+            white-space: nowrap;
+        }
+
+        .unread-badge {
+            background: #ef4444;
+            color: #fff;
+            font-size: .68rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .contact-item.has-unread .contact-name {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .contact-item.has-unread .contact-preview {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .contact-item.has-unread .contact-time {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* Avatar wrapper — dot indicator */
+        .avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar-wrap .unread-dot {
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            border: 2px solid #fafafa;
+        }
     </style>
 @endpush
 
@@ -458,16 +536,36 @@
             </div>
             <div class="chat-contacts" id="contact-list">
                 @forelse ($users as $usr)
+                    @php
+                        $isUnread   = ($usr->unread_count ?? 0) > 0 && request('user_id') != $usr->id;
+                        $previewMsg = $usr->last_message
+                            ? strip_tags(str_replace(['*', '\n'], ['', ' '], $usr->last_message))
+                            : 'Belum ada pesan';
+                        $previewMsg = \Illuminate\Support\Str::limit($previewMsg, 38);
+                    @endphp
                     <a href="{{ route('chatting.index', ['user_id' => $usr->id]) }}"
-                        class="contact-item {{ request('user_id') == $usr->id ? 'active' : '' }}"
+                        class="contact-item {{ request('user_id') == $usr->id ? 'active' : '' }} {{ $isUnread ? 'has-unread' : '' }}"
                         data-name="{{ strtolower($usr->name) }}">
-                        <div class="contact-avatar"
-                            style="background: {{ $avatarColors[$usr->id % count($avatarColors)] }}">
-                            {{ strtoupper(substr($usr->name, 0, 1)) }}
+                        <div class="avatar-wrap">
+                            <div class="contact-avatar"
+                                style="background: {{ $avatarColors[$usr->id % count($avatarColors)] }}">
+                                {{ strtoupper(substr($usr->name, 0, 1)) }}
+                            </div>
+                            @if ($isUnread)
+                                <span class="unread-dot"></span>
+                            @endif
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">{{ $usr->name }}</div>
-                            <div class="contact-preview">{{ $usr->last_message ?? 'Belum ada pesan' }}</div>
+                            <div class="contact-preview">{{ $previewMsg }}</div>
+                        </div>
+                        <div class="contact-meta">
+                            @if ($usr->last_message_time)
+                                <span class="contact-time">{{ $usr->last_message_time }}</span>
+                            @endif
+                            @if ($isUnread)
+                                <span class="unread-badge">{{ $usr->unread_count > 99 ? '99+' : $usr->unread_count }}</span>
+                            @endif
                         </div>
                     </a>
                 @empty
@@ -523,7 +621,17 @@
                                 @endif
                                 <div class="msg-bubble-wrap">
                                     <div class="msg-bubble">
-                                        {!! nl2br(e($msg->message)) !!}
+                                        @php
+                                            // Pesan dari sistem (notif pendaftaran) mengandung tag <a> — render as HTML
+                                            // Pesan manual dari user tetap di-escape untuk keamanan
+                                            $rawMsg = $msg->message;
+                                            $hasHtmlLinks = str_contains($rawMsg, '<a ') || str_contains($rawMsg, '<a\t');
+                                        @endphp
+                                        @if ($hasHtmlLinks)
+                                            {!! nl2br($rawMsg) !!}
+                                        @else
+                                            {!! nl2br(e($rawMsg)) !!}
+                                        @endif
                                     </div>
                                     <div class="msg-meta">
                                         @if (!$isMe)

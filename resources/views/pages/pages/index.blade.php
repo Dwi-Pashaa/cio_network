@@ -229,6 +229,7 @@
                             <th>Organisasi/Mitra</th>
                         @endif
                         <th>Fitur KTP</th>
+                        <th>Fitur Persetujuan</th>
                         <th>Created</th>
                         <th>Action</th>
                     </tr>
@@ -327,6 +328,15 @@
                                                     <option value="tidak">Tidak</option>
                                                 </select>
                                                 <span class="invalid-feedback error_is_ktp"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="is_persetujuan" class="form-label-premium">Apakah Halaman Menggunakan Persetujuan <span style="color:#ef4444;">*</span></label>
+                                                <select name="is_persetujuan" id="is_persetujuan" class="form-select">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="aktif">Aktif</option>
+                                                    <option value="tidak">Tidak</option>
+                                                </select>
+                                                <span class="invalid-feedback error_is_persetujuan"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -546,7 +556,7 @@
                     }
                 },
                 order: [
-                    [{{ auth()->user()->hasPermissionTo('filter organization') ? 5 : 4 }}, 'desc']
+                    [{{ auth()->user()->hasPermissionTo('filter organization') ? 6 : 5 }}, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -571,6 +581,16 @@
 @endif
                     {
                         data: 'is_ktp',
+                        render: function(data) {
+                            if (data === 'aktif') {
+                                return '<span class="badge bg-success text-white">Aktif</span>';
+                            } else {
+                                return '<span class="badge bg-warning text-white">Tidak Aktif</span>';
+                            }
+                        }
+                    },
+                    {
+                        data: 'is_persetujuan',
                         render: function(data) {
                             if (data === 'aktif') {
                                 return '<span class="badge bg-success text-white">Aktif</span>';
@@ -616,7 +636,7 @@
 
                 const emptyStateHTML = `
                     <tr class="empty-state-row">
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="{{ auth()->user()->hasPermissionTo('filter organization') ? 8 : 7 }}" class="text-center py-5">
                             <div class="empty-state">
                                 <div class="empty-state-icon mb-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted">
@@ -839,6 +859,7 @@
             $("#telp").val('123');
             $("#password").val('123');
             $("#is_ktp").val('');
+            $("#is_persetujuan").val('');
 
             // Reset all selects
             const selectIds = [
@@ -892,6 +913,7 @@
             formData.append('telp', $('#telp').val());
             formData.append('password', $('#password').val());
             formData.append('is_ktp', $('#is_ktp').val());
+            formData.append('is_persetujuan', $('#is_persetujuan').val());
 
             if (type === 'update') {
                 formData.append('_method', 'PUT');
@@ -941,6 +963,7 @@
                     $("#telp").val(data.telp);
                     $("#desc").val(data.desc);
                     $("#is_ktp").val(data.is_ktp);
+                    $("#is_persetujuan").val(data.is_persetujuan || 'tidak');
                     $("#type").val('update');
 
                     // Set single selects
