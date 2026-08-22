@@ -963,7 +963,7 @@ class PagesController extends Controller
 
         $pdf = Pdf::loadView('pdf.persetujuan-pendaftaran', compact('pendaftaran'));
 
-        return $pdf->download("{$uuid}.pdf");
+        return $pdf->stream("{$uuid}.pdf");
     }
 
     public function checkEmail(Request $request)

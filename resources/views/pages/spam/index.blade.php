@@ -2507,6 +2507,37 @@ function toggleDetail(id, btn) {
 }
 
 // ── APPROVE MODAL ─────────────────────────────────────────────────────────────
+function loadPillCounts() {
+    // Count existing spam (pemasangan)
+    $.get(SPAM_BASE, { ajax: 1 }, function() {
+        // Will be updated after datatable loads
+    });
+
+    @can('lihat pendaftaran baru')
+        $.get("{{ route('spam.pendaftaran') }}", { per_page: 1 }, function(res) {
+            const pill = document.getElementById('pill-pendaftaran-baru');
+            if (pill) pill.textContent = res.total || 0;
+        });
+    @endcan
+
+    // Count pending prosedur for each type
+    ['pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password'].forEach(type => {
+        $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
+            const count = (res.data || []).length;
+            const pill = document.getElementById('pill-' + type);
+            if (pill) pill.textContent = count;
+        });
+    });
+
+    @can('lihat rekap prosedur')
+        $.get(VAL_BASE, { tab: 'rekap' }, function(res) {
+            const count = (res.data || []).length;
+            const pill = document.getElementById('pill-rekap');
+            if (pill) pill.textContent = count;
+        });
+    @endcan
+}
+
 function openValApprove(id, name) {
     pendingId = id;
     $('#approve-subtitle').text('Menyetujui request untuk pelanggan: ' + name);
@@ -2592,29 +2623,6 @@ $(function() {
         switchSpamTab(activeSpamTab);
     }
 });
-
-function loadPillCounts() {
-    // Count existing spam (pemasangan)
-    $.get(SPAM_BASE, { ajax: 1 }, function() {
-        // Will be updated after datatable loads
-    });
-    // Count pending prosedur for each type
-    ['pemutusan', 'pergantian-layanan', 'onu-router', 'pergantian-password'].forEach(type => {
-        $.get(VAL_BASE, { tab: 'queue', type: type }, function(res) {
-            const count = (res.data || []).length;
-            const pill = document.getElementById('pill-' + type);
-            if (pill) pill.textContent = count;
-        });
-    });
-    
-    @can('lihat rekap prosedur')
-        $.get(VAL_BASE, { tab: 'rekap' }, function(res) {
-            const count = (res.data || []).length;
-            const pill = document.getElementById('pill-rekap');
-            if (pill) pill.textContent = count;
-        });
-    @endcan
-}
 
 function initializeDataTable() {
     table = $('#spam-table').DataTable({
