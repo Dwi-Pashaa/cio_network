@@ -213,7 +213,7 @@ class PublicPendaftaranController extends Controller
         $organizationId = $organization ? $organization->id : 1;
 
         $ttdBase64 = $request->tanda_tangan_customer;
-        $ttdImage = $this->saveSignatureImage($ttdBase64, $kode);
+        $ttdImage = $this->saveSignatureImage($ttdBase64, $request->nama, $kode);
 
         $buktiBayar = null;
         if ($request->hasFile('bukti_pembayaran')) {
@@ -296,16 +296,17 @@ class PublicPendaftaranController extends Controller
         }
     }
 
-    private function saveSignatureImage($base64Data, $kode)
+    private function saveSignatureImage($base64Data, $nama, $kode)
     {
         $folder = public_path('signatures/customers');
         if (!is_dir($folder)) {
             mkdir($folder, 0755, true);
         }
 
+        $slugNama = Str::slug($nama);
         $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $base64Data);
         $imageData = base64_decode($base64Data);
-        $filename = "{$kode}.png";
+        $filename = "{$slugNama}.png";
         $filePath = "{$folder}/{$filename}";
         file_put_contents($filePath, $imageData);
 

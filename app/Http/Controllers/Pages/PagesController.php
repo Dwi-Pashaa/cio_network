@@ -517,6 +517,33 @@ class PagesController extends Controller
         ));
     }
 
+    private function handleSignatureBase64($base64Image, $nama)
+    {
+        if (!preg_match('/^data:image\/\w+;base64,/', $base64Image)) {
+            throw new \Exception('Format tanda tangan tidak valid.');
+        }
+
+        $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
+        $imageData = base64_decode($imageData);
+
+        if ($imageData === false) {
+            throw new \Exception('Gagal decode tanda tangan.');
+        }
+
+        $slugNama = Str::slug($nama);
+        $fileName = "{$slugNama}.png";
+        $folderPath = public_path('signatures/customers');
+
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
+
+        $filePath = $folderPath . '/' . $fileName;
+        file_put_contents($filePath, $imageData);
+
+        return 'signatures/customers/' . $fileName;
+    }
+
     private function handleKtpBase64($base64Image)
     {
         if (!preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
@@ -608,6 +635,14 @@ class PagesController extends Controller
             $data['ktp_photo'] = null;
         }
 
+        if (!empty($request->tanda_tangan_customer)) {
+            try {
+                $data['tanda_tangan_customer'] = $this->handleSignatureBase64($request->tanda_tangan_customer, $request->name);
+            } catch (\Exception $e) {
+                Log::error('Error processing signature photo: ' . $e->getMessage());
+            }
+        }
+
         return DB::transaction(function () use ($request, $data, $typeName, $ktpUrl) {
 
             $userRouter = UserRouter::where('user_id', Auth::id())
@@ -693,6 +728,13 @@ class PagesController extends Controller
                 $data['mic_radius_id']  = null;
                 $data['paket_id']       = null;
                 $data['price_id']       = null;
+            }
+
+            if (!empty($request->pendaftaran_id)) {
+                $pendaftaranObj = Pendaftaran::find($request->pendaftaran_id);
+                if ($pendaftaranObj && $pendaftaranObj->tanda_tangan_customer) {
+                    $data['tanda_tangan_customer'] = $pendaftaranObj->tanda_tangan_customer;
+                }
             }
 
             unset($data['type_name']);
