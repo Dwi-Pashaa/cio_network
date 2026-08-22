@@ -286,17 +286,23 @@
         $qrResult = $qrWriter->write($qrCode);
         $qrDataUri = 'data:image/png;base64,' . base64_encode($qrResult->getString());
     @endphp
+    @php
+        use App\Models\Customer;
+        $customerObj = Customer::where('name', $pendaftaran->nama)->first();
+        $ttdPath = $customerObj?->tanda_tangan_customer;
+        $namaPelanggan = $customerObj?->name;
+    @endphp
     <table class="ttd-table" style="page-break-inside: avoid;">
         <tr>
             <td class="sig-cell">
                 <div class="ttd-box">
                     <p class="ttd-role">Pelanggan,</p>
-                    @if($pendaftaran->tanda_tangan_customer && file_exists(public_path($pendaftaran->tanda_tangan_customer)))
-                        <img src="{{ public_path($pendaftaran->tanda_tangan_customer) }}" class="ttd-image" alt="TTD Customer">
+                    @if($ttdPath && file_exists(public_path($ttdPath)))
+                        <img src="{{ public_path($ttdPath) }}" class="ttd-image" alt="TTD Customer">
                     @else
                         <div class="ttd-space"></div>
                     @endif
-                    <p style="margin: 4px 0 1px 0;"><strong><u>{{ $pendaftaran->nama }}</u></strong></p>
+                    <p style="margin: 4px 0 1px 0;"><strong><u>{{ $namaPelanggan }}</u></strong></p>
                     <p style="font-size: 8.5px; color: #000; margin: 0;">Pelanggan</p>
                 </div>
             </td>
