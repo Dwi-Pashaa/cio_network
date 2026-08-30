@@ -588,7 +588,15 @@
                                         @enderror
                                     </div>
                                     <div class="col-lg-6 mb-3">
-                                        <label class="form-label">Email Pelanggan</label>
+                                        <label class="form-label">Email Pelanggan <span class="text-danger">*</span></label>
+                                        <input value="{{ old('email') }}" type="email" name="email" id="email"
+                                            class="form-control @error('email') is-invalid @enderror"
+                                            placeholder="contoh@email.com" autocomplete="off">
+                                        @error('email')
+                                            <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
+                                        @enderror
+                                        <small id="emailFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
+                                        {{-- Fitur Cek Email Dinonaktifkan Sementara (Jangan Dihapus)
                                         <div class="input-group">
                                             <input value="{{ old('email') }}" type="text" name="email" id="email"
                                                 class="form-control @error('email') is-invalid @enderror"
@@ -604,13 +612,18 @@
                                                 <span id="check-email-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
                                             </button>
                                         </div>
-                                        @error('email')
-                                            <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
-                                        @enderror
-                                        <small id="emailFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
+                                        --}}
                                     </div>
                                     <div class="col-lg-6 mb-3">
                                         <label class="form-label">No Telephone <span class="text-danger">*</span></label>
+                                        <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
+                                            class="form-control @error('telp') is-invalid @enderror"
+                                            placeholder="08xxxxxxxxxx" autocomplete="off">
+                                        @error('telp')
+                                            <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
+                                        @enderror
+                                        <small id="phoneFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
+                                        {{-- Fitur Cek No HP / WA Dinonaktifkan Sementara (Jangan Dihapus)
                                         <div class="input-group">
                                             <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
                                                 class="form-control @error('telp') is-invalid @enderror"
@@ -626,10 +639,7 @@
                                                 <span id="check-phone-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
                                             </button>
                                         </div>
-                                        @error('telp')
-                                            <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
-                                        @enderror
-                                        <small id="phoneFeedback" class="mt-1" style="display:none; font-size:.82rem;"></small>
+                                        --}}
                                     </div>
                                     <div class="col-lg-6 mb-3">
                                         <label class="form-label">Mac Address <span class="text-danger">*</span></label>
@@ -1297,6 +1307,7 @@
                         return;
                     }
 
+                    /* Fitur Cek Email Dinonaktifkan Sementara (Jangan Dihapus)
                     if (emailStatus === null) {
                         Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek Email" terlebih dahulu untuk memverifikasi email!' });
                         $('#email').focus();
@@ -1308,6 +1319,7 @@
                         $('#email').focus();
                         return;
                     }
+                    */
 
                     // ── Validasi No WhatsApp ──
                     if (!telp) {
@@ -1316,6 +1328,7 @@
                         return;
                     }
 
+                    /* Fitur Cek No HP / WA Dinonaktifkan Sementara (Jangan Dihapus)
                     if (phoneStatus === null) {
                         Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek No HP" terlebih dahulu untuk memverifikasi WhatsApp!' });
                         $('#telp').focus();
@@ -1327,6 +1340,7 @@
                         $('#telp').focus();
                         return;
                     }
+                    */
 
                     if (isKtpAktif && !ktpPhoto) {
                         Toast.fire({ icon: 'warning', title: 'Foto KTP wajib diambil terlebih dahulu!' });
@@ -1578,6 +1592,7 @@
                     return false;
                 }
 
+                /* Fitur Cek Email Dinonaktifkan Sementara (Jangan Dihapus)
                 if (emailStatus === null) {
                     e.preventDefault();
                     Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek Email" terlebih dahulu sebelum mengirim data.' });
@@ -1591,6 +1606,7 @@
                     emailInput && emailInput.focus();
                     return false;
                 }
+                */
 
                 if (!phoneValue) {
                     e.preventDefault();
@@ -1599,6 +1615,7 @@
                     return false;
                 }
 
+                /* Fitur Cek No HP / WA Dinonaktifkan Sementara (Jangan Dihapus)
                 if (phoneStatus === null) {
                     e.preventDefault();
                     Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek No HP" terlebih dahulu sebelum mengirim data.' });
@@ -1612,6 +1629,7 @@
                     phoneInput && phoneInput.focus();
                     return false;
                 }
+                */
 
                 if (isKtpAktif && (!ktpPhoto || ktpPhoto.value === '')) {
                     e.preventDefault();
@@ -1691,7 +1709,8 @@
         });
     </script>
 
-    {{-- Email Check --}}
+    {{-- Fitur Cek Email Dinonaktifkan Sementara (Jangan Dihapus) --}}
+    {{--
     <script>
         (function () {
             const emailInput  = document.getElementById('email');
@@ -1798,8 +1817,10 @@
             });
         })();
     </script>
+    --}}
 
-    {{-- Phone Check --}}
+    {{-- Fitur Cek Phone / WhatsApp Dinonaktifkan Sementara (Jangan Dihapus) --}}
+    {{--
     <script>
         (function () {
             const phoneInput  = document.getElementById('telp');
@@ -1906,6 +1927,7 @@
             });
         })();
     </script>
+    --}}
 
     @if ($isMacValidationActive == true)
         <script>

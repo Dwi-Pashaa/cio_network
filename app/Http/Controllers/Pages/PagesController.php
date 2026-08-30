@@ -580,7 +580,9 @@ class PagesController extends Controller
         $data['user_id'] = Auth::id();
         $typeName = $data['type_name'] ?? null;
 
-        // ── Validasi email via MyEmailVerifier API ──
+        // ── Validasi email via MyEmailVerifier API (Dinonaktifkan Sementara) ──
+        $data['email_verify_at'] = null;
+        /*
         if (!empty($data['email'])) {
             try {
                 $emailVerifier = new MyEmailVerifierService();
@@ -593,8 +595,11 @@ class PagesController extends Controller
         } else {
             $data['email_verify_at'] = null;
         }
+        */
 
-        // ── Validasi nomor telepon via Fonnte API ──
+        // ── Validasi nomor telepon via Fonnte API (Dinonaktifkan Sementara) ──
+        $data['wa_verifiy_at'] = null;
+        /*
         if (!empty($data['telp'])) {
             try {
                 $phoneService = new FontePhoneCheckService();
@@ -615,6 +620,7 @@ class PagesController extends Controller
         } else {
             $data['wa_verifiy_at'] = null;
         }
+        */
 
         $ktpUrl = null;
 
