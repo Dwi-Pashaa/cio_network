@@ -580,9 +580,7 @@ class PagesController extends Controller
         $data['user_id'] = Auth::id();
         $typeName = $data['type_name'] ?? null;
 
-        // ── Validasi email via MyEmailVerifier API (Dinonaktifkan Sementara) ──
-        $data['email_verify_at'] = null;
-        /*
+        // ── Validasi email via MyEmailVerifier API ──
         if (!empty($data['email'])) {
             try {
                 $emailVerifier = new MyEmailVerifierService();
@@ -595,17 +593,20 @@ class PagesController extends Controller
         } else {
             $data['email_verify_at'] = null;
         }
-        */
 
-        // ── Validasi nomor telepon via Fonnte API (Dinonaktifkan Sementara) ──
-        $data['wa_verifiy_at'] = null;
-        /*
+        // ── Validasi nomor telepon via Fonnte API ──
         if (!empty($data['telp'])) {
             try {
                 $phoneService = new FontePhoneCheckService();
                 $phoneResult  = $phoneService->check($data['telp']);
 
                 if (($phoneResult['status'] ?? null) === 'not_registered') {
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'status'  => 'error',
+                            'message' => 'Nomor tidak terdaftar di WhatsApp: ' . ($phoneResult['message'] ?? '')
+                        ], 422);
+                    }
                     return redirect()
                         ->back()
                         ->withInput()
@@ -620,7 +621,6 @@ class PagesController extends Controller
         } else {
             $data['wa_verifiy_at'] = null;
         }
-        */
 
         $ktpUrl = null;
 
