@@ -228,6 +228,20 @@ class CustomerDataTable
                 );
             })
 
+            ->addColumn('latitude', function ($row) {
+                return $row->latitude ?? '';
+            })
+
+            ->addColumn('longitude', function ($row) {
+                return $row->longitude ?? '';
+            })
+
+            ->addColumn('maps_url', function ($row) {
+                return ($row->latitude && $row->longitude)
+                    ? "https://www.google.com/maps?q={$row->latitude},{$row->longitude}"
+                    : '';
+            })
+
             // Kolom Foto KTP
             ->addColumn('ktp', function ($row) {
                 if (!$row->ktp_photo) {

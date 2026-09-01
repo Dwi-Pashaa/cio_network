@@ -304,6 +304,68 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Pilihan Copy Data Pelanggan -->
+    <div class="modal modal-blur fade" id="modal-copy-customer" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header border-bottom bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Pilih Format Salin Data
+                        </h5>
+                        <div class="text-muted small" id="copy-customer-subtitle">Salin data pelanggan dengan pilihan format yang tersedia</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <!-- Opsi 1: Format Lengkap -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border rounded-3 p-3 d-flex flex-column" style="background:#f8fafc;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-blue-lt text-primary fw-bold px-2 py-1">Opsi 1</span>
+                                    <span class="text-muted small fw-semibold">Format Lengkap (Full)</span>
+                                </div>
+                                <h4 class="card-title text-dark fw-bold mb-1">Data Lengkap (Key-Value)</h4>
+                                <p class="text-muted small mb-2">Format standar berlabel untuk arsip atau pembacaan lengkap.</p>
+                                <div class="flex-grow-1 mb-3">
+                                    <textarea id="copy-preview-full" class="form-control font-monospace text-muted" rows="11" readonly style="font-size: 11px; resize: none; background: #ffffff;"></textarea>
+                                </div>
+                                <button type="button" id="btn-do-copy-full" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    Salin Format Full
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Opsi 2: Data Mikrotik -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border border-primary-subtle rounded-3 p-3 d-flex flex-column" style="background:#f0f9ff;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-success text-white fw-bold px-2 py-1">Opsi 2</span>
+                                    <span class="text-primary small fw-semibold">Mikrotik Template</span>
+                                </div>
+                                <h4 class="card-title text-dark fw-bold mb-1">Data Mikrotik</h4>
+                                <p class="text-muted small mb-2">Format praktis ringkas berpagar -- untuk data mikrotik.</p>
+                                <div class="flex-grow-1 mb-3">
+                                    <textarea id="copy-preview-custom" class="form-control font-monospace text-dark" rows="11" readonly style="font-size: 11px; resize: none; background: #ffffff;"></textarea>
+                                </div>
+                                <button type="button" id="btn-do-copy-custom" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    Salin Data Mikrotik
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('js')
@@ -951,52 +1013,162 @@
             });
         }
 
+        let activeCopyFullText = '';
+        let activeCopyCustomText = '';
+
+        function cleanText(htmlOrStr) {
+            if (!htmlOrStr) return '';
+            return $('<div>').html(htmlOrStr).text().trim();
+        }
+
+        function cleanPrefix(val, prefix) {
+            if (!val || val === '-') return '';
+            const regex = new RegExp('^' + prefix + '\\.?\\s*', 'i');
+            return val.replace(regex, '').trim();
+        }
+
+        function generateCustomFormat(rowData) {
+            const uuid = (rowData.uuid && rowData.uuid !== '-') ? rowData.uuid : '';
+            const typeName = (rowData.type_name && rowData.type_name !== '-') ? rowData.type_name.toUpperCase() : '';
+            const name = (rowData.name && rowData.name !== '-') ? rowData.name : '';
+            const telp = cleanText(rowData.telp);
+            const mac = (rowData.mac_address && rowData.mac_address !== '-') ? rowData.mac_address : '';
+            const router = (rowData.router_name && rowData.router_name !== '-') ? rowData.router_name : '';
+
+            const hometown = cleanPrefix(rowData.hometown_name, 'Kp');
+            const village = cleanPrefix(rowData.village_name, 'Ds');
+            const rt = cleanPrefix(rowData.rt_name, 'Rt');
+            const rw = cleanPrefix(rowData.rw_name, 'Rw');
+            const district = cleanPrefix(rowData.district_name, 'Kec');
+            const regency = cleanPrefix(rowData.regencie_name, 'Kab');
+            const vlan = cleanPrefix(rowData.vlan_name, 'Vlan');
+            
+            let kordinat = '';
+            if (rowData.latitude && rowData.longitude) {
+                kordinat = `${rowData.latitude},${rowData.longitude}`;
+            } else if (rowData.lokasi && rowData.lokasi !== '-') {
+                const match = rowData.lokasi.match(/q=([-\d.]+,[-\d.]+)/);
+                kordinat = match ? match[1] : '';
+            }
+
+            const lines = [
+                `--${uuid}--`,
+                `--${typeName}--`,
+                `--${name}--`,
+                `--${telp}--`,
+                `--${mac}--`,
+                `--${router}--`,
+                `--Kp.${hometown}--`,
+                `--Ds.${village}--`,
+                `--Rt.${rt}--`,
+                `--Rw.${rw}--`,
+                `--Kec.${district}--`,
+                `--Kab.${regency}--`,
+                `--Vlan.${vlan}--`,
+                `--${kordinat}--`
+            ];
+
+            return lines.join('\n');
+        }
+
+        function generateFullFormat(rowData) {
+            const fields = {
+                'UUID': rowData.uuid,
+                'Tipe Pelanggan': rowData.tipe_pelanggan,
+                'Tipe Layanan': rowData.type_name,
+                'NIK': rowData.nik,
+                'NAMA': rowData.name,
+                'EMAIL': cleanText(rowData.email),
+                'TELP': cleanText(rowData.telp),
+                'MAC ADDRESS': rowData.mac_address,
+                'ROUTER': rowData.router_name,
+                'KAMPUNG': rowData.hometown_name,
+                'DESA': rowData.village_name,
+                'RT': rowData.rt_name,
+                'RW': rowData.rw_name,
+                'KECAMATAN': rowData.district_name,
+                'KAB/KOTA': rowData.regencie_name,
+                'VLAN': rowData.vlan_name,
+                'OLT': rowData.olt_info,
+                'ODP': rowData.odp_info,
+                'WIFI': rowData.name_wifi,
+                'PASSWORD WIFI': rowData.password_wifi,
+                'PPPOE USER': rowData.pppoe_username,
+                'PPPOE PASS': rowData.pppoe_password,
+                'PAKET': rowData.paket_name,
+                'PEMBAYARAN': rowData.price_name,
+                'ORGANISASI/MITRA': rowData.organization,
+                'INPUT OLEH': rowData.input_by,
+                'LOKASI': rowData.maps_url || (rowData.latitude && rowData.longitude ? `https://www.google.com/maps?q=${rowData.latitude},${rowData.longitude}` : null)
+            };
+
+            let text = '';
+            Object.entries(fields).forEach(([k, v]) => {
+                if (v && v !== '-') text += `${k} : ${v}\n`;
+            });
+            return text;
+        }
+
+        function copyToClipboard(text, successMsg = 'Data berhasil disalin ke clipboard') {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccessMessage(successMsg);
+                }).catch(() => {
+                    fallbackClipboardCopy(text, successMsg);
+                });
+            } else {
+                fallbackClipboardCopy(text, successMsg);
+            }
+        }
+
+        function fallbackClipboardCopy(text, successMsg) {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text;
+            tempTextArea.style.position = 'fixed';
+            tempTextArea.style.left = '-9999px';
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                showSuccessMessage(successMsg);
+            } catch (err) {
+                showErrorMessage('Gagal menyalin ke clipboard.');
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        // Open modal when copy button is clicked
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('.copy-btn');
             if (btn) {
-                const id = btn.dataset.id;
                 const tr = btn.closest('tr');
                 const rowData = table.row(tr).data();
                 if (!rowData) return;
 
-                const fields = {
-                    'UUID': rowData.uuid,
-                    'Tipe Pelanggan': rowData.tipe_pelanggan,
-                    'Tipe Layanan': rowData.type_name,
-                    'NIK': rowData.nik,
-                    'NAMA': rowData.name,
-                    'EMAIL': rowData.email ? $('<div>').html(rowData.email).text() : null,
-                    'TELP': rowData.telp ? $('<div>').html(rowData.telp).text() : null,
-                    'MAC ADDRESS': rowData.mac_address,
-                    'ROUTER': rowData.router_name,
-                    'KAMPUNG': rowData.hometown_name,
-                    'DESA': rowData.village_name,
-                    'RT': rowData.rt_name,
-                    'RW': rowData.rw_name,
-                    'KECAMATAN': rowData.district_name,
-                    'KAB/KOTA': rowData.regencie_name,
-                    'VLAN': rowData.vlan_name,
-                    'OLT': rowData.olt_info,
-                    'ODP': rowData.odp_info,
-                    'WIFI': rowData.name_wifi,
-                    'PASSWORD WIFI': rowData.password_wifi,
-                    'PPPOE USER': rowData.pppoe_username,
-                    'PPPOE PASS': rowData.pppoe_password,
-                    'PAKET': rowData.paket_name,
-                    'PEMBAYARAN': rowData.price_name,
-                    'ORGANISASI/MITRA': rowData.organization,
-                    'INPUT OLEH': rowData.input_by,
-                };
+                activeCopyFullText = generateFullFormat(rowData);
+                activeCopyCustomText = generateCustomFormat(rowData);
 
-                let text = '';
-                Object.entries(fields).forEach(([k, v]) => {
-                    if (v) text += `${k} : ${v}\n`;
-                });
+                $('#copy-customer-subtitle').text(`Pelanggan: ${rowData.uuid || '-'} - ${rowData.name || '-'}`);
+                $('#copy-preview-full').val(activeCopyFullText);
+                $('#copy-preview-custom').val(activeCopyCustomText);
 
-                navigator.clipboard.writeText(text).then(() => {
-                    showSuccessMessage('Data copied to clipboard');
-                });
+                const modalEl = document.getElementById('modal-copy-customer');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
             }
+        });
+
+        // Copy button handlers inside modal
+        $('#btn-do-copy-full').on('click', function() {
+            if (!activeCopyFullText) return;
+            copyToClipboard(activeCopyFullText, 'Format Full berhasil disalin!');
+            bootstrap.Modal.getInstance(document.getElementById('modal-copy-customer'))?.hide();
+        });
+
+        $('#btn-do-copy-custom').on('click', function() {
+            if (!activeCopyCustomText) return;
+            copyToClipboard(activeCopyCustomText, 'Data Mikrotik berhasil disalin!');
+            bootstrap.Modal.getInstance(document.getElementById('modal-copy-customer'))?.hide();
         });
     </script>
 @endpush
