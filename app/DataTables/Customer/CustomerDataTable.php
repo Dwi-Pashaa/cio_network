@@ -77,7 +77,29 @@ class CustomerDataTable
 
             // Kolom Mac Address
             ->addColumn('mac_address', function ($row) {
-                return $row->mac_address ?? '-';
+                if (!$row->mac_address) return '-';
+
+                $mac = e(strtoupper($row->mac_address));
+                $device = $row->mikrotikDevice;
+
+                if ($device) {
+                    $status = strtolower($device->status ?? '');
+                    if ($status === 'bound') {
+                        $badge = '<span class="badge bg-success-lt text-success fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ bound ]</span>';
+                    } elseif ($status === 'waiting') {
+                        $badge = '<span class="badge fw-bold" style="font-size: 10px; padding: 2px 7px; background-color: #fef08a !important; color: #854d0e !important; border: 1px solid #facc15; display: inline-block; margin-top: 3px; box-shadow: 0 1px 2px rgba(234, 179, 8, 0.2);">[ WAITING ]</span>';
+                    } elseif ($status === 'offered') {
+                        $badge = '<span class="badge bg-orange-lt text-orange fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offered ]</span>';
+                    } elseif ($status === 'disabled') {
+                        $badge = '<span class="badge bg-secondary-lt text-secondary" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ disabled ]</span>';
+                    } else {
+                        $badge = '<span class="badge bg-secondary-lt text-muted" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ ' . e($status) . ' ]</span>';
+                    }
+                } else {
+                    $badge = '<span class="badge bg-danger-lt text-danger fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offline ]</span>';
+                }
+
+                return '<div class="font-monospace" style="font-size: 12px;">' . $mac . '<br>' . $badge . '</div>';
             })
 
             // Kolom Jenis Router
@@ -381,8 +403,24 @@ class CustomerDataTable
                     $btn
                 );
             })
-
-            ->rawColumns(['email', 'telp', 'lokasi', 'ktp', 'action', 'checkbox', 'mic_radius_info'])
+            ->setRowClass(function ($row) {
+                if (!$row->mac_address) {
+                    return 'row-mikrotik-offline';
+                }
+                $device = $row->mikrotikDevice;
+                if ($device) {
+                    $status = strtolower($device->status ?? '');
+                    if ($status === 'waiting') {
+                        return 'row-mikrotik-waiting';
+                    } elseif ($status === 'bound') {
+                        return 'row-mikrotik-bound';
+                    } elseif ($status === 'offered') {
+                        return 'row-mikrotik-offered';
+                    }
+                }
+                return 'row-mikrotik-offline';
+            })
+            ->rawColumns(['email', 'telp', 'mac_address', 'lokasi', 'ktp', 'action', 'checkbox', 'mic_radius_info'])
             ->make(true);
     }
 
@@ -400,6 +438,7 @@ class CustomerDataTable
         $authUserRegencies = $user->regencie->pluck('id')->toArray();
 
         $query = Customer::with([
+            'mikrotikDevice',
             'router',
             'type',
             'hometown',
@@ -481,6 +520,20 @@ class CustomerDataTable
                 }
                 return $q->where('wa_verifiy_at', $v);
             })
-            ->orderBy('created_at', 'desc');
+            ->when($request->mikrotik_status, function ($q, $v) {
+                if ($v === 'bound') {
+                    return $q->whereHas('mikrotikDevice', fn($m) => $m->where('status', 'bound'));
+                } elseif ($v === 'waiting') {
+                    return $q->whereHas('mikrotikDevice', fn($m) => $m->where('status', 'waiting'));
+                } elseif ($v === 'offered') {
+                    return $q->whereHas('mikrotikDevice', fn($m) => $m->where('status', 'offered'));
+                } elseif ($v === 'offline') {
+                    return $q->where(function ($sub) {
+                        $sub->whereDoesntHave('mikrotikDevice')
+                            ->orWhereHas('mikrotikDevice', fn($m) => $m->whereNotIn('status', ['bound', 'waiting', 'offered']));
+                    });
+                }
+            })
+            ->orderBy('customers.created_at', 'desc');
     }
 }

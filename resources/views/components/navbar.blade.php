@@ -7,21 +7,74 @@
                         <ul class="navbar-nav modern-nav">
 
                             {{-- ==================== Dashboard ==================== --}}
-                            <li class="nav-item {{ Route::is('dashboard') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('dashboard') }}">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M5 12l-2 0l9 -9l9 9l-2 0"/>
-                                            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>
-                                            <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>
-                                        </svg>
-                                    </span>
-                                    <span class="nav-link-title">Dashboard</span>
-                                </a>
-                            </li>
+                            @can('monitoring mikrotik')
+                                <li class="nav-item dropdown {{ Route::is('dashboard*') || Route::is('mikrotik.*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-dashboard"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                        role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l-2 0l9 -9l9 9l-2 0"/>
+                                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>
+                                                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>
+                                            </svg>
+                                        </span>
+                                        <span class="nav-link-title">Dashboard</span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        {{-- 1. Dashboard Utama / Analitik --}}
+                                        <a class="dropdown-item {{ Route::is('dashboard') ? 'active' : '' }}"
+                                            href="{{ route('dashboard') }}" rel="noopener">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon me-2 text-primary" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M3 3v18h18" />
+                                                <path d="M20 18v3" />
+                                                <path d="M16 16v5" />
+                                                <path d="M12 13v8" />
+                                                <path d="M8 16v5" />
+                                                <path d="M3 11c6 0 5 -5 9 -5s3 5 9 5" />
+                                            </svg>
+                                            Dashboard Analitik
+                                        </a>
+
+                                        {{-- 2. Monitoring MikroTik DHCP Hub --}}
+                                        <a class="dropdown-item {{ Route::is('mikrotik.dhcp') ? 'active' : '' }}"
+                                            href="{{ route('mikrotik.dhcp') }}" rel="noopener">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon me-2 text-azure" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <rect x="3" y="13" width="18" height="8" rx="2" />
+                                                <line x1="17" y1="17" x2="17" y2="17.01" />
+                                                <line x1="13" y1="17" x2="13" y2="17.01" />
+                                                <line x1="15" y1="13" x2="15" y2="11" />
+                                                <path d="M11.5 6.5a4.5 4.5 0 0 1 7 0" />
+                                                <path d="M9 4a8 8 0 0 1 12 0" />
+                                            </svg>
+                                            Monitoring MikroTik (DHCP Hub)
+                                        </a>
+                                    </div>
+                                </li>
+                            @else
+                                <li class="nav-item {{ Route::is('dashboard*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('dashboard') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l-2 0l9 -9l9 9l-2 0"/>
+                                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>
+                                                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>
+                                            </svg>
+                                        </span>
+                                        <span class="nav-link-title">Dashboard</span>
+                                    </a>
+                                </li>
+                            @endcan
 
                             {{-- ==================== Manajemen ==================== --}}
                             @canany(['lihat user', 'lihat level', 'lihat organisasi'])

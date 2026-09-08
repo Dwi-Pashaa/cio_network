@@ -1,0 +1,1178 @@
+/* ==========================================================================
+   MikroTik DHCP Hub - Professional Blue & White Clean Enterprise Theme
+   ========================================================================== */
+
+:root {
+    --dhcp-primary: #0054a6;
+    --dhcp-primary-hover: #004080;
+    --dhcp-primary-light: #eff6ff;
+    --dhcp-bg: #f8fafc;
+    --dhcp-card-bg: #ffffff;
+    --dhcp-border: #e2e8f0;
+    --dhcp-text-main: #1e293b;
+    --dhcp-text-muted: #64748b;
+    --dhcp-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --dhcp-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+.mikrotik-hub-wrapper {
+    color: var(--dhcp-text-main);
+    font-family: inherit;
+}
+
+/* ==================== Header Card ==================== */
+.hub-header-card {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-top: 3.5px solid #0054a6;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--dhcp-shadow);
+    margin-bottom: 1.25rem;
+}
+
+.hub-title-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hub-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Live Pulse Radar Badge */
+.live-sync-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.75rem;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #059669;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    position: relative;
+}
+
+.pulse-dot::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 14px;
+    height: 14px;
+    background: rgba(16, 185, 129, 0.4);
+    border-radius: 50%;
+    animation: radar-pulse 1.8s infinite ease-out;
+}
+
+@keyframes radar-pulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+/* Auto Sync Cron Pill Badge */
+.auto-sync-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #1d4ed8;
+    box-shadow: 0 1px 2px rgba(29, 78, 216, 0.05);
+}
+
+.auto-sync-pill strong {
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.hub-meta-info {
+    font-size: 0.825rem;
+    color: var(--dhcp-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.hub-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.hub-meta-item strong {
+    color: #1e293b;
+}
+
+/* Refresh Button */
+.btn-hub-refresh {
+    background: linear-gradient(135deg, #0054a6 0%, #0284c7 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 84, 166, 0.25);
+}
+
+.btn-hub-refresh:hover {
+    background: linear-gradient(135deg, #004080 0%, #0369a1 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 84, 166, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-hub-refresh:active {
+    transform: translateY(1px);
+}
+
+.btn-hub-refresh.loading svg {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==================== Professional Blue Info Banner ==================== */
+.hub-info-banner {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-left: 4px solid #0284c7;
+    border-radius: 10px;
+    padding: 0.85rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+}
+
+.info-banner-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #bae6fd;
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.info-banner-text {
+    font-size: 0.865rem;
+    line-height: 1.5;
+}
+
+/* ==================== Stat Cards ==================== */
+.stat-card-clean {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--dhcp-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+}
+
+.stat-card-clean:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dhcp-shadow-hover);
+}
+
+.stat-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon-total {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+.stat-icon-bound {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #059669;
+}
+
+.stat-icon-dynamic {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0284c7;
+}
+
+.stat-icon-waiting {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #d97706;
+}
+
+.stat-icon-static {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: #4f46e5;
+}
+
+.stat-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.stat-label {
+    font-size: 0.725rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--dhcp-text-muted);
+    margin-bottom: 0.2rem;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #0f172a;
+    font-feature-settings: "tnum";
+}
+
+/* ==================== Controls Bar ==================== */
+.hub-controls-bar {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--dhcp-shadow);
+}
+
+.search-input-group {
+    position: relative;
+}
+
+.search-input-group .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--dhcp-text-muted);
+    pointer-events: none;
+}
+
+.search-input-clean {
+    border: 1px solid var(--dhcp-border);
+    border-radius: 8px;
+    padding: 0.45rem 0.85rem 0.45rem 2.25rem;
+    font-size: 0.875rem;
+    background: #ffffff;
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-input-clean:focus {
+    border-color: var(--dhcp-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.12);
+}
+
+.filter-select-clean {
+    border: 1px solid var(--dhcp-border);
+    border-radius: 8px;
+    padding: 0.45rem 2rem 0.45rem 0.85rem;
+    font-size: 0.875rem;
+    background-color: #ffffff;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+}
+
+.filter-select-clean:focus {
+    border-color: var(--dhcp-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.12);
+}
+
+/* ==================== Data Table Card ==================== */
+.hub-table-card {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-radius: 12px;
+    box-shadow: var(--dhcp-shadow);
+    overflow: hidden;
+}
+
+.hub-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+.hub-table thead th {
+    background: #f8fafc;
+    color: #1e3a8a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.9rem 1.15rem;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.hub-table thead th.sortable-th {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hub-table thead th.sortable-th:hover {
+    background-color: #f1f5f9;
+    color: #0054a6;
+}
+
+.hub-table thead th.sortable-th.sorted-asc,
+.hub-table thead th.sortable-th.sorted-desc {
+    background-color: #eff6ff;
+    color: #0054a6;
+}
+
+.th-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.sort-icon {
+    display: inline-flex;
+    align-items: center;
+    color: #94a3b8;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sortable-th:hover .sort-icon {
+    color: #0054a6;
+}
+
+.sortable-th.sorted-asc .sort-icon,
+.sortable-th.sorted-desc .sort-icon {
+    color: #0054a6;
+}
+
+.hub-table tbody td {
+    padding: 0.85rem 1.15rem;
+    vertical-align: middle;
+    font-size: 0.875rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.hub-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.hub-table tbody tr {
+    transition: background-color 0.12s ease;
+}
+
+.hub-table tbody tr:hover {
+    background-color: #eff6ff !important;
+}
+
+.font-mono-clean {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #0f172a;
+}
+
+/* ==================== Status Badges ==================== */
+.badge-type-dynamic {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    background: #0284c7;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+}
+
+.badge-type-static {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    background: #d97706;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+}
+
+.badge-status-bound {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #d1fae5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-status-waiting {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.badge-status-offered {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+.badge-status-disabled {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Empty State */
+.empty-table-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--dhcp-text-muted);
+}
+
+/* ==================== Pagination & Showing Footer ==================== */
+.hub-pagination-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--dhcp-border);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.showing-entries-text {
+    font-size: 0.85rem;
+    color: var(--dhcp-text-muted);
+}
+
+.showing-entries-text strong {
+    color: #1e293b;
+}
+
+.page-size-select {
+    border: 1px solid var(--dhcp-border);
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.825rem;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+}
+
+.page-size-select:focus {
+    border-color: var(--dhcp-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 84, 166, 0.12);
+}
+
+.hub-pagination-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.btn-page-item {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--dhcp-border);
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.825rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.btn-page-item:hover:not(:disabled):not(.active) {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+
+.btn-page-item.active {
+    background: var(--dhcp-primary);
+    color: #ffffff;
+    border-color: var(--dhcp-primary);
+    cursor: default;
+}
+
+.btn-page-item:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: #f8fafc;
+}
+
+.page-ellipsis {
+    min-width: 24px;
+    text-align: center;
+    color: #94a3b8;
+    font-weight: 600;
+    user-select: none;
+}
+
+/* ==================== Action Button ==================== */
+.btn-action-customer {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.775rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #0284c7;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-action-customer:hover {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.btn-action-customer svg {
+    flex-shrink: 0;
+}
+
+/* ==================== Customer Detail Modal ==================== */
+.modal-customer-detail .modal-content {
+    border-radius: 12px;
+    border: 1px solid var(--dhcp-border);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-customer-detail .modal-header {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--dhcp-border);
+    padding: 1.15rem 1.5rem;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.modal-customer-detail .modal-body {
+    padding: 1.5rem;
+}
+
+.detail-section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0054a6;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.detail-card-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 100%;
+}
+
+.detail-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 0.85rem;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #64748b;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+}
+
+.detail-value {
+    color: #0f172a;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+}
+
+.btn-wa-chat {
+    background: #25d366;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+    margin-left: 0.35rem;
+}
+
+.btn-wa-chat:hover {
+    background: #1eb954;
+    color: #ffffff;
+}
+
+.not-registered-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    color: #92400e;
+}
+
+/* ==========================================================================
+   Real-Time Traffic & Bandwidth Monitoring Styles
+   ========================================================================== */
+.traffic-monitor-card {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--dhcp-shadow);
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.traffic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 1rem;
+}
+
+.traffic-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.traffic-title-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+}
+
+.traffic-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.traffic-subtitle {
+    font-size: 0.8rem;
+    color: var(--dhcp-text-muted);
+}
+
+.traffic-controls-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.traffic-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+}
+
+.traffic-status-badge.live {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.traffic-status-badge.paused {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btn-traffic-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--dhcp-border);
+    background: #ffffff;
+    color: var(--dhcp-text-main);
+    transition: all 0.2s ease;
+}
+
+.btn-traffic-control:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.traffic-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.traffic-metric-box {
+    background: #f8fafc;
+    border: 1px solid var(--dhcp-border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.traffic-metric-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dhcp-shadow);
+}
+
+.traffic-metric-box.download {
+    border-left: 4px solid #0284c7;
+    background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.traffic-metric-box.upload {
+    border-left: 4px solid #8b5cf6;
+    background: linear-gradient(180deg, #faf5ff 0%, #ffffff 100%);
+}
+
+.traffic-metric-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.traffic-metric-box.download .traffic-metric-icon {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.traffic-metric-box.upload .traffic-metric-icon {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.traffic-metric-data {
+    flex: 1;
+    min-width: 0;
+}
+
+.traffic-metric-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--dhcp-text-muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
+}
+
+.traffic-metric-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #0f172a;
+}
+
+.traffic-metric-box.download .traffic-metric-value {
+    color: #0284c7;
+}
+
+.traffic-metric-box.upload .traffic-metric-value {
+    color: #7c3aed;
+}
+
+.traffic-metric-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
+
+.traffic-chart-container {
+    width: 100%;
+    min-height: 280px;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .traffic-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .traffic-controls-wrap {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .traffic-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   MikroTik System Resource & Hardware Health Styles
+   ========================================================================== */
+.system-resource-card {
+    background: var(--dhcp-card-bg);
+    border: 1px solid var(--dhcp-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--dhcp-shadow);
+    margin-bottom: 1.25rem;
+}
+
+.resource-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 1rem;
+}
+
+.resource-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.resource-title-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #0054a6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resource-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.resource-chips-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.resource-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.resource-chip strong {
+    color: #0f172a;
+}
+
+.resource-chip.model-chip {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.resource-chip.uptime-chip {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
+.resource-bars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.resource-bar-box {
+    background: #f8fafc;
+    border: 1px solid var(--dhcp-border);
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.resource-bar-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dhcp-shadow);
+}
+
+.resource-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.resource-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.resource-bar-pct {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.resource-progress-track {
+    height: 9px;
+    background: #e2e8f0;
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.resource-progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+}
+
+.resource-progress-fill.fill-cpu {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.resource-progress-fill.fill-cpu.warn {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.resource-progress-fill.fill-cpu.danger {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.resource-progress-fill.fill-ram {
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.resource-progress-fill.fill-hdd {
+    background: linear-gradient(90deg, #8b5cf6 0%, #6d28d9 100%);
+}
+
+.resource-bar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.74rem;
+    color: #64748b;
+}
+
+.resource-bar-footer strong {
+    color: #334155;
+}
+
+/* ==========================================================================
+   Reboot Router Button & Modal Styles
+   ========================================================================== */
+.btn-hub-reboot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.15rem;
+    background: #ffffff;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.06);
+}
+
+.btn-hub-reboot:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #b91c1c;
+    box-shadow: 0 2px 5px rgba(220, 38, 38, 0.15);
+}
+
+.btn-hub-reboot:active {
+    transform: translateY(1px);
+}
+
+.reboot-countdown-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: inline-block;
+}
+
+.countdown-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #991b1b;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.countdown-number {
+    font-size: 2.25rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Real-Time SSE Row Flash Highlight
+   ========================================================================== */
+@keyframes rowPulse {
+    0% {
+        background-color: rgba(16, 185, 129, 0.28);
+    }
+    50% {
+        background-color: rgba(16, 185, 129, 0.12);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.row-updated-flash {
+    animation: rowPulse 2.5s ease-out;
+}
+
+
+
+

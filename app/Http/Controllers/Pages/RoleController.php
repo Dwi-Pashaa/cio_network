@@ -163,6 +163,7 @@ class RoleController extends Controller
             'User'                => ['user'],
             'Organisasi'          => ['organisasi'],
             'Router'              => ['router'],
+            'Monitoring MikroTik' => ['monitoring mikrotik', 'mikrotik'],
             'VLAN'                => ['vlan'],
             'ODC'                 => ['odc'],
             'ODP'                 => ['odp'],

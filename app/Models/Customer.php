@@ -106,4 +106,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
+
+    public function mikrotikDevice()
+    {
+        return $this->hasOne(MikrotikDevice::class, 'mac_address', 'mac_address');
+    }
 }

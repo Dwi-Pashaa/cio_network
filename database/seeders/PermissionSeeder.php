@@ -62,13 +62,14 @@ class PermissionSeeder extends Seeder
             // 'filter organization'
 
             // ── PERSETUJUAN (konten publik) ──
-            'lihat persetujuan',
+            // 'lihat persetujuan',
 
             // ── PENDAFTARAN BARU (inbox customer) ──
-            'lihat pendaftaran baru',
-            'assign pendaftaran',
-            'tolak pendaftaran',
-            'spam pemasangan',
+            // 'lihat pendaftaran baru',
+            // 'assign pendaftaran',
+            // 'tolak pendaftaran',
+            // 'spam pemasangan',
+            'monitoring mikrotik'
         ];
 
         foreach ($permissions as $permission) {

@@ -10,6 +10,48 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .btn-action.btn-chat:hover { color: #0ea5e9; border-color: #0ea5e9; background: #f0f9ff; }
+
+        /* Styling Baris Berdasarkan Status MikroTik */
+        table.org-table tbody tr.row-mikrotik-waiting > td {
+            background-color: #fefce8 !important;
+        }
+        table.org-table tbody tr.row-mikrotik-waiting:hover > td {
+            background-color: #fef08a !important;
+        }
+        table.org-table tbody tr.row-mikrotik-waiting > td:first-child {
+            border-left: 4px solid #eab308 !important;
+        }
+
+        table.org-table tbody tr.row-mikrotik-offline > td {
+            background-color: #fef2f2 !important;
+            color: #334155;
+        }
+        table.org-table tbody tr.row-mikrotik-offline:hover > td {
+            background-color: #fee2e2 !important;
+        }
+        table.org-table tbody tr.row-mikrotik-offline > td:first-child {
+            border-left: 4px solid #f87171 !important;
+        }
+
+        table.org-table tbody tr.row-mikrotik-offered > td {
+            background-color: #fff7ed !important;
+        }
+        table.org-table tbody tr.row-mikrotik-offered:hover > td {
+            background-color: #ffedd5 !important;
+        }
+        table.org-table tbody tr.row-mikrotik-offered > td:first-child {
+            border-left: 4px solid #f97316 !important;
+        }
+
+        table.org-table tbody tr.row-mikrotik-bound > td {
+            background-color: #ffffff;
+        }
+        table.org-table tbody tr.row-mikrotik-bound:hover > td {
+            background-color: #f0fdf4 !important;
+        }
+        table.org-table tbody tr.row-mikrotik-bound > td:first-child {
+            border-left: 4px solid #22c55e !important;
+        }
     </style>
 @endpush
 
@@ -165,6 +207,14 @@
                             @endforeach
                         </select>
                     @endif
+
+                    <select name="mikrotik_status" id="mikrotik_status" class="org-input filter-select" style="min-width:160px;">
+                        <option value="">Semua Status MikroTik</option>
+                        <option value="bound">🟢 Bound (Aktif)</option>
+                        <option value="waiting">🟡 Waiting (Menunggu)</option>
+                        <option value="offered">🟠 Offered</option>
+                        <option value="offline">🔴 Offline / Belum Terdeteksi</option>
+                    </select>
                 </div>
 
                 <div class="search-wrapper" style="min-width: 200px;">
@@ -402,6 +452,7 @@
                         d.type_id = $('#type_id').val();
                         d.tipe_pelanggan_id = $('#tipe_pelanggan_id').val();
                         d.organization_id = $('#organization_id').val();
+                        d.mikrotik_status = $('#mikrotik_status').val();
                         d.search = $('#search-input').val();
                     }
                 },

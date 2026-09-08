@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Pages\DashboardController;
+use App\Http\Controllers\Pages\Jaringan\MikrotikController;
 use App\Http\Controllers\Pages\ProsedurController;
 use App\Http\Controllers\Pages\PublicCustomerController;
 use App\Http\Controllers\Pages\TroubleshootController;
@@ -35,6 +36,19 @@ Route::middleware(['auth'])->group(function () {
     // dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/get-detail-count/{id}/{text}', [DashboardController::class, 'getDetailCount'])->name('dashboard.getDetailCount');
+
+    // Monitoring MikroTik DHCP Hub
+    Route::prefix('monitoring/mikrotik')->middleware('can:monitoring mikrotik')->group(function () {
+        Route::get('/', [MikrotikController::class, 'index'])->name('mikrotik.dhcp');
+        Route::get('/data', [MikrotikController::class, 'getDhcpData'])->name('mikrotik.dhcp.data');
+        Route::get('/interfaces', [MikrotikController::class, 'getInterfaces'])->name('mikrotik.dhcp.interfaces');
+        Route::get('/traffic', [MikrotikController::class, 'getTraffic'])->name('mikrotik.dhcp.traffic');
+        Route::get('/system-resource', [MikrotikController::class, 'getSystemResource'])->name('mikrotik.dhcp.resource');
+        Route::get('/customer-by-mac', [MikrotikController::class, 'getCustomerByMac'])->name('mikrotik.dhcp.customer_by_mac');
+        Route::post('/sync-db', [MikrotikController::class, 'syncDatabase'])->name('mikrotik.dhcp.sync_db');
+        Route::post('/reboot', [MikrotikController::class, 'reboot'])->name('mikrotik.dhcp.reboot');
+        Route::get('/stream', [MikrotikController::class, 'stream'])->name('mikrotik.dhcp.stream');
+    });
 
     require __DIR__ . '/master-data.php';
     require __DIR__ . '/master-barang.php';
@@ -82,17 +96,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('troubleshoot.progress.upload');
 });
 
-// Route::prefix('complain')->group(function () {
-//     Route::get('/{slug}', [ComplainController::class, 'getPagesBySlug'])->name('complain.show.form');
-//     Route::post('/send-to-wa', [ComplainController::class, 'sendToWa'])->name('compalin.sendToWa');
-// });
-
-// Route::prefix('switch')->group(function () {
-//     Route::get('/{slug}', [SwitchPerangkatController::class, 'getPagesBySlug'])->name('switch.data.index')->middleware(['page.password']);
-//     Route::post('/confirm-switch-password', [SwitchPerangkatController::class, 'confirmPagesPassword'])->name('switch.data.confirm.password');
-//     Route::post('/save-switch-device', [SwitchPerangkatController::class, 'saveSwitchDevice'])->name('switch.data.save');
-// });
-
 Route::get('/search-customer', [PublicCustomerController::class, 'searchPage'])->name('public.customer.search');
 Route::post('/search-customer', [PublicCustomerController::class, 'search'])->name('public.customer.search.post');
 Route::get('/clientarea-login', [PublicCustomerController::class, 'proxyLogin'])->name('public.customer.clientarea_login');
@@ -100,4 +103,3 @@ Route::get('/clientarea-login', [PublicCustomerController::class, 'proxyLogin'])
 Route::get('/reset-wifi', [PublicCustomerController::class, 'resetWifiPage'])->name('public.customer.reset_wifi');
 Route::post('/reset-wifi/search', [PublicCustomerController::class, 'searchCustomerForReset'])->name('public.customer.reset_wifi.search');
 Route::post('/reset-wifi/submit', [PublicCustomerController::class, 'submitResetPassword'])->name('public.customer.reset_wifi.submit');
-
