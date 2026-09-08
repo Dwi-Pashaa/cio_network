@@ -75,6 +75,7 @@
                         @include('pages.mikrotik.partials.icons', ['name' => 'refresh', 'size' => 17])
                         <span>Refresh Live Data</span>
                     </button>
+                    @can('reboot mikrotik')
                     <button type="button" class="btn-hub-reboot" id="btn-reboot-hub" title="Reboot Router MikroTik">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
@@ -82,6 +83,7 @@
                         </svg>
                         <span>Reboot Router</span>
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -292,6 +294,7 @@
     </div>
 
     {{-- ==================== Real-Time Bandwidth & Speed Traffic Monitor ==================== --}}
+    @can('monitoring traffic mikrotik')
     <div class="traffic-monitor-card">
         {{-- Header Section --}}
         <div class="traffic-header">
@@ -386,6 +389,7 @@
             <div id="mikrotik-traffic-chart"></div>
         </div>
     </div>
+    @endcan
 
     {{-- ==================== Professional Blue Info Notice ==================== --}}
     <div class="hub-info-banner mb-3">
@@ -408,11 +412,17 @@
     <div class="hub-controls-bar">
         <div class="row align-items-center g-3">
             <div class="col-lg-4 col-md-5 col-12">
-                <div class="search-input-group">
+                <div class="search-input-group position-relative">
                     <span class="search-icon">
                         @include('pages.mikrotik.partials.icons', ['name' => 'search', 'size' => 16])
                     </span>
-                    <input type="text" id="input-search" class="search-input-clean" placeholder="Cari IP, MAC, atau Hostname..." autocomplete="off">
+                    <input type="text" id="input-search" class="search-input-clean" placeholder="Cari IP, MAC, Hostname, atau Komentar..." autocomplete="off">
+                    <button type="button" id="btn-clear-search" class="btn-clear-search" title="Hapus pencarian" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="col-lg-8 col-md-7 col-12 text-md-end text-start">
@@ -689,6 +699,61 @@
                                 <div class="text-dark fw-semibold" id="c-address" style="font-size: 0.875rem;">-</div>
                             </div>
                         </div>
+
+                        {{-- Lokasi Koordinat & Peta Leaflet --}}
+                        <div class="col-12">
+                            <div class="detail-card-box">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom">
+                                    <div class="detail-section-title mb-0 border-0 pb-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <circle cx="12" cy="11" r="3" />
+                                            <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+                                        </svg>
+                                        Peta Lokasi & Koordinat
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap" id="c-map-action-btns" style="display: none !important;">
+                                        <a href="#" id="c-gmaps-btn" target="_blank" class="btn-map-action btn-map-gmaps" title="Buka titik koordinat di Google Maps">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                                                <line x1="9" y1="3" x2="9" y2="18"></line>
+                                                <line x1="15" y1="6" x2="15" y2="21"></line>
+                                            </svg>
+                                            <span>Buka Google Maps</span>
+                                        </a>
+                                        <a href="#" id="c-gmaps-dir-btn" target="_blank" class="btn-map-action btn-map-direction" title="Petunjuk Arah rute navigasi ke lokasi pelanggan">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                                            </svg>
+                                            <span>Petunjuk Arah</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {{-- Coordinates Info Bar --}}
+                                <div id="c-coords-wrapper" class="mb-2" style="display: none;">
+                                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.82rem;">
+                                        <span>Koordinat:</span>
+                                        <span id="c-coords" class="font-mono-clean fw-bold text-dark bg-white px-2 py-1 rounded border">-</span>
+                                    </div>
+                                </div>
+
+                                {{-- Map Canvas --}}
+                                <div id="c-map-wrapper" style="display: none;">
+                                    <div id="customer-modal-map" class="customer-map-container"></div>
+                                </div>
+
+                                {{-- Notice if no coordinates --}}
+                                <div id="c-no-coords-alert" class="alert alert-warning align-items-center gap-2 py-2 px-3 mb-0" style="display: none !important; font-size: 0.84rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span>Pelanggan ini belum memiliki data koordinat (Latitude/Longitude).</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -714,6 +779,7 @@
             </div>
             <div class="modal-footer justify-content-between">
                 <div>
+                    @if(auth()->user()->can('ubah pelanggan') || auth()->user()->can('edit pelanggan'))
                     <a href="#" id="modal-btn-edit-cust" class="btn btn-outline-primary px-3 py-2 fw-semibold" target="_blank" style="display: none;">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -722,6 +788,7 @@
                         </svg>
                         Buka Halaman Edit Pelanggan
                     </a>
+                    @endif
                 </div>
                 <button type="button" class="btn btn-secondary px-4 py-2 fw-semibold" data-bs-dismiss="modal">Tutup</button>
             </div>
@@ -729,6 +796,7 @@
     </div>
 </div>
 
+@can('reboot mikrotik')
 {{-- ==================== Modal Konfirmasi Reboot Router ==================== --}}
 <div class="modal fade" id="modal-confirm-reboot" tabindex="-1" aria-labelledby="modalConfirmRebootLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -798,6 +866,7 @@
         </div>
     </div>
 </div>
+@endcan
 </div>
 @endsection
 
@@ -805,6 +874,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('input-search');
+    const clearSearchBtn = document.getElementById('btn-clear-search');
     const typeSelect = document.getElementById('select-type');
     const statusSelect = document.getElementById('select-status');
     const pageSizeSelect = document.getElementById('select-page-size');
@@ -827,8 +897,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Modal elements
     const customerModalEl = document.getElementById('modal-customer-detail');
     let customerModalInstance = null;
+    let customerDetailMap = null;
+    let customerDetailMarker = null;
+
     if (customerModalEl && typeof bootstrap !== 'undefined') {
         customerModalInstance = new bootstrap.Modal(customerModalEl);
+        customerModalEl.addEventListener('shown.bs.modal', function () {
+            if (customerDetailMap) {
+                setTimeout(() => {
+                    customerDetailMap.invalidateSize();
+                }, 100);
+            }
+        });
     }
 
     const modalLoader = document.getElementById('modal-cust-loader');
@@ -840,9 +920,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const notFoundMac = document.getElementById('not-found-mac');
 
     let allLeases = @json($leases);
+    if (!Array.isArray(allLeases)) {
+        allLeases = Object.values(allLeases || {});
+    }
     let filteredLeases = [];
     let currentPage = 1;
-    let pageSize = parseInt(pageSizeSelect.value) || 10;
+    let pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10) || 10;
     let sortColumn = 'ip_address';
     let sortDirection = 'asc';
 
@@ -895,21 +978,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ==========================================
-    // Filter & Search Logic (Dual Filter: Tipe & Status)
+    // Filter & Search Logic (Dual Filter: Tipe & Status + Realtime Search)
     // ==========================================
-    function applyFilters(highlightMacs = new Set()) {
-        const query = (searchInput.value || '').trim().toLowerCase();
-        const selectedType = (typeSelect.value || 'all').toLowerCase();
-        const selectedStatus = (statusSelect.value || 'all').toLowerCase();
+    function applyFilters(highlightMacs = null, resetPage = false) {
+        if (resetPage) {
+            currentPage = 1;
+        }
+
+        const validHighlight = (highlightMacs instanceof Set) ? highlightMacs : new Set();
+        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+        const selectedType = (typeSelect ? typeSelect.value : 'all').toLowerCase();
+        const selectedStatus = (statusSelect ? statusSelect.value : 'all').toLowerCase();
 
         filteredLeases = allLeases.filter(lease => {
             const ip = (lease.ip_address || '').toLowerCase();
             const mac = (lease.mac_address || '').toLowerCase();
             const host = (lease.host_name || '').toLowerCase();
+            const comment = (lease.comment || '').toLowerCase();
+            const server = (lease.server || '').toLowerCase();
             const status = (lease.status || '').toLowerCase();
             const type = (lease.device_type || '').toLowerCase();
 
-            const matchesQuery = !query || ip.includes(query) || mac.includes(query) || host.includes(query);
+            // Multi-term query matching
+            let matchesQuery = true;
+            if (query) {
+                const terms = query.split(/\s+/).filter(Boolean);
+                const combined = `${ip} ${mac} ${host} ${comment} ${server} ${type} ${status}`;
+                matchesQuery = terms.every(t => combined.includes(t));
+            }
+
             const matchesType = (selectedType === 'all') || (type === selectedType);
             const matchesStatus = (selectedStatus === 'all') || (status === selectedStatus);
 
@@ -917,13 +1014,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         filteredLeases = sortLeases(filteredLeases);
-        renderCurrentPage(highlightMacs);
+        renderCurrentPage(validHighlight);
     }
 
     // ==========================================
     // Render Current Page
     // ==========================================
-    function renderCurrentPage(highlightMacs = new Set()) {
+    function renderCurrentPage(highlightMacs = null) {
+        const validHighlight = (highlightMacs instanceof Set) ? highlightMacs : new Set();
         const totalItems = filteredLeases.length;
         const grandTotal = allLeases.length;
 
@@ -943,8 +1041,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (pageItems.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="empty-table-state">
-                        Tidak ada data DHCP Leases yang cocok dengan kriteria pencarian/filter.
+                    <td colspan="7" class="empty-table-state py-4 text-center text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2 text-secondary" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="10" cy="10" r="7"/>
+                            <line x1="21" y1="21" x2="15" y2="15"/>
+                        </svg>
+                        <div class="fw-semibold">Tidak ada data DHCP Leases yang cocok dengan kriteria pencarian/filter.</div>
                     </td>
                 </tr>
             `;
@@ -973,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     statusBadge = `<span class="badge-status-disabled">[ ${status} ]</span>`;
                 }
 
-                const isFlash = highlightMacs && highlightMacs.has(mac);
+                const isFlash = validHighlight.has(mac);
                 const flashClass = isFlash ? 'row-updated-flash' : '';
 
                 html += `
@@ -1001,15 +1103,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Update Showing Info
-        showingStartEl.textContent = totalItems === 0 ? 0 : (startIndex + 1).toLocaleString('id-ID');
-        showingEndEl.textContent = endIndex.toLocaleString('id-ID');
-        showingTotalEl.textContent = totalItems.toLocaleString('id-ID');
+        if (showingStartEl) showingStartEl.textContent = totalItems === 0 ? 0 : (startIndex + 1).toLocaleString('id-ID');
+        if (showingEndEl) showingEndEl.textContent = endIndex.toLocaleString('id-ID');
+        if (showingTotalEl) showingTotalEl.textContent = totalItems.toLocaleString('id-ID');
 
-        if (totalItems !== grandTotal) {
-            showingGrandTotalEl.textContent = grandTotal.toLocaleString('id-ID');
-            showingFilteredTextEl.style.display = 'inline';
-        } else {
-            showingFilteredTextEl.style.display = 'none';
+        if (showingFilteredTextEl && showingGrandTotalEl) {
+            if (totalItems !== grandTotal) {
+                showingGrandTotalEl.textContent = grandTotal.toLocaleString('id-ID');
+                showingFilteredTextEl.style.display = 'inline';
+            } else {
+                showingFilteredTextEl.style.display = 'none';
+            }
         }
 
         // Render Pagination Controls
@@ -1020,6 +1124,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Render Pagination Buttons
     // ==========================================
     function renderPaginationButtons(totalPages) {
+        if (!paginationControlsEl) return;
         if (pageSize === -1 || totalPages <= 1) {
             paginationControlsEl.innerHTML = '';
             return;
@@ -1076,29 +1181,43 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================
     // Customer Detail Modal Logic
     // ==========================================
-    tableBody.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-view-customer');
-        if (!btn) return;
+    if (tableBody) {
+        tableBody.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-view-customer');
+            if (!btn) return;
 
-        const mac = btn.getAttribute('data-mac');
-        if (!mac) return;
+            const mac = btn.getAttribute('data-mac');
+            if (!mac) return;
 
-        openCustomerDetailModal(mac);
-    });
+            openCustomerDetailModal(mac);
+        });
+    }
 
     async function openCustomerDetailModal(mac) {
         if (!customerModalInstance) {
-            customerModalInstance = new bootstrap.Modal(document.getElementById('modal-customer-detail'));
+            const modalEl = document.getElementById('modal-customer-detail');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                customerModalInstance = new bootstrap.Modal(modalEl);
+            }
         }
 
-        modalCustName.textContent = 'Memuat Data Pelanggan...';
-        modalCustMac.textContent = `MAC Address: ${mac}`;
-        modalLoader.style.display = 'block';
-        modalContent.style.display = 'none';
-        modalNotFound.style.display = 'none';
-        modalBtnEditCust.style.display = 'none';
+        if (modalCustName) modalCustName.textContent = 'Memuat Data Pelanggan...';
+        if (modalCustMac) modalCustMac.textContent = `MAC Address: ${mac}`;
+        if (modalLoader) modalLoader.style.display = 'block';
+        if (modalContent) modalContent.style.display = 'none';
+        if (modalNotFound) modalNotFound.style.display = 'none';
+        if (modalBtnEditCust) modalBtnEditCust.style.display = 'none';
 
-        customerModalInstance.show();
+        const initialNoCoordsAlert = document.getElementById('c-no-coords-alert');
+        if (initialNoCoordsAlert) initialNoCoordsAlert.style.setProperty('display', 'none', 'important');
+        const initialCoordsWrapper = document.getElementById('c-coords-wrapper');
+        if (initialCoordsWrapper) initialCoordsWrapper.style.setProperty('display', 'none', 'important');
+        const initialMapWrapper = document.getElementById('c-map-wrapper');
+        if (initialMapWrapper) initialMapWrapper.style.setProperty('display', 'none', 'important');
+        const initialMapActionBtns = document.getElementById('c-map-action-btns');
+        if (initialMapActionBtns) initialMapActionBtns.style.setProperty('display', 'none', 'important');
+
+        if (customerModalInstance) customerModalInstance.show();
 
         try {
             const url = `{{ route('mikrotik.dhcp.customer_by_mac') }}?mac=${encodeURIComponent(mac)}&t=${Date.now()}`;
@@ -1110,87 +1229,226 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             const data = await response.json();
-            modalLoader.style.display = 'none';
+            if (modalLoader) modalLoader.style.display = 'none';
 
             if (data.success && data.found && data.customer) {
                 const c = data.customer;
-                modalCustName.textContent = c.name || 'Detail Pelanggan';
-                modalCustMac.textContent = `MAC Address: ${c.mac_address}`;
+                if (modalCustName) modalCustName.textContent = c.name || 'Detail Pelanggan';
+                if (modalCustMac) modalCustMac.textContent = `MAC Address: ${c.mac_address}`;
 
-                document.getElementById('c-name').textContent = c.name || '-';
+                const cNameEl = document.getElementById('c-name');
+                if (cNameEl) cNameEl.textContent = c.name || '-';
                 
                 const statusBadge = (c.status === 'active')
                     ? '<span class="badge bg-success-lt text-success fw-bold">Aktif</span>'
                     : `<span class="badge bg-danger-lt text-danger fw-bold">${c.status || '-'}</span>`;
-                document.getElementById('c-status').innerHTML = statusBadge;
+                const cStatusEl = document.getElementById('c-status');
+                if (cStatusEl) cStatusEl.innerHTML = statusBadge;
 
-                document.getElementById('c-telp').textContent = c.telp || '-';
+                const cTelpEl = document.getElementById('c-telp');
+                if (cTelpEl) cTelpEl.textContent = c.telp || '-';
                 const waBtn = document.getElementById('c-wa-btn');
-                if (c.telp && c.telp.length > 5) {
-                    let cleanPhone = c.telp.replace(/[^0-9]/g, '');
-                    if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
-                    waBtn.href = `https://wa.me/${cleanPhone}`;
-                    waBtn.style.display = 'inline-flex';
-                } else {
-                    waBtn.style.display = 'none';
+                if (waBtn) {
+                    if (c.telp && c.telp.length > 5) {
+                        let cleanPhone = c.telp.replace(/[^0-9]/g, '');
+                        if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
+                        waBtn.href = `https://wa.me/${cleanPhone}`;
+                        waBtn.style.display = 'inline-flex';
+                    } else {
+                        waBtn.style.display = 'none';
+                    }
                 }
 
-                document.getElementById('c-email').textContent = c.email || '-';
-                document.getElementById('c-nik').textContent = c.nik || '-';
-                document.getElementById('c-paket').textContent = c.paket_name || '-';
-                document.getElementById('c-price').textContent = c.price_amount || '-';
-                document.getElementById('c-type').textContent = c.type_name || '-';
-                document.getElementById('c-org').textContent = c.organization || '-';
+                const cEmailEl = document.getElementById('c-email');
+                if (cEmailEl) cEmailEl.textContent = c.email || '-';
+                const cNikEl = document.getElementById('c-nik');
+                if (cNikEl) cNikEl.textContent = c.nik || '-';
+                const cPaketEl = document.getElementById('c-paket');
+                if (cPaketEl) cPaketEl.textContent = c.paket_name || '-';
+                const cPriceEl = document.getElementById('c-price');
+                if (cPriceEl) cPriceEl.textContent = c.price_amount || '-';
+                const cTypeEl = document.getElementById('c-type');
+                if (cTypeEl) cTypeEl.textContent = c.type_name || '-';
+                const cOrgEl = document.getElementById('c-org');
+                if (cOrgEl) cOrgEl.textContent = c.organization || '-';
 
-                document.getElementById('c-mac').textContent = c.mac_address || '-';
-                document.getElementById('c-wifi-name').textContent = c.name_wifi || '-';
-                document.getElementById('c-wifi-pass').textContent = c.password_wifi || '-';
-                document.getElementById('c-pppoe').textContent = c.pppoe_username || '-';
+                const cMacEl = document.getElementById('c-mac');
+                if (cMacEl) cMacEl.textContent = c.mac_address || '-';
+                const cWifiNameEl = document.getElementById('c-wifi-name');
+                if (cWifiNameEl) cWifiNameEl.textContent = c.name_wifi || '-';
+                const cWifiPassEl = document.getElementById('c-wifi-pass');
+                if (cWifiPassEl) cWifiPassEl.textContent = c.password_wifi || '-';
+                const cPppoeEl = document.getElementById('c-pppoe');
+                if (cPppoeEl) cPppoeEl.textContent = c.pppoe_username || '-';
 
                 const routerInfo = (c.router_name !== '-' && c.router_ip !== '-')
                     ? `${c.router_name} (${c.router_ip})`
                     : c.router_name;
-                document.getElementById('c-router').textContent = routerInfo;
-                document.getElementById('c-olt').textContent = c.olt_name || '-';
+                const cRouterEl = document.getElementById('c-router');
+                if (cRouterEl) cRouterEl.textContent = routerInfo;
+                const cOltEl = document.getElementById('c-olt');
+                if (cOltEl) cOltEl.textContent = c.olt_name || '-';
 
                 const odcInfo = [c.odc_name, c.odp_name].filter(x => x && x !== '-').join(' / ') || '-';
-                document.getElementById('c-odc-odp').textContent = odcInfo;
-                document.getElementById('c-vlan').textContent = c.vlan_name || '-';
+                const cOdcOdpEl = document.getElementById('c-odc-odp');
+                if (cOdcOdpEl) cOdcOdpEl.textContent = odcInfo;
+                const cVlanEl = document.getElementById('c-vlan');
+                if (cVlanEl) cVlanEl.textContent = c.vlan_name || '-';
 
-                document.getElementById('c-address').textContent = c.address || 'Alamat belum diatur';
+                const cAddrEl = document.getElementById('c-address');
+                if (cAddrEl) cAddrEl.textContent = c.address || 'Alamat belum diatur';
 
-                if (c.edit_url) {
+                // ==========================================
+                // Koordinat & Peta Leaflet Pelanggan
+                // ==========================================
+                const latNum = parseFloat(c.latitude);
+                const lngNum = parseFloat(c.longitude);
+                const hasValidCoords = !isNaN(latNum) && !isNaN(lngNum) && (latNum !== 0 || lngNum !== 0);
+
+                const coordsWrapper = document.getElementById('c-coords-wrapper');
+                const coordsEl = document.getElementById('c-coords');
+                const mapWrapper = document.getElementById('c-map-wrapper');
+                const mapActionBtns = document.getElementById('c-map-action-btns');
+                const noCoordsAlert = document.getElementById('c-no-coords-alert');
+                const gmapsBtn = document.getElementById('c-gmaps-btn');
+                const gmapsDirBtn = document.getElementById('c-gmaps-dir-btn');
+
+                if (hasValidCoords) {
+                    if (coordsEl) coordsEl.textContent = `${latNum}, ${lngNum}`;
+                    if (coordsWrapper) coordsWrapper.style.setProperty('display', 'block', 'important');
+                    if (mapWrapper) mapWrapper.style.setProperty('display', 'block', 'important');
+                    if (mapActionBtns) mapActionBtns.style.setProperty('display', 'flex', 'important');
+                    if (noCoordsAlert) noCoordsAlert.style.setProperty('display', 'none', 'important');
+
+                    // Google Maps link buttons
+                    if (gmapsBtn) {
+                        gmapsBtn.href = `https://www.google.com/maps?q=${latNum},${lngNum}`;
+                    }
+                    if (gmapsDirBtn) {
+                        gmapsDirBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${latNum},${lngNum}`;
+                    }
+
+                    // Render / Update Leaflet Map
+                    setTimeout(() => {
+                        if (typeof L !== 'undefined') {
+                            const mapContainer = document.getElementById('customer-modal-map');
+                            if (mapContainer) {
+                                if (!customerDetailMap) {
+                                    customerDetailMap = L.map('customer-modal-map').setView([latNum, lngNum], 16);
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; OpenStreetMap contributors',
+                                        maxZoom: 19
+                                    }).addTo(customerDetailMap);
+                                } else {
+                                    customerDetailMap.setView([latNum, lngNum], 16);
+                                }
+
+                                if (customerDetailMarker) {
+                                    customerDetailMarker.setLatLng([latNum, lngNum]);
+                                } else {
+                                    customerDetailMarker = L.marker([latNum, lngNum]).addTo(customerDetailMap);
+                                }
+
+                                const safeName = (c.name || 'Pelanggan').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                const safeAddr = (c.address || '-').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                const popupContent = `
+                                    <div style="font-size: 12px; line-height: 1.4; padding: 2px;">
+                                        <strong style="color: #0f172a; display: block; font-size: 13px; margin-bottom: 3px;">${safeName}</strong>
+                                        <div style="color: #64748b; margin-bottom: 6px;">${safeAddr}</div>
+                                        <div style="font-family: monospace; font-size: 11px; color: #475569; margin-bottom: 6px;">${latNum}, ${lngNum}</div>
+                                        <a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" style="color: #0284c7; font-weight: 600; text-decoration: underline;">
+                                            Buka di Google Maps &rarr;
+                                        </a>
+                                    </div>
+                                `;
+                                customerDetailMarker.bindPopup(popupContent).openPopup();
+                                customerDetailMap.invalidateSize();
+                            }
+                        }
+                    }, 250);
+                } else {
+                    if (coordsWrapper) coordsWrapper.style.setProperty('display', 'none', 'important');
+                    if (mapWrapper) mapWrapper.style.setProperty('display', 'none', 'important');
+                    if (mapActionBtns) mapActionBtns.style.setProperty('display', 'none', 'important');
+                    if (noCoordsAlert) noCoordsAlert.style.setProperty('display', 'flex', 'important');
+                }
+
+                if (modalBtnEditCust && c.edit_url) {
                     modalBtnEditCust.href = c.edit_url;
                     modalBtnEditCust.style.display = 'inline-flex';
                 }
 
-                modalContent.style.display = 'block';
+                if (modalContent) modalContent.style.display = 'block';
             } else {
-                modalCustName.textContent = 'Perangkat Belum Terdaftar';
-                notFoundMac.textContent = mac;
-                modalNotFound.style.display = 'block';
+                if (modalCustName) modalCustName.textContent = 'Perangkat Belum Terdaftar';
+                if (notFoundMac) notFoundMac.textContent = mac;
+                if (modalNotFound) modalNotFound.style.display = 'block';
             }
         } catch (err) {
             console.error('Gagal mengambil data pelanggan:', err);
-            modalLoader.style.display = 'none';
-            modalCustName.textContent = 'Terjadi Kesalahan';
-            notFoundMac.textContent = mac;
-            modalNotFound.style.display = 'block';
+            if (modalLoader) modalLoader.style.display = 'none';
+            if (modalCustName) modalCustName.textContent = 'Terjadi Kesalahan';
+            if (notFoundMac) notFoundMac.textContent = mac;
+            if (modalNotFound) modalNotFound.style.display = 'block';
         }
     }
 
     // ==========================================
-    // Event Listeners
+    // Event Listeners (Automatic Instant Search & Filter)
     // ==========================================
-    searchInput.addEventListener('input', applyFilters);
-    typeSelect.addEventListener('change', applyFilters);
-    statusSelect.addEventListener('change', applyFilters);
+    function updateClearSearchVisibility() {
+        if (!clearSearchBtn) return;
+        if (searchInput && searchInput.value.trim().length > 0) {
+            clearSearchBtn.style.display = 'inline-flex';
+        } else {
+            clearSearchBtn.style.display = 'none';
+        }
+    }
 
-    pageSizeSelect.addEventListener('change', function () {
-        pageSize = parseInt(this.value);
-        currentPage = 1;
-        renderCurrentPage();
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            updateClearSearchVisibility();
+            applyFilters(null, true);
+        });
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                updateClearSearchVisibility();
+                applyFilters(null, true);
+            }
+        });
+    }
+
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function () {
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+            }
+            updateClearSearchVisibility();
+            applyFilters(null, true);
+        });
+    }
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function () {
+            applyFilters(null, true);
+        });
+    }
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function () {
+            applyFilters(null, true);
+        });
+    }
+
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener('change', function () {
+            pageSize = parseInt(this.value) || 10;
+            currentPage = 1;
+            renderCurrentPage();
+        });
+    }
 
     // Table Header Sorting Click Listener
     document.querySelectorAll('.sortable-th').forEach(th => {
@@ -1212,8 +1470,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // AJAX Live Sync / Refresh Action
     // ==========================================
     async function fetchLiveData(force = false) {
-        refreshBtn.classList.add('loading');
-        refreshBtn.disabled = true;
+        if (refreshBtn) {
+            refreshBtn.classList.add('loading');
+            refreshBtn.disabled = true;
+        }
 
         try {
             const url = `{{ route('mikrotik.dhcp.data') }}?force=${force ? 1 : 0}&t=${Date.now()}`;
@@ -1236,25 +1496,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (statStatic) statStatic.textContent = data.stats.static || 0;
 
                 allLeases = data.leases || [];
+                if (!Array.isArray(allLeases)) {
+                    allLeases = Object.values(allLeases || {});
+                }
                 applyFilters();
             }
         } catch (err) {
             console.error('Gagal mengambil live sync data:', err);
         } finally {
-            refreshBtn.classList.remove('loading');
-            refreshBtn.disabled = false;
+            if (refreshBtn) {
+                refreshBtn.classList.remove('loading');
+                refreshBtn.disabled = false;
+            }
         }
     }
 
-    refreshBtn.addEventListener('click', function () {
-        fetchLiveData(true);
-        fetchSystemResource();
-    });
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+            fetchLiveData(true);
+            fetchSystemResource();
+        });
+    }
 
     // Initial render
     updateSortIcons();
     applyFilters();
 
+    @can('monitoring traffic mikrotik')
     // ==========================================
     // Real-Time Bandwidth & Speed Traffic Monitor
     // ==========================================
@@ -1293,7 +1561,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let trafficPollingTimer = null;
     let trafficChart = null;
 
-    function initTrafficChart() {
+    async function initTrafficChart() {
         if (typeof ApexCharts === 'undefined') {
             setTimeout(initTrafficChart, 300);
             return;
@@ -1431,7 +1699,53 @@ document.addEventListener('DOMContentLoaded', function () {
         trafficChart = new ApexCharts(chartEl, options);
         trafficChart.render();
 
+        try {
+            await loadInterfaces();
+        } catch (err) {
+            console.warn('Load interfaces error:', err);
+        }
         startTrafficStream();
+    }
+
+    async function loadInterfaces() {
+        if (!selectInterface) return;
+        try {
+            const url = `{{ route('mikrotik.dhcp.interfaces') }}?t=${Date.now()}`;
+            const res = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.success && Array.isArray(data.interfaces) && data.interfaces.length > 0) {
+                const currentVal = selectInterface.value;
+                selectInterface.innerHTML = '';
+                let hasSelected = false;
+
+                data.interfaces.forEach((iface) => {
+                    const opt = document.createElement('option');
+                    opt.value = iface.name;
+                    opt.textContent = iface.comment ? `${iface.name} (${iface.comment})` : iface.name;
+                    
+                    const lowerName = iface.name.toLowerCase();
+                    const isPreferred = lowerName.includes('isp') || lowerName.includes('ether1') || lowerName.includes('inet');
+                    
+                    if (currentVal === iface.name || (!hasSelected && isPreferred)) {
+                        opt.selected = true;
+                        hasSelected = true;
+                    }
+                    selectInterface.appendChild(opt);
+                });
+
+                if (!hasSelected && selectInterface.options.length > 0) {
+                    selectInterface.options[0].selected = true;
+                }
+            }
+        } catch (e) {
+            console.warn('Gagal memuat list interface:', e);
+        }
     }
 
     async function pollTrafficData() {
@@ -1562,6 +1876,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize traffic chart
     initTrafficChart();
+    @endcan
 
     // ==========================================
     // AJAX System Resource Live Updater
@@ -1631,6 +1946,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Refresh System Resource periodically every 15s
     setInterval(fetchSystemResource, 15000);
 
+    @can('reboot mikrotik')
     // ==========================================
     // Reboot Router Modal & Action Handler
     // ==========================================
@@ -1724,6 +2040,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         });
     }
+    @endcan
 
     // ==========================================
     // Real-Time Server-Sent Events (SSE) Delta Stream

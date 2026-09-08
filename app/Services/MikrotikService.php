@@ -304,32 +304,39 @@ class MikrotikService
      */
     public function getInterfaces(): array
     {
-        return Cache::remember("mikrotik_interfaces_{$this->host}", 300, function () {
-            $api = new RouterosAPI();
-            $api->timeout = 5;
-            if (!$api->connect($this->host, $this->user, $this->pass, $this->port)) {
-                return [];
+        $cached = Cache::get("mikrotik_interfaces_{$this->host}");
+        if (is_array($cached) && !empty($cached)) {
+            return $cached;
+        }
+
+        $api = new RouterosAPI();
+        $api->timeout = 5;
+        if (!$api->connect($this->host, $this->user, $this->pass, $this->port)) {
+            return [];
+        }
+
+        $api->write('/interface/print');
+        $rawInterfaces = $api->read();
+        $api->disconnect();
+
+        $interfaces = [];
+        foreach ($rawInterfaces as $iface) {
+            if (($iface['disabled'] ?? 'false') === 'true') {
+                continue;
             }
+            $interfaces[] = [
+                'name'    => $iface['name'] ?? '',
+                'type'    => $iface['type'] ?? 'ether',
+                'running' => ($iface['running'] ?? 'true') === 'true',
+                'comment' => $iface['comment'] ?? '',
+            ];
+        }
 
-            $api->write('/interface/print');
-            $rawInterfaces = $api->read();
-            $api->disconnect();
+        if (!empty($interfaces)) {
+            Cache::put("mikrotik_interfaces_{$this->host}", $interfaces, 300);
+        }
 
-            $interfaces = [];
-            foreach ($rawInterfaces as $iface) {
-                if (($iface['disabled'] ?? 'false') === 'true') {
-                    continue;
-                }
-                $interfaces[] = [
-                    'name'    => $iface['name'] ?? '',
-                    'type'    => $iface['type'] ?? 'ether',
-                    'running' => ($iface['running'] ?? 'true') === 'true',
-                    'comment' => $iface['comment'] ?? '',
-                ];
-            }
-
-            return $interfaces;
-        });
+        return $interfaces;
     }
 
     /**

@@ -174,6 +174,8 @@ class MikrotikController extends Controller
                     $customer->district?->name,
                     $customer->regencie?->name,
                 ])) ?: 'Alamat belum diatur',
+                'latitude'       => $customer->latitude,
+                'longitude'      => $customer->longitude,
                 'organization'   => $customer->organization?->name ?: '-',
                 'edit_url'       => route('customer.edit', $customer->id),
             ]
