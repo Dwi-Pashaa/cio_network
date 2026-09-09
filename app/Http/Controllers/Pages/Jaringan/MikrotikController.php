@@ -233,26 +233,36 @@ class MikrotikController extends Controller
             ]) . "\n\n";
             @flush();
 
-            while (!connection_aborted()) {
-                $delta = $this->mikrotikService->getLiveDeltaUpdates();
+            // Inisialisasi koneksi RouterOS API yang persisten (Keep-Alive)
+            $api = new \App\Services\RouterosAPI();
+            $api->timeout = 3;
 
-                // Kirim event tick per 3 detik untuk animasi live heartbeat dan update 5 kartu statistik di UI
-                echo "event: tick\n";
-                echo "data: " . json_encode([
-                    'time'        => Carbon::now()->format('H:i:s'),
-                    'connected'   => $delta['connected'] ?? true,
-                    'has_updates' => $delta['has_updates'] ?? false,
-                    'stats'       => $delta['stats'] ?? null,
-                ]) . "\n\n";
-                @flush();
+            try {
+                while (!connection_aborted()) {
+                    $delta = $this->mikrotikService->getLiveDeltaUpdates($api);
 
-                if (!empty($delta['has_updates'])) {
-                    echo "event: delta\n";
-                    echo "data: " . json_encode($delta) . "\n\n";
+                    // Kirim event tick per 3 detik untuk animasi live heartbeat dan update 5 kartu statistik di UI
+                    echo "event: tick\n";
+                    echo "data: " . json_encode([
+                        'time'        => Carbon::now()->format('H:i:s'),
+                        'connected'   => $delta['connected'] ?? true,
+                        'has_updates' => $delta['has_updates'] ?? false,
+                        'stats'       => $delta['stats'] ?? null,
+                    ]) . "\n\n";
                     @flush();
-                }
 
-                sleep(3);
+                    if (!empty($delta['has_updates'])) {
+                        echo "event: delta\n";
+                        echo "data: " . json_encode($delta) . "\n\n";
+                        @flush();
+                    }
+
+                    sleep(3);
+                }
+            } finally {
+                if ($api && $api->connected) {
+                    $api->disconnect();
+                }
             }
         });
 
