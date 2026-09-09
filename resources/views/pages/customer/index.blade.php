@@ -52,6 +52,116 @@
         table.org-table tbody tr.row-mikrotik-bound > td:first-child {
             border-left: 4px solid #22c55e !important;
         }
+
+        /* ==================== Live Stream Loading Bar & Pulse Animation ==================== */
+        .org-card {
+            position: relative;
+        }
+
+        .table-live-stream-bar {
+            position: relative;
+            width: 100%;
+            height: 4px;
+            background: rgba(226, 232, 240, 0.7);
+            overflow: hidden;
+            margin-top: 4px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            z-index: 5;
+        }
+
+        .table-live-stream-bar .stream-bar-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0284c7 0%, #10b981 50%, #0054a6 100%);
+            border-radius: 4px;
+            opacity: 0;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+        }
+
+        .table-live-stream-bar.animating .stream-bar-progress {
+            opacity: 1;
+            animation: streamBarSwipe 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes streamBarSwipe {
+            0% {
+                width: 0%;
+                left: 0%;
+                opacity: 0.9;
+            }
+            50% {
+                width: 70%;
+                left: 20%;
+                opacity: 1;
+            }
+            100% {
+                width: 100%;
+                left: 0%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes rowPulse {
+            0% {
+                background-color: rgba(16, 185, 129, 0.35) !important;
+            }
+            40% {
+                background-color: rgba(16, 185, 129, 0.18) !important;
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .row-updated-flash > td {
+            animation: rowPulse 2.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .live-sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.2rem 0.65rem;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 9999px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            position: relative;
+            display: inline-block;
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 14px;
+            height: 14px;
+            background: rgba(16, 185, 129, 0.4);
+            border-radius: 50%;
+            animation: radar-pulse 1.8s infinite ease-out;
+        }
+
+        @keyframes radar-pulse {
+            0% {
+                transform: scale(0.6);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
     </style>
 @endpush
 
@@ -72,7 +182,14 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="org-title">Data Pelanggan</h2>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h2 class="org-title mb-0">Data Pelanggan</h2>
+                            <span class="live-sync-badge" title="Menerima pembaruan status perangkat MikroTik real-time (SSE 3s)">
+                                <span class="pulse-dot"></span>
+                                <span>Live Stream</span>
+                                <span class="live-sync-timer" id="cust-live-sync-timer" style="font-size: 0.74rem; font-weight: 500; color: #059669; opacity: 0.88; margin-left: 2px;">(Baru saja)</span>
+                            </span>
+                        </div>
                         <p class="org-subtitle mb-0">Kelola dan pantau seluruh data pelanggan aktif.</p>
                     </div>
                 </div>
@@ -226,6 +343,11 @@
                     </svg>
                     <input type="text" class="org-input w-100" id="search-input" placeholder="Cari pelanggan...">
                 </div>
+            </div>
+
+            {{-- Real-Time 3s Stream Loading Bar --}}
+            <div class="table-live-stream-bar" id="table-live-stream-bar" title="Live Sync MikroTik (3s)">
+                <div class="stream-bar-progress"></div>
             </div>
 
             <div class="table-responsive">
@@ -430,6 +552,7 @@
             initializePaginationAndSearch();
             initializeModalHandlers();
             initializeFilterHandlers();
+            initCustomerSseStream();
         });
 
         // ===========================
@@ -1221,5 +1344,141 @@
             copyToClipboard(activeCopyCustomText, 'Data Mikrotik berhasil disalin!');
             bootstrap.Modal.getInstance(document.getElementById('modal-copy-customer'))?.hide();
         });
+
+        // ==========================================
+        // Real-Time Server-Sent Events (SSE) Delta Stream (3s Interval)
+        // ==========================================
+        let sseSource = null;
+        let sseReconnectTimer = null;
+        let custLastTickTimestamp = Date.now();
+        const custLiveSyncTimerEl = document.getElementById('cust-live-sync-timer');
+
+        setInterval(() => {
+            if (!custLiveSyncTimerEl) return;
+            const elapsedSec = Math.floor((Date.now() - custLastTickTimestamp) / 1000);
+            if (elapsedSec <= 1) {
+                custLiveSyncTimerEl.textContent = '(Baru saja)';
+            } else {
+                custLiveSyncTimerEl.textContent = `(${elapsedSec}s lalu)`;
+            }
+        }, 1000);
+
+        function triggerTableSyncAnimation() {
+            custLastTickTimestamp = Date.now();
+            const bar = document.getElementById('table-live-stream-bar');
+            if (bar) {
+                bar.classList.remove('animating');
+                void bar.offsetWidth; // Force DOM reflow to restart animation
+                bar.classList.add('animating');
+            }
+            const badge = document.querySelector('.live-sync-badge');
+            if (badge) {
+                badge.style.transform = 'scale(1.06)';
+                setTimeout(() => { badge.style.transform = 'scale(1)'; }, 350);
+            }
+        }
+
+        function updateCustomerRowStatus(item) {
+            if (!item || !item.mac_address || !table) return;
+
+            const targetMac = item.mac_address.toUpperCase().trim();
+            const newStatus = (item.status || 'offline').toLowerCase().trim();
+
+            $('#customer-table tbody tr').each(function() {
+                const tr = $(this);
+                const rowData = table.row(tr).data();
+                if (!rowData) return;
+
+                const rowMac = (rowData.mac_address || '').toUpperCase().trim();
+                if (rowMac && rowMac === targetMac) {
+                    // Update class baris tabel secara instan
+                    tr.removeClass('row-mikrotik-bound row-mikrotik-waiting row-mikrotik-offered row-mikrotik-offline row-updated-flash');
+                    void tr[0].offsetWidth; // force reflow
+
+                    if (newStatus === 'bound') {
+                        tr.addClass('row-mikrotik-bound');
+                    } else if (newStatus === 'waiting') {
+                        tr.addClass('row-mikrotik-waiting');
+                    } else if (newStatus === 'offered') {
+                        tr.addClass('row-mikrotik-offered');
+                    } else {
+                        tr.addClass('row-mikrotik-offline');
+                    }
+                    tr.addClass('row-updated-flash');
+
+                    // Update Badge di Kolom MAC Address (index 13)
+                    const macTd = tr.find('td').eq(13);
+                    if (macTd.length > 0) {
+                        let badgeHtml = '';
+                        if (newStatus === 'bound') {
+                            badgeHtml = '<span class="badge bg-success-lt text-success fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ bound ]</span>';
+                        } else if (newStatus === 'waiting') {
+                            badgeHtml = '<span class="badge fw-bold" style="font-size: 10px; padding: 2px 7px; background-color: #fef08a !important; color: #854d0e !important; border: 1px solid #facc15; display: inline-block; margin-top: 3px; box-shadow: 0 1px 2px rgba(234, 179, 8, 0.2);">[ WAITING ]</span>';
+                        } else if (newStatus === 'offered') {
+                            badgeHtml = '<span class="badge bg-orange-lt text-orange fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offered ]</span>';
+                        } else if (newStatus === 'disabled') {
+                            badgeHtml = '<span class="badge bg-secondary-lt text-secondary" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ disabled ]</span>';
+                        } else {
+                            badgeHtml = '<span class="badge bg-danger-lt text-danger fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offline ]</span>';
+                        }
+                        macTd.html('<div class="font-monospace" style="font-size: 12px;">' + targetMac + '<br>' + badgeHtml + '</div>');
+                    }
+                }
+            });
+
+            // Jika user sedang aktif memfilter status mikrotik spesifik, reload DataTables secara halus (paging dipertahankan)
+            if ($('#mikrotik_status').val()) {
+                table.ajax.reload(null, false);
+            }
+        }
+
+        function initCustomerSseStream() {
+            if (typeof EventSource === 'undefined') return;
+
+            if (sseSource) {
+                sseSource.close();
+            }
+
+            const streamUrl = "{{ route('mikrotik.dhcp.stream') }}";
+            sseSource = new EventSource(streamUrl);
+
+            sseSource.addEventListener('connected', function(e) {
+                console.log('SSE Stream Connected (Customer 3s):', e.data);
+            });
+
+            // Diterima setiap 3 detik tanda stream aktif & detak sinkronisasi
+            sseSource.addEventListener('tick', function(e) {
+                triggerTableSyncAnimation();
+            });
+
+            // Diterima saat ada perangkat yang status/IP/expires berubah
+            sseSource.addEventListener('delta', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (!data || !data.updated || !Array.isArray(data.updated)) return;
+
+                    triggerTableSyncAnimation();
+                    data.updated.forEach(item => {
+                        updateCustomerRowStatus(item);
+                    });
+                } catch (err) {
+                    console.error('SSE customer delta error:', err);
+                }
+            });
+
+            sseSource.onerror = function(err) {
+                console.warn('SSE stream error/reconnecting in 4s...', err);
+                if (sseSource) {
+                    sseSource.close();
+                    sseSource = null;
+                }
+                if (!sseReconnectTimer) {
+                    sseReconnectTimer = setTimeout(() => {
+                        sseReconnectTimer = null;
+                        initCustomerSseStream();
+                    }, 4000);
+                }
+            };
+        }
     </script>
 @endpush

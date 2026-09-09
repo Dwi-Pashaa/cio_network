@@ -208,12 +208,22 @@ class MikrotikController extends Controller
     public function stream(Request $request): StreamedResponse
     {
         $response = new StreamedResponse(function () use ($request) {
-            // Nonaktifkan buffering output agar stream langsung terkirim
-            if (ob_get_level()) {
+            // Tutup session agar PHP session tidak terkunci untuk request AJAX/halaman lain
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+
+            // Nonaktifkan time limit untuk long-running stream
+            @set_time_limit(0);
+            @ini_set('max_execution_time', '0');
+
+            // Nonaktifkan semua layer buffering output agar stream langsung terkirim seketika
+            while (ob_get_level() > 0) {
                 ob_end_clean();
             }
 
-            $lastChecked = $request->input('since', Carbon::now()->subSeconds(5)->toDateTimeString());
+            // Kirim padding 2KB untuk melewati buffering web server / reverse proxy jika ada
+            echo ":" . str_repeat(" ", 2048) . "\n\n";
 
             // Kirim event pembukaan stream
             echo "event: connected\n";
@@ -221,24 +231,25 @@ class MikrotikController extends Controller
                 'status' => 'connected',
                 'time'   => Carbon::now()->format('H:i:s'),
             ]) . "\n\n";
-            flush();
+            @flush();
 
-            $iteration = 0;
             while (!connection_aborted()) {
-                $iteration++;
-                $delta = $this->mikrotikService->getDeltaUpdates($lastChecked);
+                $delta = $this->mikrotikService->getLiveDeltaUpdates();
 
-                if ($delta['has_updates']) {
-                    $lastChecked = $delta['last_check'];
+                // Kirim event tick per 3 detik untuk animasi live heartbeat dan update 5 kartu statistik di UI
+                echo "event: tick\n";
+                echo "data: " . json_encode([
+                    'time'        => Carbon::now()->format('H:i:s'),
+                    'connected'   => $delta['connected'] ?? true,
+                    'has_updates' => $delta['has_updates'] ?? false,
+                    'stats'       => $delta['stats'] ?? null,
+                ]) . "\n\n";
+                @flush();
+
+                if (!empty($delta['has_updates'])) {
                     echo "event: delta\n";
                     echo "data: " . json_encode($delta) . "\n\n";
-                    flush();
-                } else {
-                    // Kirim heartbeat ringan setiap 6 detik
-                    if ($iteration % 2 === 0) {
-                        echo ": ping\n\n";
-                        flush();
-                    }
+                    @flush();
                 }
 
                 sleep(3);
@@ -246,7 +257,7 @@ class MikrotikController extends Controller
         });
 
         $response->headers->set('Content-Type', 'text/event-stream');
-        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, no-transform');
         $response->headers->set('Connection', 'keep-alive');
         $response->headers->set('X-Accel-Buffering', 'no');
 

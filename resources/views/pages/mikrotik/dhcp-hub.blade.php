@@ -35,17 +35,10 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                             <h1 class="hub-title">MikroTik DHCP Hub</h1>
-                            <span class="live-sync-badge">
+                            <span class="live-sync-badge" id="live-sync-status-badge" title="Menerima pembaruan data secara langsung setiap 3 detik via SSE">
                                 <span class="pulse-dot"></span>
-                                Live Sync
-                            </span>
-                            <span class="auto-sync-pill" title="Menerima pembaruan data secara langsung tanpa beban menggunakan Server-Sent Events (SSE)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <polyline points="12 7 12 12 15 15"/>
-                                </svg>
-                                Real-Time Stream: <strong class="text-success">Aktif (SSE)</strong>
+                                <span>Live Sync</span>
+                                <span class="live-sync-timer" id="live-sync-timer-text">(Baru saja)</span>
                             </span>
                         </div>
                         <div class="hub-meta-info">
@@ -229,65 +222,80 @@
     <div class="row g-3 mb-4">
         {{-- Card 1: TOTAL LEASES --}}
         <div class="col-6 col-lg-auto flex-lg-fill">
-            <div class="stat-card-clean">
+            <div class="stat-card-clean" id="card-stat-total">
                 <div class="stat-icon-wrapper stat-icon-total">
                     @include('pages.mikrotik.partials.icons', ['name' => 'total-leases', 'size' => 32])
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">TOTAL LEASES</div>
-                    <div class="stat-value" id="stat-total">{{ $stats['total'] ?? 0 }}</div>
+                    <div class="stat-value-wrap">
+                        <div class="stat-value" id="stat-total">{{ $stats['total'] ?? 0 }}</div>
+                        <span class="stat-diff-badge" id="badge-diff-total" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Card 2: BOUND / AKTIF --}}
         <div class="col-6 col-lg-auto flex-lg-fill">
-            <div class="stat-card-clean">
+            <div class="stat-card-clean" id="card-stat-bound">
                 <div class="stat-icon-wrapper stat-icon-bound">
                     @include('pages.mikrotik.partials.icons', ['name' => 'bound-active', 'size' => 32])
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">BOUND / AKTIF</div>
-                    <div class="stat-value text-success" id="stat-bound">{{ $stats['bound'] ?? 0 }}</div>
+                    <div class="stat-value-wrap">
+                        <div class="stat-value text-success" id="stat-bound">{{ $stats['bound'] ?? 0 }}</div>
+                        <span class="stat-diff-badge" id="badge-diff-bound" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Card 3: DYNAMIC LEASE --}}
         <div class="col-6 col-lg-auto flex-lg-fill">
-            <div class="stat-card-clean">
+            <div class="stat-card-clean" id="card-stat-dynamic">
                 <div class="stat-icon-wrapper stat-icon-dynamic">
                     @include('pages.mikrotik.partials.icons', ['name' => 'dynamic-lease', 'size' => 32])
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">DYNAMIC LEASE</div>
-                    <div class="stat-value" id="stat-dynamic">{{ $stats['dynamic'] ?? 0 }}</div>
+                    <div class="stat-value-wrap">
+                        <div class="stat-value" id="stat-dynamic">{{ $stats['dynamic'] ?? 0 }}</div>
+                        <span class="stat-diff-badge" id="badge-diff-dynamic" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Card 4: WAITING --}}
         <div class="col-6 col-lg-auto flex-lg-fill">
-            <div class="stat-card-clean">
+            <div class="stat-card-clean" id="card-stat-waiting">
                 <div class="stat-icon-wrapper stat-icon-waiting">
                     @include('pages.mikrotik.partials.icons', ['name' => 'waiting', 'size' => 32])
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">WAITING</div>
-                    <div class="stat-value" id="stat-waiting">{{ $stats['waiting'] ?? 0 }}</div>
+                    <div class="stat-value-wrap">
+                        <div class="stat-value" id="stat-waiting">{{ $stats['waiting'] ?? 0 }}</div>
+                        <span class="stat-diff-badge" id="badge-diff-waiting" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Card 5: STATIC LEASE --}}
         <div class="col-6 col-lg-auto flex-lg-fill">
-            <div class="stat-card-clean">
+            <div class="stat-card-clean" id="card-stat-static">
                 <div class="stat-icon-wrapper stat-icon-static">
                     @include('pages.mikrotik.partials.icons', ['name' => 'static-lease', 'size' => 32])
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">STATIC LEASE</div>
-                    <div class="stat-value" id="stat-static">{{ $stats['static'] ?? 0 }}</div>
+                    <div class="stat-value-wrap">
+                        <div class="stat-value" id="stat-static">{{ $stats['static'] ?? 0 }}</div>
+                        <span class="stat-diff-badge" id="badge-diff-static" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -467,7 +475,12 @@
     </div>
 
     {{-- ==================== Data Table Card ==================== --}}
-    <div class="hub-table-card">
+    <div class="hub-table-card" id="hub-table-card">
+        {{-- Real-Time 3s Stream Loading Bar --}}
+        <div class="table-live-stream-bar" id="table-live-stream-bar" title="Live Sync Active (3s)">
+            <div class="stream-bar-progress"></div>
+        </div>
+
         <div class="table-responsive">
             <table class="hub-table" id="table-dhcp-leases">
                 <thead>
@@ -1080,7 +1093,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 html += `
                     <tr class="lease-row ${flashClass}" id="row-${mac.replace(/[^a-zA-Z0-9]/g, '')}">
-                        <td class="font-mono-clean">${ip}</td>
+                        <td class="font-mono-clean">
+                            ${ip && ip !== '-' ? `
+                                <button type="button" class="btn-copy-nat-ip" data-ip="${ip}" title="Klik untuk salin script NAT: /ip firewall nat set [find comment=&quot;REMOTONU&quot;] to-addresses=${ip}">
+                                    <span>${ip}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-nat-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                </button>
+                            ` : '-'}
+                        </td>
                         <td class="font-mono-clean text-muted">${mac}</td>
                         <td class="fw-semibold text-dark">${host}</td>
                         <td class="text-center">${typeBadge}</td>
@@ -1179,10 +1199,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ==========================================
-    // Customer Detail Modal Logic
+    // Table Click Delegations (Copy NAT Command & Customer Detail Modal)
     // ==========================================
     if (tableBody) {
         tableBody.addEventListener('click', function (e) {
+            // 1. Copy NAT Script saat IP Address diklik
+            const copyIpBtn = e.target.closest('.btn-copy-nat-ip');
+            if (copyIpBtn) {
+                const ip = copyIpBtn.getAttribute('data-ip');
+                if (ip && ip !== '-') {
+                    const natCmd = `/ip firewall nat set [find comment="REMOTONU"] to-addresses=${ip}`;
+                    copyNatCommandToClipboard(natCmd, copyIpBtn);
+                }
+                return;
+            }
+
+            // 2. Customer Detail Modal
             const btn = e.target.closest('.btn-view-customer');
             if (!btn) return;
 
@@ -1191,6 +1223,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
             openCustomerDetailModal(mac);
         });
+    }
+
+    function copyNatCommandToClipboard(cmd, btnEl) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cmd).then(() => {
+                showNatCopiedFeedback(cmd, btnEl);
+            }).catch(() => {
+                fallbackNatCopy(cmd, btnEl);
+            });
+        } else {
+            fallbackNatCopy(cmd, btnEl);
+        }
+    }
+
+    function fallbackNatCopy(text, btnEl) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+            document.execCommand('copy');
+            showNatCopiedFeedback(text, btnEl);
+        } catch (err) {
+            console.error('Gagal menyalin perintah NAT:', err);
+        }
+        document.body.removeChild(temp);
+    }
+
+    function showNatCopiedFeedback(cmd, btnEl) {
+        if (btnEl) {
+            btnEl.classList.add('copied');
+            setTimeout(() => {
+                btnEl.classList.remove('copied');
+            }, 2000);
+        }
+
+        if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: `<div style="font-size:12px;font-weight:700;color:#059669;margin-bottom:3px;">Perintah NAT MikroTik Disalin!</div><code style="font-size:11px;color:#0284c7;word-break:break-all;display:block;background:#f8fafc;padding:5px 8px;border-radius:5px;border:1px solid #cbd5e1;font-family:monospace;">${cmd}</code>`
+            });
+        }
     }
 
     async function openCustomerDetailModal(mac) {
@@ -2043,11 +2127,136 @@ document.addEventListener('DOMContentLoaded', function () {
     @endcan
 
     // ==========================================
-    // Real-Time Server-Sent Events (SSE) Delta Stream
+    // Real-Time Server-Sent Events (SSE) Delta Stream (3s Interval)
     // ==========================================
     let sseSource = null;
     let sseReconnectTimer = null;
-    let sseLastSync = new Date().toISOString();
+    let lastTickTimestamp = Date.now();
+    const tableStreamBar = document.getElementById('table-live-stream-bar');
+    const tableCard = document.getElementById('hub-table-card');
+    const liveSyncTimerEl = document.getElementById('live-sync-timer-text');
+
+    // Simpan nilai statistik saat ini untuk mendeteksi kenaikan / penurunan angka
+    let currentStats = {
+        total: parseInt((statTotal ? statTotal.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
+        bound: parseInt((statBound ? statBound.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
+        dynamic: parseInt((statDynamic ? statDynamic.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
+        waiting: parseInt((statWaiting ? statWaiting.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
+        static: parseInt((statStatic ? statStatic.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
+    };
+
+    // Ticker 1 Detik untuk memperbarui indikator waktu: (Baru saja) -> (1s lalu) -> (3s lalu)
+    setInterval(() => {
+        if (!liveSyncTimerEl) return;
+        const elapsedSec = Math.floor((Date.now() - lastTickTimestamp) / 1000);
+        if (elapsedSec <= 1) {
+            liveSyncTimerEl.textContent = '(Baru saja)';
+        } else {
+            liveSyncTimerEl.textContent = `(${elapsedSec}s lalu)`;
+        }
+    }, 1000);
+
+    // Animasi Pergeseran Angka Halus (Number Roll / Count-Up Transition)
+    function animateNumber(element, startVal, endVal, duration = 600) {
+        if (!element) return;
+        if (startVal === endVal) {
+            element.textContent = endVal.toLocaleString('id-ID');
+            return;
+        }
+
+        const startTime = performance.now();
+        function update(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            // Easing quadratic out
+            const easeProgress = 1 - (1 - progress) * (1 - progress);
+            const current = Math.round(startVal + (endVal - startVal) * easeProgress);
+            element.textContent = current.toLocaleString('id-ID');
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent = endVal.toLocaleString('id-ID');
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
+    // Tampilkan Animasi Flash Kartu & Badge Selisih Mengambang (+N / -N)
+    function triggerCardStatFeedback(cardId, badgeId, valueEl, oldVal, newVal) {
+        if (oldVal === newVal) return;
+
+        const diff = newVal - oldVal;
+        const cardEl = document.getElementById(cardId);
+        const badgeEl = document.getElementById(badgeId);
+
+        // 1. Jalankan animasi kilatan warna kartu
+        if (cardEl) {
+            cardEl.classList.remove('card-flash-plus', 'card-flash-minus');
+            void cardEl.offsetWidth; // Force reflow
+            if (diff > 0) {
+                cardEl.classList.add('card-flash-plus');
+            } else {
+                cardEl.classList.add('card-flash-minus');
+            }
+            setTimeout(() => {
+                if (cardEl) cardEl.classList.remove('card-flash-plus', 'card-flash-minus');
+            }, 1800);
+        }
+
+        // 2. Tampilkan badge mengambang (+N atau -N)
+        if (badgeEl) {
+            badgeEl.className = 'stat-diff-badge ' + (diff > 0 ? 'diff-plus' : 'diff-minus');
+            badgeEl.textContent = diff > 0 ? `+${diff}` : `${diff}`;
+            badgeEl.style.display = 'inline-flex';
+
+            // Sembunyikan badge setelah animasinya selesai
+            setTimeout(() => {
+                if (badgeEl) badgeEl.style.display = 'none';
+            }, 2350);
+        }
+
+        // 3. Animasi pergeseran angka dari oldVal ke newVal
+        animateNumber(valueEl, oldVal, newVal, 650);
+    }
+
+    function updateStatCards(stats) {
+        if (!stats) return;
+
+        const newTotal = parseInt(stats.total !== undefined ? stats.total : currentStats.total) || 0;
+        const newBound = parseInt(stats.bound !== undefined ? stats.bound : currentStats.bound) || 0;
+        const newDynamic = parseInt(stats.dynamic !== undefined ? stats.dynamic : currentStats.dynamic) || 0;
+        const newWaiting = parseInt(stats.waiting !== undefined ? stats.waiting : currentStats.waiting) || 0;
+        const newStatic = parseInt(stats.static !== undefined ? stats.static : currentStats.static) || 0;
+
+        triggerCardStatFeedback('card-stat-total', 'badge-diff-total', statTotal, currentStats.total, newTotal);
+        triggerCardStatFeedback('card-stat-bound', 'badge-diff-bound', statBound, currentStats.bound, newBound);
+        triggerCardStatFeedback('card-stat-dynamic', 'badge-diff-dynamic', statDynamic, currentStats.dynamic, newDynamic);
+        triggerCardStatFeedback('card-stat-waiting', 'badge-diff-waiting', statWaiting, currentStats.waiting, newWaiting);
+        triggerCardStatFeedback('card-stat-static', 'badge-diff-static', statStatic, currentStats.static, newStatic);
+
+        currentStats = {
+            total: newTotal,
+            bound: newBound,
+            dynamic: newDynamic,
+            waiting: newWaiting,
+            static: newStatic,
+        };
+    }
+
+    function triggerTableSyncAnimation(hasUpdates = false) {
+        if (tableStreamBar) {
+            tableStreamBar.classList.remove('animating');
+            void tableStreamBar.offsetWidth; // Trigger DOM reflow to restart animation
+            tableStreamBar.classList.add('animating');
+        }
+
+        if (tableCard && hasUpdates) {
+            tableCard.classList.add('stream-syncing');
+            setTimeout(() => {
+                if (tableCard) tableCard.classList.remove('stream-syncing');
+            }, 1200);
+        }
+    }
 
     function initSseStream() {
         if (typeof EventSource === 'undefined') {
@@ -2059,35 +2268,52 @@ document.addEventListener('DOMContentLoaded', function () {
             sseSource.close();
         }
 
-        const streamUrl = `{{ route('mikrotik.dhcp.stream') }}?since=${encodeURIComponent(sseLastSync)}`;
+        const streamUrl = `{{ route('mikrotik.dhcp.stream') }}`;
         sseSource = new EventSource(streamUrl);
 
         sseSource.addEventListener('connected', function (e) {
-            console.log('SSE Stream Connected:', e.data);
-            const liveBadge = document.querySelector('.live-sync-badge');
+            console.log('SSE Stream Connected (3s Live Stream):', e.data);
+            lastTickTimestamp = Date.now();
+            const liveBadge = document.getElementById('live-sync-status-badge');
             if (liveBadge) {
-                liveBadge.title = 'Real-Time Streaming SSE Aktif';
+                liveBadge.title = 'Real-Time Streaming SSE 3 Detik Aktif';
             }
         });
 
+        // Event Tick: Diterima setiap 3 detik tanda stream aktif & router tersambung
+        sseSource.addEventListener('tick', function (e) {
+            try {
+                lastTickTimestamp = Date.now();
+                const tickData = JSON.parse(e.data);
+                triggerTableSyncAnimation(tickData.has_updates || false);
+                if (lastSyncEl && tickData.time) {
+                    lastSyncEl.textContent = tickData.time;
+                }
+                if (tickData.stats) {
+                    updateStatCards(tickData.stats);
+                }
+            } catch (err) {
+                triggerTableSyncAnimation(false);
+            }
+        });
+
+        // Event Delta: Diterima jika ada perangkat baru atau status/IP/expires berubah
         sseSource.addEventListener('delta', function (e) {
             try {
+                lastTickTimestamp = Date.now();
                 const data = JSON.parse(e.data);
                 if (!data || !data.updated || data.updated.length === 0) return;
 
-                sseLastSync = data.last_check || new Date().toISOString();
-                if (lastSyncEl) lastSyncEl.textContent = new Date().toTimeString().split(' ')[0];
+                if (lastSyncEl && data.last_check) {
+                    lastSyncEl.textContent = data.last_check;
+                }
 
                 // Update Stat Cards jika tersedia
                 if (data.stats) {
-                    if (statTotal) statTotal.textContent = data.stats.total || 0;
-                    if (statBound) statBound.textContent = data.stats.bound || 0;
-                    if (statDynamic) statDynamic.textContent = data.stats.dynamic || 0;
-                    if (statWaiting) statWaiting.textContent = data.stats.waiting || 0;
-                    if (statStatic) statStatic.textContent = data.stats.static || 0;
+                    updateStatCards(data.stats);
                 }
 
-                // Update data lokal allLeases
+                // Update data lokal allLeases (in-memory patching tanpa reload berat)
                 const updatedMacs = new Set();
                 data.updated.forEach(item => {
                     const mac = (item.mac_address || '').toUpperCase();
@@ -2102,7 +2328,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
 
-                // Terapkan filter dan beri animasi highlight pada baris yang berubah
+                // Terapkan filter dan beri animasi highlight hijau pada baris yang berubah
                 applyFilters(updatedMacs);
             } catch (err) {
                 console.error('Gagal memproses SSE delta:', err);
@@ -2110,7 +2336,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         sseSource.onerror = function (err) {
-            console.warn('SSE stream terputus, mencoba menyambung ulang dalam 5 detik...', err);
+            console.warn('SSE stream terputus, mencoba menyambung ulang dalam 4 detik...', err);
             if (sseSource) {
                 sseSource.close();
                 sseSource = null;
@@ -2119,7 +2345,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 sseReconnectTimer = setTimeout(() => {
                     sseReconnectTimer = null;
                     initSseStream();
-                }, 5000);
+                }, 4000);
             }
         };
     }

@@ -449,6 +449,59 @@
     color: #0f172a;
 }
 
+/* Copy NAT IP Address Interactive Button */
+.btn-copy-nat-ip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    line-height: 1.2;
+}
+
+.btn-copy-nat-ip:hover {
+    background: #e0f2fe;
+    color: #0284c7;
+    border-color: #7dd3fc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(2, 132, 199, 0.15);
+}
+
+.btn-copy-nat-ip:active {
+    transform: translateY(1px);
+}
+
+.btn-copy-nat-ip .copy-nat-icon {
+    color: #94a3b8;
+    transition: color 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.btn-copy-nat-ip:hover .copy-nat-icon {
+    color: #0284c7;
+    transform: scale(1.1);
+}
+
+.btn-copy-nat-ip.copied {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    border-color: #a7f3d0 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.btn-copy-nat-ip.copied .copy-nat-icon {
+    color: #059669 !important;
+}
+
 /* ==================== Status Badges ==================== */
 .badge-type-dynamic {
     display: inline-block;
@@ -1223,14 +1276,14 @@
 }
 
 /* ==========================================================================
-   Real-Time SSE Row Flash Highlight
+   Real-Time SSE Row Flash Highlight & Table Live Stream Bar
    ========================================================================== */
 @keyframes rowPulse {
     0% {
-        background-color: rgba(16, 185, 129, 0.28);
+        background-color: rgba(16, 185, 129, 0.32);
     }
-    50% {
-        background-color: rgba(16, 185, 129, 0.12);
+    40% {
+        background-color: rgba(16, 185, 129, 0.18);
     }
     100% {
         background-color: transparent;
@@ -1238,9 +1291,217 @@
 }
 
 .row-updated-flash {
-    animation: rowPulse 2.5s ease-out;
+    animation: rowPulse 2.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Table Card Relative Container */
+.hub-table-card {
+    position: relative;
+}
 
+/* 3-Second Live Stream Animated Loading Bar */
+.table-live-stream-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    overflow: hidden;
+    z-index: 10;
+}
 
+.table-live-stream-bar .stream-bar-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #0284c7 0%, #10b981 50%, #0054a6 100%);
+    border-radius: 9999px;
+    opacity: 0;
+    transition: width 0.4s ease, opacity 0.3s ease;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
 
+.table-live-stream-bar.animating .stream-bar-progress {
+    opacity: 1;
+    animation: streamBarSwipe 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes streamBarSwipe {
+    0% {
+        width: 0%;
+        left: 0%;
+        opacity: 0.9;
+    }
+    50% {
+        width: 70%;
+        left: 20%;
+        opacity: 1;
+    }
+    100% {
+        width: 100%;
+        left: 0%;
+        opacity: 0;
+    }
+}
+
+/* Subtle Table Header Sync Glow */
+.hub-table-card.stream-syncing {
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(2, 132, 199, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+/* Live Stream Micro Badge */
+.stream-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.65rem;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 9999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #059669;
+    margin-left: 0.5rem;
+}
+
+.stream-live-pill.syncing .pulse-dot {
+    animation: pulseDotFlash 0.6s ease;
+}
+
+@keyframes pulseDotFlash {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        transform: scale(1.4);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ========================================================
+   Visual Feedback: 3s SSE Live Sync, Stat Flash & Row Glow
+   ======================================================== */
+.live-sync-timer {
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: #059669;
+    opacity: 0.88;
+    margin-left: 2px;
+}
+
+/* Stat Cards Value & Floating Diff Badge */
+.stat-value-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.stat-diff-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    pointer-events: none;
+    animation: statDiffPop 2.4s ease forwards;
+}
+
+.stat-diff-badge.diff-plus {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.25);
+}
+
+.stat-diff-badge.diff-minus {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fcd34d;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+}
+
+@keyframes statDiffPop {
+    0% {
+        transform: translateY(4px) scale(0.6);
+        opacity: 0;
+    }
+    15% {
+        transform: translateY(0) scale(1.1);
+        opacity: 1;
+    }
+    30% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    75% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-8px) scale(0.85);
+        opacity: 0;
+    }
+}
+
+/* Stat Cards Background & Border Flash */
+.stat-card-clean.card-flash-plus {
+    animation: cardFlashGreen 1.8s ease;
+}
+
+.stat-card-clean.card-flash-minus {
+    animation: cardFlashOrange 1.8s ease;
+}
+
+@keyframes cardFlashGreen {
+    0% {
+        background: #ecfdf5;
+        border-color: #34d399;
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    }
+    100% {
+        background: var(--dhcp-card-bg);
+        border-color: var(--dhcp-border);
+        box-shadow: var(--dhcp-shadow);
+    }
+}
+
+@keyframes cardFlashOrange {
+    0% {
+        background: #fffbeb;
+        border-color: #fbbf24;
+        box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    }
+    100% {
+        background: var(--dhcp-card-bg);
+        border-color: var(--dhcp-border);
+        box-shadow: var(--dhcp-shadow);
+    }
+}
+
+/* Table Row Emerald Glow on Delta Update */
+.lease-row.row-updated-flash {
+    animation: rowFlashEmerald 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes rowFlashEmerald {
+    0% {
+        background-color: rgba(16, 185, 129, 0.28) !important;
+        box-shadow: inset 3px 0 0 #10b981;
+    }
+    40% {
+        background-color: rgba(16, 185, 129, 0.16) !important;
+        box-shadow: inset 3px 0 0 #10b981;
+    }
+    100% {
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}

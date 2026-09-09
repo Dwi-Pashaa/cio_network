@@ -526,58 +526,130 @@ class MikrotikService
     }
 
     /**
+     * Ambil pembaruan delta DHCP Leases langsung dari MikroTik secara ultra-ringan (Live Stream 3s)
+     */
+    public function getLiveDeltaUpdates(): array
+    {
+        $cacheKey = "mikrotik_dhcp_snapshot_{$this->host}";
+        $previousSnapshot = Cache::get($cacheKey, []);
+
+        $api = new RouterosAPI();
+        $api->timeout = 2; // Fast timeout 2 detik untuk responsiveness
+        if (!$api->connect($this->host, $this->user, $this->pass, $this->port)) {
+            return [
+                'has_updates' => false,
+                'connected'   => false,
+                'updated'     => [],
+                'stats'       => null,
+                'last_check'  => Carbon::now()->format('H:i:s'),
+            ];
+        }
+
+        // Query spesifik hanya kolom DHCP yang dibutuhkan (.proplist)
+        $api->write('/ip/dhcp-server/lease/print', false);
+        $api->write('=.proplist=.id,address,mac-address,host-name,status,expires-after,dynamic,disabled,comment,server');
+        $rawDhcp = $api->read();
+        $api->disconnect();
+
+        if (!is_array($rawDhcp)) {
+            return [
+                'has_updates' => false,
+                'connected'   => true,
+                'updated'     => [],
+                'stats'       => null,
+                'last_check'  => Carbon::now()->format('H:i:s'),
+            ];
+        }
+
+        $currentSnapshot = [];
+        $updatedItems = [];
+        $now = Carbon::now();
+
+        foreach ($rawDhcp as $d) {
+            $mac = strtoupper($d['mac-address'] ?? '');
+            if (!$mac) continue;
+
+            $status = strtolower($d['status'] ?? 'waiting');
+            $isDynamic = ($d['dynamic'] ?? 'false') === 'true';
+            $disabled = ($d['disabled'] ?? 'false') === 'true';
+            $isActive = ($status === 'bound' && !$disabled);
+            $expires = $d['expires-after'] ?? ($isDynamic ? '-' : 'Static');
+            $ip = $d['address'] ?? '-';
+            $host = $d['host-name'] ?? ($d['comment'] ?? 'Unknown Device');
+            $comment = $d['comment'] ?? '';
+
+            $itemData = [
+                'ip_address'    => $ip,
+                'mac_address'   => $mac,
+                'host_name'     => $host,
+                'device_type'   => $isDynamic ? 'DYNAMIC' : 'STATIC',
+                'status'        => $status,
+                'expires_after' => $expires,
+                'comment'       => $comment,
+                'is_active'     => $isActive,
+                'server'        => $d['server'] ?? '',
+            ];
+
+            $currentSnapshot[$mac] = $itemData;
+
+            // Periksa apakah item baru atau ada perubahan status/ip/expires dari snapshot sebelumnya
+            if (!isset($previousSnapshot[$mac])) {
+                $updatedItems[] = $itemData;
+            } else {
+                $prev = $previousSnapshot[$mac];
+                if (
+                    $prev['status'] !== $status ||
+                    $prev['ip_address'] !== $ip ||
+                    $prev['host_name'] !== $host ||
+                    $prev['device_type'] !== $itemData['device_type'] ||
+                    $prev['expires_after'] !== $expires
+                ) {
+                    $updatedItems[] = $itemData;
+                }
+            }
+        }
+
+        // Simpan snapshot saat ini ke cache (TTL 120 detik)
+        Cache::put($cacheKey, $currentSnapshot, 120);
+
+        // Jika ada perubahan, update database MikrotikDevice
+        if (!empty($updatedItems)) {
+            foreach ($updatedItems as $dev) {
+                MikrotikDevice::updateOrCreate(
+                    ['mac_address' => $dev['mac_address']],
+                    [
+                        'ip_address'    => $dev['ip_address'],
+                        'host_name'     => $dev['host_name'],
+                        'device_type'   => strtolower($dev['device_type']),
+                        'status'        => $dev['status'],
+                        'is_active'     => $dev['is_active'],
+                        'expires_after' => $dev['expires_after'] !== 'Static' ? $dev['expires_after'] : null,
+                        'comment'       => $dev['comment'],
+                        'interface'     => $dev['server'] ?: null,
+                        'last_seen_at'  => $dev['is_active'] ? $now : null,
+                    ]
+                );
+            }
+        }
+
+        $stats = $this->calculateStats(array_values($currentSnapshot));
+
+        return [
+            'has_updates' => !empty($updatedItems),
+            'connected'   => true,
+            'count'       => count($updatedItems),
+            'updated'     => $updatedItems,
+            'stats'       => $stats,
+            'last_check'  => $now->format('H:i:s'),
+        ];
+    }
+
+    /**
      * Ambil pembaruan delta perangkat yang berubah sejak waktu tertentu
      */
     public function getDeltaUpdates(?string $since = null): array
     {
-        $query = MikrotikDevice::query();
-        if (!empty($since)) {
-            $query->where('updated_at', '>', $since);
-        }
-
-        $changed = $query->get();
-        if ($changed->isEmpty()) {
-            return [
-                'has_updates' => false,
-                'updated'     => [],
-                'stats'       => null,
-                'last_check'  => Carbon::now()->toDateTimeString(),
-            ];
-        }
-
-        $formatted = $changed->map(function ($d) {
-            $isDynamic = strtolower($d->device_type ?? 'dynamic') === 'dynamic';
-            $status = strtolower($d->status ?? ($d->is_active ? 'bound' : 'waiting'));
-            $expires = $d->expires_after ?: ($isDynamic ? '-' : 'Static');
-
-            return [
-                'ip_address'    => $d->ip_address ?? '-',
-                'mac_address'   => strtoupper($d->mac_address),
-                'host_name'     => $d->host_name ?: 'Unknown Device',
-                'device_type'   => $isDynamic ? 'DYNAMIC' : 'STATIC',
-                'status'        => $status,
-                'expires_after' => $expires,
-                'comment'       => $d->comment ?: '',
-                'is_active'     => (bool) $d->is_active,
-                'server'        => $d->interface ?: '',
-            ];
-        })->toArray();
-
-        // Ambil statistik terkini
-        $allLeases = MikrotikDevice::all();
-        $stats = $this->calculateStats($allLeases->map(function($d) {
-            return [
-                'status'      => strtolower($d->status ?? ($d->is_active ? 'bound' : 'waiting')),
-                'device_type' => strtolower($d->device_type ?? 'dynamic'),
-            ];
-        })->toArray());
-
-        return [
-            'has_updates' => true,
-            'count'       => count($formatted),
-            'updated'     => $formatted,
-            'stats'       => $stats,
-            'last_check'  => Carbon::now()->toDateTimeString(),
-        ];
+        return $this->getLiveDeltaUpdates();
     }
 }
+

@@ -38,14 +38,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-detail-count/{id}/{text}', [DashboardController::class, 'getDetailCount'])->name('dashboard.getDetailCount');
 
     // Monitoring MikroTik DHCP Hub
-    Route::prefix('monitoring/mikrotik')->middleware('can:monitoring mikrotik')->group(function () {
-        Route::get('/', [MikrotikController::class, 'index'])->name('mikrotik.dhcp');
-        Route::get('/data', [MikrotikController::class, 'getDhcpData'])->name('mikrotik.dhcp.data');
+    Route::prefix('monitoring/mikrotik')->group(function () {
+        Route::get('/', [MikrotikController::class, 'index'])->middleware('can:monitoring mikrotik')->name('mikrotik.dhcp');
+        Route::get('/data', [MikrotikController::class, 'getDhcpData'])->middleware('can:monitoring mikrotik')->name('mikrotik.dhcp.data');
         Route::get('/interfaces', [MikrotikController::class, 'getInterfaces'])->middleware('can:monitoring traffic mikrotik')->name('mikrotik.dhcp.interfaces');
         Route::get('/traffic', [MikrotikController::class, 'getTraffic'])->middleware('can:monitoring traffic mikrotik')->name('mikrotik.dhcp.traffic');
-        Route::get('/system-resource', [MikrotikController::class, 'getSystemResource'])->name('mikrotik.dhcp.resource');
+        Route::get('/system-resource', [MikrotikController::class, 'getSystemResource'])->middleware('can:monitoring mikrotik')->name('mikrotik.dhcp.resource');
         Route::get('/customer-by-mac', [MikrotikController::class, 'getCustomerByMac'])->name('mikrotik.dhcp.customer_by_mac');
-        Route::post('/sync-db', [MikrotikController::class, 'syncDatabase'])->name('mikrotik.dhcp.sync_db');
+        Route::post('/sync-db', [MikrotikController::class, 'syncDatabase'])->middleware('can:monitoring mikrotik')->name('mikrotik.dhcp.sync_db');
         Route::post('/reboot', [MikrotikController::class, 'reboot'])->middleware('can:reboot mikrotik')->name('mikrotik.dhcp.reboot');
         Route::get('/stream', [MikrotikController::class, 'stream'])->name('mikrotik.dhcp.stream');
     });
