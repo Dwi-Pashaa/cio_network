@@ -52,13 +52,12 @@ class PagesController extends Controller
      */
     public function index(Request $request)
     {
-
-        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
-        $authUserPages = Auth::user()->pages->pluck('id')->toArray();
-
         if ($request->ajax()) {
             return (new PagesDataTable)->get();
         }
+
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+        $authUserPages = Auth::user()->pages->pluck('id')->toArray();
 
         $regencies = Regency::whereIn('id', $authUserRegencies)->get();
         $districts = District::whereIn('regencie_id', $authUserRegencies)->get();

@@ -484,19 +484,9 @@ class CustomerDataTable
                         ->orWhere('customers.nik', 'like', "%{$search}%")
                         ->orWhere('customers.name_wifi', 'like', "%{$search}%")
                         ->orWhere('customers.pppoe_username', 'like', "%{$search}%")
-
-                        ->orWhereHas('router', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('type', fn($s) => $s->where('name', 'like', "%{$search}%"))
                         ->orWhereHas('hometown', fn($s) => $s->where('name', 'like', "%{$search}%"))
                         ->orWhereHas('village', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('district', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('regencie', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('vlan', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('olt', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('paket', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('price', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('mic_radius', fn($s) => $s->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('user', fn($s) => $s->where('name', 'like', "%{$search}%"));
+                        ->orWhereHas('router', fn($s) => $s->where('name', 'like', "%{$search}%"));
                 });
             })
 

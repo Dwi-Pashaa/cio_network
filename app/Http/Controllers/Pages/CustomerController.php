@@ -40,11 +40,11 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
-
         if ($request->ajax()) {
             return (new CustomerDataTable)->get();
         }
+
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
 
         $vilage = Village::whereIn('regencie_id', $authUserRegencies)->get();
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
