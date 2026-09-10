@@ -21,6 +21,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('wablas:fetch')
             ->everyTenMinutes()
             ->withoutOverlapping();
+
+        // Sync data perangkat MikroTik berkala tiap 1 jam
+        $schedule->command('mikrotik:sync')
+            ->hourly()
+            ->withoutOverlapping();
     }
 
     /**
