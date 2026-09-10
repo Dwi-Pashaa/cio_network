@@ -1903,7 +1903,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function startTrafficStream() {
         if (trafficPollingTimer) clearInterval(trafficPollingTimer);
         pollTrafficData();
-        trafficPollingTimer = setInterval(pollTrafficData, 2500);
+        trafficPollingTimer = setInterval(pollTrafficData, 5000);
     }
 
     function stopTrafficStream() {
@@ -2027,8 +2027,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Refresh System Resource periodically every 15s
-    setInterval(fetchSystemResource, 15000);
+    let systemResourceTimer = null;
+    function startSystemResourceTimer() {
+        if (systemResourceTimer) clearInterval(systemResourceTimer);
+        systemResourceTimer = setInterval(fetchSystemResource, 20000);
+    }
+    function stopSystemResourceTimer() {
+        if (systemResourceTimer) {
+            clearInterval(systemResourceTimer);
+            systemResourceTimer = null;
+        }
+    }
+
+    // Refresh System Resource periodically every 20s
+    startSystemResourceTimer();
 
     @can('reboot mikrotik')
     // ==========================================
@@ -2336,22 +2348,57 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         sseSource.onerror = function (err) {
-            console.warn('SSE stream terputus, mencoba menyambung ulang dalam 4 detik...', err);
             if (sseSource) {
                 sseSource.close();
                 sseSource = null;
             }
-            if (!sseReconnectTimer) {
+            if (!sseReconnectTimer && !document.hidden) {
                 sseReconnectTimer = setTimeout(() => {
                     sseReconnectTimer = null;
-                    initSseStream();
+                    if (!document.hidden) {
+                        initSseStream();
+                    }
                 }, 4000);
             }
         };
     }
 
+    function stopSseStream() {
+        if (sseSource) {
+            sseSource.close();
+            sseSource = null;
+        }
+        if (sseReconnectTimer) {
+            clearTimeout(sseReconnectTimer);
+            sseReconnectTimer = null;
+        }
+    }
+
     // Inisialisasi SSE Stream
     initSseStream();
+
+    // ==========================================
+    // Auto-Pause saat Tab Browser Tidak Aktif (Page Visibility API)
+    // Menghemat hingga 90% resource hosting jika user berganti tab / minimize browser
+    // ==========================================
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            @can('monitoring traffic mikrotik')
+            stopTrafficStream();
+            @endcan
+            stopSystemResourceTimer();
+            stopSseStream();
+        } else {
+            @can('monitoring traffic mikrotik')
+            if (isTrafficStreaming) {
+                startTrafficStream();
+            }
+            @endcan
+            fetchSystemResource();
+            startSystemResourceTimer();
+            initSseStream();
+        }
+    });
 });
 </script>
 @endpush

@@ -23,7 +23,7 @@ class MikrotikService
         $this->user     = config('mikrotik.user', 'dwi1234');
         $this->pass     = config('mikrotik.pass', 'dwi1234');
         $this->port     = (int) config('mikrotik.port', 8728);
-        $this->timeout  = (int) config('mikrotik.timeout', 5);
+        $this->timeout  = (int) config('mikrotik.timeout', 3);
         $this->cacheTtl = (int) config('mikrotik.cache_ttl', 30);
     }
 
@@ -344,8 +344,14 @@ class MikrotikService
      */
     public function getInterfaceTraffic(string $interface): array
     {
+        $cacheKey = "mikrotik_traffic_{$this->host}_{$interface}";
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached) && !empty($cached)) {
+            return $cached;
+        }
+
         $api = new RouterosAPI();
-        $api->timeout = 4;
+        $api->timeout = 3;
         if (!$api->connect($this->host, $this->user, $this->pass, $this->port)) {
             return [
                 'success' => false,
@@ -373,7 +379,7 @@ class MikrotikService
         $rxPps = (int) ($data['rx-packets-per-second'] ?? 0);
         $txPps = (int) ($data['tx-packets-per-second'] ?? 0);
 
-        return [
+        $result = [
             'success'      => true,
             'interface'    => $interface,
             'timestamp'    => Carbon::now()->format('H:i:s'),
@@ -389,6 +395,10 @@ class MikrotikService
             'rx_pps'       => $rxPps,
             'tx_pps'       => $txPps,
         ];
+
+        Cache::put($cacheKey, $result, 2);
+
+        return $result;
     }
 
     /**
@@ -413,8 +423,14 @@ class MikrotikService
      */
     public function getSystemResource(): array
     {
+        $cacheKey = "mikrotik_system_resource_{$this->host}";
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached) && !empty($cached)) {
+            return $cached;
+        }
+
         $api = new RouterosAPI();
-        $api->timeout = 5;
+        $api->timeout = 3;
         if (!$api->connect($this->host, $this->user, $this->pass, $this->port)) {
             return [
                 'success' => false,
@@ -447,7 +463,7 @@ class MikrotikService
 
         $cpuLoad = (int) ($res['cpu-load'] ?? 0);
 
-        return [
+        $result = [
             'success'            => true,
             'router_name'        => $identity,
             'host'               => $this->host,
@@ -471,6 +487,10 @@ class MikrotikService
             'hdd_formatted'      => $this->formatBytes($usedHdd) . ' / ' . $this->formatBytes($totalHdd),
             'updated_at'         => Carbon::now()->format('H:i:s'),
         ];
+
+        Cache::put($cacheKey, $result, 15);
+
+        return $result;
     }
 
     /**

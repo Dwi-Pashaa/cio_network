@@ -237,8 +237,14 @@ class MikrotikController extends Controller
             $api = new \App\Services\RouterosAPI();
             $api->timeout = 3;
 
+            // Batasi siklus stream per request (maks 8 tick = ~24s) agar worker PHP di shared hosting
+            // dapat di-recycle secara aman tanpa ditandai zombie process oleh CloudLinux/cPanel
+            $iteration = 0;
+            $maxIterations = 8;
+
             try {
-                while (!connection_aborted()) {
+                while (!connection_aborted() && $iteration < $maxIterations) {
+                    $iteration++;
                     $delta = $this->mikrotikService->getLiveDeltaUpdates($api);
 
                     // Kirim event tick per 3 detik untuk animasi live heartbeat dan update 5 kartu statistik di UI
