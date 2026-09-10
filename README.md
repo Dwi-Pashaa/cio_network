@@ -1,66 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌐 CIO Network Solution - ISP & Network Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php)](https://php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://docker.com)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.x-7952B3?style=for-the-badge&logo=bootstrap)](https://getbootstrap.com)
 
-## About Laravel
+**CIO Network** adalah platform manajemen operasional dan infrastruktur jaringan internet (ISP & RT/RW Net) berbasis web yang dirancang untuk mengelola pelanggan, topologi jaringan fiber optic, pemantauan perangkat MikroTik secara real-time, manajemen tiket troubleshoot, serta pendaftaran mandiri pelanggan.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. 👥 Manajemen Pelanggan (Customer Management)
+- **Multi-Service Support**: Mendukung pengelolaan pelanggan tipe PPPoE, Hotspot Voucher, dan Dedicated/Static IP.
+- **Verifikasi Kontak Otomatis**: Integrasi API WhatsApp (Wablas/Fonte) dan verifikasi email aktif.
+- **Geolokasi & Data Fisik**: Penyimpanan koordinat GPS lokasi rumah, integrasi peta interaktif (Leaflet / Google Maps), upload foto KTP, dan tanda tangan digital.
+- **Server-Side DataTables**: Penelusuran data cepat, filter wilayah (Kabupaten, Kecamatan, Desa, RT/RW), filter status perangkat MikroTik (Bound, Waiting, Offered, Offline), dan ekspor data (Excel / PDF).
 
-## Learning Laravel
+### 2. ⚡ Monitoring MikroTik RouterOS & Jaringan
+- **Live DHCP Hub Monitoring**: Sinkronisasi data DHCP Leases, ARP Table, dan Hotspot Host langsung dari MikroTik RouterOS via API.
+- **Real-time Traffic Streaming**: Pemantauan traffic bandwidth interface secara real-time via Server-Sent Events (SSE).
+- **Manajemen Perangkat Fiber Optik**: Pencatatan dan mapping perangkat Router, OLT, ODC, ODP, VLAN, Switch, PLC, dan Patch Core.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 3. 📝 Pendaftaran Publik & Self-Service Portal
+- **Wizard Pendaftaran Baru**: Formulir registrasi pelanggan mandiri dengan pemilihan paket internet, metode pembayaran, tanda tangan digital, dan cetak bukti pendaftaran.
+- **Portal Reset Mandiri**: Fitur scan QR Code untuk reset password WiFi dan akun PPPoE pelanggan secara mandiri.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 4. 🛠️ Sistem Tiket Troubleshoot & Teknisi
+- **Tiket Gangguan Terintegrasi**: Pencatatan keluhan pelanggan dari pelaporan hingga penyelesaian.
+- **Live Tracking Teknisi**: Pelacakan posisi koordinat teknisi saat menuju lokasi gangguan.
+- **Upload Progress Lapangan**: Dokumentasi foto tahapan perbaikan secara bertahap (step-by-step).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 5. 🏢 Multi-Organisasi & Keamanan
+- **Multi-Tenant (Mitra vs Internal)**: Pembagian akses data jaringan dan pelanggan antar mitra/cabang.
+- **Role-Based Access Control (RBAC)**: Pengaturan hak akses granular menggunakan Spatie Permission.
+- **Activity Log**: Audit trail riwayat perubahan data oleh pengguna sistem.
 
-## Laravel Sponsors
+### 6. 💬 Komunikasi & Notifikasi Real-time
+- **Live Chatting**: Komunikasi internal antar staf berbasis WebSocket (Pusher & Laravel Echo).
+- **WhatsApp Notification Engine**: Template pesan notifikasi otomatis untuk pendaftaran dan keluhan.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🛠️ Tech Stack
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+| Komponen | Teknologi |
+|---|---|
+| **Framework Backend** | [Laravel 10.x](https://laravel.com/) (PHP 8.1+) |
+| **Database** | MySQL 8.0 |
+| **UI & Layout** | [Tabler Admin](https://tabler.io/), Bootstrap 5, DataTables 2.3+ |
+| **Mapping & Visual** | Leaflet.js, ApexCharts, JsVectorMap |
+| **Realtime Engine** | Pusher, Laravel Echo, SSE (Server-Sent Events) |
+| **Integrasi Hardware** | MikroTik RouterOS API (`RouterosAPI`) |
+| **Containerization** | Docker & Docker Compose |
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📂 Struktur Direktori Utama
 
-## Code of Conduct
+```
+cio_network/
+├── app/
+│   ├── Console/Commands/        # Custom Artisan Commands (Mikrotik Sync, Backup, Wablas)
+│   ├── DataTables/              # Yajra DataTables Server-Side Handlers
+│   ├── Http/Controllers/Pages/  # Controllers (Customer, Dashboard, Jaringan, Troubleshoot)
+│   ├── Models/                  # Eloquent Models (Customer, OLT, ODC, ODP, Router, dll)
+│   └── Services/                # Service Layer (MikrotikService, Verification, WhatsApp)
+├── database/
+│   ├── migrations/              # Database Schema & Performance Indexes
+│   └── seeders/                 # Database Default Seeders
+├── docker/                      # Dockerfile & Container Config
+├── resources/views/             # Blade Templates (Layouts, Dashboard, Customers, Forms)
+├── routes/                      # Route Definitions (web, api, channels, master-*)
+└── docker-compose.yml           # Multi-container orchestration (App, MySQL, PhpMyAdmin)
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Panduan Instalasi & Menjalankan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Menggunakan Docker (Direkomendasikan)
 
-## License
+1. **Clone repositori**:
+   ```bash
+   git clone https://github.com/Dwi-Pashaa/cio_network.git
+   cd cio_network
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **Salin environment file**:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Jalankan container dengan Docker Compose**:
+   ```bash
+   docker compose up -d
+   ```
+
+4. **Setup Database & Aplikasi di dalam container**:
+   ```bash
+   docker compose exec app composer install
+   docker compose exec app php artisan key:generate
+   docker compose exec app php artisan migrate --seed
+   docker compose exec app php artisan storage:link
+   ```
+
+5. **Akses Aplikasi**:
+   - **Web App**: `http://localhost:8004`
+   - **PhpMyAdmin**: `http://localhost:8005`
+
+---
+
+## ⏱️ Scheduler & Background Jobs
+
+Aplikasi menggunakan Laravel Task Scheduling untuk tugas otomatis:
+- **Sinkronisasi MikroTik Devices**: Berjalan setiap 1 jam (`php artisan mikrotik:sync`).
+- **Fetch Report Wablas**: Berjalan setiap 10 menit (`php artisan wablas:fetch`).
+- **Backup Database**: Berjalan setiap tanggal 1 setiap bulan (`php artisan backup:monthly`).
+
+Untuk menjalankan scheduler secara lokal:
+```bash
+docker compose exec app php artisan schedule:work
+```
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dikembangkan untuk kebutuhan internal **CIO Network Solution**.
+Hak Cipta &copy; 2026 CIO Network. Seluruh hak cipta dilindungi undang-undang.
