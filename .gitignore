@@ -21,4 +21,5 @@ yarn-error.log
 docker*
 mysql*
 .claude/*
-/docs
+docs/*
+.agents/*
