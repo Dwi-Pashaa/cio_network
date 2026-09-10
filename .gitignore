@@ -22,4 +22,6 @@ docker*
 mysql*
 .claude/*
 docs/*
+!docs/decisions/
+!docs/decisions/**
 .agents/*
