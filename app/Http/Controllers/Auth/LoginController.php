@@ -28,7 +28,8 @@ class LoginController extends Controller
         if ($user) {
             if (Hash::check($request->password, $user->password)) {
                 Auth::login($user);
-                return redirect()->route('dashboard');
+                $request->session()->regenerate();
+                return redirect()->intended(route('dashboard'));
             } else {
                 return back()->with('warning', 'Username/Password salah.');
             }
