@@ -22,9 +22,9 @@ class Kernel extends ConsoleKernel
             ->everyTenMinutes()
             ->withoutOverlapping();
 
-        // Sync data perangkat MikroTik berkala tiap 1 jam
+        // Sync data perangkat MikroTik berkala tiap 5 menit
         $schedule->command('mikrotik:sync')
-            ->hourly()
+            ->everyFiveMinutes()
             ->withoutOverlapping();
     }
 

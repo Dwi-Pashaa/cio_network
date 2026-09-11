@@ -11,6 +11,35 @@
     <style>
         .btn-action.btn-chat:hover { color: #0ea5e9; border-color: #0ea5e9; background: #f0f9ff; }
 
+        /* Refresh Live Data Button */
+        .btn-refresh-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #ffffff !important;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+        }
+        .btn-refresh-live:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+            background: linear-gradient(135deg, #0369a1, #075985);
+        }
+        .btn-refresh-live.loading .refresh-icon {
+            animation: spinCustomerRefresh 0.85s linear infinite;
+        }
+        @keyframes spinCustomerRefresh {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         /* Styling Baris Berdasarkan Status MikroTik */
         table.org-table tbody tr.row-mikrotik-waiting > td {
             background-color: #fefce8 !important;
@@ -184,9 +213,9 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <h2 class="org-title mb-0">Data Pelanggan</h2>
-                            <span class="live-sync-badge" title="Menerima pembaruan status perangkat MikroTik real-time (SSE 3s)">
+                            <span class="live-sync-badge" id="cust-live-sync-status-badge" title="Pembaruan status perangkat MikroTik otomatis setiap 5 menit">
                                 <span class="pulse-dot"></span>
-                                <span>Live Stream</span>
+                                <span>Auto Sync (5 Menit)</span>
                                 <span class="live-sync-timer" id="cust-live-sync-timer" style="font-size: 0.74rem; font-weight: 500; color: #059669; opacity: 0.88; margin-left: 2px;">(Baru saja)</span>
                             </span>
                         </div>
@@ -194,7 +223,16 @@
                     </div>
                 </div>
 
-                <div class="org-header-action d-flex gap-2 flex-wrap">
+                <div class="org-header-action d-flex gap-2 flex-wrap align-items-center">
+                    <button type="button" class="btn-refresh-live" id="btn-refresh-customer" title="Tarik pembaruan data MikroTik seketika">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"
+                            stroke-linejoin="round" class="refresh-icon">
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                        </svg>
+                        <span id="text-refresh-customer">Refresh Live Data</span>
+                    </button>
                     @can('buat pelanggan')
                         <a href="{{ route('customer.create') }}" class="btn-add">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -345,8 +383,8 @@
                 </div>
             </div>
 
-            {{-- Real-Time 3s Stream Loading Bar --}}
-            <div class="table-live-stream-bar" id="table-live-stream-bar" title="Live Sync MikroTik (3s)">
+            {{-- Auto Sync 5 Menit Loading Bar --}}
+            <div class="table-live-stream-bar" id="table-live-stream-bar" title="Sinkronisasi Otomatis MikroTik Aktif (Setiap 5 Menit)">
                 <div class="stream-bar-progress"></div>
             </div>
 
@@ -1346,20 +1384,25 @@
         });
 
         // ==========================================
-        // Real-Time Server-Sent Events (SSE) Delta Stream (3s Interval)
+        // Automatic 5-Minute Data Synchronization
         // ==========================================
-        let sseSource = null;
-        let sseReconnectTimer = null;
+        const CUST_SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 Menit = 300.000 ms
+        let custAutoSyncTimer = null;
         let custLastTickTimestamp = Date.now();
         const custLiveSyncTimerEl = document.getElementById('cust-live-sync-timer');
+        const btnRefreshCustomer = document.getElementById('btn-refresh-customer');
 
+        // Ticker 1 Detik untuk memperbarui indikator waktu: (Baru saja) -> (15s lalu) -> (1 mnt lalu) -> (4 mnt lalu)
         setInterval(() => {
             if (!custLiveSyncTimerEl) return;
             const elapsedSec = Math.floor((Date.now() - custLastTickTimestamp) / 1000);
-            if (elapsedSec <= 1) {
+            if (elapsedSec < 10) {
                 custLiveSyncTimerEl.textContent = '(Baru saja)';
-            } else {
+            } else if (elapsedSec < 60) {
                 custLiveSyncTimerEl.textContent = `(${elapsedSec}s lalu)`;
+            } else {
+                const elapsedMin = Math.floor(elapsedSec / 60);
+                custLiveSyncTimerEl.textContent = `(${elapsedMin} mnt lalu)`;
             }
         }, 1000);
 
@@ -1371,114 +1414,85 @@
                 void bar.offsetWidth; // Force DOM reflow to restart animation
                 bar.classList.add('animating');
             }
-            const badge = document.querySelector('.live-sync-badge');
+            const badge = document.getElementById('cust-live-sync-status-badge') || document.querySelector('.live-sync-badge');
             if (badge) {
                 badge.style.transform = 'scale(1.06)';
                 setTimeout(() => { badge.style.transform = 'scale(1)'; }, 350);
             }
         }
 
-        function updateCustomerRowStatus(item) {
-            if (!item || !item.mac_address || !table) return;
+        async function syncCustomerLiveData(force = true) {
+            if (btnRefreshCustomer) {
+                btnRefreshCustomer.classList.add('loading');
+                btnRefreshCustomer.disabled = true;
+            }
 
-            const targetMac = item.mac_address.toUpperCase().trim();
-            const newStatus = (item.status || 'offline').toLowerCase().trim();
-
-            $('#customer-table tbody tr').each(function() {
-                const tr = $(this);
-                const rowData = table.row(tr).data();
-                if (!rowData) return;
-
-                const rowMac = (rowData.mac_address || '').toUpperCase().trim();
-                if (rowMac && rowMac === targetMac) {
-                    // Update class baris tabel secara instan
-                    tr.removeClass('row-mikrotik-bound row-mikrotik-waiting row-mikrotik-offered row-mikrotik-offline row-updated-flash');
-                    void tr[0].offsetWidth; // force reflow
-
-                    if (newStatus === 'bound') {
-                        tr.addClass('row-mikrotik-bound');
-                    } else if (newStatus === 'waiting') {
-                        tr.addClass('row-mikrotik-waiting');
-                    } else if (newStatus === 'offered') {
-                        tr.addClass('row-mikrotik-offered');
-                    } else {
-                        tr.addClass('row-mikrotik-offline');
+            try {
+                // Tarik pembaruan live data langsung dari router MikroTik ke database
+                const syncUrl = `{{ route('mikrotik.dhcp.data') }}?force=${force ? 1 : 0}&t=${Date.now()}`;
+                const response = await fetch(syncUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                    tr.addClass('row-updated-flash');
+                });
 
-                    // Update Badge di Kolom MAC Address (index 13)
-                    const macTd = tr.find('td').eq(13);
-                    if (macTd.length > 0) {
-                        let badgeHtml = '';
-                        if (newStatus === 'bound') {
-                            badgeHtml = '<span class="badge bg-success-lt text-success fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ bound ]</span>';
-                        } else if (newStatus === 'waiting') {
-                            badgeHtml = '<span class="badge fw-bold" style="font-size: 10px; padding: 2px 7px; background-color: #fef08a !important; color: #854d0e !important; border: 1px solid #facc15; display: inline-block; margin-top: 3px; box-shadow: 0 1px 2px rgba(234, 179, 8, 0.2);">[ WAITING ]</span>';
-                        } else if (newStatus === 'offered') {
-                            badgeHtml = '<span class="badge bg-orange-lt text-orange fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offered ]</span>';
-                        } else if (newStatus === 'disabled') {
-                            badgeHtml = '<span class="badge bg-secondary-lt text-secondary" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ disabled ]</span>';
-                        } else {
-                            badgeHtml = '<span class="badge bg-danger-lt text-danger fw-bold" style="font-size: 10px; padding: 2px 6px; display: inline-block; margin-top: 3px;">[ offline ]</span>';
+                if (response.ok) {
+                    const resData = await response.json();
+                    if (resData.success) {
+                        triggerTableSyncAnimation();
+                        if (typeof table !== 'undefined' && table) {
+                            table.ajax.reload(null, false);
                         }
-                        macTd.html('<div class="font-monospace" style="font-size: 12px;">' + targetMac + '<br>' + badgeHtml + '</div>');
                     }
                 }
-            });
-
-            // Jika user sedang aktif memfilter status mikrotik spesifik, reload DataTables secara halus (paging dipertahankan)
-            if ($('#mikrotik_status').val()) {
-                table.ajax.reload(null, false);
+            } catch (err) {
+                console.warn('Gagal sync live data customer:', err);
+                if (typeof table !== 'undefined' && table) {
+                    table.ajax.reload(null, false);
+                }
+            } finally {
+                if (btnRefreshCustomer) {
+                    btnRefreshCustomer.classList.remove('loading');
+                    btnRefreshCustomer.disabled = false;
+                }
+                custLastTickTimestamp = Date.now();
             }
         }
 
-        function initCustomerSseStream() {
-            if (typeof EventSource === 'undefined') return;
-
-            if (sseSource) {
-                sseSource.close();
-            }
-
-            const streamUrl = "{{ route('mikrotik.dhcp.stream') }}";
-            sseSource = new EventSource(streamUrl);
-
-            sseSource.addEventListener('connected', function(e) {
-                console.log('SSE Stream Connected (Customer 3s):', e.data);
-            });
-
-            // Diterima setiap 3 detik tanda stream aktif & detak sinkronisasi
-            sseSource.addEventListener('tick', function(e) {
-                triggerTableSyncAnimation();
-            });
-
-            // Diterima saat ada perangkat yang status/IP/expires berubah
-            sseSource.addEventListener('delta', function(e) {
-                try {
-                    const data = JSON.parse(e.data);
-                    if (!data || !data.updated || !Array.isArray(data.updated)) return;
-
-                    triggerTableSyncAnimation();
-                    data.updated.forEach(item => {
-                        updateCustomerRowStatus(item);
-                    });
-                } catch (err) {
-                    console.error('SSE customer delta error:', err);
-                }
-            });
-
-            sseSource.onerror = function(err) {
-                console.warn('SSE stream error/reconnecting in 4s...', err);
-                if (sseSource) {
-                    sseSource.close();
-                    sseSource = null;
-                }
-                if (!sseReconnectTimer) {
-                    sseReconnectTimer = setTimeout(() => {
-                        sseReconnectTimer = null;
-                        initCustomerSseStream();
-                    }, 4000);
-                }
-            };
+        function startCustomerAutoSync() {
+            stopCustomerAutoSync();
+            custAutoSyncTimer = setInterval(syncCustomerLiveData, CUST_SYNC_INTERVAL_MS);
         }
+
+        function stopCustomerAutoSync() {
+            if (custAutoSyncTimer) {
+                clearInterval(custAutoSyncTimer);
+                custAutoSyncTimer = null;
+            }
+        }
+
+        if (btnRefreshCustomer) {
+            btnRefreshCustomer.addEventListener('click', function () {
+                syncCustomerLiveData(true);
+                startCustomerAutoSync();
+            });
+        }
+
+        // Start auto-sync on page load
+        startCustomerAutoSync();
+
+        // Auto-pause saat tab tidak aktif (Page Visibility API)
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopCustomerAutoSync();
+            } else {
+                const elapsed = Date.now() - custLastTickTimestamp;
+                if (elapsed >= CUST_SYNC_INTERVAL_MS) {
+                    syncCustomerLiveData(true);
+                }
+                startCustomerAutoSync();
+            }
+        });
     </script>
 @endpush

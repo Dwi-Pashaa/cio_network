@@ -24,7 +24,7 @@ class MikrotikService
         $this->pass     = config('mikrotik.pass', 'dwi1234');
         $this->port     = (int) config('mikrotik.port', 8728);
         $this->timeout  = (int) config('mikrotik.timeout', 3);
-        $this->cacheTtl = (int) config('mikrotik.cache_ttl', 30);
+        $this->cacheTtl = (int) config('mikrotik.cache_ttl', 300);
     }
 
     public function getHost(): string
@@ -34,14 +34,25 @@ class MikrotikService
 
     /**
      * Mengambil data DHCP Leases untuk monitoring Hub.
-     * Mengutamakan data Database Lokal (hasil sinkronisasi berkala Cron Job per 1 jam)
-     * agar loading sangat cepat, stabil, dan tidak bergantung koneksi lambat/fluktuasi router.
+     * Mengutamakan Cache 5 Menit (300s) dan Database Lokal
+     * (hasil sinkronisasi berkala Cron Job per 5 menit)
+     * agar loading sangat cepat, stabil, dan tidak membebani router MikroTik.
      *
-     * Jika $forceFresh === true (misal user klik "Refresh Live Data"), sistem akan
-     * menarik data live langsung dari Router MikroTik dan mengupdate database lokal.
+     * Jika $forceFresh === true (misal user klik "Refresh Live Data" atau auto-sync 5 menit),
+     * sistem akan menarik data live langsung dari Router MikroTik dan mengupdate database serta cache.
      */
     public function getDhcpLeasesHub(bool $forceFresh = false): array
     {
+        $cacheKey = "mikrotik_dhcp_hub_{$this->host}";
+
+        if (!$forceFresh) {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached) && !empty($cached)) {
+                $cached['from_cache'] = true;
+                return $cached;
+            }
+        }
+
         $dbCount = MikrotikDevice::count();
 
         // Jika forceFresh diminta ATAU database lokal masih kosong sama sekali, tarik dari router
@@ -91,7 +102,7 @@ class MikrotikService
 
         $stats = $this->calculateStats($leases);
 
-        return [
+        $hubData = [
             'is_connected'  => true,
             'error_message' => null,
             'last_sync'     => $lastSyncTime,
@@ -100,6 +111,11 @@ class MikrotikService
             'stats'         => $stats,
             'leases'        => $leases,
         ];
+
+        // Simpan cache selama 5 menit (300 detik)
+        Cache::put($cacheKey, $hubData, $this->cacheTtl);
+
+        return $hubData;
     }
 
     /**
@@ -488,7 +504,7 @@ class MikrotikService
             'updated_at'         => Carbon::now()->format('H:i:s'),
         ];
 
-        Cache::put($cacheKey, $result, 15);
+        Cache::put($cacheKey, $result, $this->cacheTtl);
 
         return $result;
     }
@@ -652,8 +668,8 @@ class MikrotikService
             }
         }
 
-        // Simpan snapshot saat ini ke cache memory (TTL 120 detik)
-        Cache::put($cacheKey, $currentSnapshot, 120);
+        // Simpan snapshot saat ini ke cache memory (TTL 5 Menit / 300 detik)
+        Cache::put($cacheKey, $currentSnapshot, $this->cacheTtl);
 
         $stats = $this->calculateStats(array_values($currentSnapshot));
 

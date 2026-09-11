@@ -35,9 +35,9 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                             <h1 class="hub-title">MikroTik DHCP Hub</h1>
-                            <span class="live-sync-badge" id="live-sync-status-badge" title="Menerima pembaruan data secara langsung setiap 3 detik via SSE">
+                            <span class="live-sync-badge" id="live-sync-status-badge" title="Pembaruan data otomatis dari MikroTik setiap 5 menit">
                                 <span class="pulse-dot"></span>
-                                <span>Live Sync</span>
+                                <span>Auto Sync (5 Menit)</span>
                                 <span class="live-sync-timer" id="live-sync-timer-text">(Baru saja)</span>
                             </span>
                         </div>
@@ -410,8 +410,8 @@
                 </svg>
             </div>
             <div class="info-banner-text">
-                <span class="fw-bold text-primary">Streaming Real-Time Otomatis (SSE):</span>
-                <span class="text-secondary">Sistem menerima pembaruan status data perangkat secara langsung (Live Delta Streaming) tanpa membebani browser atau router. Anda juga dapat menekan tombol <strong>Refresh Live Data</strong> untuk sinkronisasi menyeluruh seketika.</span>
+                <span class="fw-bold text-primary">Informasi Sinkronisasi Otomatis (Setiap 5 Menit):</span>
+                <span class="text-secondary">Data DHCP leases dan statistik router MikroTik <strong>terupdate otomatis dalam 5 menit sekali</strong> untuk menjaga kestabilan sistem dan performa router. Anda juga dapat menekan tombol <strong>Refresh Live Data</strong> untuk melakukan sinkronisasi data terbaru secara langsung kapan saja.</span>
             </div>
         </div>
     </div>
@@ -476,8 +476,8 @@
 
     {{-- ==================== Data Table Card ==================== --}}
     <div class="hub-table-card" id="hub-table-card">
-        {{-- Real-Time 3s Stream Loading Bar --}}
-        <div class="table-live-stream-bar" id="table-live-stream-bar" title="Live Sync Active (3s)">
+        {{-- Auto Sync 5 Menit Loading Bar --}}
+        <div class="table-live-stream-bar" id="table-live-stream-bar" title="Sinkronisasi Otomatis Aktif (Setiap 5 Menit)">
             <div class="stream-bar-progress"></div>
         </div>
 
@@ -1572,18 +1572,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             if (data.success) {
+                lastTickTimestamp = Date.now();
                 if (lastSyncEl) lastSyncEl.textContent = data.last_sync;
-                if (statTotal) statTotal.textContent = data.stats.total || 0;
-                if (statBound) statBound.textContent = data.stats.bound || 0;
-                if (statDynamic) statDynamic.textContent = data.stats.dynamic || 0;
-                if (statWaiting) statWaiting.textContent = data.stats.waiting || 0;
-                if (statStatic) statStatic.textContent = data.stats.static || 0;
+                if (typeof updateStatCards === 'function') {
+                    updateStatCards(data.stats);
+                } else {
+                    if (statTotal) statTotal.textContent = data.stats.total || 0;
+                    if (statBound) statBound.textContent = data.stats.bound || 0;
+                    if (statDynamic) statDynamic.textContent = data.stats.dynamic || 0;
+                    if (statWaiting) statWaiting.textContent = data.stats.waiting || 0;
+                    if (statStatic) statStatic.textContent = data.stats.static || 0;
+                }
 
                 allLeases = data.leases || [];
                 if (!Array.isArray(allLeases)) {
                     allLeases = Object.values(allLeases || {});
                 }
                 applyFilters();
+                if (typeof triggerTableSyncAnimation === 'function') {
+                    triggerTableSyncAnimation(true);
+                }
             }
         } catch (err) {
             console.error('Gagal mengambil live sync data:', err);
@@ -1599,6 +1607,9 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshBtn.addEventListener('click', function () {
             fetchLiveData(true);
             fetchSystemResource();
+            if (typeof startAutoSync === 'function') {
+                startAutoSync();
+            }
         });
     }
 
@@ -2139,10 +2150,10 @@ document.addEventListener('DOMContentLoaded', function () {
     @endcan
 
     // ==========================================
-    // Real-Time Server-Sent Events (SSE) Delta Stream (3s Interval)
+    // Automatic 5-Minute Data Synchronization
     // ==========================================
-    let sseSource = null;
-    let sseReconnectTimer = null;
+    const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 Menit = 300.000 ms
+    let autoSyncTimer = null;
     let lastTickTimestamp = Date.now();
     const tableStreamBar = document.getElementById('table-live-stream-bar');
     const tableCard = document.getElementById('hub-table-card');
@@ -2157,14 +2168,17 @@ document.addEventListener('DOMContentLoaded', function () {
         static: parseInt((statStatic ? statStatic.textContent : 0).toString().replace(/[^0-9]/g, '')) || 0,
     };
 
-    // Ticker 1 Detik untuk memperbarui indikator waktu: (Baru saja) -> (1s lalu) -> (3s lalu)
+    // Ticker 1 Detik untuk memperbarui indikator waktu: (Baru saja) -> (15s lalu) -> (1 mnt lalu) -> (4 mnt lalu)
     setInterval(() => {
         if (!liveSyncTimerEl) return;
         const elapsedSec = Math.floor((Date.now() - lastTickTimestamp) / 1000);
-        if (elapsedSec <= 1) {
+        if (elapsedSec < 10) {
             liveSyncTimerEl.textContent = '(Baru saja)';
-        } else {
+        } else if (elapsedSec < 60) {
             liveSyncTimerEl.textContent = `(${elapsedSec}s lalu)`;
+        } else {
+            const elapsedMin = Math.floor(elapsedSec / 60);
+            liveSyncTimerEl.textContent = `(${elapsedMin} mnt lalu)`;
         }
     }, 1000);
 
@@ -2270,116 +2284,34 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function initSseStream() {
-        if (typeof EventSource === 'undefined') {
-            console.warn('Browser tidak mendukung Server-Sent Events (SSE).');
-            return;
-        }
-
-        if (sseSource) {
-            sseSource.close();
-        }
-
-        const streamUrl = `{{ route('mikrotik.dhcp.stream') }}`;
-        sseSource = new EventSource(streamUrl);
-
-        sseSource.addEventListener('connected', function (e) {
-            console.log('SSE Stream Connected (3s Live Stream):', e.data);
-            lastTickTimestamp = Date.now();
-            const liveBadge = document.getElementById('live-sync-status-badge');
-            if (liveBadge) {
-                liveBadge.title = 'Real-Time Streaming SSE 3 Detik Aktif';
-            }
-        });
-
-        // Event Tick: Diterima setiap 3 detik tanda stream aktif & router tersambung
-        sseSource.addEventListener('tick', function (e) {
-            try {
-                lastTickTimestamp = Date.now();
-                const tickData = JSON.parse(e.data);
-                triggerTableSyncAnimation(tickData.has_updates || false);
-                if (lastSyncEl && tickData.time) {
-                    lastSyncEl.textContent = tickData.time;
-                }
-                if (tickData.stats) {
-                    updateStatCards(tickData.stats);
-                }
-            } catch (err) {
-                triggerTableSyncAnimation(false);
-            }
-        });
-
-        // Event Delta: Diterima jika ada perangkat baru atau status/IP/expires berubah
-        sseSource.addEventListener('delta', function (e) {
-            try {
-                lastTickTimestamp = Date.now();
-                const data = JSON.parse(e.data);
-                if (!data || !data.updated || data.updated.length === 0) return;
-
-                if (lastSyncEl && data.last_check) {
-                    lastSyncEl.textContent = data.last_check;
-                }
-
-                // Update Stat Cards jika tersedia
-                if (data.stats) {
-                    updateStatCards(data.stats);
-                }
-
-                // Update data lokal allLeases (in-memory patching tanpa reload berat)
-                const updatedMacs = new Set();
-                data.updated.forEach(item => {
-                    const mac = (item.mac_address || '').toUpperCase();
-                    if (!mac) return;
-                    updatedMacs.add(mac);
-
-                    const idx = allLeases.findIndex(l => (l.mac_address || '').toUpperCase() === mac);
-                    if (idx !== -1) {
-                        allLeases[idx] = Object.assign({}, allLeases[idx], item);
-                    } else {
-                        allLeases.push(item);
-                    }
-                });
-
-                // Terapkan filter dan beri animasi highlight hijau pada baris yang berubah
-                applyFilters(updatedMacs);
-            } catch (err) {
-                console.error('Gagal memproses SSE delta:', err);
-            }
-        });
-
-        sseSource.onerror = function (err) {
-            if (sseSource) {
-                sseSource.close();
-                sseSource = null;
-            }
-            if (!sseReconnectTimer && !document.hidden) {
-                sseReconnectTimer = setTimeout(() => {
-                    sseReconnectTimer = null;
-                    if (!document.hidden) {
-                        initSseStream();
-                    }
-                }, 4000);
-            }
-        };
+    // Fungsi eksekusi sinkronisasi data otomatis setiap 5 menit
+    async function executeAutoSync() {
+        triggerTableSyncAnimation(true);
+        await Promise.all([
+            fetchLiveData(true),
+            fetchSystemResource()
+        ]);
+        lastTickTimestamp = Date.now();
     }
 
-    function stopSseStream() {
-        if (sseSource) {
-            sseSource.close();
-            sseSource = null;
-        }
-        if (sseReconnectTimer) {
-            clearTimeout(sseReconnectTimer);
-            sseReconnectTimer = null;
+    function startAutoSync() {
+        stopAutoSync();
+        autoSyncTimer = setInterval(executeAutoSync, SYNC_INTERVAL_MS);
+    }
+
+    function stopAutoSync() {
+        if (autoSyncTimer) {
+            clearInterval(autoSyncTimer);
+            autoSyncTimer = null;
         }
     }
 
-    // Inisialisasi SSE Stream
-    initSseStream();
+    // Jalankan timer sinkronisasi otomatis 5 menit
+    startAutoSync();
 
     // ==========================================
     // Auto-Pause saat Tab Browser Tidak Aktif (Page Visibility API)
-    // Menghemat hingga 90% resource hosting jika user berganti tab / minimize browser
+    // Menghemat koneksi & resource jika user berpindah tab / minimize browser
     // ==========================================
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
@@ -2387,16 +2319,23 @@ document.addEventListener('DOMContentLoaded', function () {
             stopTrafficStream();
             @endcan
             stopSystemResourceTimer();
-            stopSseStream();
+            stopAutoSync();
         } else {
             @can('monitoring traffic mikrotik')
             if (isTrafficStreaming) {
                 startTrafficStream();
             }
             @endcan
-            fetchSystemResource();
+            
+            // Jika tab aktif kembali dan sudah lebih dari 5 menit sejak sync terakhir, sync langsung
+            const elapsed = Date.now() - lastTickTimestamp;
+            if (elapsed >= SYNC_INTERVAL_MS) {
+                executeAutoSync();
+            } else {
+                fetchSystemResource();
+            }
             startSystemResourceTimer();
-            initSseStream();
+            startAutoSync();
         }
     });
 });
