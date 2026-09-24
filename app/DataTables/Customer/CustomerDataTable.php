@@ -15,6 +15,23 @@ class CustomerDataTable
         return DataTables::eloquent($this->query())
             ->addIndexColumn()
 
+            // Kolom Tombol Open Ticket (Khusus Waiting / Status MikroTik & yang punya akses lihat troubleshoot)
+            ->addColumn('btn_open_ticket', function ($row) {
+                $device = $row->mikrotikDevice;
+                $mikrotikStatus = $device ? strtolower($device->status ?? '') : '';
+                $hasAccess = auth()->user()->can('lihat troubleshoot') || auth()->user()->can('kelola troubleshoot');
+                if ($hasAccess && $mikrotikStatus === 'waiting') {
+                    return sprintf(
+                        '<button class="btn-action btn-open-ticket p-1" onclick="openTicketFromCustomer(%d)" title="Open Ticket Troubleshooting (Status Waiting)"
+                            style="color:#d97706;border-color:#f59e0b;background:#fffbeb;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;" onmouseover="this.style.background=\'#fef3c7\'" onmouseout="this.style.background=\'#fffbeb\'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l0 2"/><path d="M15 11l0 2"/><path d="M15 17l0 2"/><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2"/><path d="M9 12l2 2l4 -4"/></svg>
+                        </button>',
+                        $row->id
+                    );
+                }
+                return '<span class="text-muted" style="font-size:11px;">-</span>';
+            })
+
             // Kolom UUID
             ->addColumn('uuid', function ($row) {
                 return $row->uuid ?? '-';
@@ -301,6 +318,34 @@ class CustomerDataTable
                 return $row->updated_at ? $row->updated_at->format('d/m/Y H:i:s') : '-';
             })
 
+            // Kolom Catatan Teknisi
+            ->addColumn('technician_notes', function ($row) {
+                $ticket = $row->latestTroubleshoot;
+                if (!$ticket || empty($ticket->technician_notes)) {
+                    return '<span class="text-muted" style="font-size: 11px;">-</span>';
+                }
+
+                $techName = $ticket->technician ? e($ticket->technician->name) : 'Teknisi';
+                $date = $ticket->updated_at ? $ticket->updated_at->format('d/m/Y H:i') : '';
+                $noteShort = e(\Illuminate\Support\Str::limit($ticket->technician_notes, 35));
+                $noteFull = e($ticket->technician_notes);
+
+                return sprintf(
+                    '<div style="font-size: 11px; line-height: 1.3;" title="%s">
+                        <span class="badge bg-purple-lt text-purple mb-1" style="font-size: 9px; padding: 1px 4px;">%s &middot; %s</span><br>
+                        <span class="text-dark fw-medium">%s</span>
+                        <a href="javascript:void(0)" class="text-primary ms-1" onclick="viewCustomerNotes(%d)" title="Lihat Histori Catatan">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </a>
+                    </div>',
+                    $noteFull,
+                    $techName,
+                    $date,
+                    $noteShort,
+                    $row->id
+                );
+            })
+
             // Kolom Action (icon SVG)
             ->addColumn('action', function ($row) {
                 $btn = '';
@@ -329,7 +374,7 @@ class CustomerDataTable
                 if (auth()->user()->can('ubah pelanggan')) {
                     $btn .= sprintf(
                         '<a href="%s" class="btn-action btn-edit p-1" title="Edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 9.5-9.5z"/></svg>
                         </a> ',
                         route('customer.edit', $row->id)
                     );
@@ -420,7 +465,7 @@ class CustomerDataTable
                 }
                 return 'row-mikrotik-offline';
             })
-            ->rawColumns(['email', 'telp', 'mac_address', 'lokasi', 'ktp', 'action', 'checkbox', 'mic_radius_info'])
+            ->rawColumns(['email', 'telp', 'mac_address', 'lokasi', 'ktp', 'technician_notes', 'btn_open_ticket', 'action', 'checkbox', 'mic_radius_info'])
             ->make(true);
     }
 
@@ -439,6 +484,7 @@ class CustomerDataTable
 
         $query = Customer::with([
             'mikrotikDevice',
+            'latestTroubleshoot.technician',
             'router',
             'type',
             'hometown',
@@ -490,9 +536,11 @@ class CustomerDataTable
                 });
             })
 
-            ->when($request->village, fn($q, $v) => $q->where('villages_id', $v))
-            ->when($request->hometown, fn($q, $v) => $q->where('hometowns_id', $v))
-            ->when($request->vlan, fn($q, $v) => $q->where('vlans_id', $v))
+            ->when($request->regencie, fn($q, $v) => $q->where('customers.regencies_id', $v))
+            ->when($request->district, fn($q, $v) => $q->where('customers.districts_id', $v))
+            ->when($request->hometown, fn($q, $v) => $q->where('customers.hometowns_id', $v))
+            ->when($request->village, fn($q, $v) => $q->where('customers.villages_id', $v))
+            ->when($request->vlan, fn($q, $v) => $q->where('customers.vlans_id', $v))
             ->when($request->olt, fn($q, $v) => $q->where('olts_id', $v))
             ->when($request->micradius, fn($q, $v) => $q->where('mic_radius_id', $v))
             ->when($request->type_id, fn($q, $v) => $q->where('types_id', $v))

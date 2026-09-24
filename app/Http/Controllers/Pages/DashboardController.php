@@ -76,7 +76,7 @@ class DashboardController extends Controller
         $allowedPatchCoreIds = $authUser->patchCoreAccess->pluck('id')->toArray();
         $userPatchCore = $authUser->patchCore()->whereIn('patch_core.id', $allowedPatchCoreIds)->get();
 
-        $userPagesQuery = Auth::user()->pages()->with(['regencie', 'district', 'village', 'vlan.vlan']);
+        $userPagesQuery = Auth::user()->pages()->with(['regencie', 'district', 'hometown', 'village', 'vlan.vlan']);
 
         if (auth()->user()->hasPermissionTo('filter organization') && $request->filled('organization_id')) {
             $userPagesQuery->where('organization_id', $request->input('organization_id'));
@@ -85,7 +85,13 @@ class DashboardController extends Controller
         $userPages = $userPagesQuery->get();
         $organizations = Organization::all();
 
-        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages", "organizations"));
+        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+        $dashRegencies = Regency::whereIn('id', $authUserRegencies)->get();
+        $dashDistricts = District::whereIn('regencie_id', $authUserRegencies)->get();
+        $dashHometowns = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
+        $dashVillages = Village::whereIn('regencie_id', $authUserRegencies)->get();
+
+        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages", "organizations", "dashRegencies", "dashDistricts", "dashHometowns", "dashVillages"));
     }
 
     public function getDetailCount($id, $text)

@@ -44,13 +44,33 @@ class CustomerController extends Controller
             return (new CustomerDataTable)->get();
         }
 
-        $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
+        $user = Auth::user();
+        $isAdmin = $user->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin']);
 
-        $vilage = Village::whereIn('regencie_id', $authUserRegencies)->get();
-        $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
-        $olts = OLT::where('organization_id', Auth::user()->organization_id)->get();
-        $vlan = Vlan::where('organization_id', Auth::user()->organization_id)->get();
-        $micRadius = MicRadius::where('organization_id', Auth::user()->organization_id)->get();
+        if ($isAdmin) {
+            $authUserRegencies = $user->regencie->pluck('id')->toArray();
+            $regencies = Regency::whereIn('id', $authUserRegencies)->get();
+            $districts = District::whereIn('regencie_id', $authUserRegencies)->get();
+            $vilage    = Village::whereIn('regencie_id', $authUserRegencies)->get();
+            $hometown  = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
+        } else {
+            // Ambil data halaman yang di-assign ke user
+            $userPages = $user->pages;
+
+            $pageRegencyIds  = $userPages->pluck('regencies_id')->filter()->unique()->toArray();
+            $pageDistrictIds = $userPages->pluck('districts_id')->filter()->unique()->toArray();
+            $pageHometownIds = $userPages->pluck('hometowns_id')->filter()->unique()->toArray();
+            $pageVillageIds  = $userPages->pluck('villages_id')->filter()->unique()->toArray();
+
+            $regencies = Regency::whereIn('id', $pageRegencyIds)->get();
+            $districts = District::whereIn('id', $pageDistrictIds)->get();
+            $hometown  = HomeTown::whereIn('id', $pageHometownIds)->get();
+            $vilage    = Village::whereIn('id', $pageVillageIds)->get();
+        }
+
+        $olts = OLT::where('organization_id', $user->organization_id)->get();
+        $vlan = Vlan::where('organization_id', $user->organization_id)->get();
+        $micRadius = MicRadius::where('organization_id', $user->organization_id)->get();
 
         $serviceTypes = Type::where('status', '0');
         $customerTypes = Type::where('status', '1');
@@ -65,7 +85,7 @@ class CustomerController extends Controller
 
         $organizations = \App\Models\Organization::all();
 
-        return view("pages.customer.index", compact("hometown", "olts", "vlan", "micRadius", "vilage", "serviceTypes", "customerTypes", "organizations"));
+        return view("pages.customer.index", compact("regencies", "districts", "hometown", "olts", "vlan", "micRadius", "vilage", "serviceTypes", "customerTypes", "organizations"));
     }
 
     public function getSelect(Request $request)

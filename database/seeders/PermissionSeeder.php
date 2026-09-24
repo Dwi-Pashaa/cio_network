@@ -71,7 +71,8 @@ class PermissionSeeder extends Seeder
             // 'spam pemasangan',
             // 'monitoring mikrotik',
             'reboot mikrotik',
-            'monitoring traffic mikrotik'
+            'monitoring traffic mikrotik',
+            'filter pelanggan'
         ];
 
         foreach ($permissions as $permission) {

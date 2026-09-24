@@ -111,4 +111,14 @@ class Customer extends Model
     {
         return $this->hasOne(MikrotikDevice::class, 'mac_address', 'mac_address');
     }
+
+    public function troubleshoots()
+    {
+        return $this->hasMany(Troubleshoot::class, 'customer_id');
+    }
+
+    public function latestTroubleshoot()
+    {
+        return $this->hasOne(Troubleshoot::class, 'customer_id')->latestOfMany();
+    }
 }

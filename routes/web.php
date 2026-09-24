@@ -70,6 +70,15 @@ Route::middleware(['auth'])->group(function () {
         ->name('troubleshoot.search-customer');
     Route::get('/ticket/technicians-by-organization', [TroubleshootController::class, 'getTechniciansByOrganization'])
         ->name('troubleshoot.technicians-by-organization');
+    Route::get('/ticket/technicians-by-customer', [TroubleshootController::class, 'getTechniciansByCustomer'])
+        ->name('troubleshoot.technicians-by-customer');
+    Route::post('/ticket/store-from-customer', [TroubleshootController::class, 'storeFromCustomer'])
+        ->name('troubleshoot.store-from-customer');
+    Route::put('/ticket/{id}/technician-notes', [TroubleshootController::class, 'saveTechnicianNotes'])
+        ->name('troubleshoot.save-technician-notes');
+    Route::get('/ticket/customer/{customerId}/notes', [TroubleshootController::class, 'getCustomerTicketNotes'])
+        ->name('troubleshoot.customer-notes');
+
     Route::resource('ticket', TroubleshootController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
         ->names([

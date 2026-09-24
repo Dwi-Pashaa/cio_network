@@ -7,9 +7,270 @@
 @push('css')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <!-- Select2 CSS & Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .btn-action.btn-chat:hover { color: #0ea5e9; border-color: #0ea5e9; background: #f0f9ff; }
+        .btn-action.btn-open-ticket:hover { color: #b45309 !important; border-color: #f59e0b !important; background: #fef3c7 !important; transform: scale(1.08); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25); }
+
+        /* Filter Panel Styles */
+        .filter-panel-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .filter-group-header {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #475569;
+            margin-bottom: 0.55rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-group-header svg {
+            stroke: #3b82f6;
+        }
+        .filter-label {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .select2-container--bootstrap-5 .select2-selection {
+            border-color: #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            min-height: 38px;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            color: #1e293b;
+            font-weight: 500;
+            padding-left: 0.5rem;
+            padding-right: 1.5rem;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__placeholder {
+            color: #94a3b8;
+        }
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .select2-dropdown {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            font-size: 0.83rem;
+            z-index: 1055;
+        }
+        .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field {
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            font-size: 0.82rem;
+        }
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #3b82f6;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear {
+            right: 2rem;
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear:hover {
+            color: #ef4444;
+        }
+        .btn-reset-filters {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            height: 38px;
+        }
+        .btn-reset-filters:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        @media (min-width: 992px) {
+            .col-lg-5th {
+                flex: 0 0 auto;
+                width: 20%;
+            }
+        }
+
+        /* ==================== Wizard Modal Styles ==================== */
+        .wizard-steps-container {
+            position: relative;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+            color: #fff;
+        }
+        .wizard-steps-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 0.75rem;
+        }
+        .wizard-steps-line {
+            position: absolute;
+            top: 20px;
+            left: 12%;
+            right: 12%;
+            height: 3px;
+            background: rgba(255,255,255,0.15);
+            z-index: 1;
+        }
+        .wizard-steps-line-fill {
+            position: absolute;
+            top: 20px;
+            left: 12%;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            transition: width 0.4s ease;
+            z-index: 2;
+        }
+        .wizard-step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            cursor: pointer;
+            flex: 1;
+        }
+        .wizard-step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #334155;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .wizard-step-node.active .wizard-step-circle {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            border-color: #60a5fa;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            transform: scale(1.1);
+        }
+        .wizard-step-node.completed .wizard-step-circle {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #34d399;
+        }
+        .wizard-step-title {
+            margin-top: 0.4rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: color 0.3s;
+            text-align: center;
+        }
+        .wizard-step-node.active .wizard-step-title {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .wizard-step-node.completed .wizard-step-title {
+            color: #34d399;
+        }
+
+        /* Tech Select Card */
+        .tech-card-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 0.65rem;
+        }
+        .tech-card-select:hover {
+            border-color: #93c5fd;
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        .tech-card-select.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        .tech-card-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .tech-card-select.selected .tech-card-avatar {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        /* Info Item */
+        .wizard-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.85rem;
+        }
+        .wizard-info-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+        }
+        .wizard-info-item .info-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        .wizard-info-item .info-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
 
         /* Refresh Live Data Button */
         .btn-refresh-live {
@@ -274,112 +535,186 @@
                 </div>
             </div>
 
-            {{-- Filter Toolbar --}}
-            <div class="org-toolbar flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <select name="sort" id="sort" class="org-input" style="width: 80px;">
-                        @php $opts = [10, 25, 50, 100]; @endphp
-                        @foreach ($opts as $opt)
-                            <option value="{{ $opt }}">{{ $opt }}</option>
-                        @endforeach
-                    </select>
-                    <span class="text-muted small fw-bold d-none d-sm-inline">ENTRIES</span>
+            {{-- Filter Panel --}}
+            <div class="filter-panel-card">
+                {{-- Group 1: Filter Wilayah & Status MikroTik (Terbuka untuk Semua) --}}
+                <div class="mb-3">
+                    <div class="filter-group-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Filter Wilayah Administratif & Status MikroTik
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="regencie">1. Kabupaten / Kota</label>
+                            <select name="regencie" id="regencie" class="filter-select form-select" data-placeholder="Semua Kabupaten/Kota">
+                                <option value="">Semua Kabupaten/Kota</option>
+                                @foreach ($regencies as $rgc)
+                                    <option value="{{ $rgc->id }}">{{ $rgc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="district">2. Kecamatan</label>
+                            <select name="district" id="district" class="filter-select form-select" data-placeholder="Semua Kecamatan">
+                                <option value="">Semua Kecamatan</option>
+                                @foreach ($districts as $dsc)
+                                    <option value="{{ $dsc->id }}" data-regency="{{ $dsc->regencie_id }}">{{ $dsc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="hometown">3. Kampung</label>
+                            <select name="hometown" id="hometown" class="filter-select form-select" data-placeholder="Semua Kampung">
+                                <option value="">Semua Kampung</option>
+                                @foreach ($hometown as $hmt)
+                                    <option value="{{ $hmt->id }}" data-regency="{{ $hmt->regencie_id }}" data-district="{{ $hmt->district_id }}">{{ $hmt->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="village">4. Desa</label>
+                            <select name="village" id="village" class="filter-select form-select" data-placeholder="Semua Desa">
+                                <option value="">Semua Desa</option>
+                                @foreach ($vilage as $vlg)
+                                    <option value="{{ $vlg->id }}" data-regency="{{ $vlg->regencie_id }}" data-district="{{ $vlg->district_id }}">{{ $vlg->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="mikrotik_status">5. Status MikroTik</label>
+                            <select name="mikrotik_status" id="mikrotik_status" class="filter-select form-select" data-placeholder="Semua Status MikroTik">
+                                <option value="">Semua Status MikroTik</option>
+                                <option value="bound">🟢 Bound (Aktif)</option>
+                                <option value="waiting">🟡 Waiting (Menunggu)</option>
+                                <option value="offered">🟠 Offered</option>
+                                <option value="offline">🔴 Offline / Belum Terdeteksi</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
-                    <select name="village" id="village" class="org-input filter-select" style="min-width:130px;">
-                        <option value="">Semua Desa</option>
-                        @foreach ($vilage as $vlg)
-                            <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="hometown" id="hometown" class="org-input filter-select" style="min-width:140px;">
-                        <option value="">Semua Kampung</option>
-                        @foreach ($hometown as $hmt)
-                            <option value="{{ $hmt->id }}">{{ $hmt->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="vlan" id="vlan" class="org-input filter-select" style="min-width:120px;">
-                        <option value="">Semua Vlan</option>
-                        @foreach ($vlan as $vln)
-                            <option value="{{ $vln->id }}">{{ $vln->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="olt" id="olt" class="org-input filter-select" style="min-width:120px;">
-                        <option value="">Semua OLT</option>
-                        @foreach ($olts as $ol)
-                            <option value="{{ $ol->id }}">{{ $ol->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="micradius" id="micradius" class="org-input filter-select" style="min-width:140px;">
-                        <option value="">Semua Mic Radius</option>
-                        @foreach ($micRadius as $mc)
-                            <option value="{{ $mc->id }}">{{ $mc->name }}</option>
-                        @endforeach
-                    </select>
-
-                    @can('verifikasi email')
-                        <select name="email_verify" id="email_verify" class="org-input filter-select" style="min-width:150px;">
-                            <option value="">Semua Verif Email</option>
-                            <option value="register">Terdaftar</option>
-                            <option value="not_register">Tidak Terdaftar</option>
-                            <option value="belum_dicek">Belum Dicek</option>
-                        </select>
-                    @endcan
-
-                    @can('verifikasi whatsapp')
-                        <select name="wa_verify" id="wa_verify" class="org-input filter-select" style="min-width:150px;">
-                            <option value="">Semua Verif WA</option>
-                            <option value="registered">Terdaftar</option>
-                            <option value="not_registered">Tidak Terdaftar</option>
-                            <option value="belum_dicek">Belum Dicek</option>
-                        </select>
-                    @endcan
-
-                    <select name="type_id" id="type_id" class="org-input filter-select" style="min-width:145px;">
-                        <option value="">Semua Tipe Layanan</option>
-                        @foreach ($serviceTypes as $tp)
-                            <option value="{{ $tp->id }}">{{ $tp->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="org-input filter-select" style="min-width:155px;">
-                        <option value="">Semua Tipe Pelanggan</option>
-                        @foreach ($customerTypes as $tp)
-                            <option value="{{ $tp->id }}">{{ $tp->name }}</option>
-                        @endforeach
-                    </select>
-
-                    @if (optional(auth()->user()->organization)->type !== 'mitra')
-                        <select name="organization_id" id="organization_id" class="org-input filter-select" style="min-width:170px;">
-                            <option value="">Semua Organisasi/Mitra</option>
-                            @foreach ($organizations as $org)
-                                <option value="{{ $org->id }}">{{ $org->name }}</option>
-                            @endforeach
-                        </select>
-                    @endif
-
-                    <select name="mikrotik_status" id="mikrotik_status" class="org-input filter-select" style="min-width:160px;">
-                        <option value="">Semua Status MikroTik</option>
-                        <option value="bound">🟢 Bound (Aktif)</option>
-                        <option value="waiting">🟡 Waiting (Menunggu)</option>
-                        <option value="offered">🟠 Offered</option>
-                        <option value="offline">🔴 Offline / Belum Terdeteksi</option>
-                    </select>
+                {{-- Group 2: Filter Layanan & Jaringan (Khusus Permission 'filter pelanggan') --}}
+                @can('filter pelanggan')
+                <div class="mb-3 pt-2 border-top">
+                    <div class="filter-group-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                        Filter Tambahan (Layanan & Jaringan)
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="type_id">Tipe Layanan</label>
+                            <select name="type_id" id="type_id" class="filter-select form-select" data-placeholder="Semua Tipe Layanan">
+                                <option value="">Semua Tipe Layanan</option>
+                                @foreach ($serviceTypes as $tp)
+                                    <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="tipe_pelanggan_id">Tipe Pelanggan</label>
+                            <select name="tipe_pelanggan_id" id="tipe_pelanggan_id" class="filter-select form-select" data-placeholder="Semua Tipe Pelanggan">
+                                <option value="">Semua Tipe Pelanggan</option>
+                                @foreach ($customerTypes as $tp)
+                                    <option value="{{ $tp->id }}">{{ $tp->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="vlan">Vlan</label>
+                            <select name="vlan" id="vlan" class="filter-select form-select" data-placeholder="Semua Vlan">
+                                <option value="">Semua Vlan</option>
+                                @foreach ($vlan as $vln)
+                                    <option value="{{ $vln->id }}">{{ $vln->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="olt">OLT</label>
+                            <select name="olt" id="olt" class="filter-select form-select" data-placeholder="Semua OLT">
+                                <option value="">Semua OLT</option>
+                                @foreach ($olts as $ol)
+                                    <option value="{{ $ol->id }}">{{ $ol->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-5th">
+                            <label class="filter-label" for="micradius">Mic Radius</label>
+                            <select name="micradius" id="micradius" class="filter-select form-select" data-placeholder="Semua Mic Radius">
+                                <option value="">Semua Mic Radius</option>
+                                @foreach ($micRadius as $mc)
+                                    <option value="{{ $mc->id }}">{{ $mc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
+                @endcan
 
-                <div class="search-wrapper" style="min-width: 200px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari pelanggan...">
+                {{-- Toolbar Bawah: Extra Filters (Verif/Org) + Reset Button + Sort + Search --}}
+                <div class="pt-2 border-top d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+                        @can('filter pelanggan')
+                            @can('verifikasi email')
+                                <div style="min-width: 150px;">
+                                    <select name="email_verify" id="email_verify" class="filter-select form-select" data-placeholder="Semua Verif Email">
+                                        <option value="">Semua Verif Email</option>
+                                        <option value="register">Terdaftar</option>
+                                        <option value="not_register">Tidak Terdaftar</option>
+                                        <option value="belum_dicek">Belum Dicek</option>
+                                    </select>
+                                </div>
+                            @endcan
+
+                            @can('verifikasi whatsapp')
+                                <div style="min-width: 150px;">
+                                    <select name="wa_verify" id="wa_verify" class="filter-select form-select" data-placeholder="Semua Verif WA">
+                                        <option value="">Semua Verif WA</option>
+                                        <option value="registered">Terdaftar</option>
+                                        <option value="not_registered">Tidak Terdaftar</option>
+                                        <option value="belum_dicek">Belum Dicek</option>
+                                    </select>
+                                </div>
+                            @endcan
+
+                            @if (optional(auth()->user()->organization)->type !== 'mitra')
+                                <div style="min-width: 180px;">
+                                    <select name="organization_id" id="organization_id" class="filter-select form-select" data-placeholder="Semua Organisasi/Mitra">
+                                        <option value="">Semua Organisasi/Mitra</option>
+                                        @foreach ($organizations as $org)
+                                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+                        @endcan
+
+                        <button type="button" class="btn-reset-filters" id="btn-reset-filters" title="Reset Semua Filter ke Awal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            Reset Filter
+                        </button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-1">
+                            <select name="sort" id="sort" class="org-input" style="width: 75px; height: 38px; border-radius: 8px;">
+                                @php $opts = [10, 25, 50, 100]; @endphp
+                                @foreach ($opts as $opt)
+                                    <option value="{{ $opt }}">{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                            <span class="text-muted small fw-bold d-none d-sm-inline">BARIS</span>
+                        </div>
+
+                        <div class="search-wrapper" style="min-width: 220px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="org-input w-100" id="search-input" placeholder="Cari pelanggan..." style="height: 38px; border-radius: 8px;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -393,7 +728,11 @@
                     <thead>
                         <tr>
                             <th style="width:80px;">NO</th>
+                            @canany(['lihat troubleshoot', 'kelola troubleshoot'])
+                            <th class="text-center" style="width:60px;">OPEN TICKET</th>
+                            @endcanany
                             <th>ID PELANGGAN</th>
+                            <th>MAC ADDRESS</th>
                             <th>NAMA</th>
                             <th>NIK</th>
                             <th>EMAIL</th>
@@ -405,7 +744,6 @@
                             <th>PAKET</th>
                             <th>MIKROTIK RADIUS</th>
                             <th>TIPE PEMBAYARAN</th>
-                            <th>MAC ADDRESS</th>
                             <th>NAMA WiFi</th>
                             <th>PASSWORD WiFi</th>
                             <th>PPPoE USERNAME</th>
@@ -426,6 +764,7 @@
                             <th>DIUBAH OLEH</th>
                             <th>CREATED</th>
                             <th>UPDATED</th>
+                            <th>CATATAN TEKNISI</th>
                             <th class="text-center" style="width:120px;">ACTION</th>
                         </tr>
                     </thead>
@@ -576,9 +915,244 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Open Ticket Wizard (3 Step) -->
+    <div class="modal modal-blur fade" id="modal-open-ticket-wizard" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-0 overflow-hidden" style="border-radius: 14px;">
+                <!-- Wizard Header with Stepper Navigation -->
+                <div class="wizard-steps-container">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l0 2"/><path d="M15 11l0 2"/><path d="M15 17l0 2"/><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2"/><path d="M9 12l2 2l4 -4"/></svg>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-white mb-0" style="font-size:1.05rem;">Open Ticket Troubleshooting</h5>
+                                <div class="text-white-50 small" style="font-size:0.75rem;">Buat tiket penanganan gangguan dan kirim notifikasi ke teknisi</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Steps Indicator -->
+                    <div class="wizard-steps-nav">
+                        <div class="wizard-steps-line"></div>
+                        <div class="wizard-steps-line-fill" id="wizard-progress-fill" style="width: 0%;"></div>
+
+                        <div class="wizard-step-node active" id="step-node-1" onclick="goToWizardStep(1)">
+                            <div class="wizard-step-circle">1</div>
+                            <div class="wizard-step-title">Detail Pelanggan</div>
+                        </div>
+                        <div class="wizard-step-node" id="step-node-2" onclick="goToWizardStep(2)">
+                            <div class="wizard-step-circle">2</div>
+                            <div class="wizard-step-title">Pilih Teknisi</div>
+                        </div>
+                        <div class="wizard-step-node" id="step-node-3" onclick="goToWizardStep(3)">
+                            <div class="wizard-step-circle">3</div>
+                            <div class="wizard-step-title">Keterangan & Submit</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Body with Step Contents -->
+                <div class="modal-body p-4" style="background:#f8fafc;min-height:360px;">
+                    <!-- Loading Skeleton -->
+                    <div id="wizard-loading-state" class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
+                        <div class="fw-bold text-dark">Memuat Data Pelanggan & Alokasi Teknisi...</div>
+                        <div class="text-muted small">Mencocokkan wilayah kampung dan desa pelanggan</div>
+                    </div>
+
+                    <!-- STEP 1: Detail Pelanggan -->
+                    <div id="wizard-step-1" class="wizard-step-content" style="display:none;">
+                        <!-- Alert Status MikroTik Waiting -->
+                        <div class="alert alert-warning d-flex align-items-center gap-3 mb-3 border-0 shadow-sm" style="background:#fef3c7;border-radius:10px;">
+                            <div style="font-size:1.4rem;">⚠️</div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark" style="font-size:0.88rem;">Status MikroTik: <span class="badge bg-warning text-dark px-2 py-1 fw-bold">WAITING</span></div>
+                                <div class="text-muted small" style="font-size:0.78rem;">Pelanggan ini sedang mengalami status waiting pada router MikroTik dan memerlukan pengecekan teknisi.</div>
+                            </div>
+                        </div>
+
+                        <!-- Active Ticket Warning if any -->
+                        <div id="wizard-active-ticket-alert" class="alert alert-danger d-none align-items-center gap-2 mb-3 border-0 shadow-sm" style="border-radius:10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <div id="wizard-active-ticket-msg" class="small fw-semibold"></div>
+                        </div>
+
+                        <!-- Info Grid -->
+                        <div class="wizard-info-grid mb-3">
+                            <div class="wizard-info-item">
+                                <div class="info-label">Nama Pelanggan</div>
+                                <div class="info-value" id="wiz-cust-name">-</div>
+                            </div>
+                            <div class="wizard-info-item">
+                                <div class="info-label">MAC Address</div>
+                                <div class="info-value font-monospace text-primary" id="wiz-cust-mac">-</div>
+                            </div>
+                            <div class="wizard-info-item">
+                                <div class="info-label">No. Telepon / WA</div>
+                                <div class="info-value" id="wiz-cust-telp">-</div>
+                            </div>
+                            <div class="wizard-info-item">
+                                <div class="info-label">Tipe Layanan / Paket</div>
+                                <div class="info-value" id="wiz-cust-paket">-</div>
+                            </div>
+                            <div class="wizard-info-item">
+                                <div class="info-label">Router</div>
+                                <div class="info-value" id="wiz-cust-router">-</div>
+                            </div>
+                            <div class="wizard-info-item">
+                                <div class="info-label">Alokasi Area (Kampung & Desa)</div>
+                                <div class="info-value">
+                                    <span class="badge bg-blue-lt text-primary fw-bold me-1" id="wiz-cust-kampung">-</span>
+                                    <span class="badge bg-green-lt text-success fw-bold" id="wiz-cust-desa">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-info-item mb-3">
+                            <div class="info-label">Alamat Lengkap</div>
+                            <div class="info-value" id="wiz-cust-alamat" style="font-size:0.85rem;font-weight:500;">-</div>
+                        </div>
+
+                        <!-- Previous Tech Note Preview if exists -->
+                        <div id="wiz-prev-note-box" class="card border border-purple-subtle p-3 mb-0" style="background:#faf5ff;border-radius:10px;display:none;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="badge bg-purple text-white fw-bold" style="font-size:10px;">Catatan Troubleshoot Terakhir</span>
+                                <span class="text-muted small" id="wiz-prev-note-date" style="font-size:11px;">-</span>
+                            </div>
+                            <div class="small fw-semibold text-dark" id="wiz-prev-note-tech">-</div>
+                            <div class="small text-muted fst-italic" id="wiz-prev-note-text">-</div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Pilih Teknisi -->
+                    <div id="wizard-step-2" class="wizard-step-content" style="display:none;">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Pilih Teknisi Penanggung Jawab</h6>
+                                <div class="text-muted small" style="font-size:0.76rem;" id="wiz-tech-area-hint">
+                                    Menampilkan teknisi berdasarkan alokasi kampung / desa pelanggan
+                                </div>
+                            </div>
+                            <div id="wiz-tech-area-badge">
+                                <span class="badge bg-teal text-white fw-bold px-2 py-1" style="font-size:11px;">Alokasi Khusus Area</span>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="wiz-selected-tech-id" value="">
+
+                        <!-- Fallback Notice if no area tech -->
+                        <div id="wiz-tech-fallback-alert" class="alert alert-info py-2 px-3 mb-3 border-0 small d-none" style="background:#e0f2fe;color:#0369a1;border-radius:8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            Tidak ada teknisi dengan alokasi khusus kampung/desa ini. Menampilkan semua teknisi yang tersedia di organisasi.
+                        </div>
+
+                        <!-- Technicians List Container -->
+                        <div id="wiz-tech-list-container" style="max-height: 280px; overflow-y: auto; padding-right: 4px;">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Keterangan Tiket & Submit -->
+                    <div id="wizard-step-3" class="wizard-step-content" style="display:none;">
+                        <!-- Summary Banner -->
+                        <div class="card p-3 mb-3 border shadow-sm" style="background:#ffffff;border-radius:10px;">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-sm-6">
+                                    <div class="text-muted small" style="font-size:11px;">Pelanggan:</div>
+                                    <div class="fw-bold text-dark" id="wiz-review-cust-name">-</div>
+                                    <div class="text-muted small" id="wiz-review-cust-address">-</div>
+                                </div>
+                                <div class="col-sm-6 border-start ps-sm-3">
+                                    <div class="text-muted small" style="font-size:11px;">Teknisi Terpilih:</div>
+                                    <div class="fw-bold text-primary" id="wiz-review-tech-name">-</div>
+                                    <div class="text-muted small" id="wiz-review-tech-telp">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Input Keterangan -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between" style="font-size:0.85rem;">
+                                <span>Keterangan / Keluhan Gangguan <span class="text-danger">*</span></span>
+                                <span class="text-muted fw-normal small" style="font-size:0.75rem;">Wajib diisi</span>
+                            </label>
+                            <textarea id="wiz-ticket-description" class="form-control" rows="4" placeholder="Contoh: Status MikroTik waiting, sinyal wifi tidak terdeteksi / lampu LOS berkedip merah..." style="border-radius:8px;font-size:0.85rem;"></textarea>
+                        </div>
+
+                        <!-- WhatsApp Notification Notice -->
+                        <div class="card border border-success-subtle p-3 mb-0" style="background:#f0fdf4;border-radius:10px;">
+                            <div class="d-flex align-items-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-1"><path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"/><path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"/></svg>
+                                <div>
+                                    <div class="fw-bold text-success" style="font-size:0.85rem;">Notifikasi WhatsApp Otomatis</div>
+                                    <div class="text-muted small" style="font-size:0.78rem;">
+                                        Saat tiket disubmit, sistem akan otomatis mengirim pesan rincian tiket dan tautan live tracking GPS langsung ke nomor WhatsApp teknisi.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wizard Footer -->
+                <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="wiz-btn-cancel">Batal</button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" id="wiz-btn-prev" onclick="prevWizardStep()" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="15 18 9 12 15 6"/></svg>
+                            Sebelumnya
+                        </button>
+                        <button type="button" class="btn btn-primary" id="wiz-btn-next" onclick="nextWizardStep()">
+                            Selanjutnya
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ms-1"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <button type="button" class="btn btn-success" id="wiz-btn-submit" onclick="submitWizardTicket()" style="display:none;">
+                            <span class="btn-text d-flex align-items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                                Submit Tiket & Kirim WA
+                            </span>
+                            <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Histori Catatan Teknisi -->
+    <div class="modal modal-blur fade" id="modal-customer-notes" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
+                <div class="modal-header border-bottom bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            Histori Catatan Troubleshooting
+                        </h5>
+                        <div class="text-muted small" id="customer-notes-subtitle">Catatan penanganan teknisi</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3" id="customer-notes-body" style="max-height:400px;overflow-y:auto;">
+                    <!-- Dynamically populated -->
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('js')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const BASE = "{{ route('customer.index') }}";
         const EDIT_BASE = "{{ route('customer.edit', '__ID__') }}";
@@ -602,9 +1176,16 @@
                 serverSide: true,
                 ajax: {
                     url: BASE,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: function(d) {
-                        d.village = $('#village').val();
+                        d._token = $('meta[name="csrf-token"]').attr('content');
+                        d.regencie = $('#regencie').val();
+                        d.district = $('#district').val();
                         d.hometown = $('#hometown').val();
+                        d.village = $('#village').val();
                         d.vlan = $('#vlan').val();
                         d.olt = $('#olt').val();
                         d.micradius = $('#micradius').val();
@@ -618,7 +1199,7 @@
                     }
                 },
                 order: [
-                    [32, 'desc']
+                    [@canany(['lihat troubleshoot', 'kelola troubleshoot']) 33 @else 32 @endcanany, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -634,9 +1215,21 @@
                             return checkbox + data + copyBtn;
                         }
                     },
+                    @canany(['lihat troubleshoot', 'kelola troubleshoot'])
+                    {
+                        data: 'btn_open_ticket',
+                        name: 'btn_open_ticket',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    @endcanany
                     {
                         data: 'uuid',
                         defaultContent: '-'
+                    },
+                    {
+                        data: 'mac_address'
                     },
                     {
                         data: 'name'
@@ -679,9 +1272,6 @@
                     {
                         data: 'price_name',
                         defaultContent: '-'
-                    },
-                    {
-                        data: 'mac_address'
                     },
                     {
                         data: 'name_wifi',
@@ -764,6 +1354,12 @@
                     {
                         data: 'updated_at_formatted',
                         defaultContent: '-'
+                    },
+                    {
+                        data: 'technician_notes',
+                        name: 'technician_notes',
+                        defaultContent: '-',
+                        searchable: false
                     },
                     {
                         data: 'action',
@@ -900,11 +1496,180 @@
         }
 
         // ===========================
-        // Filter Handlers
+        // Filter Handlers (Select2 & Cascading Location)
         // ===========================
+        let rawDistricts = [];
+        let rawHometowns = [];
+        let rawVillages = [];
+        let isCascading = false;
+
         function initializeFilterHandlers() {
-            // Filter select changes
-            $('.filter-select').on('change', function() {
+            if ($('.filter-select').length === 0) return;
+
+            // Cache original raw options
+            $('#district option').each(function() {
+                const val = $(this).val();
+                if (val) {
+                    rawDistricts.push({
+                        val: val,
+                        text: $(this).text(),
+                        regency: $(this).data('regency')
+                    });
+                }
+            });
+
+            $('#hometown option').each(function() {
+                const val = $(this).val();
+                if (val) {
+                    rawHometowns.push({
+                        val: val,
+                        text: $(this).text(),
+                        regency: $(this).data('regency'),
+                        district: $(this).data('district')
+                    });
+                }
+            });
+
+            $('#village option').each(function() {
+                const val = $(this).val();
+                if (val) {
+                    rawVillages.push({
+                        val: val,
+                        text: $(this).text(),
+                        regency: $(this).data('regency'),
+                        district: $(this).data('district')
+                    });
+                }
+            });
+
+            // Initialize Select2 on all filter-select elements
+            $('.filter-select').each(function() {
+                const placeholder = $(this).data('placeholder') || 'Pilih';
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: placeholder,
+                    allowClear: true
+                });
+            });
+
+            // Hierarchical filter: Kabupaten/Kota changed
+            $('#regencie').on('change', function() {
+                if (isCascading) return;
+                isCascading = true;
+
+                const regId = $(this).val();
+
+                // 1. Update District
+                const distSelect = $('#district');
+                distSelect.empty().append('<option value="">Semua Kecamatan</option>');
+                const filteredDistricts = regId ? rawDistricts.filter(d => String(d.regency) === String(regId)) : rawDistricts;
+                filteredDistricts.forEach(d => {
+                    distSelect.append(`<option value="${d.val}" data-regency="${d.regency}">${d.text}</option>`);
+                });
+                distSelect.val('').trigger('change.select2');
+
+                // 2. Update Hometown
+                const homeSelect = $('#hometown');
+                homeSelect.empty().append('<option value="">Semua Kampung</option>');
+                const filteredHometowns = regId ? rawHometowns.filter(h => String(h.regency) === String(regId)) : rawHometowns;
+                filteredHometowns.forEach(h => {
+                    homeSelect.append(`<option value="${h.val}" data-regency="${h.regency}" data-district="${h.district}">${h.text}</option>`);
+                });
+                homeSelect.val('').trigger('change.select2');
+
+                // 3. Update Village
+                const vilSelect = $('#village');
+                vilSelect.empty().append('<option value="">Semua Desa</option>');
+                const filteredVillages = regId ? rawVillages.filter(v => String(v.regency) === String(regId)) : rawVillages;
+                filteredVillages.forEach(v => {
+                    vilSelect.append(`<option value="${v.val}" data-regency="${v.regency}" data-district="${v.district}">${v.text}</option>`);
+                });
+                vilSelect.val('').trigger('change.select2');
+
+                isCascading = false;
+                table.ajax.reload();
+            });
+
+            // Hierarchical filter: Kecamatan changed
+            $('#district').on('change', function() {
+                if (isCascading) return;
+                isCascading = true;
+
+                const distId = $(this).val();
+                const regId = $('#regencie').val();
+
+                // 1. Update Hometown
+                const homeSelect = $('#hometown');
+                homeSelect.empty().append('<option value="">Semua Kampung</option>');
+                let filteredHometowns = rawHometowns;
+                if (distId) {
+                    filteredHometowns = rawHometowns.filter(h => String(h.district) === String(distId));
+                } else if (regId) {
+                    filteredHometowns = rawHometowns.filter(h => String(h.regency) === String(regId));
+                }
+                filteredHometowns.forEach(h => {
+                    homeSelect.append(`<option value="${h.val}" data-regency="${h.regency}" data-district="${h.district}">${h.text}</option>`);
+                });
+                homeSelect.val('').trigger('change.select2');
+
+                // 2. Update Village
+                const vilSelect = $('#village');
+                vilSelect.empty().append('<option value="">Semua Desa</option>');
+                let filteredVillages = rawVillages;
+                if (distId) {
+                    filteredVillages = rawVillages.filter(v => String(v.district) === String(distId));
+                } else if (regId) {
+                    filteredVillages = rawVillages.filter(v => String(v.regency) === String(regId));
+                }
+                filteredVillages.forEach(v => {
+                    vilSelect.append(`<option value="${v.val}" data-regency="${v.regency}" data-district="${v.district}">${v.text}</option>`);
+                });
+                vilSelect.val('').trigger('change.select2');
+
+                isCascading = false;
+                table.ajax.reload();
+            });
+
+            // Other filters changed
+            $('.filter-select').not('#regencie, #district').on('change', function() {
+                if (!isCascading) {
+                    table.ajax.reload();
+                }
+            });
+
+            // Reset all filters
+            $('#btn-reset-filters').on('click', function() {
+                isCascading = true;
+
+                // Reset Kabupaten
+                $('#regencie').val('').trigger('change.select2');
+
+                // Restore District
+                const distSelect = $('#district');
+                distSelect.empty().append('<option value="">Semua Kecamatan</option>');
+                rawDistricts.forEach(d => distSelect.append(`<option value="${d.val}" data-regency="${d.regency}">${d.text}</option>`));
+                distSelect.val('').trigger('change.select2');
+
+                // Restore Hometown
+                const homeSelect = $('#hometown');
+                homeSelect.empty().append('<option value="">Semua Kampung</option>');
+                rawHometowns.forEach(h => homeSelect.append(`<option value="${h.val}" data-regency="${h.regency}" data-district="${h.district}">${h.text}</option>`));
+                homeSelect.val('').trigger('change.select2');
+
+                // Restore Village
+                const vilSelect = $('#village');
+                vilSelect.empty().append('<option value="">Semua Desa</option>');
+                rawVillages.forEach(v => vilSelect.append(`<option value="${v.val}" data-regency="${v.regency}" data-district="${v.district}">${v.text}</option>`));
+                vilSelect.val('').trigger('change.select2');
+
+                // Reset other selects
+                $('.filter-select').not('#regencie, #district, #hometown, #village').val('').trigger('change.select2');
+
+                // Reset search input
+                $('#search-input').val('');
+
+                isCascading = false;
                 table.ajax.reload();
             });
         }
@@ -1494,5 +2259,398 @@
                 startCustomerAutoSync();
             }
         });
+
+        // ==========================================
+        // OPEN TICKET WIZARD LOGIC FOR WAITING USERS
+        // ==========================================
+        let currentWizardStep = 1;
+        let wizardCustomerData = null;
+        let wizardTechnicians = [];
+        let selectedTechnician = null;
+
+        const GET_TECH_BY_CUSTOMER_URL = "{{ route('troubleshoot.technicians-by-customer') }}";
+        const STORE_TICKET_FROM_CUSTOMER_URL = "{{ route('troubleshoot.store-from-customer') }}";
+        const CUSTOMER_NOTES_BASE_URL = "{{ url('/ticket/customer') }}";
+
+        function openTicketFromCustomer(customerId) {
+            currentWizardStep = 1;
+            wizardCustomerData = null;
+            wizardTechnicians = [];
+            selectedTechnician = null;
+            $('#wiz-selected-tech-id').val('');
+            $('#wiz-ticket-description').val('');
+
+            // Reset UI
+            $('#wizard-loading-state').show();
+            $('.wizard-step-content').hide();
+            $('#wiz-btn-prev').hide();
+            $('#wiz-btn-next').hide();
+            $('#wiz-btn-submit').hide();
+            updateWizardNav(1);
+
+            $('#modal-open-ticket-wizard').modal('show');
+
+            $.ajax({
+                url: GET_TECH_BY_CUSTOMER_URL,
+                type: 'GET',
+                data: { customer_id: customerId },
+                headers: { 'Accept': 'application/json' },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        wizardCustomerData = res.customer;
+                        wizardTechnicians = res.technicians || [];
+                        
+                        // Populate Step 1: Customer Data
+                        $('#wiz-cust-name').text(res.customer.name || '-');
+                        $('#wiz-cust-mac').text(res.customer.mac_address || '-');
+                        $('#wiz-cust-telp').text(res.customer.telp || '-');
+                        $('#wiz-cust-paket').text((res.customer.tipe_layanan || '-') + ' / ' + (res.customer.paket || '-'));
+                        $('#wiz-cust-router').text(res.customer.router || '-');
+                        $('#wiz-cust-kampung').text('Kampung: ' + (res.customer.kampung || '-'));
+                        $('#wiz-cust-desa').text('Desa: ' + (res.customer.desa || '-'));
+                        $('#wiz-cust-alamat').text(res.customer.alamat || '-');
+
+                        // Active ticket notice
+                        if (res.active_ticket) {
+                            $('#wizard-active-ticket-alert').removeClass('d-none').addClass('d-flex');
+                            $('#wizard-active-ticket-msg').html(
+                                'Perhatian: Pelanggan ini telah memiliki tiket aktif (#' + res.active_ticket.id + ') dengan status <span class="badge bg-danger">' + res.active_ticket.status.toUpperCase() + '</span> sejak ' + res.active_ticket.created_at + '.'
+                            );
+                        } else {
+                            $('#wizard-active-ticket-alert').addClass('d-none').removeClass('d-flex');
+                        }
+
+                        // Previous note preview
+                        if (res.latest_ticket && res.latest_ticket.technician_notes && res.latest_ticket.technician_notes !== '-') {
+                            $('#wiz-prev-note-box').show();
+                            $('#wiz-prev-note-tech').text('Teknisi: ' + res.latest_ticket.technician_name);
+                            $('#wiz-prev-note-date').text(res.latest_ticket.updated_at);
+                            $('#wiz-prev-note-text').text('"' + res.latest_ticket.technician_notes + '"');
+                        } else {
+                            $('#wiz-prev-note-box').hide();
+                        }
+
+                        // Populate Step 2: Technicians
+                        renderTechnicianCards(wizardTechnicians, res.is_fallback, res.customer.kampung, res.customer.desa);
+
+                        // Populate Step 3 Review defaults
+                        $('#wiz-review-cust-name').text(res.customer.name || '-');
+                        $('#wiz-review-cust-address').text((res.customer.kampung || '') + ', ' + (res.customer.desa || ''));
+
+                        // Default pre-fill description with informative template
+                        let defaultDesc = 'Status MikroTik terdeteksi WAITING. Mohon dilakukan pengecekan kabel FO / redaman sinyal dan konfigurasi router di lokasi pelanggan (' + (res.customer.kampung || '') + ', ' + (res.customer.desa || '') + ').';
+                        $('#wiz-ticket-description').val(defaultDesc);
+
+                        $('#wizard-loading-state').hide();
+                        goToWizardStep(1);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Memuat Data',
+                            text: res.message || 'Terjadi kesalahan saat memuat data pelanggan.',
+                        });
+                        $('#modal-open-ticket-wizard').modal('hide');
+                    }
+                },
+                error: function(xhr) {
+                    let msg = 'Terjadi kesalahan pada server.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: msg,
+                    });
+                    $('#modal-open-ticket-wizard').modal('hide');
+                }
+            });
+        }
+
+        function renderTechnicianCards(technicians, isFallback, kampung, desa) {
+            const container = $('#wiz-tech-list-container');
+            container.empty();
+
+            if (isFallback) {
+                $('#wiz-tech-fallback-alert').removeClass('d-none');
+                $('#wiz-tech-area-badge').html('<span class="badge bg-secondary text-white fw-bold px-2 py-1" style="font-size:11px;">Semua Teknisi</span>');
+                $('#wiz-tech-area-hint').text('Menampilkan seluruh teknisi organisasi');
+            } else {
+                $('#wiz-tech-fallback-alert').addClass('d-none');
+                $('#wiz-tech-area-badge').html('<span class="badge bg-teal text-white fw-bold px-2 py-1" style="font-size:11px;">Alokasi Khusus Area</span>');
+                $('#wiz-tech-area-hint').text('Menampilkan teknisi untuk area ' + (kampung || '') + ' / ' + (desa || ''));
+            }
+
+            if (!technicians || technicians.length === 0) {
+                container.html('<div class="text-center text-muted py-4"><div style="font-size:1.5rem;">👨‍🔧</div><div>Tidak ada teknisi yang terdaftar di organisasi ini.</div></div>');
+                return;
+            }
+
+            technicians.forEach(function(tech, index) {
+                const initials = tech.name ? tech.name.substring(0, 2).toUpperCase() : 'TK';
+                const telpText = tech.telp ? ('WA: ' + tech.telp) : 'Belum ada No. WA';
+                const hasWaBadge = tech.telp
+                    ? '<span class="badge bg-success-lt text-success ms-auto" style="font-size:10px;">WhatsApp Aktif</span>'
+                    : '<span class="badge bg-secondary-lt text-secondary ms-auto" style="font-size:10px;">Tanpa WA</span>';
+
+                const cardHtml = `
+                    <div class="tech-card-select" id="tech-card-${tech.id}" onclick="selectTechnicianCard(${tech.id})">
+                        <div class="tech-card-avatar">${initials}</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark" style="font-size:0.9rem;">${tech.name}</div>
+                            <div class="text-muted small" style="font-size:0.75rem;">${tech.email || '-'} &middot; <span class="fw-medium">${telpText}</span></div>
+                        </div>
+                        ${hasWaBadge}
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+
+            // Auto-select first technician if available
+            if (technicians.length > 0) {
+                selectTechnicianCard(technicians[0].id);
+            }
+        }
+
+        function selectTechnicianCard(techId) {
+            $('.tech-card-select').removeClass('selected');
+            $('#tech-card-' + techId).addClass('selected');
+            $('#wiz-selected-tech-id').val(techId);
+
+            selectedTechnician = wizardTechnicians.find(t => t.id == techId) || null;
+            if (selectedTechnician) {
+                $('#wiz-review-tech-name').text(selectedTechnician.name);
+                $('#wiz-review-tech-telp').text(selectedTechnician.telp ? ('WA: ' + selectedTechnician.telp) : 'Tanpa No. WA');
+            }
+        }
+
+        function goToWizardStep(step) {
+            if (!wizardCustomerData) return;
+
+            // Validasi Step 2 sebelum lanjut ke Step 3
+            if (step === 3) {
+                const techId = $('#wiz-selected-tech-id').val();
+                if (!techId) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Pilih Teknisi',
+                        text: 'Silakan pilih teknisi penanggung jawab terlebih dahulu sebelum melanjutkan.',
+                    });
+                    return;
+                }
+            }
+
+            currentWizardStep = step;
+            $('.wizard-step-content').hide();
+            $('#wizard-step-' + step).show();
+            updateWizardNav(step);
+
+            // Button controls
+            if (step === 1) {
+                $('#wiz-btn-prev').hide();
+                $('#wiz-btn-next').show();
+                $('#wiz-btn-submit').hide();
+            } else if (step === 2) {
+                $('#wiz-btn-prev').show();
+                $('#wiz-btn-next').show();
+                $('#wiz-btn-submit').hide();
+            } else if (step === 3) {
+                $('#wiz-btn-prev').show();
+                $('#wiz-btn-next').hide();
+                $('#wiz-btn-submit').show();
+            }
+        }
+
+        function nextWizardStep() {
+            if (currentWizardStep < 3) {
+                goToWizardStep(currentWizardStep + 1);
+            }
+        }
+
+        function prevWizardStep() {
+            if (currentWizardStep > 1) {
+                goToWizardStep(currentWizardStep - 1);
+            }
+        }
+
+        function updateWizardNav(step) {
+            $('.wizard-step-node').removeClass('active completed');
+            for (let i = 1; i <= 3; i++) {
+                if (i < step) {
+                    $('#step-node-' + i).addClass('completed');
+                    $('#step-node-' + i + ' .wizard-step-circle').html('&#10003;');
+                } else if (i === step) {
+                    $('#step-node-' + i).addClass('active');
+                    $('#step-node-' + i + ' .wizard-step-circle').text(i);
+                } else {
+                    $('#step-node-' + i + ' .wizard-step-circle').text(i);
+                }
+            }
+
+            let fillPercent = (step - 1) * 38;
+            $('#wizard-progress-fill').css('width', fillPercent + '%');
+        }
+
+        function submitWizardTicket() {
+            if (!wizardCustomerData) return;
+
+            const techId = $('#wiz-selected-tech-id').val();
+            const description = $('#wiz-ticket-description').val().trim();
+
+            if (!techId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Teknisi Belum Dipilih',
+                    text: 'Silakan pilih teknisi terlebih dahulu pada langkah 2.',
+                });
+                goToWizardStep(2);
+                return;
+            }
+
+            if (!description) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Keterangan Wajib Diisi',
+                    text: 'Mohon isi rincian keterangan / keluhan gangguan.',
+                });
+                $('#wiz-ticket-description').focus();
+                return;
+            }
+
+            const btnSubmit = $('#wiz-btn-submit');
+            btnSubmit.prop('disabled', true);
+            btnSubmit.find('.btn-text').addClass('d-none');
+            btnSubmit.find('.btn-loading').removeClass('d-none');
+
+            $.ajax({
+                url: STORE_TICKET_FROM_CUSTOMER_URL,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    customer_id: wizardCustomerData.id,
+                    technician_id: techId,
+                    description: description
+                },
+                success: function(res) {
+                    btnSubmit.prop('disabled', false);
+                    btnSubmit.find('.btn-text').removeClass('d-none');
+                    btnSubmit.find('.btn-loading').addClass('d-none');
+
+                    if (res.status === 'success') {
+                        $('#modal-open-ticket-wizard').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Tiket Berhasil Dibuat!',
+                            html: `<div class="text-start">
+                                    <p class="mb-2">${res.message}</p>
+                                    <div class="p-2 bg-light rounded small mb-2">
+                                        <b>ID Tiket:</b> #${res.data.ticket_id}<br>
+                                        <b>Teknisi:</b> ${selectedTechnician ? selectedTechnician.name : '-'}<br>
+                                        <b>Pelanggan:</b> ${wizardCustomerData.name}
+                                    </div>
+                                    <p class="mb-0 text-muted small">Notifikasi WhatsApp telah dikirimkan ke teknisi untuk segera ditindaklanjuti.</p>
+                                   </div>`,
+                            showCancelButton: true,
+                            confirmButtonText: 'Buka Live Tracking GPS',
+                            cancelButtonText: 'Tutup',
+                            confirmButtonColor: '#3b82f6',
+                            cancelButtonColor: '#64748b'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open(res.data.tracking_url, '_blank');
+                            }
+                        });
+
+                        // Reload table to reflect status
+                        if (typeof table !== 'undefined' && table) {
+                            table.ajax.reload(null, false);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Membuat Tiket',
+                            text: res.message || 'Terjadi kesalahan saat membuat tiket.',
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    btnSubmit.prop('disabled', false);
+                    btnSubmit.find('.btn-text').removeClass('d-none');
+                    btnSubmit.find('.btn-loading').addClass('d-none');
+
+                    let msg = 'Gagal menyimpan tiket.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Perhatian',
+                        text: msg,
+                    });
+                }
+            });
+        }
+
+        // ==========================================
+        // VIEW CUSTOMER TROUBLESHOOT NOTES HISTORY
+        // ==========================================
+        function viewCustomerNotes(customerId) {
+            $('#customer-notes-body').html('<div class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm mb-2" role="status"></div><div class="small text-muted">Memuat riwayat catatan...</div></div>');
+            $('#modal-customer-notes').modal('show');
+
+            $.ajax({
+                url: `${CUSTOMER_NOTES_BASE_URL}/${customerId}/notes`,
+                type: 'GET',
+                headers: { 'Accept': 'application/json' },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        $('#customer-notes-subtitle').text('Pelanggan: ' + res.customer_name);
+                        const body = $('#customer-notes-body');
+                        body.empty();
+
+                        if (!res.tickets || res.tickets.length === 0) {
+                            body.html('<div class="text-center py-4 text-muted small"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 opacity-50"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><br>Belum ada riwayat catatan troubleshooting untuk pelanggan ini.</div>');
+                            return;
+                        }
+
+                        let html = '<div class="d-flex flex-column gap-2">';
+                        res.tickets.forEach(function(t) {
+                            const dateFormatted = t.updated_at ? moment(t.updated_at).format('DD/MM/YYYY HH:mm') : '-';
+                            const techName = t.technician ? t.technician.name : 'Teknisi';
+                            const statusBadge = t.status === 'done'
+                                ? '<span class="badge bg-success-lt text-success fw-bold" style="font-size:10px;">SELESAI</span>'
+                                : '<span class="badge bg-warning-lt text-warning fw-bold" style="font-size:10px;">' + t.status.toUpperCase() + '</span>';
+
+                            const techNotes = t.technician_notes
+                                ? `<div class="p-2 bg-white rounded border border-purple-subtle mt-1 text-dark small" style="font-size:11.5px;line-height:1.4;">
+                                    <div class="fw-semibold text-purple" style="font-size:10px;">Catatan Teknisi:</div>
+                                    ${t.technician_notes}
+                                   </div>`
+                                : '<div class="text-muted small fst-italic mt-1" style="font-size:11px;">Belum ada catatan dari teknisi</div>';
+
+                            html += `
+                                <div class="card border p-2" style="background:#f8fafc;border-radius:8px;">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span class="fw-bold text-dark small" style="font-size:12px;">Tiket #${t.id} &middot; ${techName}</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            ${statusBadge}
+                                            <span class="text-muted" style="font-size:10.5px;">${dateFormatted}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small" style="font-size:11px;"><b>Kendala:</b> ${t.description || '-'}</div>
+                                    ${techNotes}
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        body.html(html);
+                    }
+                },
+                error: function() {
+                    $('#customer-notes-body').html('<div class="text-danger text-center py-3 small">Gagal memuat riwayat catatan.</div>');
+                }
+            });
+        }
     </script>
 @endpush

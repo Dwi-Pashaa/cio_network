@@ -14,7 +14,16 @@ class PagesDataTable
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
+            ->addColumn('vlan', function ($row) {
+                if ($row->vlan && $row->vlan->isNotEmpty()) {
+                    $badges = $row->vlan->map(function ($pv) {
+                        $vlanName = $pv->vlan->name ?? null;
+                        return $vlanName ? '<span class="badge bg-purple-lt text-purple me-1 mb-1" style="font-size:0.75rem;padding:2px 6px;">' . e($vlanName) . '</span>' : '';
+                    })->filter()->implode('');
+                    return $badges ?: '<span class="text-muted small">-</span>';
+                }
+                return '<span class="text-muted small">-</span>';
+            })
             ->addColumn('action', function ($row) {
                 $btn = '';
 
@@ -38,7 +47,7 @@ class PagesDataTable
 
                 return $btn ?: '-';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'vlan'])
             ->make(true);
     }
 
@@ -62,7 +71,7 @@ class PagesDataTable
             return Pages::whereRaw('1 = 0');
         }
 
-        $query = Pages::with(['hometown', 'village'])
+        $query = Pages::with(['hometown', 'village', 'vlan.vlan'])
             ->join('organization', 'organization.id', '=', 'pages.organization_id')
             ->whereIn('pages.id', $authUserPages)
             ->where('pages.type', 'pages')
@@ -94,6 +103,9 @@ class PagesDataTable
                         $s->where('name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('village', function ($s) use ($search) {
+                        $s->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('vlan.vlan', function ($s) use ($search) {
                         $s->where('name', 'like', "%{$search}%");
                     });
             });

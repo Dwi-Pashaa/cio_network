@@ -42,7 +42,7 @@ Route::prefix('price')->group(function () {
 
 // data pelanggan
 Route::prefix('customer')->group(function () {
-    Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
+    Route::match(['get', 'post'], '/', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/create', [CustomerController::class, 'create'])->name('customer.create')->can('buat pelanggan');
     Route::post('/store', [CustomerController::class, 'store'])->name('customer.store')->can('buat pelanggan');
     Route::post('/check-email', [CustomerController::class, 'checkEmail'])->name('customer.check-email');

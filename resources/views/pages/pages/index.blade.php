@@ -224,10 +224,7 @@
                     <tr>
                         <th class="w-1">No</th>
                         <th>Nama</th>
-                        <th>No Telephone</th>
-                        @if (auth()->user()->hasPermissionTo('filter organization'))
-                            <th>Organisasi/Mitra</th>
-                        @endif
+                        <th>VLAN</th>
                         <th>Fitur KTP</th>
                         <th>Fitur Persetujuan</th>
                         <th>Created</th>
@@ -556,7 +553,7 @@
                     }
                 },
                 order: [
-                    [{{ auth()->user()->hasPermissionTo('filter organization') ? 6 : 5 }}, 'desc']
+                    [5, 'desc']
                 ],
                 pageLength: 10,
                 dom: 'rt',
@@ -570,15 +567,10 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'telp',
+                        data: 'vlan',
+                        orderable: false,
                         defaultContent: '-'
                     },
-@if (auth()->user()->hasPermissionTo('filter organization'))
-                    {
-                        data: 'organization_name',
-                        defaultContent: '-'
-                    },
-@endif
                     {
                         data: 'is_ktp',
                         render: function(data) {
@@ -636,7 +628,7 @@
 
                 const emptyStateHTML = `
                     <tr class="empty-state-row">
-                        <td colspan="{{ auth()->user()->hasPermissionTo('filter organization') ? 8 : 7 }}" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="empty-state">
                                 <div class="empty-state-icon mb-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted">

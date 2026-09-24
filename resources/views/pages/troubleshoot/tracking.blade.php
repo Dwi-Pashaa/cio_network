@@ -79,8 +79,21 @@
         will-change: transform, box-shadow, background;
         position: relative;
     }
-    .stepper-item:hover .stepper-icon:not(.completed-icon) {
+    .stepper-item:hover .stepper-icon:not(.completed-icon):not(.locked-icon) {
         transform: scale(1.08);
+    }
+    .stepper-item.locked {
+        cursor: not-allowed !important;
+        opacity: 0.55;
+    }
+    .stepper-item.locked:hover .stepper-icon {
+        transform: none !important;
+    }
+    .stepper-icon.locked-icon {
+        background: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+        color: #cbd5e1 !important;
+        box-shadow: none !important;
     }
     .stepper-icon.active-icon::after {
         content: '';
@@ -273,6 +286,45 @@
                             @endif
                         </div>
                     </div>
+
+                    {{-- Card Catatan Teknisi --}}
+                    <div class="premium-card">
+                        <div class="premium-card-header d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="icon-wrapper" style="background:rgba(124,58,237,.1);color:#7c3aed;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                </div>
+                                <span class="fw-bold text-dark" style="font-size:.88rem;">Catatan Teknisi</span>
+                            </div>
+                            <span class="badge bg-purple text-white" style="font-size:10px;">Data Pelanggan</span>
+                        </div>
+                        <div class="card-body p-3">
+                            <p class="text-muted small mb-2" style="font-size:0.75rem;">
+                                Catatan ini akan tampil di tabel Data Pelanggan sebagai riwayat & alasan gangguan (misal: kenapa waiting / hasil diagnosa).
+                            </p>
+                            @if(auth()->user()->can('kelola troubleshoot') || auth()->id() === $troubleshoot->technician_id)
+                                <div class="mb-2">
+                                    <textarea id="technician_notes_input" class="form-control" rows="4" placeholder="Tuliskan catatan hasil pengecekan (contoh: Kabel drop FO putus di tiang ke-3, konektor router diganti baru, redaman -19dBm normal)..." style="font-size:0.82rem;border-radius:8px;">{{ $troubleshoot->technician_notes }}</textarea>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span id="tech-notes-status" class="text-muted small" style="font-size:0.72rem;">
+                                        {{ $troubleshoot->technician_notes ? 'Tersimpan' : 'Belum ada catatan' }}
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1" id="btn-save-tech-notes" onclick="saveTechnicianNotes()">
+                                        <span class="btn-text">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                            Simpan Catatan
+                                        </span>
+                                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status"></span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="p-2 bg-light rounded text-dark small" style="font-size:0.82rem;">
+                                    {{ $troubleshoot->technician_notes ?: 'Belum ada catatan dari teknisi.' }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -319,8 +371,19 @@
                                 $p = $troubleshoot->progress->firstWhere('step', $s);
                                 $st = $p ? $p->status : 'pending';
                                 $time = $p && $p->created_at ? $p->created_at->format('H:i') : null;
+
+                                $isAccessible = true;
+                                if ($s > 1) {
+                                    for ($prev = 1; $prev < $s; $prev++) {
+                                        $prevProg = $troubleshoot->progress->firstWhere('step', $prev);
+                                        if (!$prevProg || $prevProg->status !== 'completed') {
+                                            $isAccessible = false;
+                                            break;
+                                        }
+                                    }
+                                }
                             @endphp
-                            <div class="stepper-item" onclick="toggleStep({{ $s }})" style="display:flex;flex-direction:column;align-items:center;gap:.5rem;position:relative;z-index:2;flex:1;cursor:pointer;">
+                            <div class="stepper-item {{ !$isAccessible ? 'locked' : '' }}" onclick="toggleStep({{ $s }})" style="display:flex;flex-direction:column;align-items:center;gap:.5rem;position:relative;z-index:2;flex:1;cursor:{{ $isAccessible ? 'pointer' : 'not-allowed' }};">
                                 <div class="stepper-icon rounded-circle d-flex align-items-center justify-content-center"
                                      id="icon-{{ $s }}"
                                      style="width:56px;height:56px;background:#f1f5f9;border:3px solid #e2e8f0;color:#94a3b8;">
@@ -769,6 +832,28 @@
             return found ? found.created_at : null;
         }
 
+        const stepLabels = {
+            1: 'Menuju Lokasi',
+            2: 'Tiba di Lokasi',
+            3: 'Proses Perbaikan',
+            4: 'Selesai'
+        };
+
+        function isStepAccessible(step) {
+            if (step <= 1) return true;
+            for (var s = 1; s < step; s++) {
+                if (getStepStatus(s) !== 'completed') return false;
+            }
+            return true;
+        }
+
+        function getFirstIncompleteStep() {
+            for (var s = 1; s <= 4; s++) {
+                if (getStepStatus(s) !== 'completed') return s;
+            }
+            return 4;
+        }
+
         window.findCurrentStep = function() {
             for (var s = 1; s <= 4; s++) {
                 if (getStepStatus(s) !== 'completed') return s;
@@ -777,6 +862,19 @@
         }
 
         window.toggleStep = function(step) {
+            if (!isStepAccessible(step)) {
+                var prevStep = getFirstIncompleteStep();
+                var prevName = stepLabels[prevStep] || ('Langkah ' + prevStep);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Langkah Terkunci',
+                    text: 'Harap selesaikan langkah "' + prevName + '" terlebih dahulu sebelum melanjutkan ke langkah ini.',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Mengerti'
+                });
+                return;
+            }
+
             var card = document.getElementById('card-' + step);
             if (!card) return;
             var isVisible = card.style.display !== 'none';
@@ -816,48 +914,63 @@
                 if (btn) btn.disabled = false;
             }
 
+            var currentActive = findCurrentStep();
+
             for (var s = 1; s <= 4; s++) {
                 var status = getStepStatus(s);
                 var icon = document.getElementById('icon-' + s);
                 var iconContent = document.getElementById('icon-content-' + s);
                 var label = document.getElementById('slabel-' + s);
                 var time = document.getElementById('stime-' + s);
+                var stepperItem = icon ? icon.closest('.stepper-item') : null;
 
                 if (status === 'completed') {
                     icon.style.background = '#10b981';
                     icon.style.borderColor = '#10b981';
                     icon.style.color = '#fff';
                     icon.style.boxShadow = '0 4px 12px rgba(16,185,129,.35)';
-                    icon.classList.remove('active-icon');
+                    icon.classList.remove('active-icon', 'locked-icon');
                     icon.classList.add('completed-icon');
                     iconContent.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
                     label.style.color = '#10b981';
                     var st = getStepTime(s);
                     time.textContent = st ? 'Selesai ' + st : '';
                     time.style.color = '#10b981';
-                } else {
-                    icon.style.background = '#f1f5f9';
-                    icon.style.borderColor = '#e2e8f0';
-                    icon.style.color = '#94a3b8';
-                    icon.style.boxShadow = 'none';
-                    icon.classList.remove('active-icon', 'completed-icon');
-                    label.style.color = '#64748b';
-                    time.textContent = '';
-                }
-            }
-
-            var current = findCurrentStep();
-            if (current <= 4 && getStepStatus(current) !== 'completed') {
-                var icon = document.getElementById('icon-' + current);
-                if (icon) {
+                    if (stepperItem) {
+                        stepperItem.classList.remove('locked');
+                    }
+                } else if (s === currentActive) {
                     icon.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
                     icon.style.borderColor = '#93c5fd';
                     icon.style.color = '#fff';
                     icon.style.boxShadow = '0 4px 16px rgba(59,130,246,.4)';
+                    icon.classList.remove('completed-icon', 'locked-icon');
                     icon.classList.add('active-icon');
                     label.style.color = '#1d4ed8';
+                    time.textContent = 'Langkah Aktif';
+                    time.style.color = '#3b82f6';
+                    if (stepperItem) {
+                        stepperItem.classList.remove('locked');
+                    }
+                } else {
+                    // Locked step
+                    icon.style.background = '#f8fafc';
+                    icon.style.borderColor = '#e2e8f0';
+                    icon.style.color = '#cbd5e1';
+                    icon.style.boxShadow = 'none';
+                    icon.classList.remove('active-icon', 'completed-icon');
+                    icon.classList.add('locked-icon');
+                    label.style.color = '#94a3b8';
+                    time.textContent = 'Terkunci';
+                    time.style.color = '#94a3b8';
+                    if (stepperItem) {
+                        stepperItem.classList.add('locked');
+                    }
                 }
-                var card = document.getElementById('card-' + current);
+            }
+
+            if (currentActive <= 4 && getStepStatus(currentActive) !== 'completed') {
+                var card = document.getElementById('card-' + currentActive);
                 if (card) card.style.display = 'block';
             }
 
@@ -943,6 +1056,18 @@
         }
 
         window.confirmStep = function(step) {
+            if (!isStepAccessible(step)) {
+                var prevStep = getFirstIncompleteStep();
+                var prevName = stepLabels[prevStep] || ('Langkah ' + prevStep);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Langkah Terkunci',
+                    text: 'Harap selesaikan langkah "' + prevName + '" terlebih dahulu.',
+                    confirmButtonColor: '#4f46e5'
+                });
+                return;
+            }
+
             var preview = document.getElementById('preview-' + step);
             var blob = preview._watermarkBlob;
             if (!blob) return;
@@ -1007,6 +1132,68 @@
                 document.getElementById('btn-confirm-' + step).disabled = false;
             });
         }
+
+        window.saveTechnicianNotes = function() {
+            var inputEl = document.getElementById('technician_notes_input');
+            if (!inputEl) return;
+            var notes = inputEl.value.trim();
+            if (!notes) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Catatan Kosong',
+                    text: 'Silakan ketik catatan terlebih dahulu sebelum menyimpan.',
+                });
+                return;
+            }
+
+            var btn = document.getElementById('btn-save-tech-notes');
+            var btnText = btn.querySelector('.btn-text');
+            var btnLoading = btn.querySelector('.btn-loading');
+            var statusEl = document.getElementById('tech-notes-status');
+
+            btn.disabled = true;
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+
+            fetch('{{ route("troubleshoot.save-technician-notes", $troubleshoot->id) }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ technician_notes: notes })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                btn.disabled = false;
+                btnText.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+
+                if (data.status === 'success') {
+                    if (statusEl) {
+                        statusEl.textContent = 'Tersimpan';
+                        statusEl.className = 'text-success fw-bold small';
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Disimpan',
+                        text: 'Catatan teknisi berhasil disimpan dan terhubung ke data pelanggan.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('Gagal', data.message || 'Gagal menyimpan catatan.', 'error');
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btnText.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+                Swal.fire('Error', 'Terjadi kesalahan saat menyimpan catatan.', 'error');
+            });
+        };
 
         refreshStepUI();
 

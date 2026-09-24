@@ -4,7 +4,55 @@
 
 @push('css')
     <link href="{{ asset('css/modern-layout.css') }}" rel="stylesheet">
+    <!-- Select2 CSS & Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
+        .dash-page-filter-wrap {
+            padding: 0.85rem 1.25rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dash-page-filter-wrap .select2-container--bootstrap-5 .select2-selection {
+            border-color: #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            min-height: 35px;
+        }
+        .dash-page-filter-wrap .select2-container--bootstrap-5 .select2-selection--single {
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+        .dash-page-filter-wrap .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            color: #1e293b;
+            font-weight: 500;
+            padding-left: 0.4rem;
+        }
+        .dash-page-filter-wrap .select2-container--bootstrap-5 .select2-selection--single .select2-selection__placeholder {
+            color: #94a3b8;
+        }
+        .dash-btn-reset-page {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            height: 35px;
+            white-space: nowrap;
+        }
+        .dash-btn-reset-page:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
         /* ── WELCOME BANNER ── */
         .dash-welcome {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
@@ -784,6 +832,7 @@
                             </form>
                         @endif
                         <span
+                            id="dash-page-counter"
                             style="background:#dcfce7;color:#16a34a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
                             {{ $userPages->count() }} Halaman
                         </span>
@@ -791,11 +840,60 @@
                 </div>
 
                 @if ($userPages->count() > 0)
+                    {{-- Filter Wilayah untuk Halaman Dapat Diakses --}}
+                    <div class="dash-page-filter-wrap">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                <select id="dash-page-regency" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kab/Kota">
+                                    <option value="">Semua Kab/Kota</option>
+                                    @foreach ($dashRegencies as $dr)
+                                        <option value="{{ $dr->id }}">{{ $dr->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                <select id="dash-page-district" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kecamatan">
+                                    <option value="">Semua Kecamatan</option>
+                                    @foreach ($dashDistricts as $dd)
+                                        <option value="{{ $dd->id }}" data-regency="{{ $dd->regencie_id }}">{{ $dd->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                <select id="dash-page-hometown" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kampung">
+                                    <option value="">Semua Kampung</option>
+                                    @foreach ($dashHometowns as $dh)
+                                        <option value="{{ $dh->id }}" data-regency="{{ $dh->regencie_id }}" data-district="{{ $dh->district_id }}">{{ $dh->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                <select id="dash-page-village" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Desa">
+                                    <option value="">Semua Desa</option>
+                                    @foreach ($dashVillages as $dv)
+                                        <option value="{{ $dv->id }}" data-regency="{{ $dv->regencie_id }}" data-district="{{ $dv->district_id }}">{{ $dv->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-auto col-lg-auto text-end">
+                                <button type="button" class="dash-btn-reset-page w-100 justify-content-center" id="dash-btn-reset-page" title="Reset Filter">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="dash-card-body">
-                        <div class="row g-3">
+                        <div class="row g-3" id="dash-pages-grid">
                             @foreach ($userPages as $upg)
                                 @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
-                                <div class="col-xl-3 col-lg-4 col-md-6">
+                                <div class="col-xl-3 col-lg-4 col-md-6 page-card-item"
+                                    data-regency="{{ $upg->regencies_id }}"
+                                    data-district="{{ $upg->districts_id }}"
+                                    data-hometown="{{ $upg->hometowns_id }}"
+                                    data-village="{{ $upg->villages_id }}"
+                                    data-name="{{ strtolower($upg->name) }}">
                                     <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" target="_blank"
                                         class="page-link-card">
                                         <div class="plc-icon {{ $cls }}">
@@ -812,19 +910,31 @@
                                             <div class="plc-name text-truncate">{{ $upg->name }}</div>
                                             <div class="plc-info">
                                                 @if ($upg->regencie)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kabupaten/Kota">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                                                         {{ $upg->regencie->name }}
                                                     </span><br>
                                                 @endif
                                                 @if ($upg->district)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kecamatan">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/></svg>
                                                         {{ $upg->district->name }}
                                                     </span><br>
                                                 @endif
+                                                @if ($upg->hometown)
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kampung">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
+                                                        {{ $upg->hometown->name }}
+                                                    </span><br>
+                                                @endif
+                                                @if ($upg->village)
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Desa">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7v11m0 -5h18m0 -6v11m-18 -5h18"/><circle cx="12" cy="12" r="3"/></svg>
+                                                        {{ $upg->village->name }}
+                                                    </span><br>
+                                                @endif
                                                 @if ($upg->vlan->count() > 0)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;">
+                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="VLAN">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>
                                                         {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}
                                                     </span>
@@ -1162,6 +1272,155 @@
 @endpush
 
 @push('js')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inisialisasi Select2 untuk filter halaman
+            $('.dash-filter-select').select2({
+                theme: 'bootstrap-5',
+                width: '100%'
+            });
+
+            // Cache options asli
+            const districtOptions = $('#dash-page-district option').clone();
+            const hometownOptions = $('#dash-page-hometown option').clone();
+            const villageOptions = $('#dash-page-village option').clone();
+
+            function rebuildSelect($select, $allOptions, filterFn, placeholderText) {
+                const currentVal = $select.val();
+                $select.empty();
+                $select.append(`<option value="">${placeholderText}</option>`);
+                let hasCurrent = false;
+                $allOptions.each(function() {
+                    const val = $(this).val();
+                    if (!val) return;
+                    if (filterFn($(this))) {
+                        const $opt = $(this).clone();
+                        if (val === currentVal) {
+                            $opt.prop('selected', true);
+                            hasCurrent = true;
+                        }
+                        $select.append($opt);
+                    }
+                });
+                if (!hasCurrent) {
+                    $select.val('');
+                }
+                $select.trigger('change.select2');
+            }
+
+            function filterPageCards() {
+                const regency = $('#dash-page-regency').val();
+                const district = $('#dash-page-district').val();
+                const hometown = $('#dash-page-hometown').val();
+                const village = $('#dash-page-village').val();
+
+                let visibleCount = 0;
+                const totalCount = $('.page-card-item').length;
+
+                $('.page-card-item').each(function() {
+                    const cardRegency = String($(this).data('regency') || '');
+                    const cardDistrict = String($(this).data('district') || '');
+                    const cardHometown = String($(this).data('hometown') || '');
+                    const cardVillage = String($(this).data('village') || '');
+
+                    let matches = true;
+
+                    if (regency && cardRegency !== regency) matches = false;
+                    if (district && cardDistrict !== district) matches = false;
+                    if (hometown && cardHometown !== hometown) matches = false;
+                    if (village && cardVillage !== village) matches = false;
+
+                    if (matches) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                // Update counter
+                if (visibleCount === totalCount) {
+                    $('#dash-page-counter').text(totalCount + ' Halaman');
+                } else {
+                    $('#dash-page-counter').text(visibleCount + ' dari ' + totalCount + ' Halaman');
+                }
+
+                // Handle empty state
+                if (visibleCount === 0 && totalCount > 0) {
+                    if ($('#dash-page-no-results').length === 0) {
+                        $('#dash-pages-grid').append(`
+                            <div id="dash-page-no-results" class="col-12 text-center py-4">
+                                <div style="background:#f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 16px; padding: 2rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    <h6 style="color:#475569; font-weight:700; margin-bottom:4px;">Tidak ada halaman ditemukan</h6>
+                                    <p style="color:#94a3b8; font-size:0.8rem; margin:0;">Coba sesuaikan filter wilayah Anda</p>
+                                </div>
+                            </div>
+                        `);
+                    }
+                } else {
+                    $('#dash-page-no-results').remove();
+                }
+            }
+
+            $('#dash-page-regency').on('change', function() {
+                const regencyId = $(this).val();
+
+                rebuildSelect($('#dash-page-district'), districtOptions, function($opt) {
+                    return !regencyId || $opt.attr('data-regency') === regencyId;
+                }, 'Semua Kecamatan');
+
+                const activeDistrictId = $('#dash-page-district').val();
+
+                rebuildSelect($('#dash-page-hometown'), hometownOptions, function($opt) {
+                    const matchReg = !regencyId || $opt.attr('data-regency') === regencyId;
+                    const matchDist = !activeDistrictId || $opt.attr('data-district') === activeDistrictId;
+                    return matchReg && matchDist;
+                }, 'Semua Kampung');
+
+                rebuildSelect($('#dash-page-village'), villageOptions, function($opt) {
+                    const matchReg = !regencyId || $opt.attr('data-regency') === regencyId;
+                    const matchDist = !activeDistrictId || $opt.attr('data-district') === activeDistrictId;
+                    return matchReg && matchDist;
+                }, 'Semua Desa');
+
+                filterPageCards();
+            });
+
+            $('#dash-page-district').on('change', function() {
+                const regencyId = $('#dash-page-regency').val();
+                const districtId = $(this).val();
+
+                rebuildSelect($('#dash-page-hometown'), hometownOptions, function($opt) {
+                    const matchReg = !regencyId || $opt.attr('data-regency') === regencyId;
+                    const matchDist = !districtId || $opt.attr('data-district') === districtId;
+                    return matchReg && matchDist;
+                }, 'Semua Kampung');
+
+                rebuildSelect($('#dash-page-village'), villageOptions, function($opt) {
+                    const matchReg = !regencyId || $opt.attr('data-regency') === regencyId;
+                    const matchDist = !districtId || $opt.attr('data-district') === districtId;
+                    return matchReg && matchDist;
+                }, 'Semua Desa');
+
+                filterPageCards();
+            });
+
+            $('#dash-page-hometown, #dash-page-village').on('change', function() {
+                filterPageCards();
+            });
+
+            $('#dash-btn-reset-page').on('click', function() {
+                $('#dash-page-regency').val('').trigger('change.select2');
+                rebuildSelect($('#dash-page-district'), districtOptions, () => true, 'Semua Kecamatan');
+                rebuildSelect($('#dash-page-hometown'), hometownOptions, () => true, 'Semua Kampung');
+                rebuildSelect($('#dash-page-village'), villageOptions, () => true, 'Semua Desa');
+                filterPageCards();
+            });
+        });
+    </script>
     <script>
         const BASE = "{{ route('dashboard') }}";
 
