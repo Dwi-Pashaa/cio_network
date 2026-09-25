@@ -793,181 +793,183 @@
         </div>
 
         {{-- ── PAGE ACCESS ── --}}
-        <div class="col-12">
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div class="dash-card-title">
-                        <div class="dash-card-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                <path d="M9 17h6" />
-                                <path d="M9 13h6" />
-                            </svg>
+        @can('lihat halaman')
+            <div class="col-12">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div class="dash-card-title">
+                            <div class="dash-card-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    <path d="M9 17h6" />
+                                    <path d="M9 13h6" />
+                                </svg>
+                            </div>
+                            Halaman Dapat Diakses — <span style="color:#16a34a;">{{ Auth::user()->name }}</span>
                         </div>
-                        Halaman Dapat Diakses — <span style="color:#16a34a;">{{ Auth::user()->name }}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        @if (auth()->user()->hasPermissionTo('filter organization'))
-                            <form action="" method="GET" style="margin:0;">
-                                @if(request('filter'))
-                                    <input type="hidden" name="filter" value="{{ request('filter') }}">
-                                @endif
-                                <select name="organization_id" onchange="this.form.submit()"
-                                    style="font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid #e2e8f0;background:white;color:#475569;cursor:pointer;">
-                                    <option value="">Semua Organisasi</option>
-                                    @foreach ($organizations as $org)
-                                        <option value="{{ $org->id }}" {{ request('organization_id') == $org->id ? 'selected' : '' }}>
-                                            {{ $org->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @if(request('organization_id'))
-                                    <a href="{{ request('filter') ? url()->current() . '?filter=' . request('filter') : url()->current() }}"
-                                        style="font-size:.7rem;color:#ef4444;text-decoration:none;margin-left:4px;font-weight:600;">&times;</a>
-                                @endif
-                            </form>
-                        @endif
-                        <span
-                            id="dash-page-counter"
-                            style="background:#dcfce7;color:#16a34a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
-                            {{ $userPages->count() }} Halaman
-                        </span>
-                    </div>
-                </div>
-
-                @if ($userPages->count() > 0)
-                    {{-- Filter Wilayah untuk Halaman Dapat Diakses --}}
-                    <div class="dash-page-filter-wrap">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
-                                <select id="dash-page-regency" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kab/Kota">
-                                    <option value="">Semua Kab/Kota</option>
-                                    @foreach ($dashRegencies as $dr)
-                                        <option value="{{ $dr->id }}">{{ $dr->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
-                                <select id="dash-page-district" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kecamatan">
-                                    <option value="">Semua Kecamatan</option>
-                                    @foreach ($dashDistricts as $dd)
-                                        <option value="{{ $dd->id }}" data-regency="{{ $dd->regencie_id }}">{{ $dd->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
-                                <select id="dash-page-hometown" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kampung">
-                                    <option value="">Semua Kampung</option>
-                                    @foreach ($dashHometowns as $dh)
-                                        <option value="{{ $dh->id }}" data-regency="{{ $dh->regencie_id }}" data-district="{{ $dh->district_id }}">{{ $dh->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
-                                <select id="dash-page-village" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Desa">
-                                    <option value="">Semua Desa</option>
-                                    @foreach ($dashVillages as $dv)
-                                        <option value="{{ $dv->id }}" data-regency="{{ $dv->regencie_id }}" data-district="{{ $dv->district_id }}">{{ $dv->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-auto col-lg-auto text-end">
-                                <button type="button" class="dash-btn-reset-page w-100 justify-content-center" id="dash-btn-reset-page" title="Reset Filter">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                                    Reset
-                                </button>
-                            </div>
+                        <div class="d-flex align-items-center gap-3">
+                            @if (auth()->user()->hasPermissionTo('filter organization'))
+                                <form action="" method="GET" style="margin:0;">
+                                    @if(request('filter'))
+                                        <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                    @endif
+                                    <select name="organization_id" onchange="this.form.submit()"
+                                        style="font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid #e2e8f0;background:white;color:#475569;cursor:pointer;">
+                                        <option value="">Semua Organisasi</option>
+                                        @foreach ($organizations as $org)
+                                            <option value="{{ $org->id }}" {{ request('organization_id') == $org->id ? 'selected' : '' }}>
+                                                {{ $org->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if(request('organization_id'))
+                                        <a href="{{ request('filter') ? url()->current() . '?filter=' . request('filter') : url()->current() }}"
+                                            style="font-size:.7rem;color:#ef4444;text-decoration:none;margin-left:4px;font-weight:600;">&times;</a>
+                                    @endif
+                                </form>
+                            @endif
+                            <span
+                                id="dash-page-counter"
+                                style="background:#dcfce7;color:#16a34a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
+                                {{ $userPages->count() }} Halaman
+                            </span>
                         </div>
                     </div>
 
-                    <div class="dash-card-body">
-                        <div class="row g-3" id="dash-pages-grid">
-                            @foreach ($userPages as $upg)
-                                @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
-                                <div class="col-xl-3 col-lg-4 col-md-6 page-card-item"
-                                    data-regency="{{ $upg->regencies_id }}"
-                                    data-district="{{ $upg->districts_id }}"
-                                    data-hometown="{{ $upg->hometowns_id }}"
-                                    data-village="{{ $upg->villages_id }}"
-                                    data-name="{{ strtolower($upg->name) }}">
-                                    <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" target="_blank"
-                                        class="page-link-card">
-                                        <div class="plc-icon {{ $cls }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                <path
-                                                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                            </svg>
-                                        </div>
-                                        <div style="overflow:hidden;flex:1;">
-                                            <div class="plc-name text-truncate">{{ $upg->name }}</div>
-                                            <div class="plc-info">
-                                                @if ($upg->regencie)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kabupaten/Kota">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                                        {{ $upg->regencie->name }}
-                                                    </span><br>
-                                                @endif
-                                                @if ($upg->district)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kecamatan">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/></svg>
-                                                        {{ $upg->district->name }}
-                                                    </span><br>
-                                                @endif
-                                                @if ($upg->hometown)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Kampung">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
-                                                        {{ $upg->hometown->name }}
-                                                    </span><br>
-                                                @endif
-                                                @if ($upg->village)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="Desa">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7v11m0 -5h18m0 -6v11m-18 -5h18"/><circle cx="12" cy="12" r="3"/></svg>
-                                                        {{ $upg->village->name }}
-                                                    </span><br>
-                                                @endif
-                                                @if ($upg->vlan->count() > 0)
-                                                    <span style="display:inline-flex;align-items:center;gap:3px;" title="VLAN">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>
-                                                        {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9 18 15 12 9 6" />
-                                        </svg>
-                                    </a>
+                    @if ($userPages->count() > 0)
+                        {{-- Filter Wilayah untuk Halaman Dapat Diakses --}}
+                        <div class="dash-page-filter-wrap">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                    <select id="dash-page-regency" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kab/Kota">
+                                        <option value="">Semua Kab/Kota</option>
+                                        @foreach ($dashRegencies as $dr)
+                                            <option value="{{ $dr->id }}">{{ $dr->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @endforeach
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                    <select id="dash-page-district" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kecamatan">
+                                        <option value="">Semua Kecamatan</option>
+                                        @foreach ($dashDistricts as $dd)
+                                            <option value="{{ $dd->id }}" data-regency="{{ $dd->regencie_id }}">{{ $dd->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                    <select id="dash-page-hometown" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Kampung">
+                                        <option value="">Semua Kampung</option>
+                                        @foreach ($dashHometowns as $dh)
+                                            <option value="{{ $dh->id }}" data-regency="{{ $dh->regencie_id }}" data-district="{{ $dh->district_id }}">{{ $dh->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl">
+                                    <select id="dash-page-village" class="form-select form-select-sm dash-filter-select" data-placeholder="Semua Desa">
+                                        <option value="">Semua Desa</option>
+                                        @foreach ($dashVillages as $dv)
+                                            <option value="{{ $dv->id }}" data-regency="{{ $dv->regencie_id }}" data-district="{{ $dv->district_id }}">{{ $dv->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-auto col-lg-auto text-end">
+                                    <button type="button" class="dash-btn-reset-page w-100 justify-content-center" id="dash-btn-reset-page" title="Reset Filter">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                @else
-                    <div class="dash-empty">
-                        <div class="dash-empty-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                            </svg>
+
+                        <div class="dash-card-body">
+                            <div class="row g-3" id="dash-pages-grid">
+                                @foreach ($userPages as $upg)
+                                    @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
+                                    <div class="col-xl-3 col-lg-4 col-md-6 page-card-item"
+                                        data-regency="{{ $upg->regencies_id }}"
+                                        data-district="{{ $upg->districts_id }}"
+                                        data-hometown="{{ $upg->hometowns_id }}"
+                                        data-village="{{ $upg->villages_id }}"
+                                        data-name="{{ strtolower($upg->name) }}">
+                                        <a href="{{ route('input.data.index', ['slug' => $upg->slug]) }}" target="_blank"
+                                            class="page-link-card">
+                                            <div class="plc-icon {{ $cls }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path
+                                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div style="overflow:hidden;flex:1;">
+                                                <div class="plc-name text-truncate">{{ $upg->name }}</div>
+                                                <div class="plc-info">
+                                                    @if ($upg->regencie)
+                                                        <span style="display:inline-flex;align-items:center;gap:3px;" title="Kabupaten/Kota">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                                            {{ $upg->regencie->name }}
+                                                        </span><br>
+                                                    @endif
+                                                    @if ($upg->district)
+                                                        <span style="display:inline-flex;align-items:center;gap:3px;" title="Kecamatan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/></svg>
+                                                            {{ $upg->district->name }}
+                                                        </span><br>
+                                                    @endif
+                                                    @if ($upg->hometown)
+                                                        <span style="display:inline-flex;align-items:center;gap:3px;" title="Kampung">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
+                                                            {{ $upg->hometown->name }}
+                                                        </span><br>
+                                                    @endif
+                                                    @if ($upg->village)
+                                                        <span style="display:inline-flex;align-items:center;gap:3px;" title="Desa">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7v11m0 -5h18m0 -6v11m-18 -5h18"/><circle cx="12" cy="12" r="3"/></svg>
+                                                            {{ $upg->village->name }}
+                                                        </span><br>
+                                                    @endif
+                                                    @if ($upg->vlan->count() > 0)
+                                                        <span style="display:inline-flex;align-items:center;gap:3px;" title="VLAN">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>
+                                                            {{ $upg->vlan->pluck('vlan.name')->filter()->join(', ') }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                        <h6>Tidak ada halaman yang dapat diakses</h6>
-                        <p>Silakan minta admin untuk memberikan akses halaman</p>
-                    </div>
-                @endif
+                    @else
+                        <div class="dash-empty">
+                            <div class="dash-empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                </svg>
+                            </div>
+                            <h6>Tidak ada halaman yang dapat diakses</h6>
+                            <p>Silakan minta admin untuk memberikan akses halaman</p>
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
+        @endcan
 
         {{-- ── FILTER CUSTOMER ── --}}
         <div class="col-12">
