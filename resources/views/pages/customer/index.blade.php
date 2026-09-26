@@ -14,6 +14,69 @@
     <style>
         .btn-action.btn-chat:hover { color: #0ea5e9; border-color: #0ea5e9; background: #f0f9ff; }
         .btn-action.btn-open-ticket:hover { color: #b45309 !important; border-color: #f59e0b !important; background: #fef3c7 !important; transform: scale(1.08); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25); }
+        .btn-action.btn-ticket-detail:hover { color: #0284c7 !important; border-color: #0284c7 !important; background: #e0f2fe !important; transform: scale(1.08); box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25); }
+
+        /* Ticket Progress Timeline */
+        .ticket-progress-step {
+            position: relative;
+            padding-left: 38px;
+            padding-bottom: 22px;
+        }
+        .ticket-progress-step:last-child {
+            padding-bottom: 0;
+        }
+        .ticket-progress-step::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 28px;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        .ticket-progress-step:last-child::before {
+            display: none;
+        }
+        .ticket-progress-step.completed::before {
+            background: #10b981;
+        }
+        .step-icon-badge {
+            position: absolute;
+            left: 0;
+            top: 0px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 1;
+        }
+        .step-icon-badge.completed {
+            background: #ecfdf5;
+            color: #059669;
+            border: 2px solid #10b981;
+        }
+        .step-icon-badge.pending {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 2px solid #cbd5e1;
+        }
+        .step-photo-preview {
+            max-width: 140px;
+            max-height: 105px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .step-photo-preview:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
         /* Filter Panel Styles */
         .filter-panel-card {
@@ -1148,6 +1211,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Detail Pekerjaan Teknisi -->
+    <div class="modal modal-blur fade" id="modal-ticket-detail" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
+                <div class="modal-header border-bottom bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M13 3a1 1 0 0 1 1 1v1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-12a1 1 0 0 1 1 -1h2v-1a1 1 0 0 1 1 -1h4z"/></svg>
+                            <span id="ticket-detail-title">Detail Pekerjaan Teknisi</span>
+                        </h5>
+                        <div class="text-muted small" id="ticket-detail-subtitle">Progres pengerjaan tiket troubleshooting</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="ticket-detail-body" style="max-height:75vh;overflow-y:auto;">
+                    <!-- Dynamically populated -->
+                </div>
+                <div class="modal-footer bg-light py-2 justify-content-between">
+                    <div id="ticket-detail-footer-info" class="small text-muted"></div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal for Photo Zoom -->
+    <div class="modal modal-blur fade" id="modal-photo-lightbox" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1070;">
+        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+            <div class="modal-content border-0 bg-transparent shadow-none">
+                <div class="modal-body p-0 text-center position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;"></button>
+                    <img id="lightbox-img" src="" alt="Foto Pekerjaan" class="img-fluid rounded shadow-lg" style="max-height: 80vh; object-fit: contain; border: 2px solid #ffffff;">
+                    <div id="lightbox-caption" class="text-white text-center mt-2 small fw-semibold bg-dark bg-opacity-75 py-1 px-3 rounded d-inline-block"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('js')
@@ -1994,8 +2095,44 @@
         let activeCopyCustomText = '';
 
         function cleanText(htmlOrStr) {
-            if (!htmlOrStr) return '';
-            return $('<div>').html(htmlOrStr).text().trim();
+            if (!htmlOrStr || htmlOrStr === '-') return '';
+            if (typeof htmlOrStr !== 'string') return String(htmlOrStr);
+            if (!/<[a-z][\s\S]*>/i.test(htmlOrStr)) {
+                return htmlOrStr.trim();
+            }
+            const $wrapper = $('<div>').html(htmlOrStr);
+            $wrapper.find('.badge, button, a, svg, script, style, .btn-action').remove();
+            $wrapper.find('br').replaceWith(' ');
+            return $wrapper.text().replace(/\s+/g, ' ').trim();
+        }
+
+        function extractCleanEmail(htmlOrStr) {
+            if (!htmlOrStr || htmlOrStr === '-') return '';
+            const str = String(htmlOrStr);
+            const match = str.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+            if (match) return match[0];
+            return cleanText(htmlOrStr);
+        }
+
+        function extractCleanTelp(htmlOrStr) {
+            if (!htmlOrStr || htmlOrStr === '-') return '';
+            const str = String(htmlOrStr);
+            const cleaned = cleanText(str);
+            const match = cleaned.match(/(?:\+62|62|08)[0-9\s\-]{6,}/);
+            if (match) {
+                return match[0].replace(/[\s\-]/g, '');
+            }
+            return cleaned;
+        }
+
+        function extractCleanMac(htmlOrStr) {
+            if (!htmlOrStr || htmlOrStr === '-') return '';
+            const str = String(htmlOrStr);
+            const match = str.match(/([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}/);
+            if (match) {
+                return match[0].toUpperCase();
+            }
+            return cleanText(htmlOrStr);
         }
 
         function cleanPrefix(val, prefix) {
@@ -2005,27 +2142,27 @@
         }
 
         function generateCustomFormat(rowData) {
-            const uuid = (rowData.uuid && rowData.uuid !== '-') ? rowData.uuid : '';
-            const typeName = (rowData.type_name && rowData.type_name !== '-') ? rowData.type_name.toUpperCase() : '';
-            const name = (rowData.name && rowData.name !== '-') ? rowData.name : '';
-            const telp = cleanText(rowData.telp);
-            const mac = (rowData.mac_address && rowData.mac_address !== '-') ? rowData.mac_address : '';
-            const router = (rowData.router_name && rowData.router_name !== '-') ? rowData.router_name : '';
+            const uuid = (rowData.uuid && rowData.uuid !== '-') ? cleanText(rowData.uuid) : '';
+            const typeName = (rowData.type_name && rowData.type_name !== '-') ? cleanText(rowData.type_name).toUpperCase() : '';
+            const name = (rowData.name && rowData.name !== '-') ? cleanText(rowData.name) : '';
+            const telp = extractCleanTelp(rowData.telp);
+            const mac = extractCleanMac(rowData.mac_address);
+            const router = (rowData.router_name && rowData.router_name !== '-') ? cleanText(rowData.router_name) : '';
 
-            const hometown = cleanPrefix(rowData.hometown_name, 'Kp');
-            const village = cleanPrefix(rowData.village_name, 'Ds');
-            const rt = cleanPrefix(rowData.rt_name, 'Rt');
-            const rw = cleanPrefix(rowData.rw_name, 'Rw');
-            const district = cleanPrefix(rowData.district_name, 'Kec');
-            const regency = cleanPrefix(rowData.regencie_name, 'Kab');
-            const vlan = cleanPrefix(rowData.vlan_name, 'Vlan');
+            const hometown = cleanPrefix(cleanText(rowData.hometown_name), 'Kp');
+            const village = cleanPrefix(cleanText(rowData.village_name), 'Ds');
+            const rt = cleanPrefix(cleanText(rowData.rt_name), 'Rt');
+            const rw = cleanPrefix(cleanText(rowData.rw_name), 'Rw');
+            const district = cleanPrefix(cleanText(rowData.district_name), 'Kec');
+            const regency = cleanPrefix(cleanText(rowData.regencie_name), 'Kab');
+            const vlan = cleanPrefix(cleanText(rowData.vlan_name), 'Vlan');
             
             let kordinat = '';
             if (rowData.latitude && rowData.longitude) {
                 kordinat = `${rowData.latitude},${rowData.longitude}`;
             } else if (rowData.lokasi && rowData.lokasi !== '-') {
-                const match = rowData.lokasi.match(/q=([-\d.]+,[-\d.]+)/);
-                kordinat = match ? match[1] : '';
+                const match = String(rowData.lokasi).match(/q=([-\d.]+,[-\d.]+)/);
+                kordinat = match ? match[1] : cleanText(rowData.lokasi);
             }
 
             const lines = [
@@ -2050,32 +2187,32 @@
 
         function generateFullFormat(rowData) {
             const fields = {
-                'UUID': rowData.uuid,
-                'Tipe Pelanggan': rowData.tipe_pelanggan,
-                'Tipe Layanan': rowData.type_name,
-                'NIK': rowData.nik,
-                'NAMA': rowData.name,
-                'EMAIL': cleanText(rowData.email),
-                'TELP': cleanText(rowData.telp),
-                'MAC ADDRESS': rowData.mac_address,
-                'ROUTER': rowData.router_name,
-                'KAMPUNG': rowData.hometown_name,
-                'DESA': rowData.village_name,
-                'RT': rowData.rt_name,
-                'RW': rowData.rw_name,
-                'KECAMATAN': rowData.district_name,
-                'KAB/KOTA': rowData.regencie_name,
-                'VLAN': rowData.vlan_name,
-                'OLT': rowData.olt_info,
-                'ODP': rowData.odp_info,
-                'WIFI': rowData.name_wifi,
-                'PASSWORD WIFI': rowData.password_wifi,
-                'PPPOE USER': rowData.pppoe_username,
-                'PPPOE PASS': rowData.pppoe_password,
-                'PAKET': rowData.paket_name,
-                'PEMBAYARAN': rowData.price_name,
-                'ORGANISASI/MITRA': rowData.organization,
-                'INPUT OLEH': rowData.input_by,
+                'UUID': cleanText(rowData.uuid),
+                'Tipe Pelanggan': cleanText(rowData.tipe_pelanggan),
+                'Tipe Layanan': cleanText(rowData.type_name),
+                'NIK': cleanText(rowData.nik),
+                'NAMA': cleanText(rowData.name),
+                'EMAIL': extractCleanEmail(rowData.email),
+                'TELP': extractCleanTelp(rowData.telp),
+                'MAC ADDRESS': extractCleanMac(rowData.mac_address),
+                'ROUTER': cleanText(rowData.router_name),
+                'KAMPUNG': cleanText(rowData.hometown_name),
+                'DESA': cleanText(rowData.village_name),
+                'RT': cleanText(rowData.rt_name),
+                'RW': cleanText(rowData.rw_name),
+                'KECAMATAN': cleanText(rowData.district_name),
+                'KAB/KOTA': cleanText(rowData.regencie_name),
+                'VLAN': cleanText(rowData.vlan_name),
+                'OLT': cleanText(rowData.olt_info),
+                'ODP': cleanText(rowData.odp_info),
+                'WIFI': cleanText(rowData.name_wifi),
+                'PASSWORD WIFI': cleanText(rowData.password_wifi),
+                'PPPOE USER': cleanText(rowData.pppoe_username),
+                'PPPOE PASS': cleanText(rowData.pppoe_password),
+                'PAKET': cleanText(rowData.paket_name),
+                'PEMBAYARAN': cleanText(rowData.price_name),
+                'ORGANISASI/MITRA': cleanText(rowData.organization),
+                'INPUT OLEH': cleanText(rowData.input_by),
                 'LOKASI': rowData.maps_url || (rowData.latitude && rowData.longitude ? `https://www.google.com/maps?q=${rowData.latitude},${rowData.longitude}` : null)
             };
 
@@ -2651,6 +2788,164 @@
                     $('#customer-notes-body').html('<div class="text-danger text-center py-3 small">Gagal memuat riwayat catatan.</div>');
                 }
             });
+        }
+
+        // ==========================================
+        // VIEW TICKET DETAIL & TECHNICIAN PROGRESS
+        // ==========================================
+        const TICKET_DETAIL_BASE_URL = "{{ url('/ticket') }}";
+
+        function openTicketDetailFromCustomer(ticketId) {
+            $('#ticket-detail-title').text('Detail Pekerjaan Tiket #' + ticketId);
+            $('#ticket-detail-subtitle').text('Memuat data...');
+            $('#ticket-detail-body').html('<div class="text-center py-5"><div class="spinner-border text-primary mb-2" role="status"></div><div class="small text-muted">Memuat detail pekerjaan teknisi...</div></div>');
+            $('#ticket-detail-footer-info').html('');
+            $('#modal-ticket-detail').modal('show');
+
+            $.ajax({
+                url: `${TICKET_DETAIL_BASE_URL}/${ticketId}/detail`,
+                type: 'GET',
+                headers: { 'Accept': 'application/json' },
+                success: function(res) {
+                    if (res.troubleshoot) {
+                        renderTicketDetailModal(res.troubleshoot, res.progress || []);
+                    } else {
+                        $('#ticket-detail-body').html('<div class="text-center text-danger py-4">Data tiket tidak valid.</div>');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal memuat detail tiket.';
+                    $('#ticket-detail-body').html(`<div class="text-center text-danger py-4"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><br>${msg}</div>`);
+                }
+            });
+        }
+
+        function renderTicketDetailModal(troubleshoot, progressList) {
+            const customerName = troubleshoot.customer ? troubleshoot.customer.name : '-';
+            const customerMac = troubleshoot.customer ? troubleshoot.customer.mac_address : '-';
+            const techName = troubleshoot.technician ? troubleshoot.technician.name : 'Belum Ditugaskan';
+            const techTelp = troubleshoot.technician ? troubleshoot.technician.telp : null;
+
+            $('#ticket-detail-subtitle').text(`Pelanggan: ${customerName} (${customerMac})`);
+
+            // Status badge map
+            const statusMap = {
+                'open': '<span class="badge bg-warning-lt text-warning fw-bold">Open</span>',
+                'menuju_lokasi': '<span class="badge bg-info-lt text-info fw-bold">Menuju Lokasi</span>',
+                'tiba_lokasi': '<span class="badge bg-cyan-lt text-cyan fw-bold">Tiba di Lokasi</span>',
+                'perbaikan': '<span class="badge bg-indigo-lt text-indigo fw-bold">Perbaikan</span>',
+                'on_progress': '<span class="badge bg-primary-lt text-primary fw-bold">On Progress</span>',
+                'done': '<span class="badge bg-success-lt text-success fw-bold">Selesai</span>',
+                'cancelled': '<span class="badge bg-danger-lt text-danger fw-bold">Dibatalkan</span>'
+            };
+            const statusBadge = statusMap[troubleshoot.status] || `<span class="badge bg-secondary-lt text-secondary fw-bold">${troubleshoot.status ? troubleshoot.status.toUpperCase() : '-'}</span>`;
+
+            let html = `
+                <!-- Info Header Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="text-muted small mb-1 fw-semibold">PELANGGAN</div>
+                            <div class="fw-bold text-dark">${customerName}</div>
+                            <div class="small text-muted font-monospace">${customerMac || '-'}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted small fw-semibold">TEKNISI & STATUS</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="fw-bold text-dark">${techName}</div>
+                            <div class="small text-muted">${techTelp ? `<a href="https://wa.me/${techTelp.replace(/[^0-9]/g, '')}" target="_blank" class="text-success text-decoration-none">WA: ${techTelp}</a>` : '-'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kendala / Keluhan -->
+                <div class="mb-4">
+                    <div class="small fw-bold text-secondary text-uppercase mb-2">Kendala / Deskripsi:</div>
+                    <div class="p-3 bg-white rounded border text-dark small" style="background:#fcfcfd;">
+                        ${troubleshoot.description ? troubleshoot.description.replace(/\\n/g, '<br>') : '<span class="text-muted italic">Tidak ada deskripsi kendala</span>'}
+                    </div>
+                </div>
+
+                <!-- Catatan Teknisi jika ada -->
+                ${troubleshoot.technician_notes ? `
+                <div class="mb-4">
+                    <div class="small fw-bold text-purple text-uppercase mb-2">Catatan Teknisi:</div>
+                    <div class="p-3 rounded border border-purple-subtle text-dark small" style="background:#faf5ff;">
+                        ${troubleshoot.technician_notes.replace(/\\n/g, '<br>')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- 4 Step Timeline Progress -->
+                <div>
+                    <div class="small fw-bold text-secondary text-uppercase mb-3">Tahapan Pengerjaan Teknisi:</div>
+                    <div class="ticket-progress-timeline">
+            `;
+
+            progressList.forEach(function(item) {
+                const isCompleted = item.status === 'completed';
+                const stepClass = isCompleted ? 'completed' : 'pending';
+                const iconBadge = isCompleted
+                    ? `<div class="step-icon-badge completed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`
+                    : `<div class="step-icon-badge pending">${item.step}</div>`;
+
+                let photoHtml = '';
+                if (item.photo) {
+                    photoHtml = `
+                        <div class="mt-2">
+                            <div class="small text-muted mb-1 fw-semibold">Foto Dokumentasi:</div>
+                            <img src="${item.photo}" alt="Foto Step ${item.step}" class="step-photo-preview shadow-sm" onclick="showTicketPhotoLightbox('${item.photo}', 'Step ${item.step}: ${item.label}')" title="Klik untuk memperbesar">
+                        </div>
+                    `;
+                } else if (isCompleted) {
+                    photoHtml = `<div class="text-muted small fst-italic mt-1">Tidak ada foto yang diunggah</div>`;
+                }
+
+                let locHtml = '';
+                if (item.address || (item.latitude && item.longitude)) {
+                    locHtml = `
+                        <div class="small text-muted mt-2 d-flex align-items-start gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-1 flex-shrink-0 text-danger"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>${item.address ? item.address : `${item.latitude}, ${item.longitude}`}</span>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="ticket-progress-step ${stepClass}">
+                        ${iconBadge}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold ${isCompleted ? 'text-dark' : 'text-muted'}">${item.step}. ${item.label}</h6>
+                            <span class="badge ${isCompleted ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary'}" style="font-size:10.5px;">
+                                ${isCompleted ? (item.updated_at || 'Selesai') : 'Belum'}
+                            </span>
+                        </div>
+                        ${locHtml}
+                        ${photoHtml}
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            $('#ticket-detail-body').html(html);
+            const createdDate = troubleshoot.created_at
+                ? (typeof moment !== 'undefined' ? moment(troubleshoot.created_at).format('DD/MM/YYYY HH:mm') : troubleshoot.created_at)
+                : '-';
+            $('#ticket-detail-footer-info').text('Tiket dibuat: ' + createdDate);
+        }
+
+        function showTicketPhotoLightbox(photoUrl, caption) {
+            $('#lightbox-img').attr('src', photoUrl);
+            $('#lightbox-caption').text(caption || 'Foto Dokumentasi');
+            $('#modal-photo-lightbox').modal('show');
         }
     </script>
 @endpush

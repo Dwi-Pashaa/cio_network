@@ -87,7 +87,11 @@ class UserController extends Controller
 
         $user->regencie()->sync($validated['regencie_id']);
 
-        $user->pages()->sync($validated['pages_id']);
+        $pageIds = $validated['pages_id'];
+        if (in_array('all', $pageIds) || in_array('keseluruhan', $pageIds)) {
+            $pageIds = Pages::where('organization_id', auth()->user()->organization_id)->pluck('id')->toArray();
+        }
+        $user->pages()->sync($pageIds);
 
         $user->routerAccess()->sync($request->router_id ?? []);
         $user->patchCoreAccess()->sync($request->patch_core_id ?? []);
@@ -170,7 +174,11 @@ class UserController extends Controller
 
         $user->regencie()->sync($request->regencie_id);
 
-        $user->pages()->sync($request->pages_id);
+        $pageIds = $request->pages_id ?? [];
+        if (in_array('all', $pageIds) || in_array('keseluruhan', $pageIds)) {
+            $pageIds = Pages::where('organization_id', $user->organization_id)->pluck('id')->toArray();
+        }
+        $user->pages()->sync($pageIds);
 
         $user->routerAccess()->sync($request->router_id ?? []);
         $user->patchCoreAccess()->sync($request->patch_core_id ?? []);

@@ -21,6 +21,23 @@ class CustomerDataTable
                 $mikrotikStatus = $device ? strtolower($device->status ?? '') : '';
                 $hasAccess = auth()->user()->can('lihat troubleshoot') || auth()->user()->can('kelola troubleshoot');
                 if ($hasAccess && $mikrotikStatus === 'waiting') {
+                    $activeTicket = $row->activeTicket;
+                    if ($activeTicket) {
+                        return sprintf(
+                            '<div class="d-flex flex-column gap-1 align-items-center">
+                                <button class="btn-action btn-open-ticket p-1" disabled title="Tiket #%d aktif sedang berlangsung" style="color:#9ca3af;border-color:#d1d5db;background:#f3f4f6;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;cursor:not-allowed;opacity:0.6;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l0 2"/><path d="M15 11l0 2"/><path d="M15 17l0 2"/><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2"/><path d="M9 12l2 2l4 -4"/></svg>
+                                </button>
+                                <button class="btn-action btn-ticket-detail p-1" onclick="openTicketDetailFromCustomer(%d)" title="Detail Pekerjaan Teknisi (Tiket #%d)" style="color:#0284c7;border-color:#0ea5e9;background:#f0f9ff;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M13 3a1 1 0 0 1 1 1v1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-12a1 1 0 0 1 1 -1h2v-1a1 1 0 0 1 1 -1h4z"/></svg>
+                                </button>
+                            </div>',
+                            $activeTicket->id,
+                            $activeTicket->id,
+                            $activeTicket->id
+                        );
+                    }
+
                     return sprintf(
                         '<button class="btn-action btn-open-ticket p-1" onclick="openTicketFromCustomer(%d)" title="Open Ticket Troubleshooting (Status Waiting)"
                             style="color:#d97706;border-color:#f59e0b;background:#fffbeb;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;" onmouseover="this.style.background=\'#fef3c7\'" onmouseout="this.style.background=\'#fffbeb\'">
@@ -484,6 +501,7 @@ class CustomerDataTable
 
         $query = Customer::with([
             'mikrotikDevice',
+            'activeTicket',
             'latestTroubleshoot.technician',
             'router',
             'type',

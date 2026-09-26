@@ -121,4 +121,11 @@ class Customer extends Model
     {
         return $this->hasOne(Troubleshoot::class, 'customer_id')->latestOfMany();
     }
+
+    public function activeTicket()
+    {
+        return $this->hasOne(Troubleshoot::class, 'customer_id')
+            ->whereNotIn('status', ['done', 'cancelled'])
+            ->latestOfMany();
+    }
 }

@@ -299,6 +299,7 @@
                         <label for="select-pages" class="modern-label">Akses Data Halaman</label>
                         <select name="pages_id[]" id="select-pages"
                             class="form-select @error('pages_id') is-invalid @enderror" multiple>
+                            <option value="all">⭐ Seluruh Data Halaman (Pilih Semua)</option>
                             @foreach ($pages as $page)
                                 <option value="{{ $page->id }}">{{ $page->name }}</option>
                             @endforeach
@@ -430,9 +431,16 @@
                 ...tsConfig,
                 placeholder: "Pilih Kabupaten/Kota"
             });
-            new TomSelect("#select-pages", {
+            const tsPages = new TomSelect("#select-pages", {
                 ...tsConfig,
                 placeholder: "Pilih Akses Halaman"
+            });
+
+            tsPages.on('item_add', function(value) {
+                if (value === 'all' || value === 'keseluruhan') {
+                    const allKeys = Object.keys(tsPages.options).filter(k => k !== 'all' && k !== 'keseluruhan');
+                    tsPages.setValue(allKeys);
+                }
             });
             new TomSelect("#select-router", {
                 ...tsConfig,

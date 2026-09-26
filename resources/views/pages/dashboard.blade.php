@@ -971,152 +971,153 @@
             </div>
         @endcan
 
-        {{-- ── FILTER CUSTOMER ── --}}
-        <div class="col-12">
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div class="dash-card-title">
-                        <div class="dash-card-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                            </svg>
+        @can('lihat pelanggan')
+            {{-- ── FILTER CUSTOMER ── --}}
+            <div class="col-12">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div class="dash-card-title">
+                            <div class="dash-card-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                </svg>
+                            </div>
+                            Data Customer per Kategori
                         </div>
-                        Data Customer per Kategori
+                    </div>
+                    <div class="dash-card-body">
+                        <p class="text-muted mb-3" style="font-size:.85rem;">Pilih kategori di bawah untuk melihat jumlah
+                            pelanggan berdasarkan wilayah / jaringan.</p>
+                        <form action="" method="GET">
+                            <div class="d-flex flex-wrap gap-2">
+                                @php
+                                    $filterOptions = [
+                                        'kabupaten' => [
+                                            'label' => 'Kab / Kota',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/><path d="M9 15h.01"/><path d="M9 18h.01"/></svg>',
+                                        ],
+                                        'kecamatan' => [
+                                            'label' => 'Kecamatan',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M9 21v-13l-6 2v11"/><path d="M21 21v-10l-6 -4"/><path d="M9 8l6 4"/></svg>',
+                                        ],
+                                        'desa' => [
+                                            'label' => 'Desa',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4"/><path d="M8 21v-8a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v8"/><path d="M3 21l18 0"/><path d="M3 21v-9a2 2 0 0 1 2 -2h1"/><path d="M21 21v-9a2 2 0 0 0 -2 -2h-1"/></svg>',
+                                        ],
+                                        'kampung' => [
+                                            'label' => 'Kampung',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l9 7.5l-9 7.5l-9 -7.5z"/><path d="M12 12v9"/><path d="M3 10.5v9"/><path d="M21 10.5v9"/><path d="M3 19.5h18"/></svg>',
+                                        ],
+                                        'vlan' => [
+                                            'label' => 'VLAN',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M3 13.5l3 1.5v4l-3 -1.5z"/><path d="M21 13.5l-3 1.5v4l3 -1.5z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>',
+                                        ],
+                                        'olt' => [
+                                            'label' => 'OLT',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M17 17l0 .01"/><path d="M13 17l0 .01"/><path d="M15 13l0 -2"/><path d="M11.75 8.75a4 4 0 0 1 6.5 0"/><path d="M8.5 6.5a8 8 0 0 1 13 0"/></svg>',
+                                        ],
+                                        'voucher & ppoe' => [
+                                            'label' => 'Voucher & PPOE',
+                                            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M7 12v4"/><path d="M17 12v4"/><path d="M5 16m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"/></svg>',
+                                        ],
+                                    ];
+                                @endphp
+                                @foreach ($filterOptions as $val => $opt)
+                                    <a href="?filter={{ urlencode($val) }}"
+                                        class="filter-pill {{ request('filter') === $val ? 'active' : '' }}">
+                                        {!! $opt['svg'] !!} {{ $opt['label'] }}
+                                    </a>
+                                @endforeach
+                                @if (request('filter'))
+                                    <a href="{{ route('dashboard') }}" class="filter-pill"
+                                        style="border-color:#fecaca;color:#dc2626;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                        Reset
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="dash-card-body">
-                    <p class="text-muted mb-3" style="font-size:.85rem;">Pilih kategori di bawah untuk melihat jumlah
-                        pelanggan berdasarkan wilayah / jaringan.</p>
-                    <form action="" method="GET">
-                        <div class="d-flex flex-wrap gap-2">
-                            @php
-                                $filterOptions = [
-                                    'kabupaten' => [
-                                        'label' => 'Kab / Kota',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M5 21v-14l8-4v18"/><path d="M19 21v-10l-6-4"/><path d="M9 9h.01"/><path d="M9 12h.01"/><path d="M9 15h.01"/><path d="M9 18h.01"/></svg>',
-                                    ],
-                                    'kecamatan' => [
-                                        'label' => 'Kecamatan',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21h18"/><path d="M9 21v-13l-6 2v11"/><path d="M21 21v-10l-6 -4"/><path d="M9 8l6 4"/></svg>',
-                                    ],
-                                    'desa' => [
-                                        'label' => 'Desa',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4"/><path d="M8 21v-8a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v8"/><path d="M3 21l18 0"/><path d="M3 21v-9a2 2 0 0 1 2 -2h1"/><path d="M21 21v-9a2 2 0 0 0 -2 -2h-1"/></svg>',
-                                    ],
-                                    'kampung' => [
-                                        'label' => 'Kampung',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l9 7.5l-9 7.5l-9 -7.5z"/><path d="M12 12v9"/><path d="M3 10.5v9"/><path d="M21 10.5v9"/><path d="M3 19.5h18"/></svg>',
-                                    ],
-                                    'vlan' => [
-                                        'label' => 'VLAN',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18.5l-3 -1.5v-4l3 1.5l3 -1.5v4z"/><path d="M3 13.5l3 1.5v4l-3 -1.5z"/><path d="M21 13.5l-3 1.5v4l3 -1.5z"/><path d="M12 3l9 4.5v9l-9 4.5l-9 -4.5v-9z"/></svg>',
-                                    ],
-                                    'olt' => [
-                                        'label' => 'OLT',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M17 17l0 .01"/><path d="M13 17l0 .01"/><path d="M15 13l0 -2"/><path d="M11.75 8.75a4 4 0 0 1 6.5 0"/><path d="M8.5 6.5a8 8 0 0 1 13 0"/></svg>',
-                                    ],
-                                    'voucher & ppoe' => [
-                                        'label' => 'Voucher & PPOE',
-                                        'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M7 12v4"/><path d="M17 12v4"/><path d="M5 16m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"/></svg>',
-                                    ],
-                                ];
-                            @endphp
-                            @foreach ($filterOptions as $val => $opt)
-                                <a href="?filter={{ urlencode($val) }}"
-                                    class="filter-pill {{ request('filter') === $val ? 'active' : '' }}">
-                                    {!! $opt['svg'] !!} {{ $opt['label'] }}
-                                </a>
-                            @endforeach
-                            @if (request('filter'))
-                                <a href="{{ route('dashboard') }}" class="filter-pill"
-                                    style="border-color:#fecaca;color:#dc2626;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                                    Reset
-                                </a>
-                            @endif
-                        </div>
-                    </form>
-                </div>
             </div>
-        </div>
 
-        {{-- ── RESULT ── --}}
-        @if (request('filter'))
-            <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="result-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                        </svg>
-                        Hasil: {{ ucfirst(str_replace('_', ' ', request('filter'))) }}
-                    </span>
-                    <span style="font-size:.82rem;color:#64748b;">
-                        Total: <strong style="color:#0f172a;">{{ $data->count() }}</strong> data
-                    </span>
-                </div>
+            {{-- ── RESULT ── --}}
+            @if (request('filter'))
+                <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="result-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                            </svg>
+                            Hasil: {{ ucfirst(str_replace('_', ' ', request('filter'))) }}
+                        </span>
+                        <span style="font-size:.82rem;color:#64748b;">
+                            Total: <strong style="color:#0f172a;">{{ $data->count() }}</strong> data
+                        </span>
+                    </div>
 
-                <div class="row g-3">
-                    @forelse ($data as $dt)
-                        @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
-                        <div class="col-xl-3 col-lg-4 col-md-6">
-                            <a href="javascript:void(0)"
-                                onclick="detailCount('{{ $dt->id }}', '{{ $text }}')"
-                                class="customer-count-card">
-                                <div class="ccc-left">
-                                    <div class="ccc-avatar {{ $cls }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div class="ccc-name">
-                                            {{ request('filter') === 'vlan' ? 'VLAN ' . $dt->name : $dt->name }}</div>
-                                        <div class="ccc-count">
-                                            <strong
-                                                style="color:#7c3aed;">{{ number_format($dt->customer_count) }}</strong>
-                                            Pelanggan
+                    <div class="row g-3">
+                        @forelse ($data as $dt)
+                            @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
+                            <div class="col-xl-3 col-lg-4 col-md-6">
+                                <a href="javascript:void(0)"
+                                    onclick="detailCount('{{ $dt->id }}', '{{ $text }}')"
+                                    class="customer-count-card">
+                                    <div class="ccc-left">
+                                        <div class="ccc-avatar {{ $cls }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="ccc-name">
+                                                {{ request('filter') === 'vlan' ? 'VLAN ' . $dt->name : $dt->name }}</div>
+                                            <div class="ccc-count">
+                                                <strong
+                                                    style="color:#7c3aed;">{{ number_format($dt->customer_count) }}</strong>
+                                                Pelanggan
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <svg class="ccc-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </a>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="dash-empty" style="background:white;border-radius:18px;">
-                                <div class="dash-empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    <svg class="ccc-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="11" cy="11" r="8" />
-                                        <path d="m21 21-4.35-4.35" />
+                                        <polyline points="9 18 15 12 9 6" />
                                     </svg>
-                                </div>
-                                <h6>Tidak ada data</h6>
-                                <p>Tidak ditemukan data untuk kategori yang dipilih</p>
+                                </a>
                             </div>
-                        </div>
-                    @endforelse
+                        @empty
+                            <div class="col-12">
+                                <div class="dash-empty" style="background:white;border-radius:18px;">
+                                    <div class="dash-empty-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8" />
+                                            <path d="m21 21-4.35-4.35" />
+                                        </svg>
+                                    </div>
+                                    <h6>Tidak ada data</h6>
+                                    <p>Tidak ditemukan data untuk kategori yang dipilih</p>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
-            </div>
-        @endif
-
+            @endif
+        @endcan
     </div>
 @endsection
 
