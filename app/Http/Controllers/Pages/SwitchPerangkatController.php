@@ -216,6 +216,44 @@ class SwitchPerangkatController extends Controller
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
+        try {
+            $dispatcher = app(\App\Services\NotificationDispatcher::class);
+            $subject = "Pengajuan Switch Perangkat: {$customer->name}";
+            $title = "PENGAJUAN SWITCH PERANGKAT";
+            $metadata = [
+                'Nama Pelanggan'  => $customer->name,
+                'Router Lama'     => $routerOld?->name ?? '-',
+                'MAC Lama'        => $macOld,
+                'Router Baru'     => $routerNew?->name ?? '-',
+                'MAC Baru'        => $macNew,
+                'Status'          => 'Dalam Pengajuan',
+            ];
+
+            // Kirim ke nomor WhatsApp tujuan langsung
+            $dispatcher->sendToRecipient(
+                phone: $phone,
+                email: null,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                metadata: $metadata,
+                channel: 'whatsapp'
+            );
+
+            // Kirim juga ke user dengan permission 'pergantian perangkat' / Admin
+            $staffs = User::permission('pergantian perangkat')->get();
+            $dispatcher->sendToMultipleUsers(
+                users: $staffs,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                metadata: $metadata,
+                category: 'prosedur'
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('SwitchPerangkatController: Gagal dispatch notifikasi: ' . $e->getMessage());
+        }
+
         return redirect()->away($whatsappUrl)->with('success', 'Data pelanggan berhasil disimpan dan pesan WhatsApp dikirim!');
     }
 }

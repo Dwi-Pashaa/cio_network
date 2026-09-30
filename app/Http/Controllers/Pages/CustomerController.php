@@ -85,7 +85,9 @@ class CustomerController extends Controller
 
         $organizations = \App\Models\Organization::all();
 
-        return view("pages.customer.index", compact("regencies", "districts", "hometown", "olts", "vlan", "micRadius", "vilage", "serviceTypes", "customerTypes", "organizations"));
+        $isTroubleshootCheckActive = \App\Models\Setting::where('key', 'troubleshoot_check_validation')->value('value') === 'active';
+
+        return view("pages.customer.index", compact("regencies", "districts", "hometown", "olts", "vlan", "micRadius", "vilage", "serviceTypes", "customerTypes", "organizations", "isTroubleshootCheckActive"));
     }
 
     public function getSelect(Request $request)
@@ -838,5 +840,38 @@ class CustomerController extends Controller
             'is_valid' => $result['is_valid'],
             'message'  => $result['message']
         ]);
+    }
+
+    public function toggleTroubleshootCheck(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin'])) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Hanya role Admin yang dapat mengubah pengaturan pengecekan tiket.',
+            ], 403);
+        }
+
+        $request->validate([
+            'value' => 'required|in:active,inactive',
+        ]);
+
+        \App\Models\Setting::updateOrCreate(
+            ['key' => 'troubleshoot_check_validation'],
+            ['value' => $request->value]
+        );
+
+        $isActive = $request->value === 'active';
+        $msg = $isActive ? 'Pengecekan tiket diaktifkan (ON).' : 'Pengecekan tiket dinonaktifkan (OFF).';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status'    => 'success',
+                'message'   => $msg,
+                'is_active' => $isActive,
+            ]);
+        }
+
+        return back()->with('success', $msg);
     }
 }

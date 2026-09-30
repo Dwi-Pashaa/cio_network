@@ -417,7 +417,7 @@
 
                             {{-- ==================== Lainnya ==================== --}}
                             @canany(['lihat halaman', 'lihat histori pemasangan', 'chatting', 'lihat log wablas', 'lihat log aktivitas', 'kelola troubleshoot', 'lihat troubleshoot', 'lihat persetujuan'])
-                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') || request()->is('persetujuan*') ? 'active' : '' }}">
+                                <li class="nav-item dropdown {{ request()->is('chatting*') || request()->is('history*') || request()->is('report*') || request()->is('activity-log*') || request()->is('persetujuan*') || request()->is('notification-settings*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-lainnya"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                         role="button" aria-expanded="false">
@@ -470,6 +470,10 @@
                                                 Persetujuan
                                             </a>
                                          @endcan
+                                         <a class="dropdown-item {{ Route::is('notification.setting*') ? 'active' : '' }}"
+                                             href="{{ route('notification.setting.index') }}" rel="noopener">
+                                             Pengaturan Notifikasi
+                                         </a>
                                     </div>
                                 </li>
                             @endcanany

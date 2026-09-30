@@ -54,6 +54,7 @@ Route::prefix('customer')->group(function () {
     Route::post('/get-select', [CustomerController::class, 'getSelect'])->name('customer.getSelect');
     Route::post('/send-notif', [CustomerController::class, 'notif'])->name('customer.notif');
     Route::post('/switch-olt', [CustomerController::class, 'switchOlt'])->name('customer.switchOlt');
+    Route::post('/toggle-troubleshoot-check', [CustomerController::class, 'toggleTroubleshootCheck'])->name('customer.toggle-troubleshoot-check');
     Route::post('/verify-email-on-demand', [CustomerController::class, 'verifyEmailOnDemand'])->name('customer.verify-email-on-demand');
     Route::post('/verify-wa-on-demand', [CustomerController::class, 'verifyWaOnDemand'])->name('customer.verify-wa-on-demand');
 });

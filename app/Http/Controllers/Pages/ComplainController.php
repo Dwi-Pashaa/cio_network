@@ -204,6 +204,44 @@ class ComplainController extends Controller
 
         $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
 
+        try {
+            $dispatcher = app(\App\Services\NotificationDispatcher::class);
+            $subject = "Komplain Pelanggan Baru [KOMPLEN-{$randomCode}]";
+            $title = "KOMPLAIN PELANGGAN";
+            $metadata = [
+                'Kode Komplain' => "KOMPLEN-{$randomCode}",
+                'Kode Voucher'  => $request->voucher,
+                'Tipe Masalah'  => $request->type,
+                'Waktu Pakai'   => "{$request->date} {$request->time}",
+                'No. HP'        => $request->telp,
+                'Lokasi'        => "{$request->hometown}, RT {$request->rt}/RW {$request->rw}, {$request->village}, {$request->district}, {$request->regencie}",
+            ];
+
+            // Kirim ke nomor WhatsApp admin/tujuan langsung via Fonte API
+            $dispatcher->sendToRecipient(
+                phone: $phone,
+                email: null,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                metadata: $metadata,
+                channel: 'whatsapp'
+            );
+
+            // Kirim juga ke staff internal (Admin & Data Entry) sesuai setting notifikasi mereka
+            $staffs = \App\Models\User::role(['Admin', 'Data Entry', 'Manager'])->get();
+            $dispatcher->sendToMultipleUsers(
+                users: $staffs,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                metadata: $metadata,
+                category: 'complain'
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('ComplainController: Gagal dispatch notifikasi komplain: ' . $e->getMessage());
+        }
+
         return redirect()->away($whatsappUrl)->with('success', 'Data Komplain berhasil disimpan dan pesan WhatsApp dikirim!');
     }
 }

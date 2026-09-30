@@ -72,7 +72,20 @@ class PermissionSeeder extends Seeder
             // 'monitoring mikrotik',
             'reboot mikrotik',
             'monitoring traffic mikrotik',
-            'filter pelanggan'
+            'filter pelanggan',
+
+            // ── EDIT USER PERMISSIONS ──
+            'edit username',
+            'edit nama',
+            'edit email',
+            'edit no telephone',
+            'edit level aksess',
+            'edit penempatan',
+            'edit aksess data halaman',
+            'edit aksess router',
+            'edit aksess patch core',
+            'edit aksess mic radius',
+            'edit keamanan',
         ];
 
         foreach ($permissions as $permission) {

@@ -1102,14 +1102,27 @@
                     progressData.push({ step: step, status: 'completed', photo: data.photo_url, created_at: timeStr });
                     refreshStepUI();
                     if (step === 4) {
-                        Swal.fire({
-                            title: 'Ticket Selesai!',
-                            text: 'Semua step telah diselesaikan. Ticket akan ditutup.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(function() {
-                            window.location.href = '{{ route("troubleshoot.index") }}';
-                        });
+                        if (data.waiting_check) {
+                            Swal.fire({
+                                title: 'Tahap 4 Selesai!',
+                                text: 'Semua tahap pengerjaan telah diselesaikan. Tiket saat ini menunggu pengecekan status oleh pengirim tiket.',
+                                icon: 'info',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#2563eb'
+                            }).then(function() {
+                                window.location.href = '{{ route("troubleshoot.index") }}';
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Ticket Selesai!',
+                                text: 'Semua step telah diselesaikan. Ticket resmi selesai.',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#16a34a'
+                            }).then(function() {
+                                window.location.href = '{{ route("troubleshoot.index") }}';
+                            });
+                        }
                     } else {
                         Swal.fire({
                             title: 'Step ' + step + ' Selesai!',

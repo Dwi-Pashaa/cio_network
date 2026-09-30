@@ -226,8 +226,8 @@ class PublicCustomerController extends Controller
             ]);
         }
 
-        // Send WhatsApp confirmation notification to Customer
-        if ($customer->telp) {
+        // Send confirmation notification to Customer (WA / Email / Both)
+        if (!empty($customer->telp) || !empty($customer->email)) {
             try {
                 $rawPassword = $request->input('password_wifi');
                 $len = strlen($rawPassword);
@@ -245,17 +245,34 @@ class PublicCustomerController extends Controller
                     . "Salam hangat,\n"
                     . "*CIO Network*";
 
-                app(\App\Services\FonteMessagingService::class)->sendMessage($customer->telp, $customerMessage);
+                app(\App\Services\NotificationDispatcher::class)->sendToRecipient(
+                    phone: $customer->telp,
+                    email: $customer->email,
+                    subject: 'Konfirmasi Pengajuan Perubahan Password WiFi - CIO Network',
+                    title: 'PENGAJUAN PERUBAHAN PASSWORD WIFI DITERIMA',
+                    message: $customerMessage,
+                    actionUrl: null,
+                    actionText: null,
+                    metadata: [
+                        'Nama Pelanggan'  => $customer->name,
+                        'ID Pelanggan'    => strtoupper($customer->uuid ?? $customer->id),
+                        'Nama WiFi'       => $wifiName,
+                        'Password Baru'   => $maskedPassword,
+                        'Status'          => 'Menunggu Validasi ONC (Maks. 1x24 Jam)',
+                    ],
+                    channel: 'both',
+                    recipientName: $customer->name
+                );
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('PublicCustomerController: Gagal mengirim notifikasi WhatsApp ke pelanggan.', [
+                \Illuminate\Support\Facades\Log::error('PublicCustomerController: Gagal mengirim notifikasi ke pelanggan.', [
                     'error' => $e->getMessage()
                 ]);
             }
         }
 
         $successMsg = 'Permintaan perubahan password WiFi Anda berhasil diajukan! Demi keamanan, proses verifikasi memerlukan waktu maksimal 1x24 jam. Setelah disetujui, sistem kami akan memperbarui password Anda secara otomatis.';
-        if ($customer->telp) {
-            $successMsg .= ' Konfirmasi detail permintaan juga telah kami kirimkan ke WhatsApp Anda.';
+        if ($customer->telp || $customer->email) {
+            $successMsg .= ' Konfirmasi detail permintaan juga telah kami kirimkan ke kontak Anda.';
         }
 
         return response()->json([

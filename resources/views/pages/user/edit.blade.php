@@ -197,6 +197,7 @@
                 @method('PUT')
 
                 {{-- ── Informasi Akun ── --}}
+                @canany(['edit username', 'edit nama', 'edit email', 'edit no telephone'])
                 <div class="form-section">
                     <div class="form-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -207,6 +208,7 @@
                         Informasi Akun
                     </div>
 
+                    @can('edit username')
                     <div class="mb-3">
                         <label for="username" class="modern-label">Username</label>
                         <input value="{{ old('username', $user->username) }}" type="text" name="username" id="username"
@@ -215,9 +217,12 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @if (auth()->user()->can('edit nama') || auth()->user()->can('edit email'))
                     <div class="row g-3">
-                        <div class="col-lg-6 col-md-6 col-sm-12">
+                        @can('edit nama')
+                        <div class="{{ auth()->user()->can('edit email') ? 'col-lg-6 col-md-6 col-sm-12' : 'col-12' }}">
                             <label for="name" class="modern-label">Nama Lengkap</label>
                             <input value="{{ old('name', $user->name) }}" type="text" name="name" id="name"
                                 class="modern-input @error('name') is-invalid @enderror"
@@ -226,7 +231,10 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-12">
+                        @endcan
+
+                        @can('edit email')
+                        <div class="{{ auth()->user()->can('edit nama') ? 'col-lg-6 col-md-6 col-sm-12' : 'col-12' }}">
                             <label for="email" class="modern-label">Email</label>
                             <input value="{{ old('email', $user->email) }}" type="email" name="email" id="email"
                                 class="modern-input @error('email') is-invalid @enderror" placeholder="contoh@email.com">
@@ -234,8 +242,11 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+                        @endcan
                     </div>
+                    @endif
 
+                    @can('edit no telephone')
                     <div class="mt-3">
                         <label for="telp" class="modern-label">No Telephone</label>
                         <input value="{{ old('telp', $user->telp) }}" type="text" name="telp" id="telp"
@@ -244,9 +255,12 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
                 </div>
+                @endcanany
 
                 {{-- ── Level & Akses ── --}}
+                @canany(['edit level aksess', 'edit penempatan', 'edit aksess data halaman', 'edit aksess router', 'edit aksess patch core', 'edit aksess mic radius'])
                 <div class="form-section">
                     <div class="form-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -257,6 +271,7 @@
                         Level & Akses
                     </div>
 
+                    @can('edit level aksess')
                     <div class="mb-3">
                         <label for="role" class="modern-label">Level Akses</label>
                         <select name="role" id="role" class="modern-input @error('role') is-invalid @enderror">
@@ -305,7 +320,9 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @can('edit penempatan')
                     <div class="mb-3">
                         <label for="select-regencie" class="modern-label">Penempatan Kabupaten/Kota</label>
                         <select name="regencie_id[]" id="select-regencie"
@@ -321,7 +338,9 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @can('edit aksess data halaman')
                     <div class="mb-3">
                         <label for="select-pages" class="modern-label">Akses Data Halaman</label>
                         <select name="pages_id[]" id="select-pages"
@@ -338,7 +357,9 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @can('edit aksess router')
                     <div class="mb-3">
                         <label for="select-router" class="modern-label">Akses Data Router</label>
                         <select name="router_id[]" id="select-router"
@@ -354,7 +375,9 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @can('edit aksess patch core')
                     <div class="mb-3">
                         <label for="select-patch-core" class="modern-label">Akses Data Patch Core</label>
                         <select name="patch_core_id[]" id="select-patch-core"
@@ -370,7 +393,9 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
+                    @can('edit aksess mic radius')
                     <div class="mb-3">
                         <label for="select-mic-radius-access" class="modern-label">Akses Data Mic Radius</label>
                         <select name="mic_radius_access_id[]" id="select-mic-radius-access"
@@ -386,9 +411,12 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
                 </div>
+                @endcanany
 
-                {{-- ── Password ── --}}
+                {{-- ── Password / Keamanan ── --}}
+                @can('edit keamanan')
                 <div class="form-section">
                     <div class="form-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -420,6 +448,7 @@
                         </div>
                     </div>
                 </div>
+                @endcan
 
                 {{-- ── Action Buttons ── --}}
                 <div class="d-flex justify-content-end align-items-center mt-2">
@@ -450,56 +479,72 @@
                 create: false
             };
 
-            new TomSelect("#select-mic-radius", {
-                ...tsConfig,
-                placeholder: "Pilih Mic Radius"
-            });
-            new TomSelect("#select-olt", {
-                ...tsConfig,
-                placeholder: "Pilih OLT"
-            });
-            new TomSelect("#select-regencie", {
-                ...tsConfig,
-                placeholder: "Pilih Kabupaten/Kota"
-            });
-            const tsPages = new TomSelect("#select-pages", {
-                ...tsConfig,
-                placeholder: "Pilih Akses Halaman"
-            });
+            if (document.querySelector("#select-mic-radius")) {
+                new TomSelect("#select-mic-radius", {
+                    ...tsConfig,
+                    placeholder: "Pilih Mic Radius"
+                });
+            }
+            if (document.querySelector("#select-olt")) {
+                new TomSelect("#select-olt", {
+                    ...tsConfig,
+                    placeholder: "Pilih OLT"
+                });
+            }
+            if (document.querySelector("#select-regencie")) {
+                new TomSelect("#select-regencie", {
+                    ...tsConfig,
+                    placeholder: "Pilih Kabupaten/Kota"
+                });
+            }
+            if (document.querySelector("#select-pages")) {
+                const tsPages = new TomSelect("#select-pages", {
+                    ...tsConfig,
+                    placeholder: "Pilih Akses Halaman"
+                });
 
-            tsPages.on('item_add', function(value) {
-                if (value === 'all' || value === 'keseluruhan') {
-                    const allKeys = Object.keys(tsPages.options).filter(k => k !== 'all' && k !== 'keseluruhan');
-                    tsPages.setValue(allKeys);
-                }
-            });
-            new TomSelect("#select-router", {
-                ...tsConfig,
-                placeholder: "Pilih Akses Router"
-            });
-            new TomSelect("#select-patch-core", {
-                ...tsConfig,
-                placeholder: "Pilih Patch Core"
-            });
-            new TomSelect("#select-mic-radius-access", {
-                ...tsConfig,
-                placeholder: "Pilih Akses Mic Radius"
-            });
+                tsPages.on('item_add', function(value) {
+                    if (value === 'all' || value === 'keseluruhan') {
+                        const allKeys = Object.keys(tsPages.options).filter(k => k !== 'all' && k !== 'keseluruhan');
+                        tsPages.setValue(allKeys);
+                    }
+                });
+            }
+            if (document.querySelector("#select-router")) {
+                new TomSelect("#select-router", {
+                    ...tsConfig,
+                    placeholder: "Pilih Akses Router"
+                });
+            }
+            if (document.querySelector("#select-patch-core")) {
+                new TomSelect("#select-patch-core", {
+                    ...tsConfig,
+                    placeholder: "Pilih Patch Core"
+                });
+            }
+            if (document.querySelector("#select-mic-radius-access")) {
+                new TomSelect("#select-mic-radius-access", {
+                    ...tsConfig,
+                    placeholder: "Pilih Akses Mic Radius"
+                });
+            }
 
             // Role → show/hide conditional fields
-            $("#role").on('change', function() {
-                const role = $(this).val();
-                if (role === "Operator OLT") {
-                    $("#mic_radius_wrap").hide();
-                    $("#olt_wrap").show();
-                } else if (role === "Operator Mic Radius") {
-                    $("#mic_radius_wrap").show();
-                    $("#olt_wrap").hide();
-                } else {
-                    $("#mic_radius_wrap").hide();
-                    $("#olt_wrap").hide();
-                }
-            });
+            if (document.querySelector("#role")) {
+                $("#role").on('change', function() {
+                    const role = $(this).val();
+                    if (role === "Operator OLT") {
+                        $("#mic_radius_wrap").hide();
+                        $("#olt_wrap").show();
+                    } else if (role === "Operator Mic Radius") {
+                        $("#mic_radius_wrap").show();
+                        $("#olt_wrap").hide();
+                    } else {
+                        $("#mic_radius_wrap").hide();
+                        $("#olt_wrap").hide();
+                    }
+                });
+            }
 
             // Submit loading state
             document.getElementById('editForm').addEventListener('submit', function() {

@@ -20,11 +20,16 @@ class TroubleshootDataTable
                     'menuju_lokasi' => 'badge bg-info text-white',
                     'tiba_lokasi' => 'badge bg-primary text-white',
                     'perbaikan' => 'badge bg-indigo text-white',
+                    'waiting_check' => 'badge bg-warning text-dark',
                     'done' => 'badge bg-success text-white',
                     'cancelled' => 'badge bg-danger text-white',
                     default => 'badge bg-secondary text-white',
                 };
-                return '<span class="' . $badgeClass . '">' . str_replace('_', ' ', ucfirst($row->status)) . '</span>';
+                $label = match ($row->status) {
+                    'waiting_check' => 'Menunggu Pengecekan',
+                    default => str_replace('_', ' ', ucfirst($row->status)),
+                };
+                return '<span class="' . $badgeClass . '">' . $label . '</span>';
             })
             ->addColumn('customer_name', function ($row) {
                 return $row->customer->name ?? '-';

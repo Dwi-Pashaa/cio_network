@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Pages\DashboardController;
 use App\Http\Controllers\Pages\Jaringan\MikrotikController;
+use App\Http\Controllers\Pages\NotificationSettingController;
 use App\Http\Controllers\Pages\ProsedurController;
 use App\Http\Controllers\Pages\PublicCustomerController;
 use App\Http\Controllers\Pages\TroubleshootController;
@@ -36,6 +37,11 @@ Route::middleware(['auth'])->group(function () {
     // dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/get-detail-count/{id}/{text}', [DashboardController::class, 'getDetailCount'])->name('dashboard.getDetailCount');
+
+    // Pengaturan Notifikasi (WhatsApp / Email / Both)
+    Route::get('/notification-settings', [NotificationSettingController::class, 'index'])->name('notification.setting.index');
+    Route::put('/notification-settings', [NotificationSettingController::class, 'update'])->name('notification.setting.update');
+    Route::post('/notification-settings/test-send', [NotificationSettingController::class, 'testSend'])->name('notification.setting.test_send');
 
     // Monitoring MikroTik DHCP Hub
     Route::prefix('monitoring/mikrotik')->group(function () {
@@ -103,6 +109,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('troubleshoot.tracking-data');
     Route::post('/ticket/{id}/progress/{step}', [TroubleshootController::class, 'uploadProgress'])
         ->name('troubleshoot.progress.upload');
+    Route::post('/ticket/{id}/confirm-done', [TroubleshootController::class, 'confirmDone'])
+        ->name('troubleshoot.confirm-done');
 });
 
 Route::get('/search-customer', [PublicCustomerController::class, 'searchPage'])->name('public.customer.search');

@@ -307,8 +307,11 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer px-4 py-3 bg-light" style="border-top:1px solid #e2e8f0;">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+            <div class="modal-footer px-4 py-3 bg-light justify-content-between" style="border-top:1px solid #e2e8f0;">
+                <div id="detailModalFooterInfo" class="small text-muted"></div>
+                <div class="d-flex align-items-center gap-2" id="detailModalFooterActions">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
             </div>
         </div>
     </div>
@@ -566,11 +569,12 @@
                     'menuju_lokasi': 'badge bg-info text-white',
                     'tiba_lokasi': 'badge bg-primary text-white',
                     'perbaikan': 'badge bg-indigo text-white',
+                    'waiting_check': 'badge bg-warning text-dark',
                     'done': 'badge bg-success text-white',
                     'cancelled': 'badge bg-danger text-white',
                 };
                 const badgeClass = statusMap[t.status] || 'badge bg-secondary text-white';
-                const statusLabel = t.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const statusLabel = t.status === 'waiting_check' ? 'Menunggu Pengecekan' : t.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 statusBadge = '<span class="' + badgeClass + '">' + statusLabel + '</span>';
 
                 $('#detailTicketTitle').text('Ticket #' + t.id + ' — ' + (t.customer?.name || '-'));
@@ -581,6 +585,39 @@
                 $('#detailDescription').text(t.description || '-');
 
                 let progressHtml = '';
+
+                // Banner jika status waiting_check
+                if (t.status === 'waiting_check') {
+                    const isBound = res.mikrotik_status && res.mikrotik_status.toLowerCase() === 'bound';
+                    const mikrotikBadge = isBound
+                        ? '<span class="badge bg-success text-white fw-bold px-2 py-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="20 6 9 17 4 12"/></svg> BOUND (Koneksi Normal)</span>'
+                        : '<span class="badge bg-warning text-dark fw-bold px-2 py-1">🟡 ' + (res.mikrotik_status ? res.mikrotik_status.toUpperCase() : 'BELUM BOUND') + '</span>';
+
+                    progressHtml += `
+                        <div class="alert alert-warning border-warning p-3 rounded-3 mb-3 shadow-sm" style="background:#fffbeb;">
+                            <div class="d-flex align-items-start gap-3">
+                                <div style="width:36px;height:36px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold text-dark mb-1" style="font-size:.92rem;">Perlu Pengecekan Status oleh Pengirim Tiket</h6>
+                                    <p class="small text-muted mb-2">Teknisi telah menyelesaikan perbaikan. Harap pastikan status koneksi pelanggan di MikroTik sudah berubah dari <strong>WAITING</strong> ke <strong>BOUND</strong> sebelum menyelesaikan tiket.</p>
+                                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                        <span class="small fw-semibold text-secondary">Status MikroTik Pelanggan Terkini:</span>
+                                        ${mikrotikBadge}
+                                    </div>
+                                    ${res.can_confirm_done ? `
+                                        <button type="button" class="btn btn-success btn-sm fw-bold d-inline-flex align-items-center gap-1 shadow-sm mt-1" onclick="confirmDoneTicketFromList(${t.id})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                                            Konfirmasi Selesai (Done)
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 $.each(res.progress, function(i, p) {
                     const isCompleted = p.status === 'completed';
                     const iconColor = isCompleted ? '#22c55e' : '#94a3b8';
@@ -616,7 +653,70 @@
                 });
 
                 $('#detailProgressList').html(progressHtml);
+
+                if (res.can_confirm_done && t.status === 'waiting_check') {
+                    $('#detailModalFooterActions').html(`
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-success fw-bold d-inline-flex align-items-center gap-1 shadow-sm" onclick="confirmDoneTicketFromList(${t.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                            Konfirmasi Selesai (Done)
+                        </button>
+                    `);
+                } else {
+                    $('#detailModalFooterActions').html(`
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                    `);
+                }
+
                 $('#detailModal').modal('show');
+            })
+            .fail(function() {
+                Swal.fire('Error', 'Gagal memuat detail ticket.', 'error');
+            });
+    }
+
+    function confirmDoneTicketFromList(ticketId) {
+        Swal.fire({
+            title: 'Konfirmasi Selesai Tiket',
+            text: 'Apakah Anda telah memastikan koneksi pelanggan telah normal/bound dan tiket ini resmi selesai?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Konfirmasi Selesai',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#64748b'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `${BASE}/${ticketId}/confirm-done`,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        $('#detailModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: res.message,
+                            confirmButtonColor: '#2563eb'
+                        });
+                        table.ajax.reload(null, false);
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal mengonfirmasi tiket.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: msg,
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                });
+            }
+        });
+    }
             })
             .fail(function() {
                 Swal.fire('Error', 'Gagal memuat detail ticket.', 'error');

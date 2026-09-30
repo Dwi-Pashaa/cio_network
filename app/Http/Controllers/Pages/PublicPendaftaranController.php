@@ -14,7 +14,7 @@ use App\Models\RegistrationSequence;
 use App\Models\Type;
 use App\Models\Village;
 use App\Models\User;
-use App\Services\FonteMessagingService;
+use App\Services\NotificationDispatcher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -271,11 +271,9 @@ class PublicPendaftaranController extends Controller
 
     private function notifyDataEntry($pendaftaran, $tipeLayanan)
     {
-        $users = User::role('Data Entry')->get();
-        if ($users->isEmpty()) return;
-
         $village = $pendaftaran->village?->name ?? '-';
         $kampung = $pendaftaran->hometown?->name ?? '-';
+        $downloadUrl = route('public.pendaftaran.download', $pendaftaran->kode);
 
         $message = "📋 *Pendaftaran Baru*\n\n"
             . "Kode: {$pendaftaran->kode}\n"
@@ -285,14 +283,69 @@ class PublicPendaftaranController extends Controller
             . "Lokasi: {$village} - {$kampung}\n"
             . "Status: Pending\n\n"
             . "Link Surat Perjanjian:\n"
-            . route('public.pendaftaran.download', $pendaftaran->kode);
+            . $downloadUrl;
 
-        $fonte = app(FonteMessagingService::class);
+        $subject = "Pendaftaran Baru #{$pendaftaran->kode} - {$pendaftaran->nama}";
+        $title = "PENDAFTARAN PELANGGAN BARU";
+        $metadata = [
+            'Kode Pendaftaran' => $pendaftaran->kode,
+            'Nama Pelanggan'   => $pendaftaran->nama,
+            'No. Telepon'      => $pendaftaran->no_telepon,
+            'Email'            => $pendaftaran->email ?: '-',
+            'Tipe Layanan'     => $tipeLayanan->name,
+            'Lokasi'           => "{$village} - {$kampung}",
+            'Status'           => 'Pending',
+        ];
 
-        foreach ($users as $user) {
-            if ($user->telp) {
-                $fonte->sendMessage($user->telp, $message);
+        $dispatcher = app(NotificationDispatcher::class);
+
+        // 1. Kirim notifikasi ke tim Data Entry
+        $users = User::role('Data Entry')->get();
+        if ($users->isNotEmpty()) {
+            foreach ($users as $user) {
+                $dispatcher->sendToUser(
+                    user: $user,
+                    subject: $subject,
+                    title: $title,
+                    message: $message,
+                    actionUrl: $downloadUrl,
+                    actionText: 'Unduh Surat Perjanjian (PDF)',
+                    metadata: $metadata,
+                    category: 'pendaftaran'
+                );
             }
+        }
+
+        // 2. Kirim notifikasi konfirmasi ke calon pelanggan
+        if (!empty($pendaftaran->no_telepon) || !empty($pendaftaran->email)) {
+            $customerMsg = "*Halo, {$pendaftaran->nama}!* 👋\n\n"
+                . "Terima kasih telah melakukan pendaftaran layanan internet di *CIO Network*.\n\n"
+                . "Data pendaftaran Anda telah kami terima dengan detail sebagai berikut:\n"
+                . "- *Kode Pendaftaran:* {$pendaftaran->kode}\n"
+                . "- *Nama:* {$pendaftaran->nama}\n"
+                . "- *Layanan:* {$tipeLayanan->name}\n"
+                . "- *Status:* Menunggu Konfigurasi & Pemasangan\n\n"
+                . "Anda dapat mengunduh dokumen bukti pendaftaran dan perjanjian berlangganan melalui tautan di bawah ini:\n"
+                . "🔗 {$downloadUrl}\n\n"
+                . "Tim kami akan segera memproses pengajuan Anda. Terima kasih!";
+
+            $dispatcher->sendToRecipient(
+                phone: $pendaftaran->no_telepon,
+                email: $pendaftaran->email,
+                subject: "Konfirmasi Pendaftaran Layanan CIO Network - #{$pendaftaran->kode}",
+                title: "KONFIRMASI PENDAFTARAN LAYANAN",
+                message: $customerMsg,
+                actionUrl: $downloadUrl,
+                actionText: 'Unduh Surat Perjanjian (PDF)',
+                metadata: [
+                    'Kode Pendaftaran' => $pendaftaran->kode,
+                    'Nama'             => $pendaftaran->nama,
+                    'Layanan'          => $tipeLayanan->name,
+                    'Status'           => 'Menunggu Konfigurasi & Pemasangan',
+                ],
+                channel: 'both',
+                recipientName: $pendaftaran->nama
+            );
         }
     }
 

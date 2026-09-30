@@ -548,6 +548,32 @@
                 </div>
 
                 <div class="org-header-action d-flex gap-2 flex-wrap align-items-center">
+                    {{-- Toggle Pengecekan Tiketing (Khusus Admin) --}}
+                    @if(auth()->user()->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin']))
+                        <button type="button" 
+                            id="btn-toggle-troubleshoot-check"
+                            class="btn {{ ($isTroubleshootCheckActive ?? false) ? 'btn-success text-white' : 'btn-outline-secondary' }} d-inline-flex align-items-center gap-1"
+                            data-active="{{ ($isTroubleshootCheckActive ?? false) ? 'true' : 'false' }}"
+                            onclick="toggleTroubleshootCheck()"
+                            title="{{ ($isTroubleshootCheckActive ?? false) ? 'Pengecekan Tiket AKTIF: Saat teknisi selesai tahap 4, tiket berstatus Menunggu Pengecekan oleh pengirim tiket.' : 'Pengecekan Tiket NONAKTIF: Saat teknisi selesai tahap 4, tiket langsung selesai otomatis.' }}"
+                            style="border-radius: 8px; font-weight: 650; font-size: 0.85rem; padding: 0.55rem 0.95rem; transition: all 0.2s ease;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon-toggle-check">
+                                @if($isTroubleshootCheckActive ?? false)
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                    <path d="M9 12l2 2 4-4"/>
+                                @else
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                                @endif
+                            </svg>
+                            <span id="text-toggle-troubleshoot-check">Pengecekan Tiket: {{ ($isTroubleshootCheckActive ?? false) ? 'ON' : 'OFF' }}</span>
+                        </button>
+                    @else
+                        <span class="badge {{ ($isTroubleshootCheckActive ?? false) ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary' }} d-inline-flex align-items-center gap-1" style="font-size:0.8rem; padding: 0.55rem 0.85rem; border-radius: 8px;" title="Status Mode Pengecekan Tiket (Hanya Admin yang dapat mengubah)">
+                            <span>🔍 Pengecekan: {{ ($isTroubleshootCheckActive ?? false) ? 'ON' : 'OFF' }}</span>
+                        </span>
+                    @endif
+
                     <button type="button" class="btn-refresh-live" id="btn-refresh-customer" title="Tarik pembaruan data MikroTik seketika">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"
@@ -1231,7 +1257,9 @@
                 </div>
                 <div class="modal-footer bg-light py-2 justify-content-between">
                     <div id="ticket-detail-footer-info" class="small text-muted"></div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <div class="d-flex align-items-center gap-2" id="ticket-detail-footer-actions">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1266,6 +1294,15 @@
             initializeModalHandlers();
             initializeFilterHandlers();
             initCustomerSseStream();
+
+            // Auto-buka detail tiket jika ada parameter di URL (dari link notifikasi)
+            const urlParams = new URLSearchParams(window.location.search);
+            const openTicketId = urlParams.get('open_ticket_detail') || urlParams.get('ticket_id');
+            if (openTicketId) {
+                setTimeout(function() {
+                    openTicketDetailFromCustomer(openTicketId);
+                }, 400);
+            }
         });
 
         // ===========================
@@ -2808,7 +2845,7 @@
                 headers: { 'Accept': 'application/json' },
                 success: function(res) {
                     if (res.troubleshoot) {
-                        renderTicketDetailModal(res.troubleshoot, res.progress || []);
+                        renderTicketDetailModal(res.troubleshoot, res.progress || [], res.mikrotik_status || 'offline', res.can_confirm_done || false);
                     } else {
                         $('#ticket-detail-body').html('<div class="text-center text-danger py-4">Data tiket tidak valid.</div>');
                     }
@@ -2820,7 +2857,7 @@
             });
         }
 
-        function renderTicketDetailModal(troubleshoot, progressList) {
+        function renderTicketDetailModal(troubleshoot, progressList, mikrotikStatus, canConfirmDone) {
             const customerName = troubleshoot.customer ? troubleshoot.customer.name : '-';
             const customerMac = troubleshoot.customer ? troubleshoot.customer.mac_address : '-';
             const techName = troubleshoot.technician ? troubleshoot.technician.name : 'Belum Ditugaskan';
@@ -2834,13 +2871,52 @@
                 'menuju_lokasi': '<span class="badge bg-info-lt text-info fw-bold">Menuju Lokasi</span>',
                 'tiba_lokasi': '<span class="badge bg-cyan-lt text-cyan fw-bold">Tiba di Lokasi</span>',
                 'perbaikan': '<span class="badge bg-indigo-lt text-indigo fw-bold">Perbaikan</span>',
+                'waiting_check': '<span class="badge bg-warning text-dark fw-bold">Menunggu Pengecekan</span>',
                 'on_progress': '<span class="badge bg-primary-lt text-primary fw-bold">On Progress</span>',
                 'done': '<span class="badge bg-success-lt text-success fw-bold">Selesai</span>',
                 'cancelled': '<span class="badge bg-danger-lt text-danger fw-bold">Dibatalkan</span>'
             };
             const statusBadge = statusMap[troubleshoot.status] || `<span class="badge bg-secondary-lt text-secondary fw-bold">${troubleshoot.status ? troubleshoot.status.toUpperCase() : '-'}</span>`;
 
-            let html = `
+            let html = '';
+
+            // Banner Khusus Status Menunggu Pengecekan (waiting_check)
+            if (troubleshoot.status === 'waiting_check') {
+                const isBound = mikrotikStatus && mikrotikStatus.toLowerCase() === 'bound';
+                const mikrotikBadge = isBound
+                    ? '<span class="badge bg-success text-white fw-bold px-2 py-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="20 6 9 17 4 12"/></svg> BOUND (Koneksi Normal)</span>'
+                    : '<span class="badge bg-warning text-dark fw-bold px-2 py-1">🟡 ' + (mikrotikStatus ? mikrotikStatus.toUpperCase() : 'BELUM BOUND') + '</span>';
+
+                html += `
+                    <div class="alert alert-warning border-warning p-3 rounded-3 mb-4 shadow-sm" style="background:#fffbeb;">
+                        <div class="d-flex align-items-start gap-3">
+                            <div style="width:36px;height:36px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold text-dark mb-1" style="font-size:0.95rem;">Perlu Pengecekan Status oleh Pengirim Tiket</h5>
+                                <p class="small text-muted mb-2">Teknisi telah menyelesaikan perbaikan di lapangan. Harap pastikan status koneksi MikroTik pelanggan sudah berubah dari <strong>WAITING</strong> ke <strong>BOUND</strong> sebelum menyelesaikan tiket.</p>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                    <span class="small fw-semibold text-secondary">Status MikroTik Pelanggan Terkini:</span>
+                                    ${mikrotikBadge}
+                                </div>
+
+                                ${canConfirmDone ? `
+                                    <button type="button" class="btn btn-success fw-bold d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2" style="border-radius:8px;" onclick="confirmDoneTicket(${troubleshoot.id})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                                        Konfirmasi Selesai (Done)
+                                    </button>
+                                ` : `
+                                    <div class="small text-muted fst-italic">Hanya pembuat tiket atau role Admin yang dapat mengonfirmasi penyelesaian tiket ini.</div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
                 <!-- Info Header Cards -->
                 <div class="row g-3 mb-4">
                     <div class="col-sm-6">
@@ -2940,12 +3016,152 @@
                 ? (typeof moment !== 'undefined' ? moment(troubleshoot.created_at).format('DD/MM/YYYY HH:mm') : troubleshoot.created_at)
                 : '-';
             $('#ticket-detail-footer-info').text('Tiket dibuat: ' + createdDate);
+
+            // Update modal footer actions (Tambahkan tombol Selesai jika waiting_check & punya hak konfirmasi)
+            if (canConfirmDone && troubleshoot.status === 'waiting_check') {
+                $('#ticket-detail-footer-actions').html(`
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-success fw-bold d-inline-flex align-items-center gap-1 shadow-sm" onclick="confirmDoneTicket(${troubleshoot.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                        Konfirmasi Selesai (Done)
+                    </button>
+                `);
+            } else {
+                $('#ticket-detail-footer-actions').html(`
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                `);
+            }
         }
 
         function showTicketPhotoLightbox(photoUrl, caption) {
             $('#lightbox-img').attr('src', photoUrl);
             $('#lightbox-caption').text(caption || 'Foto Dokumentasi');
             $('#modal-photo-lightbox').modal('show');
+        }
+
+        function confirmDoneTicket(ticketId) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Konfirmasi Selesai Tiket',
+                    text: 'Apakah Anda telah memastikan koneksi pelanggan telah normal/bound dan tiket ini resmi selesai?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Konfirmasi Selesai',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        doConfirmDoneAjax(ticketId);
+                    }
+                });
+            } else {
+                if (confirm('Apakah Anda yakin tiket ini resmi selesai?')) {
+                    doConfirmDoneAjax(ticketId);
+                }
+            }
+        }
+
+        function doConfirmDoneAjax(ticketId) {
+            $.ajax({
+                url: `${TICKET_DETAIL_BASE_URL}/${ticketId}/confirm-done`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType: 'json',
+                success: function(res) {
+                    $('#modal-ticket-detail').modal('hide');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: res.message,
+                            confirmButtonColor: '#2563eb'
+                        });
+                    } else {
+                        alert(res.message);
+                    }
+                    if (table) {
+                        table.ajax.reload(null, false);
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal mengonfirmasi tiket.';
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: msg,
+                            confirmButtonColor: '#ef4444'
+                        });
+                    } else {
+                        alert(msg);
+                    }
+                }
+            });
+        }
+
+        function toggleTroubleshootCheck() {
+            const btn = document.getElementById('btn-toggle-troubleshoot-check');
+            if (!btn) return;
+
+            const currentActive = btn.getAttribute('data-active') === 'true';
+            const nextValue = currentActive ? 'inactive' : 'active';
+
+            btn.disabled = true;
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> Memproses...`;
+
+            $.ajax({
+                url: "{{ route('customer.toggle-troubleshoot-check') }}",
+                type: "POST",
+                data: { value: nextValue },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType: 'json',
+                success: function(res) {
+                    btn.disabled = false;
+                    const isNowActive = res.is_active;
+                    btn.setAttribute('data-active', isNowActive ? 'true' : 'false');
+
+                    if (isNowActive) {
+                        btn.className = 'btn btn-success text-white d-inline-flex align-items-center gap-1';
+                        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon-toggle-check"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 12l2 2 4-4"/></svg> <span id="text-toggle-troubleshoot-check">Pengecekan Tiket: ON</span>`;
+                        btn.title = 'Pengecekan Tiket AKTIF: Saat teknisi selesai tahap 4, status tiket menjadi Menunggu Pengecekan oleh pengirim tiket.';
+                    } else {
+                        btn.className = 'btn btn-outline-secondary d-inline-flex align-items-center gap-1';
+                        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon-toggle-check"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> <span id="text-toggle-troubleshoot-check">Pengecekan Tiket: OFF</span>`;
+                        btn.title = 'Pengecekan Tiket NONAKTIF: Saat teknisi selesai tahap 4, tiket langsung selesai otomatis.';
+                    }
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Pengaturan Diperbarui',
+                            text: res.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                    const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal mengubah pengaturan pengecekan tiket.';
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: msg,
+                            confirmButtonColor: '#ef4444'
+                        });
+                    } else {
+                        alert(msg);
+                    }
+                }
+            });
         }
     </script>
 @endpush

@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Log;
 
 class ProsedurNotificationService
 {
+    protected NotificationDispatcher $dispatcher;
+
+    public function __construct(NotificationDispatcher $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
     /**
      * Kirim notifikasi ke validator level berikutnya yang berstatus pending.
      */
@@ -64,16 +71,21 @@ class ProsedurNotificationService
 
         $details = $this->formatDetails($spam);
         $validationLink = route('spam.index');
+        $subject = "Validasi Prosedur Baru (Level {$checkpoint->level}): {$procedureTypeName} - {$customer->name}";
+        $title = "VALIDASI PROSEDUR LEVEL {$checkpoint->level}";
 
-        $messagingService = app(FonteMessagingService::class);
-        $messages = [];
+        $metadata = [
+            'Tipe Prosedur'      => $procedureTypeName,
+            'Diajukan Oleh'      => $spam->submittedBy->name ?? 'Teknisi',
+            'Organisasi'         => $spam->organization->name ?? 'Internal',
+            'Waktu Pengajuan'    => $spam->created_at->format('d-m-Y H:i:s'),
+            'ID Pelanggan'       => strtoupper($customer->uuid ?? $customer->id),
+            'Nama Pelanggan'     => $customer->name,
+            'Alamat Pelanggan'   => $customerAddress,
+            'Tipe Layanan'       => $customerServiceType,
+        ];
 
         foreach ($validators as $validator) {
-            if (empty($validator->telp)) {
-                continue;
-            }
-
-            // Ganti placeholder dengan nilai riil
             $replacements = [
                 '{validator_name}' => $validator->name,
                 '{validation_level}' => $checkpoint->level,
@@ -93,14 +105,16 @@ class ProsedurNotificationService
 
             $message = str_replace(array_keys($replacements), array_values($replacements), $rawTemplate);
 
-            $messages[] = [
-                'phone'   => $validator->telp,
-                'message' => $message,
-            ];
-        }
-
-        if (!empty($messages)) {
-            $messagingService->sendMultipleMessages($messages);
+            $this->dispatcher->sendToUser(
+                user: $validator,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                actionUrl: $validationLink,
+                actionText: 'Tinjau & Validasi Prosedur',
+                metadata: $metadata,
+                category: 'prosedur'
+            );
         }
     }
 
@@ -110,8 +124,6 @@ class ProsedurNotificationService
     public function notifyLevels(ProsedurSpam $spam, array $levels)
     {
         $levelsConfig = config('prosedur_levels.levels', []);
-        $messagingService = app(FonteMessagingService::class);
-        $messages = [];
 
         // Load data pendukung pelanggan
         $customer = $spam->customer;
@@ -157,12 +169,21 @@ class ProsedurNotificationService
 
             $rawTemplate = $templateRecord->template;
             $validators = $this->getValidatorsForLevel($spam, $level);
+            $subject = "Validasi Prosedur Baru (Level {$level} - {$cfg['label']}): {$procedureTypeName} - {$customer->name}";
+            $title = "VALIDASI PROSEDUR LEVEL {$level} ({$cfg['label']})";
+
+            $metadata = [
+                'Tipe Prosedur'      => $procedureTypeName,
+                'Diajukan Oleh'      => $spam->submittedBy->name ?? 'Teknisi',
+                'Organisasi'         => $spam->organization->name ?? 'Internal',
+                'Waktu Pengajuan'    => $spam->created_at->format('d-m-Y H:i:s'),
+                'ID Pelanggan'       => strtoupper($customer->uuid ?? $customer->id),
+                'Nama Pelanggan'     => $customer->name,
+                'Alamat Pelanggan'   => $customerAddress,
+                'Tipe Layanan'       => $customerServiceType,
+            ];
 
             foreach ($validators as $validator) {
-                if (empty($validator->telp)) {
-                    continue;
-                }
-
                 $replacements = [
                     '{validator_name}' => $validator->name,
                     '{validation_level}' => $level,
@@ -182,15 +203,17 @@ class ProsedurNotificationService
 
                 $message = str_replace(array_keys($replacements), array_values($replacements), $rawTemplate);
 
-                $messages[] = [
-                    'phone'   => $validator->telp,
-                    'message' => $message,
-                ];
+                $this->dispatcher->sendToUser(
+                    user: $validator,
+                    subject: $subject,
+                    title: $title,
+                    message: $message,
+                    actionUrl: $validationLink,
+                    actionText: 'Tinjau & Validasi Prosedur',
+                    metadata: $metadata,
+                    category: 'prosedur'
+                );
             }
-        }
-
-        if (!empty($messages)) {
-            $messagingService->sendMultipleMessages($messages);
         }
     }
 
@@ -202,15 +225,13 @@ class ProsedurNotificationService
         $this->notifyLevels($spam, [1, 2, 3, 4]);
     }
 
-
-
     /**
      * Kirim notifikasi ke teknisi bahwa pengajuan telah selesai disetujui & dieksekusi.
      */
     public function notifyTechnicianApproved(ProsedurSpam $spam)
     {
         $technician = $spam->submittedBy;
-        if (!$technician || empty($technician->telp)) {
+        if (!$technician) {
             return;
         }
 
@@ -244,7 +265,24 @@ class ProsedurNotificationService
         ];
 
         $message = str_replace(array_keys($replacements), array_values($replacements), $rawTemplate);
-        app(FonteMessagingService::class)->sendMessage($technician->telp, $message);
+        $subject = "Pengajuan Prosedur Disetujui: {$procedureTypeName} - {$customer->name}";
+
+        $this->dispatcher->sendToUser(
+            user: $technician,
+            subject: $subject,
+            title: 'PROSEDUR SELESAI DIEKSEKUSI',
+            message: $message,
+            actionUrl: route('spam.index'),
+            actionText: 'Lihat Status Prosedur',
+            metadata: [
+                'Tipe Prosedur'   => $procedureTypeName,
+                'Nama Pelanggan'  => $customer->name,
+                'ID Pelanggan'    => strtoupper($customer->uuid ?? $customer->id),
+                'Status'          => 'Disetujui & Diterapkan',
+                'Waktu Eksekusi'  => $spam->executed_at ? $spam->executed_at->format('d-m-Y H:i:s') : now()->format('d-m-Y H:i:s'),
+            ],
+            category: 'prosedur'
+        );
     }
 
     /**
@@ -253,7 +291,7 @@ class ProsedurNotificationService
     public function notifyTechnicianRejected(ProsedurSpam $spam, string $rejectorName, string $reason)
     {
         $technician = $spam->submittedBy;
-        if (!$technician || empty($technician->telp)) {
+        if (!$technician) {
             return;
         }
 
@@ -292,7 +330,24 @@ class ProsedurNotificationService
         ];
 
         $message = str_replace(array_keys($replacements), array_values($replacements), $rawTemplate);
-        app(FonteMessagingService::class)->sendMessage($technician->telp, $message);
+        $subject = "Pengajuan Prosedur Ditolak: {$procedureTypeName} - {$customer->name}";
+
+        $this->dispatcher->sendToUser(
+            user: $technician,
+            subject: $subject,
+            title: 'PROSEDUR DITOLAK',
+            message: $message,
+            actionUrl: route('spam.index'),
+            actionText: 'Tinjau Pengajuan Prosedur',
+            metadata: [
+                'Tipe Prosedur'     => $procedureTypeName,
+                'Nama Pelanggan'    => $customer->name,
+                'ID Pelanggan'      => strtoupper($customer->uuid ?? $customer->id),
+                'Ditolak Oleh'      => "{$rejectorName} (Level {$levelNum})",
+                'Alasan Penolakan'  => $reason,
+            ],
+            category: 'prosedur'
+        );
     }
 
     /**
@@ -390,12 +445,12 @@ class ProsedurNotificationService
     }
 
     /**
-     * Kirim notifikasi ke WhatsApp pelanggan bahwa password WiFi telah berhasil diubah.
+     * Kirim notifikasi ke WhatsApp & Email pelanggan bahwa password WiFi telah berhasil diubah.
      */
     public function notifyCustomerPasswordChanged(ProsedurSpam $spam)
     {
         $customer = $spam->customer;
-        if (!$customer || empty($customer->telp)) {
+        if (!$customer) {
             return;
         }
 
@@ -413,8 +468,23 @@ class ProsedurNotificationService
             . "Terima kasih,\n"
             . "*CIO Network*";
 
-        app(FonteMessagingService::class)->sendMessage($customer->telp, $message);
+        $this->dispatcher->sendToRecipient(
+            phone: $customer->telp,
+            email: $customer->email,
+            subject: 'Pemberitahuan Perubahan Password WiFi - CIO Network',
+            title: 'PERUBAHAN PASSWORD WIFI BERHASIL',
+            message: $message,
+            actionUrl: null,
+            actionText: null,
+            metadata: [
+                'Nama Pelanggan'  => $customer->name,
+                'ID Pelanggan'    => strtoupper($customer->uuid ?? $customer->id),
+                'Nama WiFi'       => $wifiName,
+                'Password Baru'   => $wifiPass,
+                'Status'          => 'Aktif Diperbarui',
+            ],
+            channel: 'both',
+            recipientName: $customer->name
+        );
     }
 }
-
-

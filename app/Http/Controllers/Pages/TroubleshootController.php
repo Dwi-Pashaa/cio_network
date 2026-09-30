@@ -9,7 +9,7 @@ use App\Models\Organization;
 use App\Models\Troubleshoot;
 use App\Models\TroubleshootProgress;
 use App\Models\User;
-use App\Services\FonteMessagingService;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -456,7 +456,7 @@ class TroubleshootController extends Controller
             return redirect()->route('troubleshoot.index');
         }
 
-        $troubleshoot = Troubleshoot::with(['customer', 'technician', 'progress'])->find($id);
+        $troubleshoot = Troubleshoot::with(['customer.mikrotikDevice', 'technician', 'creator', 'progress'])->find($id);
 
         if (!$troubleshoot) {
             return response()->json(['message' => 'Ticket tidak ditemukan.'], 404);
@@ -484,9 +484,19 @@ class TroubleshootController extends Controller
             ];
         }
 
+        $mikrotikStatus = $troubleshoot->customer?->mikrotikDevice?->status ?? 'offline';
+        $user = Auth::user();
+        $canConfirmDone = $troubleshoot->status === 'waiting_check' && (
+            $user->id === $troubleshoot->created_by ||
+            $user->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin']) ||
+            $user->can('kelola troubleshoot')
+        );
+
         return response()->json([
-            'troubleshoot' => $troubleshoot,
-            'progress'     => $progressData,
+            'troubleshoot'     => $troubleshoot,
+            'progress'         => $progressData,
+            'mikrotik_status'  => $mikrotikStatus,
+            'can_confirm_done' => $canConfirmDone,
         ]);
     }
 
@@ -496,7 +506,7 @@ class TroubleshootController extends Controller
         $technician = $troubleshoot->technician;
         $creator = $troubleshoot->creator;
 
-        if (!$technician || empty($technician->telp)) {
+        if (!$technician) {
             return;
         }
 
@@ -539,7 +549,30 @@ class TroubleshootController extends Controller
             . "🔗 *Link Tracking:* {$trackingUrl}\n\n"
             . "Silakan menuju lokasi pelanggan untuk melakukan pengecekan dan perbaikan.";
 
-        app(FonteMessagingService::class)->sendMessage($technician->telp, $message);
+        $subject = "Ticket Troubleshoot Baru #{$troubleshoot->id} - {$customerName}";
+        $title = "TICKET TROUBLESHOOT BARU";
+        $metadata = [
+            'ID Ticket'        => "#{$troubleshoot->id}",
+            'Nama Pelanggan'   => $customerName,
+            'MAC Address'      => $customerMac,
+            'Tipe Layanan'     => $customerLayanan,
+            'Paket Internet'   => $customerPaket,
+            'Alamat Pelanggan' => $fullAddress,
+            'Deskripsi Kendala'=> $troubleshoot->description,
+            'Dibuat Oleh'      => $creatorName,
+            'Tanggal Dibuat'   => $createdAt,
+        ];
+
+        app(NotificationDispatcher::class)->sendToUser(
+            user: $technician,
+            subject: $subject,
+            title: $title,
+            message: $message,
+            actionUrl: $trackingUrl,
+            actionText: 'Buka Tracking Lokasi & Perbaikan',
+            metadata: $metadata,
+            category: 'troubleshoot'
+        );
     }
 
     private function sendProgressNotification(Troubleshoot $troubleshoot, int $step, string $stepLabel, string $photoUrl, ?string $address): void
@@ -579,6 +612,7 @@ class TroubleshootController extends Controller
             'menuju_lokasi' => 'Menuju Lokasi',
             'tiba_lokasi' => 'Tiba di Lokasi',
             'perbaikan' => 'Perbaikan',
+            'waiting_check' => 'Menunggu Pengecekan',
             'done' => 'Selesai',
             default => str_replace('_', ' ', ucfirst($troubleshoot->status)),
         };
@@ -600,12 +634,188 @@ class TroubleshootController extends Controller
             . "*📸 Foto:* {$photoUrl}\n\n"
             . "🔗 *Link Detail:* {$detailUrl}";
 
-        $messagingService = app(FonteMessagingService::class);
+        $subject = "Progress Troubleshoot #{$troubleshoot->id} (Step {$step}: {$stepLabel}) - {$customerName}";
+        $title = "UPDATE PROGRESS TROUBLESHOOT";
+        $metadata = [
+            'ID Ticket'        => "#{$troubleshoot->id}",
+            'Status'           => $statusLabel,
+            'Progress'         => "Langkah {$step}: {$stepLabel}",
+            'Nama Pelanggan'   => $customerName,
+            'Alamat Pelanggan' => $fullAddress,
+            'Teknisi'          => $technicianName,
+            'Lokasi Saat Ini'  => $location,
+            'Foto Lampiran'    => $photoUrl,
+        ];
+
+        $dispatcher = app(NotificationDispatcher::class);
         foreach ($kelolaUsers as $user) {
-            if (!empty($user->telp)) {
-                $messagingService->sendMessage($user->telp, $message);
-            }
+            $dispatcher->sendToUser(
+                user: $user,
+                subject: $subject,
+                title: $title,
+                message: $message,
+                actionUrl: $detailUrl,
+                actionText: 'Lihat Data Troubleshoot',
+                metadata: $metadata,
+                category: 'troubleshoot'
+            );
         }
+    }
+
+    private function sendWaitingCheckNotification(Troubleshoot $troubleshoot, string $photoUrl, ?string $address): void
+    {
+        $creator = $troubleshoot->creator;
+        if (!$creator) {
+            return;
+        }
+
+        $customer = $troubleshoot->customer;
+        $technician = $troubleshoot->technician;
+
+        $customerName = $customer ? $customer->name : '-';
+        $customerMac = $customer ? $customer->mac_address : '-';
+        $technicianName = $technician ? $technician->name : '-';
+        $location = $address ?: '-';
+        $mikrotikStatus = $customer && $customer->mikrotikDevice ? strtoupper($customer->mikrotikDevice->status ?? 'OFFLINE') : 'BELUM TERDETEKSI';
+
+        $addressParts = [];
+        if ($customer) {
+            $customer->loadMissing(['hometown', 'rt', 'rw', 'village', 'district', 'regencie']);
+            if (!empty($customer->hometown->name)) $addressParts[] = 'Kampung ' . $customer->hometown->name;
+            if (!empty($customer->rt->name)) $addressParts[] = 'RT ' . $customer->rt->name;
+            if (!empty($customer->rw->name)) $addressParts[] = 'RW ' . $customer->rw->name;
+            if (!empty($customer->village->name)) $addressParts[] = 'Desa ' . $customer->village->name;
+            if (!empty($customer->district->name)) $addressParts[] = 'Kec. ' . $customer->district->name;
+            if (!empty($customer->regencie->name)) $addressParts[] = 'Kab. ' . $customer->regencie->name;
+        }
+        $fullAddress = count($addressParts) > 0 ? implode(', ', $addressParts) : '-';
+
+        $detailUrl = route('customer.index', ['open_ticket_detail' => $troubleshoot->id]);
+
+        $message = "*🔍 PERMINTAAN PENGECEKAN TIKET TROUBLESHOOT*\n\n"
+            . "*ID Ticket:* #{$troubleshoot->id}\n"
+            . "*Status:* Menunggu Pengecekan Pengirim Tiket\n\n"
+            . "Halo *{$creator->name}*,\n"
+            . "Teknisi *{$technicianName}* telah menyelesaikan Tahap 4 (Perbaikan & Selesai) untuk tiket penanganan gangguan pelanggan berikut:\n\n"
+            . "*📋 Data Pelanggan:*\n"
+            . "- Nama: {$customerName}\n"
+            . "- MAC Address: {$customerMac}\n"
+            . "- Status MikroTik Saat Ini: *[ {$mikrotikStatus} ]*\n"
+            . "- Alamat: {$fullAddress}\n\n"
+            . "*👤 Teknisi:* {$technicianName}\n"
+            . "*📍 Lokasi:* {$location}\n"
+            . "*📸 Foto Bukti:* {$photoUrl}\n\n"
+            . "Silakan periksa apakah koneksi pelanggan telah normal (*WAITING -> BOUND*), lalu lakukan konfirmasi penyelesaian tiket di sistem.\n\n"
+            . "🔗 *Link Pengecekan & Selesai:* {$detailUrl}";
+
+        $subject = "Pengecekan Status Tiket Troubleshoot #{$troubleshoot->id} - {$customerName}";
+        $title = "PERMINTAAN PENGECEKAN STATUS TIKET";
+        $metadata = [
+            'ID Ticket'               => "#{$troubleshoot->id}",
+            'Nama Pelanggan'          => $customerName,
+            'MAC Address'             => $customerMac,
+            'Status MikroTik Saat Ini'=> $mikrotikStatus,
+            'Teknisi'                 => $technicianName,
+            'Lokasi Pengerjaan'       => $location,
+            'Catatan Teknisi'         => $troubleshoot->technician_notes ?: '-',
+            'Status Tiket'            => 'Menunggu Pengecekan (Waiting Check)',
+        ];
+
+        app(NotificationDispatcher::class)->sendToUser(
+            user: $creator,
+            subject: $subject,
+            title: $title,
+            message: $message,
+            actionUrl: $detailUrl,
+            actionText: 'Buka Pengecekan & Selesaikan Tiket',
+            metadata: $metadata,
+            category: 'troubleshoot'
+        );
+    }
+
+    private function sendTicketConfirmedDoneNotification(Troubleshoot $troubleshoot): void
+    {
+        $technician = $troubleshoot->technician;
+        if (!$technician) {
+            return;
+        }
+
+        $customer = $troubleshoot->customer;
+        $customerName = $customer ? $customer->name : '-';
+        $creatorName = $troubleshoot->creator ? $troubleshoot->creator->name : 'Admin';
+
+        $message = "*✅ TIKET TROUBLESHOOT RESMI SELESAI (DONE)*\n\n"
+            . "*ID Ticket:* #{$troubleshoot->id}\n"
+            . "*Pelanggan:* {$customerName}\n"
+            . "*Diverifikasi Oleh:* {$creatorName}\n\n"
+            . "Halo *{$technician->name}*,\n"
+            . "Pekerjaan perbaikan Anda pada tiket #{$troubleshoot->id} telah diverifikasi dan dikonfirmasi SELESAI (DONE). Koneksi pelanggan telah aktif normal.\n\n"
+            . "Terima kasih atas kerja keras Anda! 🚀";
+
+        $subject = "Tiket Troubleshoot Selesai & Terverifikasi #{$troubleshoot->id} - {$customerName}";
+        $title = "TIKET RESMI SELESAI (DONE)";
+        $metadata = [
+            'ID Ticket'         => "#{$troubleshoot->id}",
+            'Nama Pelanggan'    => $customerName,
+            'Dikonfirmasi Oleh' => $creatorName,
+            'Status'            => 'Selesai (Done)',
+            'Waktu Selesai'     => now()->format('d/m/Y H:i:s'),
+        ];
+
+        app(NotificationDispatcher::class)->sendToUser(
+            user: $technician,
+            subject: $subject,
+            title: $title,
+            message: $message,
+            actionUrl: route('troubleshoot.index'),
+            actionText: 'Lihat Tiket Troubleshoot',
+            metadata: $metadata,
+            category: 'troubleshoot'
+        );
+    }
+
+    public function confirmDone(Request $request, $id)
+    {
+        $troubleshoot = Troubleshoot::with(['customer', 'technician', 'creator'])->findOrFail($id);
+        $user = Auth::user();
+
+        $canConfirm = $user->id === $troubleshoot->created_by ||
+            $user->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin']) ||
+            $user->can('kelola troubleshoot');
+
+        if (!$canConfirm) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Anda tidak memiliki hak untuk mengonfirmasi penyelesaian tiket ini.',
+            ], 403);
+        }
+
+        if ($troubleshoot->status === 'done') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Tiket ini sudah berstatus selesai (Done).',
+            ], 422);
+        }
+
+        $notes = $request->input('notes');
+        $updateData = ['status' => 'done'];
+        if (!empty($notes)) {
+            $updateData['notes'] = $notes;
+        }
+
+        $troubleshoot->update($updateData);
+
+        // Kirim notifikasi ke teknisi bahwa tiket telah dikonfirmasi selesai
+        try {
+            $this->sendTicketConfirmedDoneNotification($troubleshoot);
+        } catch (\Throwable $e) {
+            \Log::error('Error sending ticket confirmed done notification: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "Tiket #{$troubleshoot->id} berhasil dikonfirmasi dan berstatus SELESAI (Done).",
+        ]);
     }
 
     public function uploadProgress(Request $request, $id, $step)
@@ -677,27 +887,53 @@ class TroubleshootController extends Controller
                 ]
             );
 
-            $stepLabels = [
-                1 => 'Menuju Lokasi',
-                2 => 'Tiba di Lokasi',
-                3 => 'Perbaikan',
-                4 => 'Selesai',
-            ];
-            $stepStatuses = [
-                1 => 'menuju_lokasi',
-                2 => 'tiba_lokasi',
-                3 => 'perbaikan',
-                4 => 'done',
-            ];
-            $troubleshoot->update(['status' => $stepStatuses[(int) $step] ?? 'on_progress']);
+            $isValidationActive = \App\Models\Setting::where('key', 'troubleshoot_check_validation')->value('value') === 'active';
 
-            $troubleshoot->load(['customer', 'technician']);
-            $this->sendProgressNotification($troubleshoot, (int) $step, $stepLabels[(int) $step] ?? "Langkah {$step}", asset($photoPath), $request->address);
+            if ((int) $step === 4) {
+                if ($isValidationActive) {
+                    $troubleshoot->update(['status' => 'waiting_check']);
+                    $troubleshoot->load(['customer.mikrotikDevice', 'technician', 'creator']);
+                    $this->sendWaitingCheckNotification($troubleshoot, asset($photoPath), $request->address);
+                    $this->sendProgressNotification($troubleshoot, 4, 'Selesai (Menunggu Pengecekan)', asset($photoPath), $request->address);
 
-            return response()->json([
-                'status'    => 'success',
-                'photo_url' => asset($photoPath),
-            ]);
+                    return response()->json([
+                        'status'        => 'success',
+                        'photo_url'     => asset($photoPath),
+                        'waiting_check' => true,
+                        'message'       => 'Tahap 4 selesai diunggah. Tiket sekarang dalam status menunggu pengecekan dari pengirim tiket.',
+                    ]);
+                } else {
+                    $troubleshoot->update(['status' => 'done']);
+                    $troubleshoot->load(['customer', 'technician']);
+                    $this->sendProgressNotification($troubleshoot, 4, 'Selesai', asset($photoPath), $request->address);
+
+                    return response()->json([
+                        'status'        => 'success',
+                        'photo_url'     => asset($photoPath),
+                        'waiting_check' => false,
+                        'message'       => 'Ticket selesai.',
+                    ]);
+                }
+            } else {
+                $stepLabels = [
+                    1 => 'Menuju Lokasi',
+                    2 => 'Tiba di Lokasi',
+                    3 => 'Perbaikan',
+                ];
+                $stepStatuses = [
+                    1 => 'menuju_lokasi',
+                    2 => 'tiba_lokasi',
+                    3 => 'perbaikan',
+                ];
+                $troubleshoot->update(['status' => $stepStatuses[(int) $step] ?? 'on_progress']);
+                $troubleshoot->load(['customer', 'technician']);
+                $this->sendProgressNotification($troubleshoot, (int) $step, $stepLabels[(int) $step] ?? "Langkah {$step}", asset($photoPath), $request->address);
+
+                return response()->json([
+                    'status'    => 'success',
+                    'photo_url' => asset($photoPath),
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',

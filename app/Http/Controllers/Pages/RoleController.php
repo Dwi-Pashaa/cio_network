@@ -156,11 +156,24 @@ class RoleController extends Controller
     private function getPermissionGroup(string $name): string
     {
         $groups = [
+            'User'                => [
+                'user',
+                'edit username',
+                'edit nama',
+                'edit email',
+                'edit no telephone',
+                'edit level aksess',
+                'edit penempatan',
+                'edit aksess data halaman',
+                'edit aksess router',
+                'edit aksess patch core',
+                'edit aksess mic radius',
+                'edit keamanan',
+            ],
             'Pelanggan'           => ['pelanggan'],
             'Tipe Pelanggan'      => ['tipe pelanggan'],
             'Tipe Layanan'        => ['tipe layanan'],
             'Level'               => ['level'],
-            'User'                => ['user'],
             'Organisasi'          => ['organisasi'],
             'Router'              => ['router'],
             'Monitoring MikroTik' => ['monitoring mikrotik', 'mikrotik'],

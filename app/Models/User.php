@@ -141,4 +141,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
+
+    public function notificationSetting()
+    {
+        return $this->hasOne(NotificationSetting::class, 'user_id', 'id');
+    }
+
+    public function getNotificationChannel(): string
+    {
+        return $this->notificationSetting?->channel ?? 'both';
+    }
 }
