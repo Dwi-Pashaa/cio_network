@@ -9,6 +9,8 @@ use App\Models\OLT;
 use App\Models\Organization;
 use App\Models\Regency;
 use App\Models\Type;
+use App\Models\User;
+use App\Models\UserBarangOperasional;
 use App\Models\Village;
 use App\Models\Vlan;
 use Illuminate\Http\Request;
@@ -91,7 +93,63 @@ class DashboardController extends Controller
         $dashHometowns = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
         $dashVillages = Village::whereIn('regencie_id', $authUserRegencies)->get();
 
-        return view("pages.dashboard", compact("data", "text", "userRouter", "userPatchCore", "userPages", "organizations", "dashRegencies", "dashDistricts", "dashHometowns", "dashVillages"));
+        // Barang Operasional
+        $isAdmin = $authUser->hasRole(['Admin', 'admin', 'Super Admin', 'superadmin'])
+            || $authUser->can('distribusi barang operasional');
+        $canFilterBoUser = $isAdmin;
+
+        if ($isAdmin) {
+            // Jika admin, default adalah 'all' (tampil semua user) kecuali ada filter spesifik
+            $selectedBoUserId = $request->input('bo_user_id', 'all');
+        } else {
+            // Jika bukan admin, langsung milik masing-masing user saja
+            $selectedBoUserId = $authUser->id;
+        }
+
+        $isAllBoUsers = ($isAdmin && $selectedBoUserId === 'all');
+        $targetBoUser = $authUser;
+
+        if ($isAllBoUsers) {
+            $allBoQuery = UserBarangOperasional::whereHas('barangOperasional')
+                ->where('stok', '>', 0)
+                ->with(['user', 'barangOperasional.tipeBarang']);
+            if ($authUser->organization?->type === 'mitra') {
+                $allBoQuery->where('organization_id', $authUser->organization_id);
+            }
+            $userBarangOperasional = $allBoQuery->get();
+        } else {
+            if ($selectedBoUserId != $authUser->id) {
+                $targetBoUser = User::find($selectedBoUserId) ?? $authUser;
+            }
+            $userBarangOperasional = UserBarangOperasional::where('user_id', $targetBoUser->id)
+                ->whereHas('barangOperasional')
+                ->with(['barangOperasional.tipeBarang'])
+                ->get();
+        }
+
+        $boUsersList = collect();
+        if ($canFilterBoUser) {
+            $boUsersQuery = User::query();
+            if ($authUser->organization?->type === 'mitra') {
+                $boUsersQuery->where('organization_id', $authUser->organization_id);
+            }
+            $boUsersList = $boUsersQuery->orderBy('name')->get(['id', 'name', 'username']);
+        }
+
+        $authUserBoCount = $authUser->userBarangOperasional()
+            ->whereHas('barangOperasional')
+            ->count();
+
+        $boHeaderCount = $isAllBoUsers
+            ? $userBarangOperasional->count()
+            : $authUserBoCount;
+
+        return view("pages.dashboard", compact(
+            "data", "text", "userRouter", "userPatchCore", "userPages",
+            "organizations", "dashRegencies", "dashDistricts", "dashHometowns", "dashVillages",
+            "userBarangOperasional", "targetBoUser", "canFilterBoUser", "selectedBoUserId",
+            "isAllBoUsers", "boUsersList", "authUserBoCount", "isAdmin", "boHeaderCount"
+        ));
     }
 
     public function getDetailCount($id, $text)

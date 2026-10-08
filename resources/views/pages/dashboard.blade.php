@@ -596,6 +596,12 @@
                 </div>
                 <div
                     style="background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:1rem 1.5rem;text-align:center;min-width:90px;">
+                    <div style="font-size:1.5rem;font-weight:800;color:white;">{{ $boHeaderCount }}</div>
+                    <div style="font-size:.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em;">
+                        Barang Ops</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:1rem 1.5rem;text-align:center;min-width:90px;">
                     <div style="font-size:1.5rem;font-weight:800;color:white;">{{ $userPages->count() }}</div>
                     <div style="font-size:.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em;">
                         Halaman</div>
@@ -787,6 +793,226 @@
                         </div>
                         <h6>Tidak ada stok patch core</h6>
                         <p>Silakan minta admin untuk menambahkan stok patch core</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- ── BARANG OPERASIONAL STOCK ── --}}
+        <div class="col-12">
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div class="dash-card-title">
+                        <div class="dash-card-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                                <path d="M12 12l8 -4.5" />
+                                <path d="M12 12l0 9" />
+                                <path d="M12 12l-8 -4.5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span>Stok Barang Operasional Tersedia</span>
+                            @if (!$isAllBoUsers)
+                                <span style="font-size:.78rem;font-weight:600;color:#64748b;margin-left:4px;">— <span style="color:#d97706;">{{ $targetBoUser->name }}</span></span>
+                            @else
+                                <span style="font-size:.78rem;font-weight:600;color:#64748b;margin-left:4px;">— <span style="color:#d97706;">Semua User</span></span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        @if ($canFilterBoUser && $boUsersList->count() > 0)
+                            <form action="" method="GET" style="margin:0;" class="d-inline-flex align-items-center gap-1">
+                                @if(request('filter'))
+                                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                @endif
+                                @if(request('organization_id'))
+                                    <input type="hidden" name="organization_id" value="{{ request('organization_id') }}">
+                                @endif
+                                <select name="bo_user_id" onchange="this.form.submit()"
+                                    style="font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid #e2e8f0;background:white;color:#475569;cursor:pointer;">
+                                    <option value="all" {{ $isAllBoUsers ? 'selected' : '' }}>
+                                        Semua User (Tampil Semua)
+                                    </option>
+                                    <option value="{{ Auth::id() }}" {{ $selectedBoUserId == Auth::id() && !$isAllBoUsers ? 'selected' : '' }}>
+                                        Akun Saya ({{ Auth::user()->name }})
+                                    </option>
+                                    <optgroup label="Filter User Tertentu:">
+                                        @foreach ($boUsersList as $u)
+                                            @if ($u->id != Auth::id())
+                                                <option value="{{ $u->id }}" {{ $selectedBoUserId == $u->id && !$isAllBoUsers ? 'selected' : '' }}>
+                                                    {{ $u->name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </optgroup>
+                                </select>
+                            </form>
+                        @endif
+                        <span
+                            style="background:#fef3c7;color:#b45309;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
+                            Barang Operasional
+                        </span>
+                        <span
+                            style="background:#ede9fe;color:#7c3aed;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;">
+                            {{ $userBarangOperasional->count() }} Item
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Banner Informasi Stok Barang Operasional --}}
+                <div class="px-4 pt-3 pb-2">
+                    <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    <polyline points="11 12 12 12 12 16 13 16"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 0.825rem; color: #92400e; line-height: 1.45;">
+                                @if ($isAllBoUsers)
+                                    <strong>Informasi:</strong> Ini adalah <strong>Stok Barang Operasional Seluruh User</strong> yang sedang terdistribusi dan aktif dipegang oleh masing-masing teknisi/pengguna untuk operasional jaringan di lapangan.
+                                @else
+                                    <strong>Informasi:</strong> Ini adalah <strong>Stok Barang Operasional</strong> yang saat ini dipegang oleh <strong>{{ $targetBoUser->name }}</strong> untuk penanganan, troubleshoot, instalasi pelanggan, dan pemeliharaan perangkat jaringan.
+                                @endif
+                            </div>
+                        </div>
+                        @can('lihat barang operasional')
+                            <a href="{{ route('barang-operasional.index') }}" style="font-size: 0.775rem; font-weight: 700; color: #b45309; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: white; padding: 4px 12px; border-radius: 20px; border: 1px solid #fcd34d; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Kelola Barang Operasional &rarr;
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+
+                @if ($userBarangOperasional->count() > 0)
+                    <div class="table-responsive">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">No</th>
+                                    @if ($isAllBoUsers)
+                                        <th>Pengguna (User)</th>
+                                    @endif
+                                    <th>Nama Barang</th>
+                                    <th>Tipe Barang</th>
+                                    <th>Merk / Spesifikasi</th>
+                                    <th>Serial Number / MAC</th>
+                                    <th>Total Stok</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($userBarangOperasional as $ubo)
+                                    @php $cls = $cycleClasses[$loop->index % count($cycleClasses)]; @endphp
+                                    <tr>
+                                        <td style="color:#94a3b8;font-size:.8rem;">{{ $loop->iteration }}</td>
+                                        @if ($isAllBoUsers)
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;padding:5px 10px;border-radius:20px;font-size:0.78rem;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-1px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                        {{ $ubo->user->name ?? '-' }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        @endif
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="stock-avatar {{ $cls }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                                                        <path d="M12 12l8 -4.5" />
+                                                        <path d="M12 12l0 9" />
+                                                        <path d="M12 12l-8 -4.5" />
+                                                    </svg>
+                                                </span>
+                                                <div>
+                                                    <span class="fw-600"
+                                                        style="font-size:.875rem;color:#0f172a;">{{ $ubo->barangOperasional->nama_barang }}</span>
+                                                    @if ($ubo->barangOperasional->kode_barang)
+                                                        <div style="font-size:0.75rem;color:#64748b;">
+                                                            <code>{{ $ubo->barangOperasional->kode_barang }}</code>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span
+                                                style="background:#f1f5f9;color:#334155;font-size:.78rem;font-weight:600;padding:2px 10px;border-radius:20px;">
+                                                {{ $ubo->barangOperasional->tipeBarang->nama_tipe ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style="font-size:0.825rem;color:#334155;">
+                                                @if ($ubo->barangOperasional->merk)
+                                                    <span class="badge bg-light text-muted border me-1">{{ $ubo->barangOperasional->merk }}</span>
+                                                @endif
+                                                @if ($ubo->barangOperasional->spesifikasi)
+                                                    <span style="font-size:0.75rem;color:#64748b;">{{ \Illuminate\Support\Str::limit($ubo->barangOperasional->spesifikasi, 30) }}</span>
+                                                @endif
+                                                @if (!$ubo->barangOperasional->merk && !$ubo->barangOperasional->spesifikasi)
+                                                    <span style="color:#94a3b8;">-</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="font-size:0.78rem;line-height:1.4;">
+                                                @if ($ubo->barangOperasional->serial_number)
+                                                    <div><span class="text-muted">SN:</span> <code style="font-size:0.75rem;">{{ $ubo->barangOperasional->serial_number }}</code></div>
+                                                @endif
+                                                @if ($ubo->barangOperasional->mac_address)
+                                                    <div><span class="text-muted">MAC:</span> <code style="font-size:0.75rem;">{{ $ubo->barangOperasional->mac_address }}</code></div>
+                                                @endif
+                                                @if (!$ubo->barangOperasional->serial_number && !$ubo->barangOperasional->mac_address)
+                                                    <span style="color:#94a3b8;">-</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span
+                                                style="background:#f1f5f9;color:#475569;font-size:.78rem;font-weight:600;padding:2px 10px;border-radius:20px;">
+                                                {{ $ubo->stok }} {{ $ubo->barangOperasional->satuan ?? 'Unit' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if ($ubo->stok > 10)
+                                                <span class="metric-badge success">Tersedia</span>
+                                            @elseif($ubo->stok > 0)
+                                                <span class="metric-badge warn">Terbatas</span>
+                                            @else
+                                                <span class="metric-badge danger">Habis</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="dash-empty">
+                        <div class="dash-empty-icon" style="background:#fef3c7;color:#d97706;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                                <path d="M12 12l8 -4.5" />
+                                <path d="M12 12l0 9" />
+                                <path d="M12 12l-8 -4.5" />
+                            </svg>
+                        </div>
+                        <h6>Tidak ada stok barang operasional</h6>
+                        <p>{{ $isAllBoUsers ? 'Belum ada data stok barang operasional pada user manapun' : 'Belum ada stok barang operasional yang didistribusikan ke akun ' . ($targetBoUser->name ?? 'ini') }}</p>
                     </div>
                 @endif
             </div>

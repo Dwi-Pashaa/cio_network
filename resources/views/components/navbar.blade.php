@@ -119,7 +119,7 @@
 
                             {{-- ==================== Barang ==================== --}}
                             @canany(['lihat router', 'lihat barang', 'lihat mac address', 'lihat patch core', 'lihat plc', 'lihat stock router', 'lihat stock patch core', 'lihat stock plc'])
-                                <li class="nav-item dropdown {{ request()->is('barang*') || request()->is('patch.core*') || request()->is('plc*') || request()->is('user.router*') || request()->is('user.patch.core*') || request()->is('user.plc*') ? 'active' : '' }}">
+                                <li class="nav-item dropdown {{ (request()->is('barang/*') || request()->is('patch.core*') || request()->is('plc*') || request()->is('user.router*') || request()->is('user.patch.core*') || request()->is('user.plc*')) && !request()->is('barang-operasional*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-barang"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                         role="button" aria-expanded="false">
@@ -175,6 +175,48 @@
                                                 </a>
                                             @endcan
                                         @endcanany
+                                    </div>
+                                </li>
+                            @endcanany
+
+                            {{-- ==================== Barang Operasional ==================== --}}
+                            @canany(['lihat tipe barang operasional', 'lihat barang operasional', 'lihat riwayat transfer barang'])
+                                <li class="nav-item dropdown {{ Route::is('tipe-barang-operasional*') || Route::is('barang-operasional*') ? 'active' : '' }}">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-barang-operasional"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                        role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                                                <path d="M12 12l8 -4.5" />
+                                                <path d="M12 12l0 9" />
+                                                <path d="M12 12l-8 -4.5" />
+                                            </svg>
+                                        </span>
+                                        <span class="nav-link-title">Barang Operasional</span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        @can('lihat tipe barang operasional')
+                                            <a class="dropdown-item {{ Route::is('tipe-barang-operasional*') ? 'active' : '' }}"
+                                                href="{{ route('tipe-barang-operasional.index') }}" rel="noopener">
+                                                Tipe Barang
+                                            </a>
+                                        @endcan
+                                        @can('lihat barang operasional')
+                                            <a class="dropdown-item {{ Route::is('barang-operasional.index') ? 'active' : '' }}"
+                                                href="{{ route('barang-operasional.index') }}" rel="noopener">
+                                                Data Barang
+                                            </a>
+                                        @endcan
+                                        @can('lihat riwayat transfer barang')
+                                            <a class="dropdown-item {{ Route::is('barang-operasional.riwayat') ? 'active' : '' }}"
+                                                href="{{ route('barang-operasional.riwayat') }}" rel="noopener">
+                                                Riwayat Transfer
+                                            </a>
+                                        @endcan
                                     </div>
                                 </li>
                             @endcanany

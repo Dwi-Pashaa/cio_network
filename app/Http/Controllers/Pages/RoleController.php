@@ -156,6 +156,7 @@ class RoleController extends Controller
     private function getPermissionGroup(string $name): string
     {
         $groups = [
+            'Barang Operasional'  => ['barang operasional', 'tipe barang operasional', 'transfer barang'],
             'User'                => [
                 'user',
                 'edit username',

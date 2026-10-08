@@ -151,4 +151,19 @@ class User extends Authenticatable
     {
         return $this->notificationSetting?->channel ?? 'both';
     }
+
+    public function userBarangOperasional()
+    {
+        return $this->hasMany(UserBarangOperasional::class, 'user_id', 'id');
+    }
+
+    public function transferKirimBarang()
+    {
+        return $this->hasMany(TransferBarangOperasional::class, 'pengirim_id', 'id');
+    }
+
+    public function transferTerimaBarang()
+    {
+        return $this->hasMany(TransferBarangOperasional::class, 'penerima_id', 'id');
+    }
 }

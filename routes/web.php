@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
     require __DIR__ . '/master-data.php';
     require __DIR__ . '/master-barang.php';
+    require __DIR__ . '/master-barang-operasional.php';
     require __DIR__ . '/master-customer.php';
     require __DIR__ . '/master-jaringan.php';
     require __DIR__ . '/master-pemukiman.php';
