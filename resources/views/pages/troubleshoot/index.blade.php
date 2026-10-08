@@ -104,7 +104,7 @@
                 </select>
                 <span class="text-muted" style="font-size: 0.88rem;">data</span>
             </div>
-            @if (auth()->user()->hasPermissionTo('filter organization'))
+            @can('filter organization')
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small fw-bold">Organisasi</span>
                     <select id="filter-organization" class="org-input" style="width:auto;padding:0.35rem 0.8rem;">
@@ -114,7 +114,7 @@
                         @endforeach
                     </select>
                 </div>
-            @endif
+            @endcan
             <div class="search-wrapper ms-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8" />
@@ -130,9 +130,9 @@
                     <tr>
                         <th style="width:50px; text-align:center;">No</th>
                         <th>Pelanggan</th>
-                        @if (auth()->user()->hasPermissionTo('filter organization'))
+                        @can('filter organization')
                             <th>Organisasi/Mitra</th>
-                        @endif
+                        @endcan
                         <th>Teknisi</th>
                         <th>Status</th>
                         <th>Dibuat Oleh</th>
@@ -340,7 +340,7 @@
     let editSelect2;
 
     $(function() {
-        const hasOrgFilter = {{ auth()->user()->hasPermissionTo('filter organization') ? 'true' : 'false' }};
+        const hasOrgFilter = {{ auth()->user()->can('filter organization') ? 'true' : 'false' }};
 
         table = $('#troubleshoot-table').DataTable({
             processing: true,
@@ -359,15 +359,15 @@
             dom: 'rt',
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'customer_name', defaultContent: '-' },
-                @if (auth()->user()->hasPermissionTo('filter organization'))
-                { data: 'organization_name', defaultContent: '-' },
-                @endif
-                { data: 'technician_name', defaultContent: '-' },
-                { data: 'status', defaultContent: '-' },
-                { data: 'creator_name', defaultContent: '-' },
+                { data: 'customer_name', orderable: false, defaultContent: '-' },
+                @can('filter organization')
+                { data: 'organization_name', orderable: false, defaultContent: '-' },
+                @endcan
+                { data: 'technician_name', orderable: false, defaultContent: '-' },
+                { data: 'status', orderable: false, defaultContent: '-' },
+                { data: 'creator_name', orderable: false, defaultContent: '-' },
                 { data: 'created_at', render: function(data) {
-                    return data ? moment(data).format('DD/MM/YYYY HH:mm:ss') : '-';
+                    return data ? (typeof moment !== 'undefined' ? moment(data).format('DD/MM/YYYY HH:mm:ss') : data) : '-';
                 }},
                 { data: 'action', orderable: false, searchable: false }
             ],
@@ -396,11 +396,11 @@
             }
         });
 
-        @if (auth()->user()->hasPermissionTo('filter organization'))
+        @can('filter organization')
         $('#filter-organization').on('change', function() {
             table.ajax.reload();
         });
-        @endif
+        @endcan
     });
 
     function updatePaginationInfo(settings) {
@@ -716,11 +716,6 @@
                 });
             }
         });
-    }
-            })
-            .fail(function() {
-                Swal.fire('Error', 'Gagal memuat detail ticket.', 'error');
-            });
     }
 
     function previewImage(src) {

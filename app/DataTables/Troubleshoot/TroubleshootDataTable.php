@@ -78,7 +78,7 @@ class TroubleshootDataTable
         }
 
         // Filter by organization (for internal users with permission)
-        if ($user->hasPermissionTo('filter organization') && $request->filled('organization_id')) {
+        if ($user->can('filter organization') && $request->filled('organization_id')) {
             $query->whereHas('customer', function ($q) use ($request) {
                 $q->where('organization_id', $request->input('organization_id'));
             });
