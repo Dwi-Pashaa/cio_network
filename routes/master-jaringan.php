@@ -28,6 +28,8 @@ Route::prefix('master-network')->group(function () {
         Route::get('/{id}/show', [VlanController::class, 'show'])->name('vlan.show');
         Route::put('/{id}/update', [VlanController::class, 'update'])->name('vlan.update');
         Route::delete('/{id}/destroy', [VlanController::class, 'destroy'])->name('vlan.destroy');
+        Route::get('/districts/{regencyId}', [VlanController::class, 'getDistricts'])->name('vlan.districts');
+        Route::get('/villages/{districtId}', [VlanController::class, 'getVillages'])->name('vlan.villages');
     });
 
     // odc

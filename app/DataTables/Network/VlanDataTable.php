@@ -18,6 +18,72 @@ class VlanDataTable
                 $this->search($query);
             })
             ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
+            ->addColumn('ip_address_badge', function ($row) {
+                if (!$row->ip_address) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                return '<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:600;font-size:0.75rem;padding:4px 8px;border-radius:6px;font-family:monospace;">' . e($row->ip_address) . '</span>';
+            })
+            ->addColumn('support_badges', function ($row) {
+                $badges = [];
+                if ($row->support_pppoe) {
+                    $badges[] = '<span class="badge" style="background:#dbeafe;color:#1e40af;font-size:0.72rem;padding:3px 7px;border-radius:6px;">PPPoE</span>';
+                }
+                if ($row->support_voucher) {
+                    $badges[] = '<span class="badge" style="background:#f3e8ff;color:#6b21a8;font-size:0.72rem;padding:3px 7px;border-radius:6px;">Voucher</span>';
+                }
+                if (empty($badges)) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
+            })
+            ->addColumn('location_text', function ($row) {
+                $parts = [];
+                if ($row->regencie) {
+                    $parts[] = $row->regencie->name;
+                }
+                if ($row->district) {
+                    $parts[] = $row->district->name;
+                }
+                if ($row->village) {
+                    $parts[] = 'Desa ' . $row->village->name;
+                }
+                if ($row->hometown) {
+                    $parts[] = 'Kp. ' . $row->hometown->name;
+                }
+
+                if (empty($parts)) {
+                    return '<span class="text-muted small">-</span>';
+                }
+
+                return '<span class="small text-muted" title="' . e(implode(' / ', $parts)) . '">' . e(implode(', ', $parts)) . '</span>';
+            })
+            ->addColumn('relations_badge', function ($row) {
+                $badges = [];
+                $oltCount = $row->olts->count();
+                $radiusCount = $row->mixRadiuses->count();
+                $paketCount = $row->pakets->count();
+                $priceCount = $row->prices->count();
+
+                if ($oltCount > 0) {
+                    $badges[] = '<span class="badge" style="background:#ccfbf1;color:#0f766e;font-size:0.7rem;padding:2px 6px;" title="OLT: ' . e($row->olts->pluck('name')->implode(', ')) . '">OLT: ' . $oltCount . '</span>';
+                }
+                if ($radiusCount > 0) {
+                    $badges[] = '<span class="badge" style="background:#cffafe;color:#0e7490;font-size:0.7rem;padding:2px 6px;" title="Mix Radius: ' . e($row->mixRadiuses->pluck('name')->implode(', ')) . '">Radius: ' . $radiusCount . '</span>';
+                }
+                if ($paketCount > 0) {
+                    $badges[] = '<span class="badge" style="background:#e0e7ff;color:#3730a3;font-size:0.7rem;padding:2px 6px;" title="Paket: ' . e($row->pakets->pluck('name')->implode(', ')) . '">Paket: ' . $paketCount . '</span>';
+                }
+                if ($priceCount > 0) {
+                    $badges[] = '<span class="badge" style="background:#dcfce7;color:#166534;font-size:0.7rem;padding:2px 6px;" title="Pembayaran: ' . e($row->prices->pluck('name')->implode(', ')) . '">Bayar: ' . $priceCount . '</span>';
+                }
+
+                if (empty($badges)) {
+                    return '<span class="text-muted small">-</span>';
+                }
+
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
+            })
             ->addColumn('action', function ($row) {
                 $editId = $row->id;
                 $deleteId = $row->id;
@@ -50,7 +116,7 @@ class VlanDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['ip_address_badge', 'support_badges', 'location_text', 'relations_badge', 'action'])
             ->make(true);
     }
 
@@ -62,6 +128,16 @@ class VlanDataTable
     private function query()
     {
         $query = Vlan::query()
+            ->with([
+                'olts:id,name',
+                'mixRadiuses:id,name',
+                'pakets:id,name',
+                'prices:id,name',
+                'regencie:id,name',
+                'district:id,name',
+                'village:id,name',
+                'hometown:id,name'
+            ])
             ->join('organization', 'organization.id', '=', 'vlan_networks.organization_id')
             ->select('vlan_networks.*', 'organization.name as organization_name');
 
@@ -86,7 +162,11 @@ class VlanDataTable
         $search = request('search.value');
 
         if ($search) {
-            $query->where('vlan_networks.name', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('vlan_networks.name', 'like', "%{$search}%")
+                  ->orWhere('vlan_networks.code', 'like', "%{$search}%")
+                  ->orWhere('vlan_networks.ip_address', 'like', "%{$search}%");
+            });
         }
     }
 }

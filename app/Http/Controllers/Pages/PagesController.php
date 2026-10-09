@@ -63,7 +63,12 @@ class PagesController extends Controller
         $districts = District::whereIn('regencie_id', $authUserRegencies)->get();
         $hometown = HomeTown::whereIn('regencie_id', $authUserRegencies)->get();
         $villages = Village::whereIn('regencie_id', $authUserRegencies)->get();
-        $vlans = Vlan::where('organization_id', auth()->user()->organization_id)->get();
+        $vlans = Vlan::with([
+            'olts:id,name,code',
+            'mixRadiuses:id,name,code',
+            'pakets:id,name',
+            'prices:id,name',
+        ])->where('organization_id', auth()->user()->organization_id)->get();
         $odps = ODP::where('organization_id', auth()->user()->organization_id)->get();
         $odcs = ODC::where('organization_id', auth()->user()->organization_id)->get();
         $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();

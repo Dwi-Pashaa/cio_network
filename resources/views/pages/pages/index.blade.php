@@ -529,10 +529,14 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const BASE = "{{ route('halaman.index') }}";
+        const vlanDataMap = @json($vlans->keyBy('id'));
+        let masterOptions = {};
+        let isEditMode = false;
         let table;
         let select2Instances = {};
 
         $(function() {
+            captureMasterOptions();
             initializeDataTable();
             initializePaginationAndSearch();
             initializeModalHandlers();
@@ -802,6 +806,7 @@
 
         function initializeModalHandlers() {
             $("#addBtn").on('click', function() {
+                isEditMode = false;
                 resetModal();
                 $(".modal-title").text("Tambah Halaman");
                 $("#type").val('create');
@@ -813,9 +818,133 @@
             });
         }
 
+        function captureMasterOptions() {
+            ['olts_id', 'paket_id', 'mic_radius_id', 'price'].forEach(id => {
+                if (!masterOptions[id] || masterOptions[id].length === 0) {
+                    masterOptions[id] = [];
+                    $('#' + id + ' option').each(function() {
+                        const val = $(this).val();
+                        if (val) {
+                            masterOptions[id].push({
+                                value: String(val),
+                                text: $(this).text()
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function handleVlanSelectionChange() {
+            if (isEditMode) return;
+
+            let selectedVlanIds = $('#vlans_id').val();
+            if (!selectedVlanIds) {
+                selectedVlanIds = [];
+            } else if (!Array.isArray(selectedVlanIds)) {
+                selectedVlanIds = [selectedVlanIds];
+            }
+
+            if (selectedVlanIds.length > 0) {
+                // 1. Otomatis isi Area Regional (Kabupaten, Kecamatan, Desa, Kampung)
+                const lastVlanId = selectedVlanIds[selectedVlanIds.length - 1];
+                const targetVlan = vlanDataMap[lastVlanId];
+
+                if (targetVlan) {
+                    if (targetVlan.regencie_id) {
+                        $('#regencies_id').val(targetVlan.regencie_id).trigger('change');
+                    }
+                    if (targetVlan.district_id) {
+                        $('#districts_id').val(targetVlan.district_id).trigger('change');
+                    }
+                    if (targetVlan.village_id) {
+                        $('#villages_id').val(targetVlan.village_id).trigger('change');
+                    }
+                    if (targetVlan.hometown_id) {
+                        $('#hometowns_id').val(targetVlan.hometown_id).trigger('change');
+                    }
+                }
+
+                // 2. Filter & Otomatis Pilih OLT, Paket, Mix Radius, dan Tipe Pembayaran sesuai VLAN terpilih
+                const allowedOlts = new Map();
+                const allowedPakets = new Map();
+                const allowedRadiuses = new Map();
+                const allowedPrices = new Map();
+
+                selectedVlanIds.forEach(vId => {
+                    const v = vlanDataMap[vId];
+                    if (v) {
+                        (v.olts || []).forEach(o => allowedOlts.set(String(o.id), (o.code ? o.code + ' - ' : '') + (o.name || ('OLT ' + o.id))));
+                        (v.pakets || []).forEach(p => allowedPakets.set(String(p.id), p.name || ('Paket ' + p.id)));
+                        (v.mix_radiuses || v.mixRadiuses || []).forEach(m => allowedRadiuses.set(String(m.id), (m.code ? m.code + ' - ' : '') + (m.name || ('Radius ' + m.id))));
+                        (v.prices || []).forEach(pr => allowedPrices.set(String(pr.id), pr.name || ('Harga ' + pr.id)));
+                    }
+                });
+
+                filterAndSelectOptions('olts_id', allowedOlts, true);
+                filterAndSelectOptions('paket_id', allowedPakets, true);
+                filterAndSelectOptions('mic_radius_id', allowedRadiuses, true);
+                filterAndSelectOptions('price', allowedPrices, true);
+            } else {
+                // Kembalikan ke opsi master jika tidak ada VLAN yang dipilih
+                restoreMasterOptions('olts_id');
+                restoreMasterOptions('paket_id');
+                restoreMasterOptions('mic_radius_id');
+                restoreMasterOptions('price');
+            }
+        }
+
+        function filterAndSelectOptions(selectId, allowedItemsMap, autoSelectAll = true) {
+            const select = $('#' + selectId);
+            const originalMaster = masterOptions[selectId] || [];
+
+            select.empty();
+
+            const newSelected = [];
+            const addedIds = new Set();
+
+            originalMaster.forEach(opt => {
+                if (allowedItemsMap.has(String(opt.value))) {
+                    const isSelected = autoSelectAll;
+                    select.append(new Option(opt.text, opt.value, isSelected, isSelected));
+                    addedIds.add(String(opt.value));
+                    if (isSelected) {
+                        newSelected.push(String(opt.value));
+                    }
+                }
+            });
+
+            allowedItemsMap.forEach((text, id) => {
+                if (!addedIds.has(String(id))) {
+                    const isSelected = autoSelectAll;
+                    select.append(new Option(text, id, isSelected, isSelected));
+                    if (isSelected) {
+                        newSelected.push(String(id));
+                    }
+                }
+            });
+
+            select.val(newSelected).trigger('change');
+        }
+
+        function restoreMasterOptions(selectId) {
+            const select = $('#' + selectId);
+            const originalMaster = masterOptions[selectId] || [];
+
+            select.empty();
+            originalMaster.forEach(opt => {
+                select.append(new Option(opt.text, opt.value, false, false));
+            });
+
+            select.val([]).trigger('change');
+        }
+
         function initializeSelect2() {
             // Destroy existing instances
             destroySelect2();
+
+            // Capture master options if not yet captured
+            captureMasterOptions();
 
             // Initialize all select2
             const selectIds = [
@@ -833,6 +962,8 @@
                     allowClear: true
                 });
             });
+
+            $('#vlans_id').off('change.vlanFilter').on('change.vlanFilter', handleVlanSelectionChange);
         }
 
         function destroySelect2() {
@@ -865,6 +996,11 @@
                     select2Instances[id].val(null).trigger('change');
                 }
             });
+
+            restoreMasterOptions('olts_id');
+            restoreMasterOptions('paket_id');
+            restoreMasterOptions('mic_radius_id');
+            restoreMasterOptions('price');
 
             clearValidationErrors();
         }
@@ -940,6 +1076,7 @@
         }
 
         function editModal(id) {
+            isEditMode = true;
             $.get(BASE + '/' + id + '/show')
                 .done(function(response) {
                     const data = response.data;
@@ -1011,8 +1148,13 @@
                         const tipePelangganIds = data.tipePelanggan.map(item => item.tipe_pelanggan_id);
                         $('#tipe_pelanggan_id').val(tipePelangganIds).trigger('change');
                     }
+
+                    setTimeout(function() {
+                        isEditMode = false;
+                    }, 400);
                 })
                 .fail(function() {
+                    isEditMode = false;
                     showErrorMessage("Terjadi kesalahan saat mengambil data");
                 });
         }
