@@ -11,6 +11,7 @@ class VlanDataTable
     public function get()
     {
         $query = $this->query();
+        $auth = Auth::user();
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
@@ -18,13 +19,19 @@ class VlanDataTable
                 $this->search($query);
             })
             ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
-            ->addColumn('ip_address_badge', function ($row) {
+            ->addColumn('ip_address_badge', function ($row) use ($auth) {
+                if (!$auth->can('input vlan ip address') && !$auth->can('lihat vlan ip address')) {
+                    return '-';
+                }
                 if (!$row->ip_address) {
                     return '<span class="text-muted small">-</span>';
                 }
                 return '<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:600;font-size:0.75rem;padding:4px 8px;border-radius:6px;font-family:monospace;">' . e($row->ip_address) . '</span>';
             })
-            ->addColumn('support_badges', function ($row) {
+            ->addColumn('support_badges', function ($row) use ($auth) {
+                if (!$auth->can('input vlan support') && !$auth->can('lihat vlan support')) {
+                    return '-';
+                }
                 $badges = [];
                 if ($row->support_pppoe) {
                     $badges[] = '<span class="badge" style="background:#dbeafe;color:#1e40af;font-size:0.72rem;padding:3px 7px;border-radius:6px;">PPPoE</span>';
@@ -37,7 +44,10 @@ class VlanDataTable
                 }
                 return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
             })
-            ->addColumn('location_text', function ($row) {
+            ->addColumn('location_text', function ($row) use ($auth) {
+                if (!$auth->can('input vlan wilayah') && !$auth->can('lihat vlan wilayah')) {
+                    return '-';
+                }
                 $parts = [];
                 if ($row->regencie) {
                     $parts[] = $row->regencie->name;
@@ -57,6 +67,54 @@ class VlanDataTable
                 }
 
                 return '<span class="small text-muted" title="' . e(implode(' / ', $parts)) . '">' . e(implode(', ', $parts)) . '</span>';
+            })
+            ->addColumn('olt_badges', function ($row) use ($auth) {
+                if (!$auth->can('input vlan olt') && !$auth->can('lihat vlan olt')) {
+                    return '-';
+                }
+                if ($row->olts->isEmpty()) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                $badges = $row->olts->map(function ($o) {
+                    return '<span class="badge" style="background:#ccfbf1;color:#0f766e;font-size:0.72rem;padding:3px 7px;border-radius:6px;" title="' . e($o->name) . '">' . e($o->name) . '</span>';
+                })->toArray();
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
+            })
+            ->addColumn('radius_badges', function ($row) use ($auth) {
+                if (!$auth->can('input vlan mix radius') && !$auth->can('lihat vlan mix radius')) {
+                    return '-';
+                }
+                if ($row->mixRadiuses->isEmpty()) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                $badges = $row->mixRadiuses->map(function ($m) {
+                    return '<span class="badge" style="background:#cffafe;color:#0e7490;font-size:0.72rem;padding:3px 7px;border-radius:6px;" title="' . e($m->name) . '">' . e($m->name) . '</span>';
+                })->toArray();
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
+            })
+            ->addColumn('paket_badges', function ($row) use ($auth) {
+                if (!$auth->can('input vlan tipe paket') && !$auth->can('lihat vlan tipe paket')) {
+                    return '-';
+                }
+                if ($row->pakets->isEmpty()) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                $badges = $row->pakets->map(function ($p) {
+                    return '<span class="badge" style="background:#e0e7ff;color:#3730a3;font-size:0.72rem;padding:3px 7px;border-radius:6px;" title="' . e($p->name) . '">' . e($p->name) . '</span>';
+                })->toArray();
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
+            })
+            ->addColumn('price_badges', function ($row) use ($auth) {
+                if (!$auth->can('input vlan tipe pembayaran') && !$auth->can('lihat vlan tipe pembayaran')) {
+                    return '-';
+                }
+                if ($row->prices->isEmpty()) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                $badges = $row->prices->map(function ($pr) {
+                    return '<span class="badge" style="background:#dcfce7;color:#166534;font-size:0.72rem;padding:3px 7px;border-radius:6px;" title="' . e($pr->name) . '">' . e($pr->name) . '</span>';
+                })->toArray();
+                return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
             })
             ->addColumn('relations_badge', function ($row) {
                 $badges = [];
@@ -84,10 +142,9 @@ class VlanDataTable
 
                 return '<div class="d-flex flex-wrap gap-1">' . implode('', $badges) . '</div>';
             })
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function ($row) use ($auth) {
                 $editId = $row->id;
                 $deleteId = $row->id;
-                $auth = Auth::user();
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1">';
 
                 if ($auth->can('ubah vlan')) {
@@ -116,7 +173,7 @@ class VlanDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['ip_address_badge', 'support_badges', 'location_text', 'relations_badge', 'action'])
+            ->rawColumns(['ip_address_badge', 'support_badges', 'location_text', 'olt_badges', 'radius_badges', 'paket_badges', 'price_badges', 'relations_badge', 'action'])
             ->make(true);
     }
 

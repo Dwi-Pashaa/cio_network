@@ -161,22 +161,65 @@
                 </div>
             </div>
 
+            @php
+                $canNama    = auth()->user()->can('input vlan nama') || auth()->user()->can('lihat vlan nama');
+                $canIp      = auth()->user()->can('input vlan ip address') || auth()->user()->can('lihat vlan ip address');
+                $canSupport = auth()->user()->can('input vlan support') || auth()->user()->can('lihat vlan support');
+                $canWilayah = auth()->user()->can('input vlan wilayah') || auth()->user()->can('lihat vlan wilayah');
+                $canOlt     = auth()->user()->can('input vlan olt') || auth()->user()->can('lihat vlan olt');
+                $canRadius  = auth()->user()->can('input vlan mix radius') || auth()->user()->can('lihat vlan mix radius');
+                $canPaket   = auth()->user()->can('input vlan tipe paket') || auth()->user()->can('lihat vlan tipe paket');
+                $canPrice   = auth()->user()->can('input vlan tipe pembayaran') || auth()->user()->can('lihat vlan tipe pembayaran');
+                $canOrg     = auth()->user()->hasPermissionTo('filter organization');
+                $canAction  = auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan');
+
+                $colIndex = 1;
+                if ($canNama) $colIndex++;
+                if ($canIp) $colIndex++;
+                if ($canSupport) $colIndex++;
+                if ($canWilayah) $colIndex++;
+                if ($canOlt) $colIndex++;
+                if ($canRadius) $colIndex++;
+                if ($canPaket) $colIndex++;
+                if ($canPrice) $colIndex++;
+                $createdAtIndex = $colIndex;
+            @endphp
+
             {{-- Table --}}
             <div class="table-responsive">
                 <table class="org-table" id="vlan-table">
                     <thead>
                         <tr>
                             <th style="width:50px;">NO</th>
-                            <th>NAMA VLAN</th>
-                            <th>IP ADDRESS</th>
-                            <th>SUPPORT</th>
-                            <th>WILAYAH / LOKASI</th>
-                            <th>INTEGRASI</th>
+                            @if ($canNama)
+                                <th>NAMA VLAN</th>
+                            @endif
+                            @if ($canIp)
+                                <th>IP ADDRESS</th>
+                            @endif
+                            @if ($canSupport)
+                                <th>SUPPORT</th>
+                            @endif
+                            @if ($canWilayah)
+                                <th>WILAYAH / LOKASI</th>
+                            @endif
+                            @if ($canOlt)
+                                <th>OLT</th>
+                            @endif
+                            @if ($canRadius)
+                                <th>MIX RADIUS</th>
+                            @endif
+                            @if ($canPaket)
+                                <th>TIPE PAKET</th>
+                            @endif
+                            @if ($canPrice)
+                                <th>TIPE PEMBAYARAN</th>
+                            @endif
                             <th>CREATED</th>
-                            @if (auth()->user()->hasPermissionTo('filter organization'))
+                            @if ($canOrg)
                                 <th class="text-center">Organisasi/Mitra</th>
                             @endif
-                            @if (auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan'))
+                            @if ($canAction)
                                 <th class="text-center">ACTION</th>
                             @endif
                         </tr>
@@ -503,7 +546,7 @@
                 ajax: {
                     url: BASE
                 },
-                order: [[{{ auth()->user()->hasPermissionTo('filter organization') ? 6 : 5 }}, 'desc']],
+                order: [[{{ $createdAtIndex }}, 'desc']],
                 pageLength: 10,
                 dom: 'rt',
                 columns: [{
@@ -511,6 +554,7 @@
                         orderable: false,
                         searchable: false
                     },
+                    @if ($canNama)
                     {
                         data: 'name',
                         defaultContent: '-',
@@ -530,30 +574,63 @@
                             </div>`;
                         }
                     },
+                    @endif
+                    @if ($canIp)
                     {
                         data: 'ip_address_badge',
                         defaultContent: '-',
                         orderable: false,
                         searchable: true
                     },
+                    @endif
+                    @if ($canSupport)
                     {
                         data: 'support_badges',
                         defaultContent: '-',
                         orderable: false,
                         searchable: false
                     },
+                    @endif
+                    @if ($canWilayah)
                     {
                         data: 'location_text',
                         defaultContent: '-',
                         orderable: false,
                         searchable: false
                     },
+                    @endif
+                    @if ($canOlt)
                     {
-                        data: 'relations_badge',
+                        data: 'olt_badges',
                         defaultContent: '-',
                         orderable: false,
                         searchable: false
                     },
+                    @endif
+                    @if ($canRadius)
+                    {
+                        data: 'radius_badges',
+                        defaultContent: '-',
+                        orderable: false,
+                        searchable: false
+                    },
+                    @endif
+                    @if ($canPaket)
+                    {
+                        data: 'paket_badges',
+                        defaultContent: '-',
+                        orderable: false,
+                        searchable: false
+                    },
+                    @endif
+                    @if ($canPrice)
+                    {
+                        data: 'price_badges',
+                        defaultContent: '-',
+                        orderable: false,
+                        searchable: false
+                    },
+                    @endif
                     {
                         data: 'created_at',
                         render: function(data) {
@@ -571,7 +648,7 @@
                         </span>`;
                         }
                     },
-                    @if (auth()->user()->hasPermissionTo('filter organization'))
+                    @if ($canOrg)
                     {
                         data: 'organization_name',
                         orderable: false,
@@ -579,13 +656,14 @@
                         className: 'text-center'
                     },
                     @endif
+                    @if ($canAction)
                     {
                         data: 'action',
                         orderable: false,
                         searchable: false,
-                        className: 'text-center',
-                        visible: {{ auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan') ? 'true' : 'false' }}
+                        className: 'text-center'
                     }
+                    @endif
                 ],
                 drawCallback: function(settings) {
                     updatePaginationInfo(settings);
