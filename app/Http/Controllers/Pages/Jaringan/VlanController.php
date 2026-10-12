@@ -87,6 +87,9 @@ class VlanController extends Controller
         if ($user->can('input vlan nama')) {
             $rules['name'] = 'required|string|max:255';
         }
+        if ($user->can('input vlan server') || $user->can('input vlan nama')) {
+            $rules['server_name'] = 'nullable|string|max:255';
+        }
         if ($user->can('input vlan ip address')) {
             $rules['ip_address'] = 'nullable|string|max:100';
         }
@@ -132,6 +135,10 @@ class VlanController extends Controller
             'organization_id' => $user->organization_id,
             'name' => $user->can('input vlan nama') ? $request->name : ($request->name ?: 'VLAN'),
         ];
+
+        if (($user->can('input vlan server') || $user->can('input vlan nama')) && $request->has('server_name')) {
+            $data['server_name'] = $request->server_name;
+        }
 
         if ($user->can('input vlan ip address')) {
             $data['ip_address'] = $request->ip_address;
@@ -219,6 +226,9 @@ class VlanController extends Controller
         if ($user->can('input vlan nama')) {
             $rules['name'] = 'required|string|max:255';
         }
+        if ($user->can('input vlan server') || $user->can('input vlan nama')) {
+            $rules['server_name'] = 'nullable|string|max:255';
+        }
         if ($user->can('input vlan ip address')) {
             $rules['ip_address'] = 'nullable|string|max:100';
         }
@@ -259,6 +269,10 @@ class VlanController extends Controller
 
         if ($user->can('input vlan nama') && $request->has('name')) {
             $data['name'] = $request->name;
+        }
+
+        if (($user->can('input vlan server') || $user->can('input vlan nama')) && $request->has('server_name')) {
+            $data['server_name'] = $request->server_name;
         }
 
         if ($user->can('input vlan ip address') && $request->has('ip_address')) {

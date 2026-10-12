@@ -111,11 +111,101 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
 
-        /* Custom Select2 validation styling */
-        .is-invalid + .select2-container .select2-selection,
-        select.is-invalid + .select2-container .select2-selection {
+        /* Custom Checklist Box Component */
+        .checklist-group-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 0.65rem 0.75rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .checklist-group-card:focus-within {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+        .checklist-group-card.border-danger {
             border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12) !important;
+        }
+        .checklist-scrollbox {
+            max-height: 155px;
+            overflow-y: auto;
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            padding: 0.35rem;
+            background: #f8fafc;
+        }
+        .checklist-scrollbox::-webkit-scrollbar {
+            width: 5px;
+        }
+        .checklist-scrollbox::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.83rem;
+            cursor: pointer;
+            margin-bottom: 2px;
+            transition: all 0.12s ease;
+            user-select: none;
+            background: #ffffff;
+            border: 1px solid transparent;
+        }
+        .checklist-item:hover {
+            background: #f1f5f9;
+        }
+        .checklist-item.item-checked {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            color: #3730a3;
+            font-weight: 500;
+        }
+        .checklist-item .form-check-input {
+            cursor: pointer;
+            width: 1.05rem;
+            height: 1.05rem;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        .checklist-search-input {
+            font-size: 0.78rem !important;
+            padding: 0.25rem 0.5rem !important;
+            border-radius: 6px !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .counter-badge {
+            font-size: 0.7rem !important;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            background: #e0e7ff;
+            color: #4338ca;
+            white-space: nowrap;
+        }
+        .btn-checklist-action {
+            font-size: 0.74rem;
+            padding: 0;
+            text-decoration: none;
+            color: #6366f1;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .btn-checklist-action:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+        .btn-checklist-clear {
+            color: #ef4444 !important;
+        }
+        .btn-checklist-clear:hover {
+            color: #dc2626 !important;
         }
 
         .is-invalid ~ .invalid-feedback,
@@ -308,18 +398,31 @@
                                                 <span class="invalid-feedback error_desc"></span>
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="tipe_pelanggan_id" class="form-label-premium">Tipe Pelanggan <span style="color:#ef4444;">*</span></label>
-                                                <select name="tipe_pelanggan_id[]" id="tipe_pelanggan_id" class="form-select" multiple>
-                                                    <option value="">-- Pilih --</option>
-                                                    @foreach ($tipePelanggan as $tp)
-                                                        <option value="{{ $tp->id }}">{{ $tp->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_tipe_pelanggan_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Tipe Pelanggan <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-tipe_pelanggan_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="tipe_pelanggan_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="tipe_pelanggan_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari tipe pelanggan..." data-target="tipe_pelanggan_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-tipe_pelanggan_id">
+                                                        @foreach ($tipePelanggan as $tp)
+                                                            <label class="checklist-item" data-search="{{ strtolower($tp->name) }}">
+                                                                <input type="checkbox" name="tipe_pelanggan_id[]" class="form-check-input tipe_pelanggan_id-cb" value="{{ $tp->id }}" data-group="tipe_pelanggan_id">
+                                                                <span class="checklist-text">{{ $tp->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_tipe_pelanggan_id"></span>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="is_ktp" class="form-label-premium">Apakah Halaman Menggunakan KTP <span style="color:#ef4444;">*</span></label>
-                                                <select name="is_ktp" id="is_ktp" class="form-select">
+                                                <select name="is_ktp" id="is_ktp" class="form-select form-control-premium">
                                                     <option value="">-- Pilih --</option>
                                                     <option value="aktif">Aktif</option>
                                                     <option value="tidak">Tidak</option>
@@ -328,7 +431,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="is_persetujuan" class="form-label-premium">Apakah Halaman Menggunakan Persetujuan <span style="color:#ef4444;">*</span></label>
-                                                <select name="is_persetujuan" id="is_persetujuan" class="form-select">
+                                                <select name="is_persetujuan" id="is_persetujuan" class="form-select form-control-premium">
                                                     <option value="">-- Pilih --</option>
                                                     <option value="aktif">Aktif</option>
                                                     <option value="tidak">Tidak</option>
@@ -366,8 +469,8 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="regencies_id" class="form-label-premium">Kabupaten/Kota <span style="color:#ef4444;">*</span></label>
-                                                <select name="regencies_id" id="regencies_id" class="form-select">
-                                                    <option value="">-- Pilih --</option>
+                                                <select name="regencies_id" id="regencies_id" class="form-select form-control-premium">
+                                                    <option value="">-- Pilih Kabupaten/Kota --</option>
                                                     @foreach ($regencies as $rgs)
                                                         <option value="{{ $rgs->id }}">{{ $rgs->name }}</option>
                                                     @endforeach
@@ -376,8 +479,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="districts_id" class="form-label-premium">Kecamatan <span style="color:#ef4444;">*</span></label>
-                                                <select name="districts_id" id="districts_id" class="form-select">
-                                                    <option value="">-- Pilih --</option>
+                                                <select name="districts_id" id="districts_id" class="form-select form-control-premium">
+                                                    <option value="">-- Pilih Kecamatan --</option>
                                                     @foreach ($districts as $dst)
                                                         <option value="{{ $dst->id }}">{{ $dst->name }}</option>
                                                     @endforeach
@@ -386,8 +489,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="hometowns_id" class="form-label-premium">Kampung <span style="color:#ef4444;">*</span></label>
-                                                <select name="hometowns_id" id="hometowns_id" class="form-select">
-                                                    <option value="">-- Pilih --</option>
+                                                <select name="hometowns_id" id="hometowns_id" class="form-select form-control-premium">
+                                                    <option value="">-- Pilih Kampung --</option>
                                                     @foreach ($hometown as $ht)
                                                         <option value="{{ $ht->id }}">{{ $ht->name }}</option>
                                                     @endforeach
@@ -396,8 +499,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="villages_id" class="form-label-premium">Desa <span style="color:#ef4444;">*</span></label>
-                                                <select name="villages_id" id="villages_id" class="form-select">
-                                                    <option value="">-- Pilih --</option>
+                                                <select name="villages_id" id="villages_id" class="form-select form-control-premium">
+                                                    <option value="">-- Pilih Desa --</option>
                                                     @foreach ($villages as $vlg)
                                                         <option value="{{ $vlg->id }}">{{ $vlg->name }}</option>
                                                     @endforeach
@@ -435,71 +538,178 @@
                                 <div class="collapse show" id="collapseKonfigurasi">
                                     <div class="card-body p-3">
                                         <div class="row g-3">
+                                            <!-- VLAN Checklist -->
                                             <div class="col-md-6">
-                                                <label for="vlans_id" class="form-label-premium">Vlan <span style="color:#ef4444;">*</span></label>
-                                                <select name="vlans_id[]" id="vlans_id" class="form-select" multiple>
-                                                    @foreach ($vlans as $vln)
-                                                        <option value="{{ $vln->id }}">{{ $vln->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_vlans_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Vlan <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-vlans_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="vlans_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="vlans_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari VLAN..." data-target="vlans_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-vlans_id">
+                                                        @foreach ($vlans as $vln)
+                                                            <label class="checklist-item" data-search="{{ strtolower($vln->name) }}">
+                                                                <input type="checkbox" name="vlans_id[]" class="form-check-input vlans_id-cb" value="{{ $vln->id }}" data-group="vlans_id">
+                                                                <span class="checklist-text">{{ $vln->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_vlans_id"></span>
                                             </div>
+
+                                            <!-- ODC Checklist -->
                                             <div class="col-md-6">
-                                                <label for="odcs_id" class="form-label-premium">Alamat ODC <span style="color:#ef4444;">*</span></label>
-                                                <select name="odcs_id[]" id="odcs_id" class="form-select" multiple>
-                                                    @foreach ($odcs as $odc)
-                                                        <option value="{{ $odc->id }}">{{ $odc->code }} | {{ $odc->hometown->name }}
-                                                            | {{ $odc->rt->name }} | {{ $odc->rw->name }} | {{ $odc->home_odc }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_odcs_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Alamat ODC <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-odcs_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="odcs_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="odcs_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari ODC..." data-target="odcs_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-odcs_id">
+                                                        @foreach ($odcs as $odc)
+                                                            <label class="checklist-item" data-search="{{ strtolower($odc->code . ' ' . ($odc->hometown->name ?? '') . ' ' . $odc->home_odc) }}">
+                                                                <input type="checkbox" name="odcs_id[]" class="form-check-input odcs_id-cb" value="{{ $odc->id }}" data-group="odcs_id">
+                                                                <span class="checklist-text">{{ $odc->code }} | {{ $odc->hometown->name ?? '-' }} | {{ $odc->rt->name ?? '-' }} | {{ $odc->rw->name ?? '-' }} | {{ $odc->home_odc }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_odcs_id"></span>
                                             </div>
+
+                                            <!-- ODP Checklist -->
                                             <div class="col-md-6">
-                                                <label for="odps_id" class="form-label-premium">Alamat ODP <span style="color:#ef4444;">*</span></label>
-                                                <select name="odps_id[]" id="odps_id" class="form-select" multiple>
-                                                    @foreach ($odps as $odp)
-                                                        <option value="{{ $odp->id }}">{{ $odp->code }} | {{ $odp->hometown->name }}
-                                                            | {{ $odp->rt->name }} | {{ $odp->rw->name }} | {{ $odp->home_odc }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_odps_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Alamat ODP <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-odps_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="odps_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="odps_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari ODP..." data-target="odps_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-odps_id">
+                                                        @foreach ($odps as $odp)
+                                                            <label class="checklist-item" data-search="{{ strtolower($odp->code . ' ' . ($odp->hometown->name ?? '') . ' ' . $odp->home_odc) }}">
+                                                                <input type="checkbox" name="odps_id[]" class="form-check-input odps_id-cb" value="{{ $odp->id }}" data-group="odps_id">
+                                                                <span class="checklist-text">{{ $odp->code }} | {{ $odp->hometown->name ?? '-' }} | {{ $odp->rt->name ?? '-' }} | {{ $odp->rw->name ?? '-' }} | {{ $odp->home_odc }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_odps_id"></span>
                                             </div>
-                                            <div class="col-lg-12">
-                                                <label for="olts_id" class="form-label-premium">Alamat OLT <span style="color:#ef4444;">*</span></label>
-                                                <select name="olts_id[]" id="olts_id" class="form-select" multiple>
-                                                    @foreach ($olts as $olt)
-                                                        <option value="{{ $olt->id }}">{{ $olt->hometown->name }} | {{ $olt->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+
+                                            <!-- OLT Checklist -->
+                                            <div class="col-md-6">
+                                                <div class="checklist-group-card" id="card_olts_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Alamat OLT <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-olts_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="olts_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="olts_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari OLT..." data-target="olts_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-olts_id">
+                                                        @foreach ($olts as $olt)
+                                                            <label class="checklist-item" data-search="{{ strtolower(($olt->hometown->name ?? '') . ' ' . $olt->name . ' ' . ($olt->code ?? '')) }}">
+                                                                <input type="checkbox" name="olts_id[]" class="form-check-input olts_id-cb" value="{{ $olt->id }}" data-group="olts_id">
+                                                                <span class="checklist-text">{{ $olt->hometown->name ?? '-' }} | {{ $olt->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_olts_id"></span>
                                             </div>
+
+                                            <!-- Paket Checklist -->
                                             <div class="col-lg-12">
-                                                <label for="paket_id" class="form-label-premium">Tipe Paket <span style="color:#ef4444;">*</span></label>
-                                                <select name="paket_id[]" id="paket_id" class="form-select" multiple>
-                                                    @foreach ($paket as $okt)
-                                                        <option value="{{ $okt->id }}">{{ $okt->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_paket_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Tipe Paket <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-paket_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="paket_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="paket_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari tipe paket..." data-target="paket_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-paket_id">
+                                                        @foreach ($paket as $okt)
+                                                            <label class="checklist-item" data-search="{{ strtolower($okt->name) }}">
+                                                                <input type="checkbox" name="paket_id[]" class="form-check-input paket_id-cb" value="{{ $okt->id }}" data-group="paket_id">
+                                                                <span class="checklist-text">{{ $okt->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_paket_id"></span>
                                             </div>
+
+                                            <!-- Mic Radius Checklist -->
                                             <div class="col-lg-12">
-                                                <label for="mic_radius_id" class="form-label-premium">Mic Radius <span style="color:#ef4444;">*</span></label>
-                                                <select name="mic_radius_id[]" id="mic_radius_id" class="form-select" multiple>
-                                                    @foreach ($micRadius as $mc)
-                                                        <option value="{{ $mc->id }}">{{ $mc->code }} - {{ $mc->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_mic_radius_id">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Mic Radius <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-mic_radius_id">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="mic_radius_id">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="mic_radius_id">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari mic radius..." data-target="mic_radius_id">
+                                                    <div class="checklist-scrollbox" id="checklist-box-mic_radius_id">
+                                                        @foreach ($micRadius as $mc)
+                                                            <label class="checklist-item" data-search="{{ strtolower($mc->code . ' ' . $mc->name) }}">
+                                                                <input type="checkbox" name="mic_radius_id[]" class="form-check-input mic_radius_id-cb" value="{{ $mc->id }}" data-group="mic_radius_id">
+                                                                <span class="checklist-text">{{ $mc->code }} - {{ $mc->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_mic_radius_id"></span>
                                             </div>
+
+                                            <!-- Price Checklist -->
                                             <div class="col-lg-12">
-                                                <label for="price" class="form-label-premium">Tipe Pembayaran <span style="color:#ef4444;">*</span></label>
-                                                <select name="price[]" id="price" class="form-select" multiple>
-                                                    @foreach ($price as $prc)
-                                                        <option value="{{ $prc->id }}">{{ $prc->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="checklist-group-card" id="card_price">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <label class="form-label-premium mb-0">Tipe Pembayaran <span style="color:#ef4444;">*</span></label>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="counter-badge" id="badge-price">0 dipilih</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="price">Semua</button>
+                                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
+                                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="price">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari tipe pembayaran..." data-target="price">
+                                                    <div class="checklist-scrollbox" id="checklist-box-price">
+                                                        @foreach ($price as $prc)
+                                                            <label class="checklist-item" data-search="{{ strtolower($prc->name) }}">
+                                                                <input type="checkbox" name="price[]" class="form-check-input price-cb" value="{{ $prc->id }}" data-group="price">
+                                                                <span class="checklist-text">{{ $prc->name }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                                 <span class="invalid-feedback error_price"></span>
                                             </div>
                                         </div>
@@ -530,17 +740,20 @@
     <script>
         const BASE = "{{ route('halaman.index') }}";
         const vlanDataMap = @json($vlans->keyBy('id'));
-        let masterOptions = {};
         let isEditMode = false;
         let table;
-        let select2Instances = {};
+
+        const multiFields = [
+            'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
+            'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
+        ];
 
         $(function() {
-            captureMasterOptions();
             initializeDataTable();
             initializePaginationAndSearch();
             initializeModalHandlers();
             initializeFilters();
+            initializeChecklistInteractions();
         });
 
         function initializeDataTable() {
@@ -804,175 +1017,160 @@
             });
         }
 
+        function initializeChecklistInteractions() {
+            // Checkbox change listener
+            $(document).on('change', '.checklist-scrollbox input[type="checkbox"]', function() {
+                const $item = $(this).closest('.checklist-item');
+                if (this.checked) {
+                    $item.addClass('item-checked');
+                } else {
+                    $item.removeClass('item-checked');
+                }
+                const targetGroup = $(this).data('group');
+                if (targetGroup) {
+                    updateChecklistBadge(targetGroup);
+                }
+            });
+
+            // Instant realtime search within each checklist box
+            $(document).on('input', '.checklist-search-input', function() {
+                const targetGroup = $(this).data('target');
+                const query = $(this).val().toLowerCase().trim();
+                $(`#checklist-box-${targetGroup} .checklist-item`).each(function() {
+                    const text = ($(this).data('search') || $(this).text()).toLowerCase();
+                    if (text.indexOf(query) !== -1) {
+                        $(this).removeClass('d-none');
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+            });
+
+            // "Semua" button: check all visible items in the group
+            $(document).on('click', '.btn-checklist-all', function(e) {
+                e.preventDefault();
+                const targetGroup = $(this).data('target');
+                const $visibleItems = $(`#checklist-box-${targetGroup} .checklist-item:not(.d-none)`);
+                $visibleItems.find('input[type="checkbox"]').prop('checked', true).each(function() {
+                    $(this).closest('.checklist-item').addClass('item-checked');
+                });
+                updateChecklistBadge(targetGroup);
+                if (targetGroup === 'vlans_id') {
+                    handleVlanChecklistChange();
+                }
+            });
+
+            // "Batal" button: uncheck all items in the group
+            $(document).on('click', '.btn-checklist-clear', function(e) {
+                e.preventDefault();
+                const targetGroup = $(this).data('target');
+                $(`#checklist-box-${targetGroup} .checklist-item input[type="checkbox"]`).prop('checked', false).each(function() {
+                    $(this).closest('.checklist-item').removeClass('item-checked');
+                });
+                updateChecklistBadge(targetGroup);
+            });
+
+            // VLAN selection triggers auto-check for regional fields, OLT, Paket, Mic Radius, Price
+            $(document).on('change', 'input[name="vlans_id[]"]', function() {
+                handleVlanChecklistChange();
+            });
+        }
+
+        function updateChecklistBadge(groupName) {
+            const totalChecked = $(`input[name="${groupName}[]"]:checked`).length;
+            $(`#badge-${groupName}`).text(`${totalChecked} dipilih`);
+            if (totalChecked > 0) {
+                $(`.error_${groupName}`).text('');
+                $(`#card_${groupName}`).removeClass('border-danger');
+            }
+        }
+
+        function handleVlanChecklistChange() {
+            if (isEditMode) return;
+
+            const checkedVlanIds = [];
+            $('input[name="vlans_id[]"]:checked').each(function() {
+                checkedVlanIds.push(this.value);
+            });
+
+            if (checkedVlanIds.length > 0) {
+                // 1. Auto-fill Area Regional dari VLAN terakhir yang dicentang
+                const lastVlanId = checkedVlanIds[checkedVlanIds.length - 1];
+                const targetVlan = vlanDataMap[lastVlanId];
+
+                if (targetVlan) {
+                    if (targetVlan.regencie_id) $('#regencies_id').val(targetVlan.regencie_id);
+                    if (targetVlan.district_id) $('#districts_id').val(targetVlan.district_id);
+                    if (targetVlan.village_id) $('#villages_id').val(targetVlan.village_id);
+                    if (targetVlan.hometown_id) $('#hometowns_id').val(targetVlan.hometown_id);
+                }
+
+                // 2. Kumpulkan ID item berelasi dari semua VLAN yang dicentang
+                const allowedOlts = new Set();
+                const allowedPakets = new Set();
+                const allowedRadiuses = new Set();
+                const allowedPrices = new Set();
+
+                checkedVlanIds.forEach(vId => {
+                    const v = vlanDataMap[vId];
+                    if (v) {
+                        (v.olts || []).forEach(o => allowedOlts.add(String(o.id)));
+                        (v.pakets || []).forEach(p => allowedPakets.add(String(p.id)));
+                        (v.mix_radiuses || v.mixRadiuses || []).forEach(m => allowedRadiuses.add(String(m.id)));
+                        (v.prices || []).forEach(pr => allowedPrices.add(String(pr.id)));
+                    }
+                });
+
+                // 3. AUTO-CHECK item yang relevan TANPA MENGHAPUS / HIDE OPSI LAIN!
+                if (allowedOlts.size > 0) {
+                    $('input[name="olts_id[]"]').each(function() {
+                        if (allowedOlts.has(String(this.value))) {
+                            $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                        }
+                    });
+                    updateChecklistBadge('olts_id');
+                }
+
+                if (allowedPakets.size > 0) {
+                    $('input[name="paket_id[]"]').each(function() {
+                        if (allowedPakets.has(String(this.value))) {
+                            $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                        }
+                    });
+                    updateChecklistBadge('paket_id');
+                }
+
+                if (allowedRadiuses.size > 0) {
+                    $('input[name="mic_radius_id[]"]').each(function() {
+                        if (allowedRadiuses.has(String(this.value))) {
+                            $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                        }
+                    });
+                    updateChecklistBadge('mic_radius_id');
+                }
+
+                if (allowedPrices.size > 0) {
+                    $('input[name="price[]"]').each(function() {
+                        if (allowedPrices.has(String(this.value))) {
+                            $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                        }
+                    });
+                    updateChecklistBadge('price');
+                }
+            }
+        }
+
         function initializeModalHandlers() {
             $("#addBtn").on('click', function() {
                 isEditMode = false;
                 resetModal();
                 $(".modal-title").text("Tambah Halaman");
                 $("#type").val('create');
-                initializeSelect2();
             });
 
             $("#storeBtn").on('click', function() {
                 handleSave();
             });
-        }
-
-        function captureMasterOptions() {
-            ['olts_id', 'paket_id', 'mic_radius_id', 'price'].forEach(id => {
-                if (!masterOptions[id] || masterOptions[id].length === 0) {
-                    masterOptions[id] = [];
-                    $('#' + id + ' option').each(function() {
-                        const val = $(this).val();
-                        if (val) {
-                            masterOptions[id].push({
-                                value: String(val),
-                                text: $(this).text()
-                            });
-                        }
-                    });
-                }
-            });
-        }
-
-        function handleVlanSelectionChange() {
-            if (isEditMode) return;
-
-            let selectedVlanIds = $('#vlans_id').val();
-            if (!selectedVlanIds) {
-                selectedVlanIds = [];
-            } else if (!Array.isArray(selectedVlanIds)) {
-                selectedVlanIds = [selectedVlanIds];
-            }
-
-            if (selectedVlanIds.length > 0) {
-                // 1. Otomatis isi Area Regional (Kabupaten, Kecamatan, Desa, Kampung)
-                const lastVlanId = selectedVlanIds[selectedVlanIds.length - 1];
-                const targetVlan = vlanDataMap[lastVlanId];
-
-                if (targetVlan) {
-                    if (targetVlan.regencie_id) {
-                        $('#regencies_id').val(targetVlan.regencie_id).trigger('change');
-                    }
-                    if (targetVlan.district_id) {
-                        $('#districts_id').val(targetVlan.district_id).trigger('change');
-                    }
-                    if (targetVlan.village_id) {
-                        $('#villages_id').val(targetVlan.village_id).trigger('change');
-                    }
-                    if (targetVlan.hometown_id) {
-                        $('#hometowns_id').val(targetVlan.hometown_id).trigger('change');
-                    }
-                }
-
-                // 2. Filter & Otomatis Pilih OLT, Paket, Mix Radius, dan Tipe Pembayaran sesuai VLAN terpilih
-                const allowedOlts = new Map();
-                const allowedPakets = new Map();
-                const allowedRadiuses = new Map();
-                const allowedPrices = new Map();
-
-                selectedVlanIds.forEach(vId => {
-                    const v = vlanDataMap[vId];
-                    if (v) {
-                        (v.olts || []).forEach(o => allowedOlts.set(String(o.id), (o.code ? o.code + ' - ' : '') + (o.name || ('OLT ' + o.id))));
-                        (v.pakets || []).forEach(p => allowedPakets.set(String(p.id), p.name || ('Paket ' + p.id)));
-                        (v.mix_radiuses || v.mixRadiuses || []).forEach(m => allowedRadiuses.set(String(m.id), (m.code ? m.code + ' - ' : '') + (m.name || ('Radius ' + m.id))));
-                        (v.prices || []).forEach(pr => allowedPrices.set(String(pr.id), pr.name || ('Harga ' + pr.id)));
-                    }
-                });
-
-                filterAndSelectOptions('olts_id', allowedOlts, true);
-                filterAndSelectOptions('paket_id', allowedPakets, true);
-                filterAndSelectOptions('mic_radius_id', allowedRadiuses, true);
-                filterAndSelectOptions('price', allowedPrices, true);
-            } else {
-                // Kembalikan ke opsi master jika tidak ada VLAN yang dipilih
-                restoreMasterOptions('olts_id');
-                restoreMasterOptions('paket_id');
-                restoreMasterOptions('mic_radius_id');
-                restoreMasterOptions('price');
-            }
-        }
-
-        function filterAndSelectOptions(selectId, allowedItemsMap, autoSelectAll = true) {
-            const select = $('#' + selectId);
-            const originalMaster = masterOptions[selectId] || [];
-
-            select.empty();
-
-            const newSelected = [];
-            const addedIds = new Set();
-
-            originalMaster.forEach(opt => {
-                if (allowedItemsMap.has(String(opt.value))) {
-                    const isSelected = autoSelectAll;
-                    select.append(new Option(opt.text, opt.value, isSelected, isSelected));
-                    addedIds.add(String(opt.value));
-                    if (isSelected) {
-                        newSelected.push(String(opt.value));
-                    }
-                }
-            });
-
-            allowedItemsMap.forEach((text, id) => {
-                if (!addedIds.has(String(id))) {
-                    const isSelected = autoSelectAll;
-                    select.append(new Option(text, id, isSelected, isSelected));
-                    if (isSelected) {
-                        newSelected.push(String(id));
-                    }
-                }
-            });
-
-            select.val(newSelected).trigger('change');
-        }
-
-        function restoreMasterOptions(selectId) {
-            const select = $('#' + selectId);
-            const originalMaster = masterOptions[selectId] || [];
-
-            select.empty();
-            originalMaster.forEach(opt => {
-                select.append(new Option(opt.text, opt.value, false, false));
-            });
-
-            select.val([]).trigger('change');
-        }
-
-        function initializeSelect2() {
-            // Destroy existing instances
-            destroySelect2();
-
-            // Capture master options if not yet captured
-            captureMasterOptions();
-
-            // Initialize all select2
-            const selectIds = [
-                'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
-                'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
-                'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
-            ];
-
-            selectIds.forEach(id => {
-                select2Instances[id] = $('#' + id).select2({
-                    width: '100%',
-                    dropdownParent: $('#modal-simple'),
-                    theme: 'bootstrap-5',
-                    placeholder: '-- Pilih --',
-                    allowClear: true
-                });
-            });
-
-            $('#vlans_id').off('change.vlanFilter').on('change.vlanFilter', handleVlanSelectionChange);
-        }
-
-        function destroySelect2() {
-            Object.keys(select2Instances).forEach(key => {
-                if (select2Instances[key]) {
-                    select2Instances[key].select2('destroy');
-                }
-            });
-            select2Instances = {};
         }
 
         function resetModal() {
@@ -983,37 +1181,33 @@
             $("#password").val('123');
             $("#is_ktp").val('');
             $("#is_persetujuan").val('');
+            $('#regencies_id').val('');
+            $('#districts_id').val('');
+            $('#hometowns_id').val('');
+            $('#villages_id').val('');
 
-            // Reset all selects
-            const selectIds = [
-                'regencies_id', 'districts_id', 'hometowns_id', 'villages_id',
-                'vlans_id', 'odcs_id', 'odps_id', 'olts_id',
-                'paket_id', 'mic_radius_id', 'price', 'tipe_pelanggan_id'
-            ];
+            // Uncheck all checklists and restore visibility
+            $('.checklist-scrollbox input[type="checkbox"]').prop('checked', false);
+            $('.checklist-item').removeClass('item-checked d-none');
+            $('.checklist-search-input').val('');
 
-            selectIds.forEach(id => {
-                if (select2Instances[id]) {
-                    select2Instances[id].val(null).trigger('change');
-                }
+            // Reset all counter badges
+            multiFields.forEach(field => {
+                updateChecklistBadge(field);
             });
-
-            restoreMasterOptions('olts_id');
-            restoreMasterOptions('paket_id');
-            restoreMasterOptions('mic_radius_id');
-            restoreMasterOptions('price');
 
             clearValidationErrors();
         }
 
         function clearValidationErrors() {
             $(".form-control, .form-select").removeClass('is-invalid');
+            $(".checklist-group-card").removeClass('border-danger');
             $(".invalid-feedback").text('');
         }
 
         function handleSave() {
             const type = $("#type").val();
             const id = $("#id").val();
-
             const url = type === 'create' ? "{{ route('halaman.store') }}" : BASE + '/' + id + '/update';
 
             const btn = $("#storeBtn");
@@ -1022,57 +1216,55 @@
             $("#btnLoading").removeClass('d-none');
 
             let formData = new FormData();
-
             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-            formData.append('name', $('#name').val());
-            formData.append('desc', $('#desc').val());
-            formData.append('regencies_id', $('#regencies_id').val());
-            formData.append('districts_id', $('#districts_id').val());
-            formData.append('hometowns_id', $('#hometowns_id').val());
-            formData.append('villages_id', $('#villages_id').val());
-            formData.append('vlans_id', $('#vlans_id').val());
-            formData.append('odcs_id', $('#odcs_id').val());
-            formData.append('odps_id', $('#odps_id').val());
-            formData.append('olts_id', $('#olts_id').val());
-            formData.append('paket_id', $('#paket_id').val());
-            formData.append('mic_radius_id', $('#mic_radius_id').val());
-            formData.append('price', $('#price').val());
-            formData.append('tipe_pelanggan_id', $('#tipe_pelanggan_id').val());
-            formData.append('telp', $('#telp').val());
-            formData.append('password', $('#password').val());
-            formData.append('is_ktp', $('#is_ktp').val());
-            formData.append('is_persetujuan', $('#is_persetujuan').val());
+            formData.append('name', $('#name').val() || '');
+            formData.append('desc', $('#desc').val() || '');
+            formData.append('regencies_id', $('#regencies_id').val() || '');
+            formData.append('districts_id', $('#districts_id').val() || '');
+            formData.append('hometowns_id', $('#hometowns_id').val() || '');
+            formData.append('villages_id', $('#villages_id').val() || '');
+            formData.append('telp', $('#telp').val() || '123');
+            formData.append('password', $('#password').val() || '123');
+            formData.append('is_ktp', $('#is_ktp').val() || '');
+            formData.append('is_persetujuan', $('#is_persetujuan').val() || '');
+
+            // Append multiple checklist values as arrays
+            multiFields.forEach(field => {
+                $(`input[name="${field}[]"]:checked`).each(function() {
+                    formData.append(`${field}[]`, this.value);
+                });
+            });
 
             if (type === 'update') {
                 formData.append('_method', 'PUT');
             }
 
             $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false
-                })
-                .done(function(response) {
-                    if (response.errors) {
-                        showValidationErrors(response.errors);
-                        resetButton(btn);
-                    } else {
-                        $("#modal-simple").modal('hide');
-                        showSuccessMessage(response.message);
-                        table.ajax.reload();
-                        resetButton(btn);
-                    }
-                })
-                .fail(function(jqXHR) {
-                    if (jqXHR.status === 422 && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
-                        showValidationErrors(jqXHR.responseJSON.errors);
-                    } else {
-                        showErrorMessage("Terjadi kesalahan");
-                    }
+                url: url,
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false
+            })
+            .done(function(response) {
+                if (response.errors) {
+                    showValidationErrors(response.errors);
                     resetButton(btn);
-                });
+                } else {
+                    $("#modal-simple").modal('hide');
+                    showSuccessMessage(response.message);
+                    table.ajax.reload();
+                    resetButton(btn);
+                }
+            })
+            .fail(function(jqXHR) {
+                if (jqXHR.status === 422 && jqXHR.responseJSON && jqXHR.responseJSON.errors) {
+                    showValidationErrors(jqXHR.responseJSON.errors);
+                } else {
+                    showErrorMessage("Terjadi kesalahan saat menyimpan data");
+                }
+                resetButton(btn);
+            });
         }
 
         function editModal(id) {
@@ -1081,11 +1273,9 @@
                 .done(function(response) {
                     const data = response.data;
 
+                    resetModal();
                     $(".modal-title").text("Edit Halaman");
                     $("#modal-simple").modal('show');
-
-                    // Initialize Select2 first
-                    initializeSelect2();
 
                     $("#id").val(data.id);
                     $("#name").val(data.name);
@@ -1096,62 +1286,38 @@
                     $("#type").val('update');
 
                     // Set single selects
-                    $('#regencies_id').val(data.regencies_id).trigger('change');
-                    $('#districts_id').val(data.districts_id).trigger('change');
-                    $('#hometowns_id').val(data.hometowns_id).trigger('change');
-                    $('#villages_id').val(data.villages_id).trigger('change');
+                    $('#regencies_id').val(data.regencies_id);
+                    $('#districts_id').val(data.districts_id);
+                    $('#hometowns_id').val(data.hometowns_id);
+                    $('#villages_id').val(data.villages_id);
 
-                    // Set multiple selects
-                    if (data.vlan && data.vlan.length > 0) {
-                        const vlanIds = data.vlan.map(item => item.vlans_id);
-                        $('#vlans_id').val(vlanIds).trigger('change');
-                    }
+                    // Helper to check items
+                    const checkItems = (fieldName, items, key) => {
+                        if (items && items.length > 0) {
+                            const ids = items.map(item => String(item[key]));
+                            $(`input[name="${fieldName}[]"]`).each(function() {
+                                if (ids.includes(String(this.value))) {
+                                    $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                                }
+                            });
+                            updateChecklistBadge(fieldName);
+                        }
+                    };
 
-                    if (data.odc && data.odc.length > 0) {
-                        const odcIds = data.odc.map(item => item.odcs_id);
-                        $('#odcs_id').val(odcIds).trigger('change');
-                    }
+                    checkItems('vlans_id', data.vlan, 'vlans_id');
+                    checkItems('odcs_id', data.odc, 'odcs_id');
+                    checkItems('odps_id', data.odp, 'odps_id');
+                    checkItems('olts_id', data.olt, 'olts_id');
+                    checkItems('paket_id', data.paket, 'paket_id');
+                    checkItems('mic_radius_id', data.mic_radius, 'mic_radius_id');
+                    checkItems('price', data.price, 'price_id');
 
-                    if (data.odp && data.odp.length > 0) {
-                        const odpIds = data.odp.map(item => item.odps_id);
-                        $('#odps_id').val(odpIds).trigger('change');
-                    }
-
-                    if (data.olt && data.olt.length > 0) {
-                        const oltIds = data.olt.map(item => item.olts_id);
-                        $('#olts_id').val(oltIds).trigger('change');
-                    }
-
-                    if (data.paket && data.paket.length > 0) {
-                        const paketIds = data.paket.map(item => item.paket_id);
-                        $('#paket_id').val(paketIds).trigger('change');
-                    }
-
-                    if (data.mic_radius && data.mic_radius.length > 0) {
-                        const micRadiusIds = data.mic_radius.map(item => item.mic_radius_id);
-                        $('#mic_radius_id').val(micRadiusIds).trigger('change');
-                    }
-
-                    if (data.price && data.price.length > 0) {
-                        const priceIds = data.price.map(item => item.price_id);
-                        $('#price').val(priceIds).trigger('change');
-                    }
-
-                    // Set tipe pelanggan multi select
-                    if (data.tipe_pelanggan && data.tipe_pelanggan.length > 0) {
-                        const tipePelangganIds = data.tipe_pelanggan.map(item => item.tipe_pelanggan_id);
-                        $('#tipe_pelanggan_id').val(tipePelangganIds).trigger('change');
-                    } else if (data.tipe_pelanggan_pages && data.tipe_pelanggan_pages.length > 0) {
-                        const tipePelangganIds = data.tipe_pelanggan_pages.map(item => item.tipe_pelanggan_id);
-                        $('#tipe_pelanggan_id').val(tipePelangganIds).trigger('change');
-                    } else if (data.tipePelanggan && data.tipePelanggan.length > 0) {
-                        const tipePelangganIds = data.tipePelanggan.map(item => item.tipe_pelanggan_id);
-                        $('#tipe_pelanggan_id').val(tipePelangganIds).trigger('change');
-                    }
+                    const tipeItems = data.tipe_pelanggan || data.tipe_pelanggan_pages || data.tipePelanggan;
+                    checkItems('tipe_pelanggan_id', tipeItems, 'tipe_pelanggan_id');
 
                     setTimeout(function() {
                         isEditMode = false;
-                    }, 400);
+                    }, 300);
                 })
                 .fail(function() {
                     isEditMode = false;
@@ -1172,19 +1338,19 @@
             }).then(function(result) {
                 if (result.isConfirmed) {
                     $.ajax({
-                            url: BASE + '/' + id + '/destroy',
-                            method: 'DELETE',
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content')
-                            }
-                        })
-                        .done(function(response) {
-                            showSuccessMessage(response.message);
-                            table.ajax.reload();
-                        })
-                        .fail(function() {
-                            showErrorMessage("Server Error");
-                        });
+                        url: BASE + '/' + id + '/destroy',
+                        method: 'DELETE',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+                    .done(function(response) {
+                        showSuccessMessage(response.message);
+                        table.ajax.reload();
+                    })
+                    .fail(function() {
+                        showErrorMessage("Server Error");
+                    });
                 }
             });
         }
@@ -1193,16 +1359,25 @@
             clearValidationErrors();
 
             Object.keys(errors).forEach(function(field) {
-                const element = $("#" + field);
-                element.addClass('is-invalid');
-
+                const cleanField = field.split('.')[0];
                 const errorText = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
-                $(".error_" + field).text(errorText);
+
+                const element = $("#" + cleanField);
+                if (element.length) {
+                    element.addClass('is-invalid');
+                }
+
+                const cardElement = $("#card_" + cleanField);
+                if (cardElement.length) {
+                    cardElement.addClass('border-danger');
+                }
+
+                $(".error_" + cleanField).text(errorText);
             });
 
             setTimeout(function() {
                 clearValidationErrors();
-            }, 5000);
+            }, 6000);
         }
 
         function showSuccessMessage(message) {
@@ -1248,10 +1423,5 @@
             $("#btnText").removeClass('d-none');
             $("#btnLoading").addClass('d-none');
         }
-
-        // Cleanup on modal hide
-        $('#modal-simple').on('hidden.bs.modal', function() {
-            destroySelect2();
-        });
     </script>
 @endpush

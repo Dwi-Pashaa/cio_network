@@ -134,64 +134,58 @@ class PagesController extends Controller
 
         $pages = Pages::create($post);
 
-        $vlans = is_array($request->vlans_id) ? $request->vlans_id : explode(',', $request->vlans_id);
-        foreach ($vlans as $vln) {
+        $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
+
+        foreach ($parseIds($request->vlans_id) as $vln) {
             DB::table('pages_vlans')->insert([
                 "pages_id" => $pages->id,
                 "vlans_id" => $vln
             ]);
         }
 
-        $odcs = is_array($request->odcs_id) ? $request->odcs_id : explode(',', $request->odcs_id);
-        foreach ($odcs as $odc) {
+        foreach ($parseIds($request->odcs_id) as $odc) {
             DB::table('pages_odcs')->insert([
                 "pages_id" => $pages->id,
                 "odcs_id" => $odc
             ]);
         }
 
-        $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
-        foreach ($odps as $odp) {
+        foreach ($parseIds($request->odps_id) as $odp) {
             DB::table('pages_odps')->insert([
                 "pages_id" => $pages->id,
                 "odps_id" => $odp
             ]);
         }
 
-        $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
-        foreach ($olts as $olt) {
+        foreach ($parseIds($request->olts_id) as $olt) {
             DB::table('pages_olts')->insert([
                 "pages_id" => $pages->id,
                 "olts_id" => $olt
             ]);
         }
 
-        $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
-        foreach ($paket as $pkt) {
+        foreach ($parseIds($request->paket_id) as $pkt) {
             DB::table('pages_paket')->insert([
                 "pages_id" => $pages->id,
                 "paket_id" => $pkt
             ]);
         }
 
-        $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
-        foreach ($micRadius as $mc) {
+        foreach ($parseIds($request->mic_radius_id) as $mc) {
             DB::table('pages_mic_radius')->insert([
                 "pages_id" => $pages->id,
                 "mic_radius_id" => $mc
             ]);
         }
 
-        $price = is_array($request->price) ? $request->price : explode(',', $request->price);
-        foreach ($price as $mc) {
+        foreach ($parseIds($request->price) as $mc) {
             DB::table('pages_price')->insert([
                 "pages_id" => $pages->id,
                 "price_id" => $mc
             ]);
         }
 
-        $tipePelanggan = is_array($request->tipe_pelanggan_id) ? $request->tipe_pelanggan_id : explode(',', $request->tipe_pelanggan_id);
-        foreach ($tipePelanggan as $tp) {
+        foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
             DB::table('tipe_pelanggan_pages')->insert([
                 "pages_id" => $pages->id,
                 "tipe_pelanggan_id" => $tp
@@ -258,54 +252,56 @@ class PagesController extends Controller
 
         $pages->update($updateData);
 
-        $vlans = is_array($request->vlans_id) ? $request->vlans_id : explode(',', $request->vlans_id);
-        $odcs = is_array($request->odcs_id) ? $request->odcs_id : explode(',', $request->odcs_id);
-        $odps = is_array($request->odps_id) ? $request->odps_id : explode(',', $request->odps_id);
-        $olts = is_array($request->olts_id) ? $request->olts_id : explode(',', $request->olts_id);
-        $paket = is_array($request->paket_id) ? $request->paket_id : explode(',', $request->paket_id);
-        $micRadius = is_array($request->mic_radius_id) ? $request->mic_radius_id : explode(',', $request->mic_radius_id);
-        $price = is_array($request->price) ? $request->price : explode(',', $request->price);
-        $tipePelanggan = is_array($request->tipe_pelanggan_id) ? $request->tipe_pelanggan_id : explode(',', $request->tipe_pelanggan_id);
+        $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
 
         $pages->vlan()->delete();
-        foreach ($vlans as $vln) {
+        foreach ($parseIds($request->vlans_id) as $vln) {
             $pages->vlan()->create(["vlans_id" => $vln]);
         }
 
         $pages->odc()->delete();
-        foreach ($odcs as $odc) {
+        foreach ($parseIds($request->odcs_id) as $odc) {
             $pages->odc()->create(["odcs_id" => $odc]);
         }
 
         $pages->odp()->delete();
-        foreach ($odps as $odp) {
+        foreach ($parseIds($request->odps_id) as $odp) {
             $pages->odp()->create(["odps_id" => $odp]);
         }
 
         $pages->olt()->delete();
-        foreach ($olts as $olt) {
+        foreach ($parseIds($request->olts_id) as $olt) {
             $pages->olt()->create(["olts_id" => $olt]);
         }
 
         $pages->paket()->delete();
-        foreach ($paket as $pkt) {
+        foreach ($parseIds($request->paket_id) as $pkt) {
             $pages->paket()->create(["paket_id" => $pkt]);
         }
 
         $pages->mic_radius()->delete();
-        foreach ($micRadius as $mc) {
+        foreach ($parseIds($request->mic_radius_id) as $mc) {
             $pages->mic_radius()->create(["mic_radius_id" => $mc]);
         }
 
         $pages->price()->delete();
-        foreach ($price as $pc) {
+        foreach ($parseIds($request->price) as $pc) {
             $pages->price()->create(["price_id" => $pc]);
         }
 
         $pages->tipePelanggan()->delete();
-        foreach ($tipePelanggan as $tp) {
+        foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
             $pages->tipePelanggan()->create(["tipe_pelanggan_id" => $tp]);
         }
+
+        // Hapus cache yang terkait dengan halaman ini
+        Cache::forget("pages_routers_{$id}");
+        Cache::forget("pages_vlans_{$id}");
+        Cache::forget("pages_odcs_{$id}");
+        Cache::forget("pages_odps_{$id}");
+        Cache::forget("pages_olts_{$id}");
+        Cache::forget("pages_price_{$id}");
+        Cache::forget("pages_tipe_{$id}");
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data.']);
     }
@@ -320,6 +316,14 @@ class PagesController extends Controller
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
         }
+
+        Cache::forget("pages_routers_{$id}");
+        Cache::forget("pages_vlans_{$id}");
+        Cache::forget("pages_odcs_{$id}");
+        Cache::forget("pages_odps_{$id}");
+        Cache::forget("pages_olts_{$id}");
+        Cache::forget("pages_price_{$id}");
+        Cache::forget("pages_tipe_{$id}");
 
         $pages->delete();
 
@@ -436,31 +440,81 @@ class PagesController extends Controller
                 ->get()
         );
 
-        $paket = Cache::remember(
-            "pages_paket_{$pagesId}_{$userId}",
-            1800,
-            fn() =>
-            DB::table('pages_paket')
+        // Ambil paket yang sesuai dengan user (jika user punya pembatasan di user_paket) atau seluruh paket halaman
+        $userPaketIds = $userId ? DB::table('user_paket')->where('user_id', $userId)->pluck('paket_id') : collect();
+        if ($userPaketIds->isNotEmpty()) {
+            $paket = DB::table('pages_paket')
                 ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
-                ->join('user_paket', 'paket.id', '=', 'user_paket.paket_id')
                 ->where('pages_paket.pages_id', $pagesId)
-                ->where('user_paket.user_id', $userId)
+                ->whereIn('paket.id', $userPaketIds)
                 ->select('paket.id', 'paket.name')
-                ->get()
-        );
+                ->distinct()
+                ->get();
 
-        $micRadius = Cache::remember(
-            "pages_mic_{$pagesId}_{$userId}",
-            1800,
-            fn() =>
-            DB::table('pages_mic_radius')
+            // Jika hasil irisan kosong, fallback ke semua paket yang ada di data halaman
+            if ($paket->isEmpty()) {
+                $paket = DB::table('pages_paket')
+                    ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
+                    ->where('pages_paket.pages_id', $pagesId)
+                    ->select('paket.id', 'paket.name')
+                    ->distinct()
+                    ->get();
+            }
+
+            // Jika masih kosong (misal pages_paket belum diatur), fallback ke paket yang di-assign ke user
+            if ($paket->isEmpty()) {
+                $paket = DB::table('paket')
+                    ->whereIn('id', $userPaketIds)
+                    ->select('id', 'name')
+                    ->distinct()
+                    ->get();
+            }
+        } else {
+            $paket = DB::table('pages_paket')
+                ->join('paket', 'pages_paket.paket_id', '=', 'paket.id')
+                ->where('pages_paket.pages_id', $pagesId)
+                ->select('paket.id', 'paket.name')
+                ->distinct()
+                ->get();
+        }
+
+        // Ambil mic radius yang sesuai dengan user (jika user punya pembatasan di user_mic_radius) atau seluruh mic radius halaman
+        $userMicIds = $userId ? DB::table('user_mic_radius')->where('user_id', $userId)->pluck('mic_radius_id') : collect();
+        if ($userMicIds->isNotEmpty()) {
+            $micRadius = DB::table('pages_mic_radius')
                 ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
-                ->join('user_mic_radius', 'mic_radius.id', '=', 'user_mic_radius.mic_radius_id')
                 ->where('pages_mic_radius.pages_id', $pagesId)
-                ->where('user_mic_radius.user_id', $userId)
+                ->whereIn('mic_radius.id', $userMicIds)
                 ->select('mic_radius.id', 'mic_radius.code', 'mic_radius.name')
-                ->get()
-        );
+                ->distinct()
+                ->get();
+
+            // Fallback ke seluruh mic radius di halaman
+            if ($micRadius->isEmpty()) {
+                $micRadius = DB::table('pages_mic_radius')
+                    ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
+                    ->where('pages_mic_radius.pages_id', $pagesId)
+                    ->select('mic_radius.id', 'mic_radius.code', 'mic_radius.name')
+                    ->distinct()
+                    ->get();
+            }
+
+            // Fallback ke mic radius yang di-assign ke user
+            if ($micRadius->isEmpty()) {
+                $micRadius = DB::table('mic_radius')
+                    ->whereIn('id', $userMicIds)
+                    ->select('id', 'code', 'name')
+                    ->distinct()
+                    ->get();
+            }
+        } else {
+            $micRadius = DB::table('pages_mic_radius')
+                ->join('mic_radius', 'pages_mic_radius.mic_radius_id', '=', 'mic_radius.id')
+                ->where('pages_mic_radius.pages_id', $pagesId)
+                ->select('mic_radius.id', 'mic_radius.code', 'mic_radius.name')
+                ->distinct()
+                ->get();
+        }
 
         $price = Cache::remember(
             "pages_price_{$pagesId}",

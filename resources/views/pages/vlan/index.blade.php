@@ -161,8 +161,60 @@
                 </div>
             </div>
 
+            {{-- Filter Wilayah Section --}}
+            <div class="filter-wilayah-section px-4 py-3" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:26px;height:26px;border-radius:6px;background:#e0e7ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </div>
+                        <span class="fw-bold text-dark" style="font-size:0.84rem;">Filter Wilayah & Lokasi</span>
+                        <span class="badge rounded-pill bg-light text-muted border d-none d-md-inline" style="font-size:0.72rem;">Kabupaten &bull; Kecamatan &bull; Desa &bull; Kampung</span>
+                    </div>
+                    <button type="button" id="btn-reset-wilayah" class="btn btn-sm btn-link text-danger text-decoration-none p-0 d-none align-items-center gap-1" style="font-size:0.8rem;font-weight:600;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                        Reset Filter Wilayah
+                    </button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label mb-1 text-muted small fw-semibold" for="filter-regency">Kabupaten / Kota</label>
+                        <select id="filter-regency" class="form-select form-select-sm" style="border-radius:8px;border-color:#cbd5e1;font-size:0.82rem;height:38px;">
+                            <option value="">-- Semua Kabupaten / Kota --</option>
+                            @foreach ($regencies as $reg)
+                                <option value="{{ $reg->id }}">{{ $reg->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label mb-1 text-muted small fw-semibold" for="filter-district">Kecamatan</label>
+                        <select id="filter-district" class="form-select form-select-sm" style="border-radius:8px;border-color:#cbd5e1;font-size:0.82rem;height:38px;" disabled>
+                            <option value="">-- Semua Kecamatan --</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label mb-1 text-muted small fw-semibold" for="filter-village">Desa / Kelurahan</label>
+                        <select id="filter-village" class="form-select form-select-sm" style="border-radius:8px;border-color:#cbd5e1;font-size:0.82rem;height:38px;" disabled>
+                            <option value="">-- Semua Desa / Kelurahan --</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <label class="form-label mb-1 text-muted small fw-semibold" for="filter-hometown">Kampung</label>
+                        <select id="filter-hometown" class="form-select form-select-sm" style="border-radius:8px;border-color:#cbd5e1;font-size:0.82rem;height:38px;" disabled>
+                            <option value="">-- Semua Kampung --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             @php
                 $canNama    = auth()->user()->can('input vlan nama') || auth()->user()->can('lihat vlan nama');
+                $canServer  = auth()->user()->can('input vlan server') || auth()->user()->can('lihat vlan server') || auth()->user()->can('input vlan nama');
                 $canIp      = auth()->user()->can('input vlan ip address') || auth()->user()->can('lihat vlan ip address');
                 $canSupport = auth()->user()->can('input vlan support') || auth()->user()->can('lihat vlan support');
                 $canWilayah = auth()->user()->can('input vlan wilayah') || auth()->user()->can('lihat vlan wilayah');
@@ -175,6 +227,7 @@
 
                 $colIndex = 1;
                 if ($canNama) $colIndex++;
+                if ($canServer) $colIndex++;
                 if ($canIp) $colIndex++;
                 if ($canSupport) $colIndex++;
                 if ($canWilayah) $colIndex++;
@@ -193,6 +246,9 @@
                             <th style="width:50px;">NO</th>
                             @if ($canNama)
                                 <th>NAMA VLAN</th>
+                            @endif
+                            @if ($canServer)
+                                <th>NAMA SERVER</th>
                             @endif
                             @if ($canIp)
                                 <th>IP ADDRESS</th>
@@ -295,6 +351,17 @@
                             <input type="hidden" name="name" id="name">
                         @endcan
 
+                        @if ($canServer)
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold" for="server_name">Nama Server</label>
+                                <input type="text" name="server_name" id="server_name" class="form-control"
+                                    placeholder="Contoh: Server Core Jakarta">
+                                <span class="invalid-feedback error_server_name" style="display:block;"></span>
+                            </div>
+                        @else
+                            <input type="hidden" name="server_name" id="server_name">
+                        @endif
+
                         @can('input vlan ip address')
                             <div class="col-md-4">
                                 <label class="form-label fw-bold" for="ip_address">IP Address / Subnet</label>
@@ -305,7 +372,7 @@
                         @endcan
 
                         @can('input vlan support')
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold mb-2">Support Layanan <span class="text-muted small fw-normal">(PPPoE & Voucher)</span></label>
                                 <div class="d-flex flex-wrap gap-2">
                                     <label class="support-check-card flex-fill" for="support_pppoe" style="padding:0.5rem 0.75rem;">
@@ -544,7 +611,14 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: BASE
+                    url: BASE,
+                    data: function(d) {
+                        d.organization_id = $('#filter-organization').val();
+                        d.regencie_id = $('#filter-regency').val();
+                        d.district_id = $('#filter-district').val();
+                        d.village_id = $('#filter-village').val();
+                        d.hometown_id = $('#filter-hometown').val();
+                    }
                 },
                 order: [[{{ $createdAtIndex }}, 'desc']],
                 pageLength: 10,
@@ -571,6 +645,26 @@
                                     <span class="fw-bold text-dark">${data}</span>
                                     ${code}
                                 </div>
+                            </div>`;
+                        }
+                    },
+                    @endif
+                    @if ($canServer)
+                    {
+                        data: 'server_name',
+                        defaultContent: '-',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            return `<div class="d-flex align-items-center gap-2">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                                    </svg>
+                                </div>
+                                <span class="fw-semibold text-dark">${data}</span>
                             </div>`;
                         }
                     },
@@ -682,7 +776,99 @@
             });
 
             $("#filter-organization").on('change', function() {
-                table.ajax.url(BASE + '?organization_id=' + this.value).load();
+                table.ajax.reload();
+            });
+
+            initializeWilayahFilter();
+        }
+
+        function initializeWilayahFilter() {
+            const regencyFilter = $('#filter-regency');
+            const districtFilter = $('#filter-district');
+            const villageFilter = $('#filter-village');
+            const hometownFilter = $('#filter-hometown');
+            const resetBtn = $('#btn-reset-wilayah');
+
+            function checkResetBtnVisibility() {
+                const hasFilter = !!(regencyFilter.val() || districtFilter.val() || villageFilter.val() || hometownFilter.val());
+                if (hasFilter) {
+                    resetBtn.removeClass('d-none').addClass('d-inline-flex');
+                } else {
+                    resetBtn.addClass('d-none').removeClass('d-inline-flex');
+                }
+            }
+
+            regencyFilter.on('change', function() {
+                const regencyId = $(this).val();
+
+                districtFilter.empty().append('<option value="">-- Semua Kecamatan --</option>').prop('disabled', true);
+                villageFilter.empty().append('<option value="">-- Semua Desa / Kelurahan --</option>').prop('disabled', true);
+                hometownFilter.empty().append('<option value="">-- Semua Kampung --</option>').prop('disabled', true);
+
+                if (regencyId) {
+                    $.get(`${DISTRICTS_URL}/${regencyId}`, function(response) {
+                        if (response.code === 200 && response.data.length > 0) {
+                            response.data.forEach(function(item) {
+                                districtFilter.append(new Option(item.name, item.id));
+                            });
+                            districtFilter.prop('disabled', false);
+                        }
+                    });
+                }
+
+                checkResetBtnVisibility();
+                table.ajax.reload();
+            });
+
+            districtFilter.on('change', function() {
+                const districtId = $(this).val();
+
+                villageFilter.empty().append('<option value="">-- Semua Desa / Kelurahan --</option>').prop('disabled', true);
+                hometownFilter.empty().append('<option value="">-- Semua Kampung --</option>').prop('disabled', true);
+
+                if (districtId) {
+                    $.get(`${VILLAGES_URL}/${districtId}`, function(response) {
+                        if (response.code === 200) {
+                            const data = response.data;
+                            if (data.villages && data.villages.length > 0) {
+                                data.villages.forEach(function(v) {
+                                    villageFilter.append(new Option(v.name, v.id));
+                                });
+                                villageFilter.prop('disabled', false);
+                            }
+                            if (data.hometowns && data.hometowns.length > 0) {
+                                data.hometowns.forEach(function(h) {
+                                    hometownFilter.append(new Option(h.name, h.id));
+                                });
+                                hometownFilter.prop('disabled', false);
+                            }
+                        }
+                    });
+                }
+
+                checkResetBtnVisibility();
+                table.ajax.reload();
+            });
+
+            villageFilter.on('change', function() {
+                checkResetBtnVisibility();
+                table.ajax.reload();
+            });
+
+            hometownFilter.on('change', function() {
+                checkResetBtnVisibility();
+                table.ajax.reload();
+            });
+
+            resetBtn.on('click', function(e) {
+                e.preventDefault();
+                regencyFilter.val('');
+                districtFilter.empty().append('<option value="">-- Semua Kecamatan --</option>').prop('disabled', true);
+                villageFilter.empty().append('<option value="">-- Semua Desa / Kelurahan --</option>').prop('disabled', true);
+                hometownFilter.empty().append('<option value="">-- Semua Kampung --</option>').prop('disabled', true);
+
+                checkResetBtnVisibility();
+                table.ajax.reload();
             });
         }
 
@@ -759,6 +945,7 @@
 
         function resetModal() {
             $("#name").val('');
+            $("#server_name").val('');
             $("#ip_address").val('');
             $("#support_pppoe").prop('checked', false);
             $("#support_voucher").prop('checked', false);
@@ -796,6 +983,7 @@
             const payload = {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 name: $("#name").val(),
+                server_name: $("#server_name").val(),
                 ip_address: $("#ip_address").val(),
                 support_pppoe: $("#support_pppoe").is(':checked') ? 1 : 0,
                 support_voucher: $("#support_voucher").is(':checked') ? 1 : 0,
@@ -843,6 +1031,7 @@
                     $("#modal-simple").modal('show');
                     $("#id").val(data.id);
                     $("#name").val(data.name);
+                    $("#server_name").val(data.server_name || '');
                     $("#ip_address").val(data.ip_address || '');
                     $("#type").val('update');
 

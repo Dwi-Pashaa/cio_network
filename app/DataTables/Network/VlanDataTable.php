@@ -19,6 +19,15 @@ class VlanDataTable
                 $this->search($query);
             })
             ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
+            ->addColumn('server_name', function ($row) use ($auth) {
+                if (!$auth->can('input vlan server') && !$auth->can('lihat vlan server') && !$auth->can('input vlan nama')) {
+                    return '-';
+                }
+                if (!$row->server_name) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                return '<span class="fw-semibold text-dark">' . e($row->server_name) . '</span>';
+            })
             ->addColumn('ip_address_badge', function ($row) use ($auth) {
                 if (!$auth->can('input vlan ip address') && !$auth->can('lihat vlan ip address')) {
                     return '-';
@@ -173,7 +182,7 @@ class VlanDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['ip_address_badge', 'support_badges', 'location_text', 'olt_badges', 'radius_badges', 'paket_badges', 'price_badges', 'relations_badge', 'action'])
+            ->rawColumns(['server_name', 'ip_address_badge', 'support_badges', 'location_text', 'olt_badges', 'radius_badges', 'paket_badges', 'price_badges', 'relations_badge', 'action'])
             ->make(true);
     }
 
@@ -208,6 +217,22 @@ class VlanDataTable
             $query->where('vlan_networks.organization_id', request('organization_id'));
         }
 
+        if (request()->filled('regencie_id')) {
+            $query->where('vlan_networks.regencie_id', request('regencie_id'));
+        }
+
+        if (request()->filled('district_id')) {
+            $query->where('vlan_networks.district_id', request('district_id'));
+        }
+
+        if (request()->filled('village_id')) {
+            $query->where('vlan_networks.village_id', request('village_id'));
+        }
+
+        if (request()->filled('hometown_id')) {
+            $query->where('vlan_networks.hometown_id', request('hometown_id'));
+        }
+
         return $query;
     }
 
@@ -222,7 +247,12 @@ class VlanDataTable
             $query->where(function ($q) use ($search) {
                 $q->where('vlan_networks.name', 'like', "%{$search}%")
                   ->orWhere('vlan_networks.code', 'like', "%{$search}%")
-                  ->orWhere('vlan_networks.ip_address', 'like', "%{$search}%");
+                  ->orWhere('vlan_networks.server_name', 'like', "%{$search}%")
+                  ->orWhere('vlan_networks.ip_address', 'like', "%{$search}%")
+                  ->orWhereHas('regencie', fn($r) => $r->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('district', fn($d) => $d->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('village', fn($v) => $v->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('hometown', fn($h) => $h->where('name', 'like', "%{$search}%"));
             });
         }
     }
