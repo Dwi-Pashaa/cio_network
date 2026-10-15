@@ -155,6 +155,11 @@ class RoleController extends Controller
 
     private function getPermissionGroup(string $name): string
     {
+        // Semua permission terkait Halaman (input halaman ..., lihat kolom halaman ...) masuk grup Halaman
+        if (str_contains($name, 'halaman')) {
+            return 'Halaman';
+        }
+
         $groups = [
             'Barang Operasional'  => ['barang operasional', 'tipe barang operasional', 'transfer barang'],
             'User'                => [
