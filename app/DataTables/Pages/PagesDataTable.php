@@ -22,14 +22,29 @@ class PagesDataTable
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('vlan_name', function ($row) {
+            ->addColumn('vlan', function ($row) {
                 if ($row->vlan && $row->vlan->isNotEmpty()) {
                     return $row->vlan->map(function ($pv) {
                         $vlan = $pv->vlan;
                         if (!$vlan) return '';
+                        $vlanBadge = '<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:700;font-size:0.75rem;padding:3px 7px;border-radius:6px;">' . e($vlan->name) . '</span>';
                         $code = $vlan->code ? '<div style="font-size:0.7rem;color:#64748b;font-family:monospace;">' . e($vlan->code) . '</div>' : '';
-                        return '<div class="mb-1"><span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:700;font-size:0.75rem;padding:3px 7px;border-radius:6px;">' . e($vlan->name) . '</span>' . $code . '</div>';
+                        return '<div class="mb-1">' . $vlanBadge . $code . '</div>';
                     })->filter()->implode('');
+                }
+                return '<span class="text-muted small">-</span>';
+            })
+            ->addColumn('vlan_name', function ($row) {
+                if ($row->vlan && $row->vlan->isNotEmpty()) {
+                    $names = $row->vlan->map(function ($pv) {
+                        $vlan = $pv->vlan;
+                        if (!$vlan || !$vlan->vlan_name) return null;
+                        return '<span class="badge bg-purple-subtle text-purple border border-purple-subtle me-1 mb-1" style="font-size:0.75rem;padding:3px 8px;font-weight:600;">' . e($vlan->vlan_name) . '</span>';
+                    })->filter();
+
+                    if ($names->isNotEmpty()) {
+                        return '<div class="d-flex flex-wrap gap-1">' . $names->implode('') . '</div>';
+                    }
                 }
                 return '<span class="text-muted small">-</span>';
             })
@@ -146,16 +161,6 @@ class PagesDataTable
                 }
                 return '<span class="text-muted small">-</span>';
             })
-            ->addColumn('vlan', function ($row) {
-                if ($row->vlan && $row->vlan->isNotEmpty()) {
-                    $badges = $row->vlan->map(function ($pv) {
-                        $vlanName = $pv->vlan->name ?? null;
-                        return $vlanName ? '<span class="badge bg-purple-lt text-purple me-1 mb-1" style="font-size:0.75rem;padding:2px 6px;">' . e($vlanName) . '</span>' : '';
-                    })->filter()->implode('');
-                    return $badges ?: '<span class="text-muted small">-</span>';
-                }
-                return '<span class="text-muted small">-</span>';
-            })
             ->addColumn('vlan_origin', function ($row) {
                 if ($row->vlan && $row->vlan->isNotEmpty()) {
                     return $row->vlan->map(function ($pv) {
@@ -242,8 +247,11 @@ class PagesDataTable
             ])
             ->orderColumn('DT_RowIndex', 'pages.id $1')
             ->orderColumn('name', 'pages.name $1')
-            ->orderColumn('vlan_name', function ($q, $order) {
+            ->orderColumn('vlan', function ($q, $order) {
                 $q->orderByRaw("(SELECT vlan_networks.name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id LIMIT 1) {$order}");
+            })
+            ->orderColumn('vlan_name', function ($q, $order) {
+                $q->orderByRaw("(SELECT vlan_networks.vlan_name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id AND vlan_networks.vlan_name IS NOT NULL LIMIT 1) {$order}");
             })
             ->orderColumn('server_name', function ($q, $order) {
                 $q->orderByRaw("(SELECT vlan_networks.server_name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id AND vlan_networks.server_name IS NOT NULL LIMIT 1) {$order}");
@@ -378,6 +386,7 @@ class PagesDataTable
                     })
                     ->orWhereHas('vlan.vlan', function ($s) use ($search) {
                         $s->where('name', 'like', "%{$search}%")
+                            ->orWhere('vlan_name', 'like', "%{$search}%")
                             ->orWhere('server_name', 'like', "%{$search}%");
                     });
             });

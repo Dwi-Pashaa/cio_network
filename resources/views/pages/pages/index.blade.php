@@ -712,6 +712,7 @@
                             <th>Nama Halaman</th>
                         @endcan
                         @can('lihat kolom halaman vlan')
+                            <th>VLAN</th>
                             <th>Nama VLAN</th>
                         @endcan
                         @can('lihat kolom halaman server')
@@ -1867,20 +1868,26 @@
                                             <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari VLAN..." data-target="vlans_id">
                                             <div class="checklist-scrollbox" id="checklist-box-vlans_id">
                                                 @foreach ($vlans as $vln)
-                                                    <label class="checklist-item" data-search="{{ strtolower($vln->name . ' ' . ($vln->server_name ?? '')) }}">
+                                                    <label class="checklist-item" id="edit-vlan-item-{{ $vln->id }}" data-search="{{ strtolower($vln->name . ' ' . ($vln->vlan_name ?? '') . ' ' . ($vln->server_name ?? '')) }}">
                                                         <input type="checkbox" name="vlans_id[]" class="form-check-input" value="{{ $vln->id }}" data-group="vlans_id">
-                                                        <div class="d-flex align-items-center justify-content-between w-100 ms-1">
-                                                            <div class="d-flex align-items-center gap-2">
+                                                        <div class="d-flex align-items-center justify-content-between w-100 ms-1 flex-wrap gap-1">
+                                                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                                                 <span class="vlan-tag-pill" style="font-size:0.72rem; padding: 0.15rem 0.45rem;">VLAN {{ $vln->name }}</span>
-                                                                <span class="checklist-text fw-bold text-dark" style="font-size:0.83rem;">{{ $vln->server_name ?? ('Segment #' . $vln->name) }}</span>
+                                                                @if($vln->vlan_name)
+                                                                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-edit-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">{{ $vln->vlan_name }}</span>
+                                                                @endif
+                                                                <span class="checklist-text fw-bold text-dark vlan-edit-card-server-text" style="font-size:0.83rem;">{{ $vln->server_name ?? ('Segment #' . $vln->name) }}</span>
                                                             </div>
-                                                            <div class="d-flex align-items-center gap-1">
+                                                            <div class="d-flex align-items-center gap-1.5 ms-auto">
                                                                 @if($vln->support_pppoe)
                                                                     <span class="feature-pill pill-pppoe" style="font-size: 0.65rem;">PPPoE</span>
                                                                 @endif
                                                                 @if($vln->support_voucher)
                                                                     <span class="feature-pill pill-voucher" style="font-size: 0.65rem;">Voucher</span>
                                                                 @endif
+                                                                <button type="button" class="btn btn-xs btn-outline-primary btn-edit-wizard-vlan py-0 px-1.5 ms-1" data-id="{{ $vln->id }}" title="Ubah Data VLAN ini" style="font-size: 0.72rem; border-radius: 4px;">
+                                                                    <i class="ti ti-edit"></i> Ubah
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </label>
@@ -2104,6 +2111,7 @@
                     },
                     @endcan
                     @can('lihat kolom halaman vlan')
+                    { data: 'vlan', name: 'vlan', orderable: true, searchable: false },
                     { data: 'vlan_name', name: 'vlan_name', orderable: true, searchable: false },
                     @endcan
                     @can('lihat kolom halaman server')
@@ -2245,9 +2253,10 @@
                 });
             });
 
-            // Buka Modal Edit VLAN dari Wizard
+            // Buka Modal Edit VLAN dari Wizard / Tab Edit Halaman
             $(document).on('click', '.btn-edit-wizard-vlan', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const vlanId = parseInt($(this).data('id'));
                 const data = (typeof VLAN_DATA_MAP !== 'undefined') ? VLAN_DATA_MAP[vlanId] : null;
 
@@ -2438,6 +2447,29 @@
 
                     $('#modal-wizard-edit-vlan').modal('hide');
                     showSuccessMessage('Data VLAN berhasil diperbarui.');
+
+                    // Sync card in Tab Edit Halaman (Offcanvas Kelola)
+                    const editItem = $(`#edit-vlan-item-${vlanId}`);
+                    if (editItem.length) {
+                        editItem.find('.vlan-tag-pill').text('VLAN ' + num);
+                        editItem.find('.vlan-edit-card-server-text').text(sname || ('Segment #' + num));
+                        let editVnameEl = editItem.find('.vlan-edit-card-vname-text');
+                        if (vname) {
+                            if (editVnameEl.length) {
+                                editVnameEl.text(vname);
+                            } else {
+                                editItem.find('.vlan-tag-pill').after(`<span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-edit-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">${vname}</span>`);
+                            }
+                        } else if (editVnameEl.length) {
+                            editVnameEl.remove();
+                        }
+                        editItem.attr('data-search', `${num} ${vname} ${sname}`.toLowerCase());
+                    }
+
+                    // Reload table if exists
+                    if (typeof table !== 'undefined' && table) {
+                        table.ajax.reload(null, false);
+                    }
 
                     // Refresh detail preview and sync with wizard steps
                     renderSelectedVlanDetails();
