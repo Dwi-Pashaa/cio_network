@@ -157,7 +157,7 @@
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari VLAN, IP, Kode...">
+                    <input type="text" class="org-input w-100" id="search-input" placeholder="Cari VLAN, Nama VLAN, IP, Kode...">
                 </div>
             </div>
 
@@ -226,7 +226,10 @@
                 $canAction  = auth()->user()->can('ubah vlan') || auth()->user()->can('hapus vlan');
 
                 $colIndex = 1;
-                if ($canNama) $colIndex++;
+                if ($canNama) {
+                    $colIndex++;
+                    $colIndex++;
+                }
                 if ($canServer) $colIndex++;
                 if ($canIp) $colIndex++;
                 if ($canSupport) $colIndex++;
@@ -245,6 +248,7 @@
                         <tr>
                             <th style="width:50px;">NO</th>
                             @if ($canNama)
+                                <th>VLAN</th>
                                 <th>NAMA VLAN</th>
                             @endif
                             @if ($canServer)
@@ -341,18 +345,25 @@
 
                     <div class="row g-3 mb-4">
                         @can('input vlan nama')
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold" for="name">Nama VLAN <span class="text-danger">*</span></label>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold" for="name">VLAN <span class="text-danger">*</span></label>
                                 <input type="text" name="name" id="name" class="form-control"
-                                    placeholder="Contoh: VLAN 100 - Distro">
+                                    placeholder="Contoh: 100 atau 411">
                                 <span class="invalid-feedback error_name" style="display:block;"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold" for="vlan_name">Nama VLAN</label>
+                                <input type="text" name="vlan_name" id="vlan_name" class="form-control"
+                                    placeholder="Contoh: VLAN 100 - Distro">
+                                <span class="invalid-feedback error_vlan_name" style="display:block;"></span>
                             </div>
                         @else
                             <input type="hidden" name="name" id="name">
+                            <input type="hidden" name="vlan_name" id="vlan_name">
                         @endcan
 
                         @if ($canServer)
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold" for="server_name">Nama Server</label>
                                 <input type="text" name="server_name" id="server_name" class="form-control"
                                     placeholder="Contoh: Server Core Jakarta">
@@ -363,7 +374,7 @@
                         @endif
 
                         @can('input vlan ip address')
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold" for="ip_address">IP Address / Subnet</label>
                                 <input type="text" name="ip_address" id="ip_address" class="form-control"
                                     placeholder="Contoh: 192.168.10.1/24">
@@ -447,7 +458,10 @@
                         <div class="row g-3 mb-4">
                             @can('input vlan olt')
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="olts">OLT Terhubung <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0" for="olts">OLT Terhubung <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" onclick="$('#olts').val(null).trigger('change')" style="font-size:0.75rem;font-weight:600;">Kosongkan</button>
+                                    </div>
                                     <select name="olts[]" id="olts" class="form-select select2-multiple" multiple="multiple">
                                         @foreach ($olts as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->code }})</option>
@@ -459,7 +473,10 @@
 
                             @can('input vlan mix radius')
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="mix_radiuses">Mix Radius Terhubung <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0" for="mix_radiuses">Mix Radius Terhubung <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" onclick="$('#mix_radiuses').val(null).trigger('change')" style="font-size:0.75rem;font-weight:600;">Kosongkan</button>
+                                    </div>
                                     <select name="mix_radiuses[]" id="mix_radiuses" class="form-select select2-multiple" multiple="multiple">
                                         @foreach ($mixRadiuses as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }} ({{ $item->code }})</option>
@@ -480,7 +497,10 @@
                         <div class="row g-3">
                             @can('input vlan tipe paket')
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="pakets">Tipe Paket <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0" for="pakets">Tipe Paket <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" onclick="$('#pakets').val(null).trigger('change')" style="font-size:0.75rem;font-weight:600;">Kosongkan</button>
+                                    </div>
                                     <select name="pakets[]" id="pakets" class="form-select select2-multiple" multiple="multiple">
                                         @foreach ($pakets as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -492,7 +512,10 @@
 
                             @can('input vlan tipe pembayaran')
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="prices">Tipe Pembayaran <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0" for="prices">Tipe Pembayaran <span class="text-muted small fw-normal">(Bisa Multiple)</span></label>
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" onclick="$('#prices').val(null).trigger('change')" style="font-size:0.75rem;font-weight:600;">Kosongkan</button>
+                                    </div>
                                     <select name="prices[]" id="prices" class="form-select select2-multiple" multiple="multiple">
                                         @foreach ($prices as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -631,6 +654,9 @@
                     @if ($canNama)
                     {
                         data: 'name',
+                        name: 'vlan_networks.name',
+                        orderable: true,
+                        searchable: true,
                         defaultContent: '-',
                         render: function(data, type, row) {
                             if (!data) return '<span class="text-muted">-</span>';
@@ -648,10 +674,33 @@
                             </div>`;
                         }
                     },
+                    {
+                        data: 'vlan_name',
+                        name: 'vlan_networks.vlan_name',
+                        orderable: true,
+                        searchable: true,
+                        defaultContent: '-',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            return `<div class="d-flex align-items-center gap-2">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                                        <path d="M6 6h10"></path>
+                                        <path d="M6 10h10"></path>
+                                    </svg>
+                                </div>
+                                <span class="fw-semibold text-dark">${data}</span>
+                            </div>`;
+                        }
+                    },
                     @endif
                     @if ($canServer)
                     {
                         data: 'server_name',
+                        name: 'vlan_networks.server_name',
+                        orderable: true,
+                        searchable: true,
                         defaultContent: '-',
                         render: function(data) {
                             if (!data) return '<span class="text-muted">-</span>';
@@ -672,61 +721,71 @@
                     @if ($canIp)
                     {
                         data: 'ip_address_badge',
+                        name: 'vlan_networks.ip_address',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: true
                     },
                     @endif
                     @if ($canSupport)
                     {
                         data: 'support_badges',
+                        name: 'support_badges',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     @if ($canWilayah)
                     {
                         data: 'location_text',
+                        name: 'location_text',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     @if ($canOlt)
                     {
                         data: 'olt_badges',
+                        name: 'olt_badges',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     @if ($canRadius)
                     {
                         data: 'radius_badges',
+                        name: 'radius_badges',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     @if ($canPaket)
                     {
                         data: 'paket_badges',
+                        name: 'paket_badges',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     @if ($canPrice)
                     {
                         data: 'price_badges',
+                        name: 'price_badges',
                         defaultContent: '-',
-                        orderable: false,
+                        orderable: true,
                         searchable: false
                     },
                     @endif
                     {
                         data: 'created_at',
+                        name: 'vlan_networks.created_at',
+                        orderable: true,
+                        searchable: false,
                         render: function(data) {
                             if (!data) return '-';
                             const d = moment(data);
@@ -745,7 +804,8 @@
                     @if ($canOrg)
                     {
                         data: 'organization_name',
-                        orderable: false,
+                        name: 'organization.name',
+                        orderable: true,
                         searchable: false,
                         className: 'text-center'
                     },
@@ -945,6 +1005,7 @@
 
         function resetModal() {
             $("#name").val('');
+            $("#vlan_name").val('');
             $("#server_name").val('');
             $("#ip_address").val('');
             $("#support_pppoe").prop('checked', false);
@@ -983,6 +1044,7 @@
             const payload = {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 name: $("#name").val(),
+                vlan_name: $("#vlan_name").val(),
                 server_name: $("#server_name").val(),
                 ip_address: $("#ip_address").val(),
                 support_pppoe: $("#support_pppoe").is(':checked') ? 1 : 0,
@@ -1031,6 +1093,7 @@
                     $("#modal-simple").modal('show');
                     $("#id").val(data.id);
                     $("#name").val(data.name);
+                    $("#vlan_name").val(data.vlan_name || '');
                     $("#server_name").val(data.server_name || '');
                     $("#ip_address").val(data.ip_address || '');
                     $("#type").val('update');

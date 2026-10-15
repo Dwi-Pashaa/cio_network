@@ -70,6 +70,8 @@ class PagesController extends Controller
             'prices:id,name',
             'regencie:id,name',
             'district:id,regencie_id,name',
+            'village:id,name',
+            'hometown:id,name',
         ])->where('organization_id', auth()->user()->organization_id)->get();
 
         $vlansJson = $vlans->mapWithKeys(function ($v) {
@@ -78,17 +80,27 @@ class PagesController extends Controller
             return [$v->id => [
                 'id' => $v->id,
                 'name' => $v->name,
+                'vlan_name' => $v->vlan_name,
                 'server_name' => $v->server_name,
+                'ip_address' => $v->ip_address,
                 'regencie_id' => $regId,
+                'regencie_name' => $v->regencie?->name,
                 'district_id' => $v->district_id,
+                'district_name' => $v->district?->name,
                 'village_id' => $v->village_id,
+                'village_name' => $v->village?->name,
                 'hometown_id' => $v->hometown_id,
+                'hometown_name' => $v->hometown?->name,
                 'support_pppoe' => (bool)$v->support_pppoe,
                 'support_voucher' => (bool)$v->support_voucher,
                 'olts_id' => $v->olts ? $v->olts->pluck('id')->toArray() : [],
+                'olts_names' => $v->olts ? $v->olts->pluck('name')->toArray() : [],
                 'mic_radius_id' => $v->mixRadiuses ? $v->mixRadiuses->pluck('id')->toArray() : [],
+                'mic_radius_names' => $v->mixRadiuses ? $v->mixRadiuses->pluck('name')->toArray() : [],
                 'paket_id' => $v->pakets ? $v->pakets->pluck('id')->toArray() : [],
+                'paket_names' => $v->pakets ? $v->pakets->pluck('name')->toArray() : [],
                 'price' => $v->prices ? $v->prices->pluck('id')->toArray() : [],
+                'price_names' => $v->prices ? $v->prices->pluck('name')->toArray() : [],
             ]];
         });
 

@@ -86,6 +86,7 @@ class VlanController extends Controller
         $rules = [];
         if ($user->can('input vlan nama')) {
             $rules['name'] = 'required|string|max:255';
+            $rules['vlan_name'] = 'nullable|string|max:255';
         }
         if ($user->can('input vlan server') || $user->can('input vlan nama')) {
             $rules['server_name'] = 'nullable|string|max:255';
@@ -136,6 +137,10 @@ class VlanController extends Controller
             'name' => $user->can('input vlan nama') ? $request->name : ($request->name ?: 'VLAN'),
         ];
 
+        if ($user->can('input vlan nama') && $request->has('vlan_name')) {
+            $data['vlan_name'] = $request->vlan_name;
+        }
+
         if (($user->can('input vlan server') || $user->can('input vlan nama')) && $request->has('server_name')) {
             $data['server_name'] = $request->server_name;
         }
@@ -159,20 +164,20 @@ class VlanController extends Controller
         $vlan = Vlan::create($data);
 
         // Sync multiple relations according to permissions
-        if ($user->can('input vlan olt') && $request->has('olts')) {
-            $vlan->olts()->sync($request->input('olts', []));
+        if ($user->can('input vlan olt')) {
+            $vlan->olts()->sync(array_filter((array) $request->input('olts', [])));
         }
 
-        if ($user->can('input vlan mix radius') && $request->has('mix_radiuses')) {
-            $vlan->mixRadiuses()->sync($request->input('mix_radiuses', []));
+        if ($user->can('input vlan mix radius')) {
+            $vlan->mixRadiuses()->sync(array_filter((array) $request->input('mix_radiuses', [])));
         }
 
-        if ($user->can('input vlan tipe paket') && $request->has('pakets')) {
-            $vlan->pakets()->sync($request->input('pakets', []));
+        if ($user->can('input vlan tipe paket')) {
+            $vlan->pakets()->sync(array_filter((array) $request->input('pakets', [])));
         }
 
-        if ($user->can('input vlan tipe pembayaran') && $request->has('prices')) {
-            $vlan->prices()->sync($request->input('prices', []));
+        if ($user->can('input vlan tipe pembayaran')) {
+            $vlan->prices()->sync(array_filter((array) $request->input('prices', [])));
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil membuat data VLAN.']);
@@ -225,6 +230,7 @@ class VlanController extends Controller
         $rules = [];
         if ($user->can('input vlan nama')) {
             $rules['name'] = 'required|string|max:255';
+            $rules['vlan_name'] = 'nullable|string|max:255';
         }
         if ($user->can('input vlan server') || $user->can('input vlan nama')) {
             $rules['server_name'] = 'nullable|string|max:255';
@@ -267,8 +273,13 @@ class VlanController extends Controller
 
         $data = [];
 
-        if ($user->can('input vlan nama') && $request->has('name')) {
-            $data['name'] = $request->name;
+        if ($user->can('input vlan nama')) {
+            if ($request->has('name')) {
+                $data['name'] = $request->name;
+            }
+            if ($request->has('vlan_name')) {
+                $data['vlan_name'] = $request->vlan_name;
+            }
         }
 
         if (($user->can('input vlan server') || $user->can('input vlan nama')) && $request->has('server_name')) {
@@ -296,20 +307,20 @@ class VlanController extends Controller
         }
 
         // Sync multiple relations if user has permission
-        if ($user->can('input vlan olt') && $request->has('olts')) {
-            $vlan->olts()->sync($request->input('olts', []));
+        if ($user->can('input vlan olt')) {
+            $vlan->olts()->sync(array_filter((array) $request->input('olts', [])));
         }
 
-        if ($user->can('input vlan mix radius') && $request->has('mix_radiuses')) {
-            $vlan->mixRadiuses()->sync($request->input('mix_radiuses', []));
+        if ($user->can('input vlan mix radius')) {
+            $vlan->mixRadiuses()->sync(array_filter((array) $request->input('mix_radiuses', [])));
         }
 
-        if ($user->can('input vlan tipe paket') && $request->has('pakets')) {
-            $vlan->pakets()->sync($request->input('pakets', []));
+        if ($user->can('input vlan tipe paket')) {
+            $vlan->pakets()->sync(array_filter((array) $request->input('pakets', [])));
         }
 
-        if ($user->can('input vlan tipe pembayaran') && $request->has('prices')) {
-            $vlan->prices()->sync($request->input('prices', []));
+        if ($user->can('input vlan tipe pembayaran')) {
+            $vlan->prices()->sync(array_filter((array) $request->input('prices', [])));
         }
 
         return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data VLAN.']);

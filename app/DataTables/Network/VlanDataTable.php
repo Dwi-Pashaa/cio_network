@@ -15,10 +15,44 @@ class VlanDataTable
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
+            ->orderColumn('name', 'vlan_networks.name $1')
+            ->orderColumn('vlan_name', 'vlan_networks.vlan_name $1')
+            ->orderColumn('server_name', 'vlan_networks.server_name $1')
+            ->orderColumn('ip_address_badge', 'vlan_networks.ip_address $1')
+            ->orderColumn('support_badges', 'vlan_networks.support_pppoe $1, vlan_networks.support_voucher $1')
+            ->orderColumn('location_text', function ($q, $order) {
+                $q->orderByRaw("(SELECT regencies.name FROM regencies WHERE regencies.id = vlan_networks.regencie_id LIMIT 1) {$order}")
+                  ->orderByRaw("(SELECT districts.name FROM districts WHERE districts.id = vlan_networks.district_id LIMIT 1) {$order}")
+                  ->orderByRaw("(SELECT villages.name FROM villages WHERE villages.id = vlan_networks.village_id LIMIT 1) {$order}")
+                  ->orderByRaw("(SELECT home_towns.name FROM home_towns WHERE home_towns.id = vlan_networks.hometown_id LIMIT 1) {$order}");
+            })
+            ->orderColumn('olt_badges', function ($q, $order) {
+                $q->orderByRaw("(SELECT olt_networks.name FROM vlan_olts JOIN olt_networks ON olt_networks.id = vlan_olts.olt_id WHERE vlan_olts.vlan_id = vlan_networks.id LIMIT 1) {$order}");
+            })
+            ->orderColumn('radius_badges', function ($q, $order) {
+                $q->orderByRaw("(SELECT mic_radius.name FROM vlan_mix_radiuses JOIN mic_radius ON mic_radius.id = vlan_mix_radiuses.mic_radius_id WHERE vlan_mix_radiuses.vlan_id = vlan_networks.id LIMIT 1) {$order}");
+            })
+            ->orderColumn('paket_badges', function ($q, $order) {
+                $q->orderByRaw("(SELECT paket.name FROM vlan_pakets JOIN paket ON paket.id = vlan_pakets.paket_id WHERE vlan_pakets.vlan_id = vlan_networks.id LIMIT 1) {$order}");
+            })
+            ->orderColumn('price_badges', function ($q, $order) {
+                $q->orderByRaw("(SELECT price.name FROM vlan_prices JOIN price ON price.id = vlan_prices.price_id WHERE vlan_prices.vlan_id = vlan_networks.id LIMIT 1) {$order}");
+            })
+            ->orderColumn('created_at', 'vlan_networks.created_at $1')
+            ->orderColumn('organization_name', 'organization.name $1')
             ->filter(function ($query) {
                 $this->search($query);
             })
             ->addColumn('organization_name', fn($row) => $row->organization_name ?? '-')
+            ->addColumn('vlan_name', function ($row) use ($auth) {
+                if (!$auth->can('input vlan nama') && !$auth->can('lihat vlan nama')) {
+                    return '-';
+                }
+                if (!$row->vlan_name) {
+                    return '<span class="text-muted small">-</span>';
+                }
+                return '<span class="fw-semibold text-dark">' . e($row->vlan_name) . '</span>';
+            })
             ->addColumn('server_name', function ($row) use ($auth) {
                 if (!$auth->can('input vlan server') && !$auth->can('lihat vlan server') && !$auth->can('input vlan nama')) {
                     return '-';
@@ -182,7 +216,7 @@ class VlanDataTable
                 $btn .= '</div>';
                 return $btn;
             })
-            ->rawColumns(['server_name', 'ip_address_badge', 'support_badges', 'location_text', 'olt_badges', 'radius_badges', 'paket_badges', 'price_badges', 'relations_badge', 'action'])
+            ->rawColumns(['vlan_name', 'server_name', 'ip_address_badge', 'support_badges', 'location_text', 'olt_badges', 'radius_badges', 'paket_badges', 'price_badges', 'relations_badge', 'action'])
             ->make(true);
     }
 
@@ -246,6 +280,7 @@ class VlanDataTable
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('vlan_networks.name', 'like', "%{$search}%")
+                  ->orWhere('vlan_networks.vlan_name', 'like', "%{$search}%")
                   ->orWhere('vlan_networks.code', 'like', "%{$search}%")
                   ->orWhere('vlan_networks.server_name', 'like', "%{$search}%")
                   ->orWhere('vlan_networks.ip_address', 'like', "%{$search}%")
