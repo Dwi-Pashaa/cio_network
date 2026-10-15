@@ -25,3 +25,16 @@ docs/*
 !docs/decisions/
 !docs/decisions/**
 .agents/*
+.codegraph/*
+.claude/*
+.codex/*
+.cursor/*
+.gemini/*
+.kiro/*
+.mcp.json
+.AGENTS.md
+.CODEX.md
+.CURSOR.md
+.GEMINI.md
+.KIRO.md
+.opencode.jsonc

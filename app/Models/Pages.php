@@ -63,6 +63,11 @@ class Pages extends Model
         return $this->hasMany(PagesOLT::class, 'pages_id', 'id');
     }
 
+    public function olts()
+    {
+        return $this->belongsToMany(OLT::class, 'pages_olts', 'pages_id', 'olts_id');
+    }
+
     public function paket()
     {
         return $this->hasMany(PagesPaket::class, 'pages_id', 'id');
@@ -76,6 +81,11 @@ class Pages extends Model
     public function mic_radius()
     {
         return $this->hasMany(PagesMicRadius::class, 'pages_id', 'id');
+    }
+
+    public function micRadiuses()
+    {
+        return $this->belongsToMany(MicRadius::class, 'pages_mic_radius', 'pages_id', 'mic_radius_id');
     }
 
     public function price()

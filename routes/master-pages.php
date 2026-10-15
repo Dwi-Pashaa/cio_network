@@ -3,6 +3,7 @@
 use App\Http\Controllers\Pages\ChattingController;
 use App\Http\Controllers\Pages\ComplainController;
 use App\Http\Controllers\Pages\HistoryController;
+use App\Http\Controllers\Pages\PagesArchiveController;
 use App\Http\Controllers\Pages\PagesController;
 use App\Http\Controllers\Pages\SpamController;
 use App\Http\Controllers\Pages\SwitchPerangkatController;
@@ -10,15 +11,32 @@ use App\Http\Controllers\Pages\ValidationController;
 use App\Http\Controllers\Pages\Wablass\ReportController;
 use Illuminate\Support\Facades\Route;
 
-// master hlaman
+// master halaman
 Route::prefix('master-pages')->group(function () {
-    // kabupaten
-    Route::prefix('listing')->group(function () {
+    // Arsip Halaman (read-only)
+    Route::get('/arsip', [PagesArchiveController::class, 'index'])
+        ->name('halaman.arsip.index')
+        ->middleware('permission:lihat tab halaman lama');
+
+    // Manajemen Halaman (full)
+    Route::prefix('listing')->middleware('permission:lihat tab halaman lengkap')->group(function () {
         Route::get('/', [PagesController::class, 'index'])->name('halaman.index');
-        Route::post('/store', [PagesController::class, 'store'])->name('halaman.store');
+        Route::post('/store-complete', [PagesController::class, 'storeComplete'])
+            ->name('halaman.storeComplete')
+            ->middleware('permission:buat halaman lengkap');
         Route::get('/{id}/show', [PagesController::class, 'show'])->name('halaman.show');
-        Route::put('/{id}/update', [PagesController::class, 'update'])->name('halaman.update');
-        Route::delete('/{id}/destroy', [PagesController::class, 'destroy'])->name('halaman.destroy');
+        Route::put('/{id}/update-complete', [PagesController::class, 'updateComplete'])
+            ->name('halaman.updateComplete')
+            ->middleware('permission:edit halaman lengkap');
+        Route::delete('/{id}/destroy', [PagesController::class, 'destroy'])
+            ->name('halaman.destroy')
+            ->middleware('permission:hapus halaman lengkap');
+        Route::get('/{id}/users', [PagesController::class, 'getUsers'])
+            ->name('halaman.users')
+            ->middleware('permission:kelola user halaman');
+        Route::post('/{id}/sync-users', [PagesController::class, 'syncUsers'])
+            ->name('halaman.syncUsers')
+            ->middleware('permission:kelola user halaman');
     });
 
     Route::prefix('complain')->group(function () {

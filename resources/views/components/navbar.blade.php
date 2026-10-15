@@ -399,7 +399,7 @@
                             @endcanany
 
                             {{-- ==================== Prosedur ==================== --}}
-                            @canany(['lihat halaman', 'lihat pendaftaran baru', 'pergantian perangkat', 'pemutusan layanan', 'pergantian layanan', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
+                            @canany(['lihat tab halaman lengkap', 'lihat tab halaman lama', 'lihat halaman', 'lihat pendaftaran baru', 'pergantian perangkat', 'pemutusan layanan', 'pergantian layanan', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
                                 <li class="nav-item dropdown {{ request()->is('master-pages*') || request()->is('prosedur*') || request()->is('halaman*') || request()->is('spam*') ? 'active' : '' }}">
                                     <a class="nav-link dropdown-toggle" href="#navbar-prosedur"
                                         data-bs-toggle="dropdown" data-bs-auto-close="outside"
@@ -417,12 +417,18 @@
                                         <span class="nav-link-title">Prosedur</span>
                                     </a>
                                     <div class="dropdown-menu">
-                                         @can('lihat halaman')
-                                            <a class="dropdown-item {{ Route::is('halaman*') ? 'active' : '' }}"
+                                        @can('lihat tab halaman lengkap')
+                                            <a class="dropdown-item {{ Route::is('halaman.index') ? 'active' : '' }}"
                                                 href="{{ route('halaman.index') }}" rel="noopener">
-                                                Data Halaman
+                                                Manajemen Halaman
                                             </a>
-                                         @endcan
+                                        @endcan
+                                        @can('lihat tab halaman lama')
+                                            <a class="dropdown-item {{ Route::is('halaman.arsip*') ? 'active' : '' }}"
+                                                href="{{ route('halaman.arsip.index') }}" rel="noopener">
+                                                Arsip Halaman
+                                            </a>
+                                        @endcan
                                          @canany(['lihat pendaftaran baru', 'lihat antrean prosedur', 'validasi prosedur level 1', 'validasi prosedur level 2', 'validasi prosedur level 3', 'validasi prosedur level 4'])
                                             <a class="dropdown-item {{ Route::is('spam*') || Route::is('validasi.prosedur*') ? 'active' : '' }}"
                                                 href="{{ route('spam.index') }}" rel="noopener">

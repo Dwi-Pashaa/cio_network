@@ -370,6 +370,7 @@
                     <input type="hidden" name="latitude" id="latitude">
                     <input type="hidden" name="longitude" id="longitude">
                     <input type="hidden" name="is_ktp" id="is_ktp" value="{{ $pages->is_ktp }}">
+                    <input type="hidden" name="is_verification" id="is_verification" value="{{ $pages->is_verification ?? 'aktif' }}">
                     <input type="hidden" name="tanda_tangan_customer" id="tanda_tangan_customer">
 
                     <!-- ============================================================ -->
@@ -589,21 +590,27 @@
                                     </div>
                                     <div class="col-lg-6 mb-3">
                                         <label class="form-label">Email Pelanggan <span class="text-danger">*</span></label>
-                                        <div class="input-group">
+                                        @if (($pages->is_verification ?? 'aktif') === 'aktif')
+                                            <div class="input-group">
+                                                <input value="{{ old('email') }}" type="email" name="email" id="email"
+                                                    class="form-control @error('email') is-invalid @enderror"
+                                                    placeholder="contoh@email.com" autocomplete="off">
+                                                <button type="button" id="btn-check-email" class="btn btn-outline-secondary"
+                                                    style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
+                                                    <span id="check-email-text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
+                                                        </svg>
+                                                        Cek Email
+                                                    </span>
+                                                    <span id="check-email-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
+                                                </button>
+                                            </div>
+                                        @else
                                             <input value="{{ old('email') }}" type="email" name="email" id="email"
                                                 class="form-control @error('email') is-invalid @enderror"
                                                 placeholder="contoh@email.com" autocomplete="off">
-                                            <button type="button" id="btn-check-email" class="btn btn-outline-secondary"
-                                                style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
-                                                <span id="check-email-text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
-                                                        <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
-                                                    </svg>
-                                                    Cek Email
-                                                </span>
-                                                <span id="check-email-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
-                                            </button>
-                                        </div>
+                                        @endif
                                         @error('email')
                                             <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
                                         @enderror
@@ -611,21 +618,27 @@
                                     </div>
                                     <div class="col-lg-6 mb-3">
                                         <label class="form-label">No Telephone <span class="text-danger">*</span></label>
-                                        <div class="input-group">
+                                        @if (($pages->is_verification ?? 'aktif') === 'aktif')
+                                            <div class="input-group">
+                                                <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
+                                                    class="form-control @error('telp') is-invalid @enderror"
+                                                    placeholder="08xxxxxxxxxx" autocomplete="off">
+                                                <button type="button" id="btn-check-phone" class="btn btn-outline-secondary"
+                                                    style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
+                                                    <span id="check-phone-text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
+                                                        </svg>
+                                                        Cek No HP
+                                                    </span>
+                                                    <span id="check-phone-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
+                                                </button>
+                                            </div>
+                                        @else
                                             <input value="{{ old('telp') }}" type="text" name="telp" id="telp"
                                                 class="form-control @error('telp') is-invalid @enderror"
                                                 placeholder="08xxxxxxxxxx" autocomplete="off">
-                                            <button type="button" id="btn-check-phone" class="btn btn-outline-secondary"
-                                                style="border-radius: 0 8px 8px 0; border-left: 0; white-space:nowrap;">
-                                                <span id="check-phone-text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
-                                                        <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
-                                                    </svg>
-                                                    Cek No HP
-                                                </span>
-                                                <span id="check-phone-loading" class="spinner-border spinner-border-sm d-none" style="width:.8rem;height:.8rem;border-width:2px;"></span>
-                                            </button>
-                                        </div>
+                                        @endif
                                         @error('telp')
                                             <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
                                         @enderror
@@ -1236,6 +1249,11 @@
                     $('#btn-next-step-1').prop('disabled', false);
                 });
 
+                // Auto-select if only 1 service type card available (e.g. PPPoE only or Voucher only)
+                if ($('.service-type-card').length === 1) {
+                    $('.service-type-card').first().trigger('click');
+                }
+
                 // Next Step 1
                 $('#btn-next-step-1').on('click', function() {
                     if (isSelectedTypePppoe) {
@@ -1283,6 +1301,7 @@
                     const patchCore = $('#patch_core_id').val();
                     const ktpPhoto = $('#ktp_photo').val();
                     const isKtpAktif = "{{ $pages->is_ktp }}" === 'aktif';
+                    const isVerificationAktif = "{{ $pages->is_verification ?? 'aktif' }}" === 'aktif';
 
                     if (!name) {
                         Toast.fire({ icon: 'warning', title: 'Nama Pelanggan wajib diisi!' });
@@ -1297,16 +1316,18 @@
                         return;
                     }
 
-                    if (emailStatus === null) {
-                        Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek Email" terlebih dahulu untuk memverifikasi email!' });
-                        $('#email').focus();
-                        return;
-                    }
+                    if (isVerificationAktif) {
+                        if (emailStatus === null) {
+                            Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek Email" terlebih dahulu untuk memverifikasi email!' });
+                            $('#email').focus();
+                            return;
+                        }
 
-                    if (emailStatus === false) {
-                        Toast.fire({ icon: 'error', title: 'Email tidak valid atau sudah terdaftar. Perbaiki dan cek ulang!' });
-                        $('#email').focus();
-                        return;
+                        if (emailStatus === false) {
+                            Toast.fire({ icon: 'error', title: 'Email tidak valid atau sudah terdaftar. Perbaiki dan cek ulang!' });
+                            $('#email').focus();
+                            return;
+                        }
                     }
 
                     // ── Validasi No WhatsApp ──
@@ -1316,16 +1337,18 @@
                         return;
                     }
 
-                    if (phoneStatus === null) {
-                        Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek No HP" terlebih dahulu untuk memverifikasi WhatsApp!' });
-                        $('#telp').focus();
-                        return;
-                    }
+                    if (isVerificationAktif) {
+                        if (phoneStatus === null) {
+                            Toast.fire({ icon: 'warning', title: 'Silakan klik tombol "Cek No HP" terlebih dahulu untuk memverifikasi WhatsApp!' });
+                            $('#telp').focus();
+                            return;
+                        }
 
-                    if (phoneStatus === false) {
-                        Toast.fire({ icon: 'error', title: 'Nomor tidak terdaftar di WhatsApp atau tidak valid. Perbaiki dan cek ulang!' });
-                        $('#telp').focus();
-                        return;
+                        if (phoneStatus === false) {
+                            Toast.fire({ icon: 'error', title: 'Nomor tidak terdaftar di WhatsApp atau tidak valid. Perbaiki dan cek ulang!' });
+                            $('#telp').focus();
+                            return;
+                        }
                     }
 
                     if (isKtpAktif && !ktpPhoto) {
@@ -1566,6 +1589,7 @@
                 const phoneFeedback = document.getElementById('phoneFeedback');
 
                 const isKtpAktif  = "{{ $pages->is_ktp }}" === 'aktif';
+                const isVerificationAktif = "{{ $pages->is_verification ?? 'aktif' }}" === 'aktif';
                 const emailValue  = emailInput  ? emailInput.value.trim()  : '';
                 const phoneValue  = phoneInput  ? phoneInput.value.trim()  : '';
                 const emailStatus = window.__emailChecked ?? null;
@@ -1578,18 +1602,20 @@
                     return false;
                 }
 
-                if (emailStatus === null) {
-                    e.preventDefault();
-                    Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek Email" terlebih dahulu sebelum mengirim data.' });
-                    emailInput && emailInput.focus();
-                    return false;
-                }
+                if (isVerificationAktif) {
+                    if (emailStatus === null) {
+                        e.preventDefault();
+                        Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek Email" terlebih dahulu sebelum mengirim data.' });
+                        emailInput && emailInput.focus();
+                        return false;
+                    }
 
-                if (emailStatus === false) {
-                    e.preventDefault();
-                    Toast.fire({ icon: 'error', title: 'Email tidak valid atau sudah terdaftar.' });
-                    emailInput && emailInput.focus();
-                    return false;
+                    if (emailStatus === false) {
+                        e.preventDefault();
+                        Toast.fire({ icon: 'error', title: 'Email tidak valid atau sudah terdaftar.' });
+                        emailInput && emailInput.focus();
+                        return false;
+                    }
                 }
 
                 if (!phoneValue) {
@@ -1599,18 +1625,20 @@
                     return false;
                 }
 
-                if (phoneStatus === null) {
-                    e.preventDefault();
-                    Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek No HP" terlebih dahulu sebelum mengirim data.' });
-                    phoneInput && phoneInput.focus();
-                    return false;
-                }
+                if (isVerificationAktif) {
+                    if (phoneStatus === null) {
+                        e.preventDefault();
+                        Toast.fire({ icon: 'warning', title: 'Klik tombol "Cek No HP" terlebih dahulu sebelum mengirim data.' });
+                        phoneInput && phoneInput.focus();
+                        return false;
+                    }
 
-                if (phoneStatus === false) {
-                    e.preventDefault();
-                    Toast.fire({ icon: 'error', title: 'Nomor tidak terdaftar di WhatsApp.' });
-                    phoneInput && phoneInput.focus();
-                    return false;
+                    if (phoneStatus === false) {
+                        e.preventDefault();
+                        Toast.fire({ icon: 'error', title: 'Nomor tidak terdaftar di WhatsApp.' });
+                        phoneInput && phoneInput.focus();
+                        return false;
+                    }
                 }
 
                 if (isKtpAktif && (!ktpPhoto || ktpPhoto.value === '')) {

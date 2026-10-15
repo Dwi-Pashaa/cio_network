@@ -53,7 +53,7 @@ class PagesController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return (new PagesDataTable)->get();
+            return (new PagesDataTable('management'))->get();
         }
 
         $authUserRegencies = Auth::user()->regencie->pluck('id')->toArray();
@@ -68,7 +68,30 @@ class PagesController extends Controller
             'mixRadiuses:id,name,code',
             'pakets:id,name',
             'prices:id,name',
+            'regencie:id,name',
+            'district:id,regencie_id,name',
         ])->where('organization_id', auth()->user()->organization_id)->get();
+
+        $vlansJson = $vlans->mapWithKeys(function ($v) {
+            $regId = $v->regencie_id ?: ($v->district?->regencie_id);
+
+            return [$v->id => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'server_name' => $v->server_name,
+                'regencie_id' => $regId,
+                'district_id' => $v->district_id,
+                'village_id' => $v->village_id,
+                'hometown_id' => $v->hometown_id,
+                'support_pppoe' => (bool)$v->support_pppoe,
+                'support_voucher' => (bool)$v->support_voucher,
+                'olts_id' => $v->olts ? $v->olts->pluck('id')->toArray() : [],
+                'mic_radius_id' => $v->mixRadiuses ? $v->mixRadiuses->pluck('id')->toArray() : [],
+                'paket_id' => $v->pakets ? $v->pakets->pluck('id')->toArray() : [],
+                'price' => $v->prices ? $v->prices->pluck('id')->toArray() : [],
+            ]];
+        });
+
         $odps = ODP::where('organization_id', auth()->user()->organization_id)->get();
         $odcs = ODC::where('organization_id', auth()->user()->organization_id)->get();
         $olts = OLT::where('organization_id', auth()->user()->organization_id)->get();
@@ -78,6 +101,17 @@ class PagesController extends Controller
         $tipePelanggan = Type::where('organization_id', auth()->user()->organization_id)->where('status', '1')->get();
 
         $organizations = Organization::all();
+        $allUsers = User::when(auth()->user()->organization_id, fn($q) => $q->where('organization_id', auth()->user()->organization_id))->get(['id', 'name', 'email']);
+        $quickAccessCategories = config('quick_access.categories', []);
+        $quickAccessItems = config('quick_access.items', []);
+
+        $authUser = Auth::user();
+        $isAdmin = $authUser->hasRole('Admin');
+
+        $totalPages = Pages::where('type', 'pages')
+            ->when(!$isAdmin, fn($q) => $q->whereIn('id', $authUserPages))
+            ->when($authUser->organization?->type === 'mitra', fn($q) => $q->where('organization_id', $authUser->organization_id))
+            ->count();
 
         return view("pages.pages.index", compact(
             "hometown",
@@ -85,6 +119,7 @@ class PagesController extends Controller
             "districts",
             "villages",
             "vlans",
+            "vlansJson",
             "odps",
             "odcs",
             "olts",
@@ -92,7 +127,11 @@ class PagesController extends Controller
             "micRadius",
             "price",
             "tipePelanggan",
-            "organizations"
+            "organizations",
+            "allUsers",
+            "quickAccessCategories",
+            "quickAccessItems",
+            "totalPages"
         ));
     }
 
@@ -196,11 +235,219 @@ class PagesController extends Controller
     }
 
     /**
+     * Store a newly created complete page (Wizard 4-step).
+     */
+    public function storeComplete(Request $request)
+    {
+        $user = Auth::user();
+        $vlanMode = $request->input('vlan_mode', 'existing');
+
+        $rules = [];
+        $messages = [];
+
+        if ($user->can('input halaman judul')) {
+            $rules['name'] = 'required|string|max:255';
+            $messages['name.required'] = 'Judul halaman wajib diisi.';
+        }
+        if ($user->can('input halaman deskripsi')) {
+            $rules['desc'] = 'required|string';
+            $messages['desc.required'] = 'Sub judul / deskripsi halaman wajib diisi.';
+        }
+        if ($user->can('input halaman wilayah')) {
+            $rules['regencies_id'] = 'required';
+            $rules['districts_id'] = 'required';
+            $rules['villages_id']  = 'required';
+            $rules['hometowns_id'] = 'required';
+            $messages['regencies_id.required'] = 'Kabupaten / Kota wajib dipilih.';
+            $messages['districts_id.required'] = 'Kecamatan wajib dipilih.';
+            $messages['villages_id.required']  = 'Desa wajib dipilih.';
+            $messages['hometowns_id.required'] = 'Kampung wajib dipilih.';
+        }
+        if ($user->can('input halaman vlan')) {
+            if ($vlanMode === 'new') {
+                $rules['new_vlan_name'] = 'required|string|max:255';
+                $messages['new_vlan_name.required'] = 'Nama VLAN Baru wajib diisi.';
+            } else {
+                $rules['vlans_id'] = 'required';
+                $messages['vlans_id.required'] = 'Minimal satu Data VLAN wajib dipilih.';
+            }
+        }
+        if ($user->can('input halaman opsi ktp')) {
+            $rules['is_ktp'] = 'required|in:aktif,tidak';
+            $messages['is_ktp.required'] = 'Opsi KTP wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi persetujuan')) {
+            $rules['is_persetujuan'] = 'required|in:aktif,tidak';
+            $messages['is_persetujuan.required'] = 'Opsi persetujuan wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi cek kontak')) {
+            $rules['is_verification'] = 'nullable|in:aktif,tidak';
+        }
+        if ($user->can('input halaman tipe pelanggan')) {
+            $rules['tipe_pelanggan_id'] = 'nullable';
+        }
+
+        $supportPppoe = $request->boolean('support_pppoe');
+        $supportVoucher = $request->boolean('support_voucher');
+
+        if ($user->can('input halaman support')) {
+            if (!$supportPppoe && !$supportVoucher) {
+                return response()->json([
+                    'code' => 400,
+                    'errors' => ['support_layanan' => ['Silakan pilih setidaknya salah satu dukungan layanan (PPPoE atau Voucher).']]
+                ]);
+            }
+        } else {
+            $supportPppoe = true;
+        }
+
+        $validation = Validator::make($request->all(), $rules, $messages);
+
+        if ($validation->fails()) {
+            return response()->json(['code' => 400, 'errors' => $validation->errors()]);
+        }
+
+        $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
+        $selectedVlanIds = [];
+
+        if ($user->can('input halaman vlan')) {
+            if ($vlanMode === 'new') {
+                $vlanService = app(\App\Services\VlanService::class);
+                $newVlan = $vlanService->createVlan([
+                    'name'            => $request->new_vlan_name,
+                    'server_name'     => $request->new_vlan_server_name,
+                    'ip_address'      => $request->new_vlan_ip_address,
+                    'support_pppoe'   => $supportPppoe,
+                    'support_voucher' => $supportVoucher,
+                    'regencie_id'     => $request->new_vlan_regencie_id ?: $request->regencies_id,
+                    'district_id'     => $request->new_vlan_district_id ?: $request->districts_id,
+                    'village_id'      => $request->new_vlan_village_id ?: $request->villages_id,
+                    'hometown_id'     => $request->new_vlan_hometown_id ?: $request->hometowns_id,
+                    'olts'            => $parseIds($request->input('new_vlan_olts', $request->input('olts_id', []))),
+                    'mix_radiuses'    => $parseIds($request->input('new_vlan_mix_radiuses', $request->input('mic_radius_id', []))),
+                    'pakets'          => $parseIds($request->input('new_vlan_pakets', $request->input('paket_id', []))),
+                    'prices'          => $parseIds($request->input('new_vlan_prices', $request->input('price', []))),
+                ]);
+                $selectedVlanIds[] = $newVlan->id;
+            } else {
+                $selectedVlanIds = $parseIds($request->vlans_id);
+            }
+        }
+
+        $post = [
+            'name'            => $user->can('input halaman judul') ? $request->name : 'Halaman Layanan ' . time(),
+            'desc'            => $user->can('input halaman deskripsi') ? $request->desc : '-',
+            'regencies_id'    => $user->can('input halaman wilayah') ? $request->regencies_id : null,
+            'districts_id'    => $user->can('input halaman wilayah') ? $request->districts_id : null,
+            'villages_id'     => $user->can('input halaman wilayah') ? $request->villages_id : null,
+            'hometowns_id'    => $user->can('input halaman wilayah') ? $request->hometowns_id : null,
+            'is_ktp'          => $user->can('input halaman opsi ktp') ? $request->input('is_ktp', 'tidak') : 'tidak',
+            'is_persetujuan'   => $user->can('input halaman opsi persetujuan') ? $request->input('is_persetujuan', 'tidak') : 'tidak',
+            'is_verification'  => $user->can('input halaman opsi cek kontak') ? $request->input('is_verification', 'aktif') : 'aktif',
+            'telp'            => $request->telp ?? '-',
+            'slug'            => Str::slug($user->can('input halaman judul') ? $request->name : 'halaman-' . time()),
+            'password'        => Hash::make($request->password ?: '123'),
+            'password_show'   => $request->password ?: '123',
+            'organization_id' => $user->organization_id,
+            'version'         => 'complete',
+            'support_pppoe'   => $supportPppoe,
+            'support_voucher' => $supportVoucher,
+        ];
+
+        $pages = Pages::create($post);
+
+        // Attach creator so they can see and manage the page
+        $pages->users()->syncWithoutDetaching([Auth::id()]);
+
+        if ($user->can('input halaman user ditugaskan') && $request->has('user_ids') && is_array($request->user_ids)) {
+            $pages->users()->syncWithoutDetaching($request->user_ids);
+        }
+
+        if ($user->can('input halaman vlan')) {
+            foreach ($selectedVlanIds as $vln) {
+                DB::table('pages_vlans')->insert([
+                    "pages_id" => $pages->id,
+                    "vlans_id" => $vln
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman odc')) {
+            foreach ($parseIds($request->odcs_id) as $odc) {
+                DB::table('pages_odcs')->insert([
+                    "pages_id" => $pages->id,
+                    "odcs_id" => $odc
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman odp')) {
+            foreach ($parseIds($request->odps_id) as $odp) {
+                DB::table('pages_odps')->insert([
+                    "pages_id" => $pages->id,
+                    "odps_id" => $odp
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman olt')) {
+            foreach ($parseIds($request->olts_id) as $olt) {
+                DB::table('pages_olts')->insert([
+                    "pages_id" => $pages->id,
+                    "olts_id" => $olt
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman paket')) {
+            foreach ($parseIds($request->paket_id) as $pkt) {
+                DB::table('pages_paket')->insert([
+                    "pages_id" => $pages->id,
+                    "paket_id" => $pkt
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman mic radius')) {
+            foreach ($parseIds($request->mic_radius_id) as $mc) {
+                DB::table('pages_mic_radius')->insert([
+                    "pages_id" => $pages->id,
+                    "mic_radius_id" => $mc
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman pembayaran')) {
+            foreach ($parseIds($request->price) as $mc) {
+                DB::table('pages_price')->insert([
+                    "pages_id" => $pages->id,
+                    "price_id" => $mc
+                ]);
+            }
+        }
+
+        if ($user->can('input halaman tipe pelanggan')) {
+            foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
+                DB::table('tipe_pelanggan_pages')->insert([
+                    "pages_id" => $pages->id,
+                    "tipe_pelanggan_id" => $tp
+                ]);
+            }
+        }
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'message' => 'Berhasil membuat data halaman lengkap.'
+        ]);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius', 'price', 'tipePelanggan'])->find($id);
+        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius', 'price', 'tipePelanggan', 'users'])->find($id);
 
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -307,6 +554,248 @@ class PagesController extends Controller
     }
 
     /**
+     * Update complete page resource.
+     */
+    public function updateComplete(Request $request, $id)
+    {
+        $user = Auth::user();
+        $pages = Pages::findOrFail($id);
+
+        $rules = [];
+        $messages = [];
+
+        if ($user->can('input halaman judul')) {
+            $rules['name'] = 'required|string|max:255';
+            $messages['name.required'] = 'Judul halaman wajib diisi.';
+        }
+        if ($user->can('input halaman deskripsi')) {
+            $rules['desc'] = 'required|string';
+            $messages['desc.required'] = 'Sub judul / deskripsi halaman wajib diisi.';
+        }
+        if ($user->can('input halaman wilayah')) {
+            $rules['regencies_id'] = 'required';
+            $rules['districts_id'] = 'required';
+            $rules['villages_id']  = 'required';
+            $rules['hometowns_id'] = 'required';
+            $messages['regencies_id.required'] = 'Kabupaten / Kota wajib dipilih.';
+            $messages['districts_id.required'] = 'Kecamatan wajib dipilih.';
+            $messages['villages_id.required']  = 'Desa wajib dipilih.';
+            $messages['hometowns_id.required'] = 'Kampung wajib dipilih.';
+        }
+        if ($user->can('input halaman vlan')) {
+            $rules['vlans_id'] = 'required';
+            $messages['vlans_id.required'] = 'Minimal satu Data VLAN wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi ktp')) {
+            $rules['is_ktp'] = 'required|in:aktif,tidak';
+            $messages['is_ktp.required'] = 'Opsi KTP wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi persetujuan')) {
+            $rules['is_persetujuan'] = 'required|in:aktif,tidak';
+            $messages['is_persetujuan.required'] = 'Opsi persetujuan wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi cek kontak')) {
+            $rules['is_verification'] = 'nullable|in:aktif,tidak';
+        }
+        if ($user->can('input halaman tipe pelanggan')) {
+            $rules['tipe_pelanggan_id'] = 'nullable';
+        }
+
+        $supportPppoe = $request->boolean('support_pppoe');
+        $supportVoucher = $request->boolean('support_voucher');
+
+        if ($user->can('input halaman support')) {
+            if (!$supportPppoe && !$supportVoucher) {
+                return response()->json([
+                    'code' => 400,
+                    'errors' => ['support_layanan' => ['Silakan pilih setidaknya salah satu dukungan layanan (PPPoE atau Voucher).']]
+                ]);
+            }
+        }
+
+        $validation = Validator::make($request->all(), $rules, $messages);
+
+        if ($validation->fails()) {
+            return response()->json(['code' => 400, 'errors' => $validation->errors()]);
+        }
+
+        $updateData = [];
+
+        if ($user->can('input halaman judul')) {
+            $updateData['name'] = $request->name;
+            $updateData['slug'] = Str::slug($request->name);
+        }
+        if ($user->can('input halaman deskripsi')) {
+            $updateData['desc'] = $request->desc;
+        }
+        if ($user->can('input halaman wilayah')) {
+            $updateData['regencies_id'] = $request->regencies_id;
+            $updateData['districts_id'] = $request->districts_id;
+            $updateData['villages_id']  = $request->villages_id;
+            $updateData['hometowns_id'] = $request->hometowns_id;
+        }
+        if ($user->can('input halaman support')) {
+            $updateData['support_pppoe']   = $supportPppoe;
+            $updateData['support_voucher'] = $supportVoucher;
+        }
+        if ($user->can('input halaman opsi ktp')) {
+            $updateData['is_ktp'] = $request->is_ktp;
+        }
+        if ($user->can('input halaman opsi persetujuan')) {
+            $updateData['is_persetujuan'] = $request->is_persetujuan;
+        }
+        if ($user->can('input halaman opsi cek kontak')) {
+            $updateData['is_verification'] = $request->input('is_verification', 'aktif');
+        }
+
+        $updateData['version']         = 'complete';
+        $updateData['organization_id'] = $user->organization_id;
+
+        if ($request->filled('password')) {
+            $updateData['password']      = Hash::make($request->password);
+            $updateData['password_show'] = $request->password;
+        }
+
+        if (!empty($updateData)) {
+            $pages->update($updateData);
+        }
+
+        $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
+
+        if ($user->can('input halaman vlan') && $request->has('vlans_id')) {
+            $pages->vlan()->delete();
+            foreach ($parseIds($request->vlans_id) as $vln) {
+                $pages->vlan()->create(["vlans_id" => $vln]);
+            }
+        }
+
+        if ($user->can('input halaman odc') && $request->has('odcs_id')) {
+            $pages->odc()->delete();
+            foreach ($parseIds($request->odcs_id) as $odc) {
+                $pages->odc()->create(["odcs_id" => $odc]);
+            }
+        }
+
+        if ($user->can('input halaman odp') && $request->has('odps_id')) {
+            $pages->odp()->delete();
+            foreach ($parseIds($request->odps_id) as $odp) {
+                $pages->odp()->create(["odps_id" => $odp]);
+            }
+        }
+
+        if ($user->can('input halaman olt') && $request->has('olts_id')) {
+            $pages->olt()->delete();
+            foreach ($parseIds($request->olts_id) as $olt) {
+                $pages->olt()->create(["olts_id" => $olt]);
+            }
+        }
+
+        if ($user->can('input halaman paket') && $request->has('paket_id')) {
+            $pages->paket()->delete();
+            foreach ($parseIds($request->paket_id) as $pkt) {
+                $pages->paket()->create(["paket_id" => $pkt]);
+            }
+        }
+
+        if ($user->can('input halaman mic radius') && $request->has('mic_radius_id')) {
+            $pages->mic_radius()->delete();
+            foreach ($parseIds($request->mic_radius_id) as $mc) {
+                $pages->mic_radius()->create(["mic_radius_id" => $mc]);
+            }
+        }
+
+        if ($user->can('input halaman pembayaran') && $request->has('price')) {
+            $pages->price()->delete();
+            foreach ($parseIds($request->price) as $pc) {
+                $pages->price()->create(["price_id" => $pc]);
+            }
+        }
+
+        if ($user->can('input halaman tipe pelanggan') && $request->has('tipe_pelanggan_id')) {
+            $pages->tipePelanggan()->delete();
+            foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
+                $pages->tipePelanggan()->create(["tipe_pelanggan_id" => $tp]);
+            }
+        }
+
+        // Hapus cache
+        Cache::forget("pages_routers_{$id}");
+        Cache::forget("pages_vlans_{$id}");
+        Cache::forget("pages_odcs_{$id}");
+        Cache::forget("pages_odps_{$id}");
+        Cache::forget("pages_olts_{$id}");
+        Cache::forget("pages_price_{$id}");
+        Cache::forget("pages_tipe_{$id}");
+
+        return response()->json(['code' => 200, 'status' => 'success', 'message' => 'Berhasil memperbarui data halaman lengkap.']);
+    }
+
+    /**
+     * Get users for page user management.
+     */
+    public function getUsers(string $id)
+    {
+        $pages = Pages::findOrFail($id);
+        $orgId = Auth::user()->organization_id;
+
+        $users = User::with('roles')
+            ->when($orgId, fn($q) => $q->where('organization_id', $orgId))
+            ->select('id', 'name', 'email', 'organization_id')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($u) {
+                return [
+                    'id'    => $u->id,
+                    'name'  => $u->name,
+                    'email' => $u->email,
+                    'role'  => $u->roles->pluck('name')->first() ?? 'User',
+                ];
+            });
+
+        $assignedUserIds = $pages->users()->pluck('users.id')->toArray();
+
+        return response()->json([
+            'code'     => 200,
+            'page'     => [
+                'id'      => $pages->id,
+                'name'    => $pages->name,
+                'version' => $pages->version,
+            ],
+            'users'    => $users,
+            'assigned' => $assignedUserIds,
+        ]);
+    }
+
+    /**
+     * Sync assigned users for a page.
+     */
+    public function syncUsers(Request $request, string $id)
+    {
+        if (!Auth::user()->can('input halaman user ditugaskan')) {
+            return response()->json([
+                'code'    => 403,
+                'status'  => 'error',
+                'message' => 'Anda tidak memiliki izin untuk mengelola penugasan user.',
+            ], 403);
+        }
+
+        $pages = Pages::findOrFail($id);
+        $userIds = $request->input('user_ids', []);
+        if (!is_array($userIds)) {
+            $userIds = explode(',', (string) $userIds);
+        }
+        $userIds = array_values(array_filter(array_unique(array_map('intval', $userIds))));
+
+        $pages->users()->sync($userIds);
+
+        return response()->json([
+            'code'    => 200,
+            'status'  => 'success',
+            'message' => 'Berhasil memperbarui penugasan user untuk halaman ini.',
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
@@ -353,7 +842,22 @@ class PagesController extends Controller
         // Data wilayah & tipe — cache 30 menit per organisasi
         $rts   = Cache::remember("pages_rts_{$orgId}", 1800, fn() => RT::where('organization_id', $orgId)->get());
         $rws   = Cache::remember("pages_rws_{$orgId}", 1800, fn() => RW::where('organization_id', $orgId)->get());
-        $types = Cache::remember("pages_types_{$orgId}", 1800, fn() => Type::where('organization_id', $orgId)->where('status', '0')->get());
+        $allTypes = Cache::remember("pages_types_{$orgId}", 1800, fn() => Type::where('organization_id', $orgId)->where('status', '0')->get());
+
+        // Filter tipe paket sesuai konfigurasi support_pppoe & support_voucher halaman
+        $types = $allTypes->filter(function ($tp) use ($pages) {
+            $isPppoe = stripos($tp->name, 'pppoe') !== false;
+            if ($pages->support_pppoe && $pages->support_voucher) {
+                return true;
+            }
+            if ($pages->support_pppoe && !$pages->support_voucher) {
+                return $isPppoe;
+            }
+            if (!$pages->support_pppoe && $pages->support_voucher) {
+                return !$isPppoe;
+            }
+            return true;
+        })->values();
 
         // Jaringan per halaman — cache 60 menit per pages_id
         $routers = Cache::remember(
@@ -638,8 +1142,10 @@ class PagesController extends Controller
         $data['user_id'] = Auth::id();
         $typeName = $data['type_name'] ?? null;
 
+        $isVerification = $request->input('is_verification', 'aktif');
+
         // ── Validasi email via MyEmailVerifier API ──
-        if (!empty($data['email'])) {
+        if ($isVerification === 'aktif' && !empty($data['email'])) {
             try {
                 $emailVerifier = new MyEmailVerifierService();
                 $result = $emailVerifier->verify($data['email']);
@@ -653,7 +1159,7 @@ class PagesController extends Controller
         }
 
         // ── Validasi nomor telepon via Fonnte API ──
-        if (!empty($data['telp'])) {
+        if ($isVerification === 'aktif' && !empty($data['telp'])) {
             try {
                 $phoneService = new FontePhoneCheckService();
                 $phoneResult  = $phoneService->check($data['telp']);
