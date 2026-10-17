@@ -19,7 +19,7 @@
                 </div>
                 <div>
                     <h5 class="org-title">Riwayat Mutasi & Transfer Barang Operasional</h5>
-                    <div class="org-subtitle">Log lengkap distribusi barang dari Admin ke User dan transfer dari User ke Teknisi</div>
+                    <div class="org-subtitle">Log lengkap distribusi barang dan persetujuan (ACC) transfer dari pengirim ke penerima</div>
                 </div>
             </div>
 
@@ -30,7 +30,7 @@
         </div>
 
         {{-- TOOLBAR --}}
-        <div class="org-toolbar">
+        <div class="org-toolbar flex-wrap gap-2">
             <div style="font-size:.85rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:.5rem;">
                 Tampilkan
                 <select id="sort" class="org-input" style="padding: .35rem .6rem;">
@@ -39,6 +39,16 @@
                     @endforeach
                 </select>
                 data
+            </div>
+
+            <div style="font-size:.85rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:.5rem;" class="ms-sm-3">
+                Status
+                <select id="filter-status" class="org-input" style="padding: .35rem .6rem; min-width: 170px;">
+                    <option value="">Semua Status</option>
+                    <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
+                    <option value="diterima">Diterima (ACC)</option>
+                    <option value="ditolak">Ditolak</option>
+                </select>
             </div>
 
             <div class="search-wrapper ms-auto">
@@ -61,8 +71,10 @@
                         <th>Penerima</th>
                         <th>Barang & Identitas</th>
                         <th style="text-align:center;">Jumlah</th>
-                        <th>Tanggal</th>
+                        <th>Tanggal Kirim</th>
                         <th>Catatan</th>
+                        <th style="text-align:center;">Status</th>
+                        <th style="text-align:right;">Aksi</th>
                     </tr>
                 </thead>
             </table>
@@ -85,7 +97,12 @@
         const table = $('#riwayat-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('barang-operasional.riwayat') }}",
+            ajax: {
+                url: "{{ route('barang-operasional.riwayat') }}",
+                data: function(d) {
+                    d.status = $('#filter-status').val();
+                }
+            },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'kode_transaksi', name: 'transfer_barang_operasionals.kode_transaksi' },
@@ -94,7 +111,9 @@
                 { data: 'barang_nama', name: 'barang_operasionals.nama_barang' },
                 { data: 'jumlah_badge', name: 'transfer_barang_operasionals.jumlah', className: 'text-center' },
                 { data: 'tanggal', name: 'transfer_barang_operasionals.tanggal_transfer' },
-                { data: 'catatan', name: 'transfer_barang_operasionals.catatan', defaultContent: '-' }
+                { data: 'catatan', name: 'transfer_barang_operasionals.catatan', defaultContent: '-' },
+                { data: 'status_badge', name: 'transfer_barang_operasionals.status', className: 'text-center' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-end' }
             ],
             dom: 't',
             order: [[6, 'desc']],
@@ -112,8 +131,130 @@
             table.page.len($(this).val()).draw();
         });
 
+        $('#filter-status').on('change', function() {
+            table.ajax.reload();
+        });
+
         $('#search-input').on('keyup', function() {
             table.search(this.value).draw();
+        });
+
+        // ==========================================
+        // Event Handler: ACC / Terima Barang
+        // ==========================================
+        $(document).on('click', '.btn-acc', function() {
+            const id = $(this).data('id');
+            const kode = $(this).data('kode');
+            const barang = $(this).data('barang');
+            const jumlah = $(this).data('jumlah');
+
+            Swal.fire({
+                title: 'ACC Penerimaan Barang?',
+                html: `
+                    <div class="text-muted mb-2">Apakah Anda sudah menerima fisik barang berikut?</div>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:12px;" class="text-start">
+                        <div style="font-size:0.8rem; color:#64748b;">Kode Transaksi: <strong>${kode}</strong></div>
+                        <div class="fw-bold text-dark mt-1" style="font-size:1rem;">${barang}</div>
+                        <div class="text-primary fw-bold small mt-1">Jumlah: ${jumlah}</div>
+                    </div>
+                    <div class="text-start">
+                        <label class="form-label small fw-bold text-secondary">Catatan Penerima (Opsional):</label>
+                        <textarea id="acc-catatan" class="form-control" rows="2" placeholder="Contoh: Barang fisik diterima lengkap & kondisi baik"></textarea>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '✓ Ya, Terima & ACC',
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const catatan = $('#acc-catatan').val();
+                    return $.ajax({
+                        url: `{{ url('barang-operasional/transfer') }}/${id}/acc`,
+                        method: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            catatan: catatan
+                        }
+                    }).catch(err => {
+                        Swal.showValidationMessage(err.responseJSON?.message || 'Terjadi kesalahan sistem.');
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value?.code === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil di-ACC!',
+                        text: result.value.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    table.ajax.reload();
+                }
+            });
+        });
+
+        // ==========================================
+        // Event Handler: Tolak Penerimaan Barang
+        // ==========================================
+        $(document).on('click', '.btn-reject', function() {
+            const id = $(this).data('id');
+            const kode = $(this).data('kode');
+            const barang = $(this).data('barang');
+
+            Swal.fire({
+                title: 'Tolak Penerimaan Barang?',
+                html: `
+                    <div class="text-muted mb-2">Anda akan menolak pengiriman barang:</div>
+                    <div style="background:#fef2f2; border:1px solid #fee2e2; border-radius:8px; padding:12px; margin-bottom:12px;" class="text-start">
+                        <div style="font-size:0.8rem; color:#991b1b;">Kode Transaksi: <strong>${kode}</strong></div>
+                        <div class="fw-bold text-danger mt-1" style="font-size:1rem;">${barang}</div>
+                    </div>
+                    <div class="text-start">
+                        <label class="form-label small fw-bold text-danger">Alasan Penolakan <span class="text-danger">*</span>:</label>
+                        <textarea id="reject-alasan" class="form-control" rows="2" placeholder="Contoh: Fisik barang rusak / jumlah unit tidak sesuai"></textarea>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '✕ Ya, Tolak!',
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const alasan = $('#reject-alasan').val()?.trim();
+                    if (!alasan) {
+                        Swal.showValidationMessage('Alasan penolakan wajib diisi!');
+                        return false;
+                    }
+                    return $.ajax({
+                        url: `{{ url('barang-operasional/transfer') }}/${id}/reject`,
+                        method: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            alasan: alasan
+                        }
+                    }).catch(err => {
+                        Swal.showValidationMessage(err.responseJSON?.message || 'Terjadi kesalahan sistem.');
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value?.code === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Ditolak',
+                        text: result.value.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    table.ajax.reload();
+                }
+            });
         });
 
         function buildPagination(info) {

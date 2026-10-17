@@ -130,13 +130,25 @@ Route::prefix('activity-log')->group(function () {
         ->middleware('permission:lihat log aktivitas');
 });
 
-// Persetujuan (Single data per organisasi)
+// Persetujuan (Multiple dokumen per organisasi)
 Route::prefix('persetujuan')->group(function () {
     Route::get('/', [\App\Http\Controllers\PersetujuanController::class, 'index'])
         ->name('persetujuan.index')
         ->middleware('permission:lihat persetujuan');
     Route::post('/store', [\App\Http\Controllers\PersetujuanController::class, 'store'])
         ->name('persetujuan.store')
+        ->middleware('permission:lihat persetujuan');
+    Route::get('/{id}/edit', [\App\Http\Controllers\PersetujuanController::class, 'edit'])
+        ->name('persetujuan.edit')
+        ->middleware('permission:lihat persetujuan');
+    Route::put('/{id}/update', [\App\Http\Controllers\PersetujuanController::class, 'update'])
+        ->name('persetujuan.update')
+        ->middleware('permission:lihat persetujuan');
+    Route::delete('/{id}/destroy', [\App\Http\Controllers\PersetujuanController::class, 'destroy'])
+        ->name('persetujuan.destroy')
+        ->middleware('permission:lihat persetujuan');
+    Route::post('/{id}/toggle-active', [\App\Http\Controllers\PersetujuanController::class, 'toggleActive'])
+        ->name('persetujuan.toggleActive')
         ->middleware('permission:lihat persetujuan');
 });
 

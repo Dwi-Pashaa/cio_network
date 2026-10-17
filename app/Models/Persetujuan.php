@@ -14,8 +14,17 @@ class Persetujuan extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function organization()
     {
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
+
+    public function pages()
+    {
+        return $this->hasMany(Pages::class, 'persetujuan_id', 'id');
     }
 }

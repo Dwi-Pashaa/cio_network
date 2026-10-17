@@ -2,6 +2,43 @@
 
 @section('title') Data Stock Router @endsection
 
+@push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-container--bootstrap-5 .select2-selection {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        min-height: 42px;
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+        background-color: #fff;
+    }
+    .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    .select2-dropdown {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 99999 !important;
+    }
+    .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+        background-color: #6366f1;
+        color: #fff;
+    }
+    .select2-container.is-invalid .select2-selection,
+    .form-control.is-invalid + .select2-container .select2-selection,
+    .form-select.is-invalid + .select2-container .select2-selection {
+        border-color: #ef4444 !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="org-container">
     @include('components.alert.success')
@@ -52,7 +89,7 @@
             @if (auth()->user()->hasPermissionTo('filter organization'))
                 <div style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; font-weight:600; color:var(--text-muted);">
                     Organisasi
-                    <select id="filter-organization" class="org-input" style="padding: .35rem .6rem;">
+                    <select id="filter-organization" class="form-select select2-filter" style="min-width: 170px;" data-placeholder="Semua Organisasi">
                         <option value="">Semua</option>
                         @foreach ($organizations as $org)
                             <option value="{{ $org->id }}">{{ $org->name }}</option>
@@ -117,9 +154,9 @@
                 <input type="hidden" id="type">
                 
                 <div class="form-group mb-3">
-                    <label class="form-label">Tujuan User <span class="text-danger">*</span></label>
-                    <select id="user_id" class="form-control">
-                        <option value="">-- Pilih User --</option>
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #475569; margin-bottom: 0.4rem;">TUJUAN USER <span class="text-danger">*</span></label>
+                    <select id="user_id" class="form-select select2-modal" data-placeholder="-- Pilih User --">
+                        <option value=""></option>
                         @foreach($users as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
@@ -128,11 +165,11 @@
                 </div>
                 
                 <div class="form-group mb-3">
-                    <label class="form-label">Router <span class="text-danger">*</span></label>
-                    <select id="router_id" class="form-control">
-                        <option value="">-- Pilih Router --</option>
-                        @foreach($router as $router)
-                            <option value="{{ $router->id }}">{{ $router->code }} - {{ $router->name }}</option>
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #475569; margin-bottom: 0.4rem;">ROUTER <span class="text-danger">*</span></label>
+                    <select id="router_id" class="form-select select2-modal" data-placeholder="-- Pilih Router --">
+                        <option value=""></option>
+                        @foreach($router as $r)
+                            <option value="{{ $r->id }}">{{ $r->code }} - {{ $r->name }}</option>
                         @endforeach
                     </select>
                     <span class="invalid-feedback error_router_id" style="font-size: .8rem; font-weight: 500;"></span>
@@ -188,6 +225,7 @@
 @endpush
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     const BASE = "{{ route('user.router.index') }}";
     let table;
@@ -207,8 +245,47 @@
     $(function() {
         initializeDataTable();
         initializePaginationAndSearch();
+        initializeSelect2();
         initializeModalHandlers();
     });
+
+    // ===========================
+    // Select2 Initialization
+    // ===========================
+    function initializeSelect2() {
+        $('.select2-modal').select2({
+            theme: 'bootstrap-5',
+            dropdownParent: $('#modal-simple'),
+            width: '100%',
+            placeholder: function() {
+                return $(this).data('placeholder');
+            },
+            allowClear: true
+        });
+
+        if ($('.select2-filter').length) {
+            $('.select2-filter').select2({
+                theme: 'bootstrap-5',
+                width: 'resolve',
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'Semua';
+                },
+                allowClear: true
+            });
+        }
+
+        $('#modal-simple').on('shown.bs.modal', function () {
+            $('#user_id, #router_id').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modal-simple'),
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder');
+                },
+                allowClear: true
+            });
+        });
+    }
 
     // ===========================
     // DataTable Initialization
@@ -370,15 +447,16 @@
     }
 
     function resetModal() {
-        $("#user_id").val('');
-        $("#router_id").val('');
+        $("#user_id").val('').trigger('change');
+        $("#router_id").val('').trigger('change');
         $("#total").val('');
         $("#id").val('');
         clearValidationErrors();
     }
 
     function clearValidationErrors() {
-        $(".form-control").removeClass('is-invalid');
+        $(".form-control, .form-select").removeClass('is-invalid');
+        $(".select2-container").removeClass('is-invalid');
         $(".invalid-feedback").text('');
     }
 
@@ -440,8 +518,8 @@
                 resetModal();
                 $(".modal-title").text("Edit Stock Router");
                 $("#modal-simple").modal('show');
-                $("#user_id").val(data.user_id);
-                $("#router_id").val(data.router_id);
+                $("#user_id").val(data.user_id).trigger('change');
+                $("#router_id").val(data.router_id).trigger('change');
                 $("#total").val(data.total);
                 $("#id").val(data.id);
                 $("#type").val('update');
@@ -545,13 +623,17 @@
         clearValidationErrors();
         
         Object.keys(errors).forEach(function(field) {
-            $("#" + field).addClass('is-invalid');
+            const el = $("#" + field);
+            el.addClass('is-invalid');
+            if (el.hasClass('select2-modal') || el.hasClass('select2-filter')) {
+                el.next('.select2-container').addClass('is-invalid');
+            }
             $(".error_" + field).text(errors[field]);
         });
 
         setTimeout(function() {
             clearValidationErrors();
-        }, 3000);
+        }, 4000);
     }
 
     function showSuccessMessage(message) {

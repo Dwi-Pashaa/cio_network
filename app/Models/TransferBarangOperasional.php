@@ -21,10 +21,16 @@ class TransferBarangOperasional extends Model
         'jumlah',
         'catatan',
         'tanggal_transfer',
+        'status',
+        'tanggal_konfirmasi',
+        'catatan_konfirmasi',
+        'wa_notif_sent',
     ];
 
     protected $casts = [
-        'tanggal_transfer' => 'datetime',
+        'tanggal_transfer'   => 'datetime',
+        'tanggal_konfirmasi' => 'datetime',
+        'wa_notif_sent'      => 'boolean',
     ];
 
     public function organization()

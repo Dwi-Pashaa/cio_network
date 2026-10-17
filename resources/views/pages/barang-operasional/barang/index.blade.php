@@ -60,9 +60,12 @@
             </div>
 
             <div class="d-flex gap-2">
-                <a href="{{ route('barang-operasional.riwayat') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('barang-operasional.riwayat') }}" class="btn btn-outline-secondary d-flex align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
                     Riwayat Transfer
+                    @if(isset($pendingTransferCount) && $pendingTransferCount > 0)
+                        <span class="badge bg-danger text-white ms-2" style="font-size:0.75rem;">{{ $pendingTransferCount }} Butuh ACC</span>
+                    @endif
                 </a>
 
                 @can('tambah barang operasional')

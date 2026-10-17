@@ -35,34 +35,20 @@ class PagesDataTable
                 return '<span class="text-muted small">-</span>';
             })
             ->addColumn('vlan_name', function ($row) {
-                if ($row->vlan && $row->vlan->isNotEmpty()) {
-                    $names = $row->vlan->map(function ($pv) {
-                        $vlan = $pv->vlan;
-                        if (!$vlan || !$vlan->vlan_name) return null;
-                        return '<span class="badge bg-purple-subtle text-purple border border-purple-subtle me-1 mb-1" style="font-size:0.75rem;padding:3px 8px;font-weight:600;">' . e($vlan->vlan_name) . '</span>';
-                    })->filter();
-
-                    if ($names->isNotEmpty()) {
-                        return '<div class="d-flex flex-wrap gap-1">' . $names->implode('') . '</div>';
-                    }
+                if ($row->vlan_name) {
+                    return '<span class="badge bg-purple-subtle text-purple border border-purple-subtle me-1 mb-1" style="font-size:0.75rem;padding:3px 8px;font-weight:600;">' . e($row->vlan_name) . '</span>';
                 }
                 return '<span class="text-muted small">-</span>';
             })
             ->addColumn('server_name', function ($row) {
-                $servers = $row->vlan->map(fn($pv) => $pv->vlan?->server_name)->filter()->unique();
-                if ($servers->isNotEmpty()) {
-                    return $servers->map(function($s) {
-                        return '<div class="d-flex align-items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg><span class="fw-semibold text-dark small">' . e($s) . '</span></div>';
-                    })->implode('');
+                if ($row->server_name) {
+                    return '<div class="d-flex align-items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg><span class="fw-semibold text-dark small">' . e($row->server_name) . '</span></div>';
                 }
                 return '<span class="text-muted small">-</span>';
             })
             ->addColumn('ip_address', function ($row) {
-                $ips = $row->vlan->map(fn($pv) => $pv->vlan?->ip_address)->filter()->unique();
-                if ($ips->isNotEmpty()) {
-                    return '<div class="d-flex flex-wrap gap-1">' . $ips->map(function($ip) {
-                        return '<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:600;font-size:0.75rem;padding:3px 7px;border-radius:6px;font-family:monospace;">' . e($ip) . '</span>';
-                    })->implode('') . '</div>';
+                if ($row->ip_address) {
+                    return '<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:600;font-size:0.75rem;padding:3px 7px;border-radius:6px;font-family:monospace;">' . e($row->ip_address) . '</span>';
                 }
                 return '<span class="text-muted small">-</span>';
             })
@@ -250,15 +236,9 @@ class PagesDataTable
             ->orderColumn('vlan', function ($q, $order) {
                 $q->orderByRaw("(SELECT vlan_networks.name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id LIMIT 1) {$order}");
             })
-            ->orderColumn('vlan_name', function ($q, $order) {
-                $q->orderByRaw("(SELECT vlan_networks.vlan_name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id AND vlan_networks.vlan_name IS NOT NULL LIMIT 1) {$order}");
-            })
-            ->orderColumn('server_name', function ($q, $order) {
-                $q->orderByRaw("(SELECT vlan_networks.server_name FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id AND vlan_networks.server_name IS NOT NULL LIMIT 1) {$order}");
-            })
-            ->orderColumn('ip_address', function ($q, $order) {
-                $q->orderByRaw("(SELECT vlan_networks.ip_address FROM pages_vlans JOIN vlan_networks ON vlan_networks.id = pages_vlans.vlans_id WHERE pages_vlans.pages_id = pages.id AND vlan_networks.ip_address IS NOT NULL LIMIT 1) {$order}");
-            })
+            ->orderColumn('vlan_name', 'pages.vlan_name $1')
+            ->orderColumn('server_name', 'pages.server_name $1')
+            ->orderColumn('ip_address', 'pages.ip_address $1')
             ->orderColumn('support', 'pages.support_pppoe $1, pages.support_voucher $1')
             ->orderColumn('is_persetujuan', 'pages.is_persetujuan $1')
             ->orderColumn('is_ktp', 'pages.is_ktp $1')
@@ -384,6 +364,9 @@ class PagesDataTable
                     ->orWhereHas('village', function ($s) use ($search) {
                         $s->where('name', 'like', "%{$search}%");
                     })
+                    ->orWhere('pages.vlan_name', 'like', "%{$search}%")
+                    ->orWhere('pages.server_name', 'like', "%{$search}%")
+                    ->orWhere('pages.ip_address', 'like', "%{$search}%")
                     ->orWhereHas('vlan.vlan', function ($s) use ($search) {
                         $s->where('name', 'like', "%{$search}%")
                             ->orWhere('vlan_name', 'like', "%{$search}%")

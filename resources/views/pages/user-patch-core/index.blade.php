@@ -6,6 +6,40 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/modern-layout.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <style>
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            min-height: 42px;
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+        }
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .select2-dropdown {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 99999 !important;
+        }
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #6366f1;
+            color: #fff;
+        }
+        .select2-container.is-invalid .select2-selection,
+        .form-control.is-invalid + .select2-container .select2-selection,
+        .form-select.is-invalid + .select2-container .select2-selection {
+            border-color: #ef4444 !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -62,7 +96,7 @@
                 @if (auth()->user()->hasPermissionTo('filter organization'))
                     <div class="d-flex align-items-center gap-2 ms-auto">
                         <span class="text-muted" style="font-size:.88rem">Organisasi</span>
-                        <select id="filter-organization" class="org-input" style="padding: 0.35rem 0.8rem;">
+                        <select id="filter-organization" class="form-select select2-filter" style="min-width: 170px;" data-placeholder="Semua Organisasi">
                             <option value="">Semua</option>
                             @foreach ($organizations as $org)
                                 <option value="{{ $org->id }}">{{ $org->name }}</option>
@@ -126,8 +160,8 @@
 
                     <div class="mb-3" id="role_id_show">
                         <label class="form-label">Pilih Level Akses</label>
-                        <select name="role" id="role" class="form-control">
-                            <option value="">-- Pilih Level --</option>
+                        <select name="role" id="role" class="form-select select2-modal" data-placeholder="-- Pilih Level --">
+                            <option value=""></option>
                             @foreach ($role as $rl)
                                 <option value="{{ $rl->name }}">{{ strtoupper($rl->name) }}</option>
                             @endforeach
@@ -137,16 +171,16 @@
 
                     <div class="mb-3" id="user_id_show" style="display: none;">
                         <label class="form-label">Pilih Nama User</label>
-                        <select name="user_id" id="user_id" class="form-control">
-                            <option value="">-- Pilih User --</option>
+                        <select name="user_id" id="user_id" class="form-select select2-modal" data-placeholder="-- Pilih User --">
+                            <option value=""></option>
                         </select>
                         <span class="invalid-feedback error_user_id"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Pilih Item Patch Core</label>
-                        <select name="patch_core_id" id="patch_core_id" class="form-control">
-                            <option value="">-- Pilih Patch Core --</option>
+                        <select name="patch_core_id" id="patch_core_id" class="form-select select2-modal" data-placeholder="-- Pilih Patch Core --">
+                            <option value=""></option>
                             @foreach ($patchCore as $pc)
                                 <option value="{{ $pc->id }}">{{ $pc->name }}</option>
                             @endforeach
@@ -216,6 +250,7 @@
 @endpush
 
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const BASE = "{{ route('user.patch.core.index') }}";
         let table;
@@ -223,9 +258,48 @@
         $(function() {
             initializeDataTable();
             initializePaginationAndSearch();
+            initializeSelect2();
             initializeModalHandlers();
             initializeRoleHandler();
         });
+
+        // ===========================
+        // Select2 Initialization
+        // ===========================
+        function initializeSelect2() {
+            $('.select2-modal').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modal-simple'),
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder');
+                },
+                allowClear: true
+            });
+
+            if ($('.select2-filter').length) {
+                $('.select2-filter').select2({
+                    theme: 'bootstrap-5',
+                    width: 'resolve',
+                    placeholder: function() {
+                        return $(this).data('placeholder') || 'Semua';
+                    },
+                    allowClear: true
+                });
+            }
+
+            $('#modal-simple').on('shown.bs.modal', function () {
+                $('.select2-modal').select2({
+                    theme: 'bootstrap-5',
+                    dropdownParent: $('#modal-simple'),
+                    width: '100%',
+                    placeholder: function() {
+                        return $(this).data('placeholder');
+                    },
+                    allowClear: true
+                });
+            });
+        }
 
         // ===========================
         // DataTable Initialization
@@ -418,16 +492,17 @@
         }
 
         function resetModal() {
-            $("#role").val('');
-            $("#user_id").val('').html('<option value="">-- Pilih User --</option>');
-            $("#patch_core_id").val('');
+            $("#role").val('').trigger('change');
+            $("#user_id").html('<option value=""></option>').val('').trigger('change');
+            $("#patch_core_id").val('').trigger('change');
             $("#total").val('');
             $("#id").val('');
             clearValidationErrors();
         }
 
         function clearValidationErrors() {
-            $(".form-control").removeClass('is-invalid');
+            $(".form-control, .form-select").removeClass('is-invalid');
+            $(".select2-container").removeClass('is-invalid');
             $(".invalid-feedback").text('');
         }
 
@@ -440,6 +515,7 @@
 
                 if (!role) {
                     $("#user_id_show").hide();
+                    $("#user_id").html('<option value=""></option>').val('').trigger('change');
                     return;
                 }
 
@@ -452,7 +528,7 @@
                         }
                     })
                     .done(function(response) {
-                        let html = '<option value="">-- Pilih User --</option>';
+                        let html = '<option value=""></option>';
 
                         if (response.code === 200 && response.data) {
                             $("#user_id_show").show();
@@ -465,6 +541,13 @@
                         }
 
                         $("#user_id").html(html);
+                        $("#user_id").select2({
+                            theme: 'bootstrap-5',
+                            dropdownParent: $('#modal-simple'),
+                            width: '100%',
+                            placeholder: '-- Pilih User --',
+                            allowClear: true
+                        }).val('').trigger('change');
                     })
                     .fail(function() {
                         showErrorMessage('Terjadi kesalahan saat mengambil data user');
@@ -530,7 +613,7 @@
                         $("#modal-simple").modal('show');
 
                         $("#id").val(data.id);
-                        $("#patch_core_id").val(data.patch_core_id);
+                        $("#patch_core_id").val(data.patch_core_id).trigger('change');
                         $("#total").val(data.total);
                         $("#type").val('update');
 
@@ -540,7 +623,7 @@
 
                             // Set user_id after a short delay to ensure users are loaded
                             setTimeout(function() {
-                                $("#user_id").val(data.user_id);
+                                $("#user_id").val(data.user_id).trigger('change');
                             }, 500);
                         }
                     } else {
@@ -651,14 +734,18 @@
             clearValidationErrors();
 
             Object.keys(errors).forEach(function(field) {
-                $("#" + field).addClass('is-invalid');
+                const el = $("#" + field);
+                el.addClass('is-invalid');
+                if (el.hasClass('select2-modal') || el.hasClass('select2-filter')) {
+                    el.next('.select2-container').addClass('is-invalid');
+                }
                 $(".error_" + field).text(errors[field]);
             });
 
-            // Auto clear errors after 3 seconds
+            // Auto clear errors after 4 seconds
             setTimeout(function() {
                 clearValidationErrors();
-            }, 3000);
+            }, 4000);
         }
 
         function showSuccessMessage(message) {

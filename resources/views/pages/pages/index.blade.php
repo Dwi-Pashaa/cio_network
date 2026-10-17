@@ -783,7 +783,7 @@
                         </div>
                         <div>
                             <h5 class="modal-title mb-0">Tambah Halaman Baru (Step Wizard)</h5>
-                            <span class="text-white-50 small" id="wizard-step-subtitle">Step 1 dari 4: Konfigurasi VLAN</span>
+                            <span class="text-white-50 small" id="wizard-step-subtitle">Step 1 dari 3: Informasi Halaman & Dukungan Layanan</span>
                         </div>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -795,27 +795,21 @@
                         <div class="wizard-stepper-line"></div>
                         <div class="wizard-step-node active" id="wz-nav-1" data-step="1">
                             <div class="wizard-circle">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="15" width="6" height="6" rx="2" /><rect x="15" y="15" width="6" height="6" rx="2" /><rect x="9" y="3" width="6" height="6" rx="2" /><path d="M6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1" /><line x1="12" y1="9" x2="12" y2="12" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
                             </div>
-                            <span class="wizard-label">1. VLAN</span>
+                            <span class="wizard-label">1. Info & Layanan</span>
                         </div>
                         <div class="wizard-step-node" id="wz-nav-2" data-step="2">
                             <div class="wizard-circle">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="4" width="18" height="8" rx="3" /><rect x="3" y="12" width="18" height="8" rx="3" /><line x1="7" y1="8" x2="7" y2="8.01" /><line x1="7" y1="16" x2="7" y2="16.01" /><path d="M11 12h6" /></svg>
                             </div>
-                            <span class="wizard-label">2. Info & Layanan</span>
+                            <span class="wizard-label">2. Jaringan & Paket</span>
                         </div>
                         <div class="wizard-step-node" id="wz-nav-3" data-step="3">
                             <div class="wizard-circle">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="4" width="18" height="8" rx="3" /><rect x="3" y="12" width="18" height="8" rx="3" /><line x1="7" y1="8" x2="7" y2="8.01" /><line x1="7" y1="16" x2="7" y2="16.01" /><path d="M11 12h6" /></svg>
-                            </div>
-                            <span class="wizard-label">3. Jaringan & Paket</span>
-                        </div>
-                        <div class="wizard-step-node" id="wz-nav-4" data-step="4">
-                            <div class="wizard-circle">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="2" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
                             </div>
-                            <span class="wizard-label">4. Preview</span>
+                            <span class="wizard-label">3. Preview</span>
                         </div>
                     </div>
                 </div>
@@ -823,130 +817,9 @@
                 <div class="modal-body p-4" style="background-color: #f8fafc; max-height: calc(85vh - 180px); overflow-y: auto;">
                     <form id="form-wizard" autocomplete="off">
                         @csrf
-                        <input type="hidden" name="vlan_mode" id="wz_vlan_mode" value="existing">
 
-                        {{-- STEP 1: VLAN (Pilih VLAN yang Ada / Buat VLAN Baru) --}}
+                        {{-- STEP 1: Info & Dukungan Layanan + Nama VLAN, Server, IP --}}
                         <div class="wizard-step-content" id="wz-step-1">
-                            @can('input halaman vlan')
-                            {{-- Checklist VLAN yang Ada --}}
-                            <div id="section-vlan-existing">
-                                <div class="checklist-group-card" id="card_wz_vlans_id" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.15rem;">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom flex-wrap gap-2">
-                                        <div>
-                                            <label class="form-label-premium mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="15" width="6" height="6" rx="2" /><rect x="15" y="15" width="6" height="6" rx="2" /><rect x="9" y="3" width="6" height="6" rx="2" /><path d="M6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1" /><line x1="12" y1="9" x2="12" y2="12" /></svg>
-                                                Pilih Data Segmen VLAN <span class="text-danger">*</span>
-                                            </label>
-                                            <small class="text-muted" style="font-size: 0.75rem;">Pilih segmen VLAN untuk melihat detail konfigurasi dan sinkronisasi otomatis ke langkah berikutnya</small>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="counter-badge" id="badge-wz_vlans_id">0 dipilih</span>
-                                            <button type="button" class="btn-checklist-action btn-checklist-all" data-target="wz_vlans_id">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 12l5 5l10 -10" /><path d="M2 12l5 5m5 -5l5 -5" /></svg> Semua
-                                            </button>
-                                            <span class="text-muted" style="font-size: 0.72rem;">|</span>
-                                            <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="wz_vlans_id">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg> Batal
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="input-group input-group-flat mb-3">
-                                        <span class="input-group-text bg-light border-end-0 text-muted">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                                        </span>
-                                        <input type="text" class="form-control checklist-search-input bg-light border-start-0 ps-0" placeholder="Cari nomor VLAN, nama VLAN, server, IP address, atau wilayah..." data-target="wz_vlans_id">
-                                    </div>
-
-                                    <div class="checklist-scrollbox" id="checklist-box-wz_vlans_id" style="max-height: 290px; overflow-y: auto;">
-                                        <div class="vlan-card-grid">
-                                            @foreach ($vlans as $vln)
-                                                <label class="vlan-card-item checklist-item" id="wz-vlan-card-{{ $vln->id }}" data-search="{{ strtolower($vln->name . ' ' . ($vln->vlan_name ?? '') . ' ' . ($vln->server_name ?? '') . ' ' . ($vln->ip_address ?? '') . ' ' . ($vln->district->name ?? '') . ' ' . ($vln->regencie->name ?? '')) }}">
-                                                    <div class="d-flex align-items-start gap-2 w-100">
-                                                        <input type="checkbox" name="vlans_id[]" class="form-check-input wz-vlan-cb mt-1" value="{{ $vln->id }}" data-group="wz_vlans_id">
-                                                        <div class="flex-grow-1 overflow-hidden">
-                                                            <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
-                                                                <div class="d-flex align-items-center gap-1.5 overflow-hidden flex-wrap">
-                                                                    <span class="vlan-tag-pill">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="15" width="6" height="6" rx="2" /><rect x="15" y="15" width="6" height="6" rx="2" /><rect x="9" y="3" width="6" height="6" rx="2" /><path d="M6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1" /><line x1="12" y1="9" x2="12" y2="12" /></svg>
-                                                                        <span class="vlan-card-num-text">VLAN {{ $vln->name }}</span>
-                                                                    </span>
-                                                                    <span class="checklist-text d-none">{{ $vln->name }}</span>
-                                                                    @if($vln->vlan_name)
-                                                                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">{{ $vln->vlan_name }}</span>
-                                                                    @endif
-                                                                    <span class="fw-bold text-dark text-truncate d-flex align-items-center gap-1 vlan-card-server-text" style="font-size: 0.83rem;" title="{{ $vln->server_name ?? ('#' . $vln->name) }}">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="4" width="18" height="8" rx="2" /><rect x="3" y="12" width="18" height="8" rx="2" /><line x1="7" y1="8" x2="7" y2="8.01" /><line x1="7" y1="16" x2="7" y2="16.01" /></svg>
-                                                                        {{ $vln->server_name ?? ('#' . $vln->name) }}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                                                                    @if($vln->support_pppoe)
-                                                                        <span class="feature-pill pill-pppoe" title="Mendukung Layanan PPPoE">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="me-0.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3" /></svg>PPPoE
-                                                                        </span>
-                                                                    @endif
-                                                                    @if($vln->support_voucher)
-                                                                        <span class="feature-pill pill-voucher" title="Mendukung Layanan Hotspot / Voucher">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="me-0.5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="15" y1="5" x2="15" y2="7" /><line x1="15" y1="11" x2="15" y2="13" /><line x1="15" y1="17" x2="15" y2="19" /><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" /></svg>Voucher
-                                                                        </span>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex align-items-center gap-1.5 flex-wrap pt-1 border-top" style="border-color: #f1f5f9 !important;">
-                                                                @if($vln->ip_address)
-                                                                    <span class="vlan-meta-tag" title="IP Address">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="3.6" y1="9" x2="20.4" y2="9" /><line x1="3.6" y1="15" x2="20.4" y2="15" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>
-                                                                        {{ $vln->ip_address }}
-                                                                    </span>
-                                                                @endif
-                                                                @if($vln->district || $vln->regencie)
-                                                                    <span class="vlan-meta-tag" title="Wilayah Regional">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="11" r="3" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                                                                        {{ $vln->district->name ?? $vln->regencie->name }}
-                                                                    </span>
-                                                                @endif
-                                                                @if($vln->pakets && $vln->pakets->count() > 0)
-                                                                    <span class="vlan-meta-tag" title="Paket Terhubung">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-success"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /></svg>
-                                                                        {{ $vln->pakets->count() }} Paket
-                                                                    </span>
-                                                                @endif
-                                                                @if($vln->olts && $vln->olts->count() > 0)
-                                                                    <span class="vlan-meta-tag" title="OLT Terhubung">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="13" width="18" height="8" rx="2" /><line x1="17" y1="17" x2="17" y2="17.01" /><line x1="13" y1="17" x2="13" y2="17.01" /><line x1="15" y1="13" x2="15" y2="5" /></svg>
-                                                                        {{ $vln->olts->count() }} OLT
-                                                                    </span>
-                                                                @endif
-                                                                @if(!$vln->ip_address && !$vln->district && !$vln->regencie && (!$vln->pakets || $vln->pakets->count() == 0))
-                                                                    <span class="vlan-meta-tag text-muted" style="font-size:0.71rem;">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
-                                                                        Profil VLAN Siap Pakai
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                                <span class="invalid-feedback error_vlans_id"></span>
-
-                                {{-- Container Detail VLAN Terpilih --}}
-                                <div id="wz-vlan-details-container" class="mt-3 d-none"></div>
-                            </div>
-                            @else
-                            <div class="alert alert-warning d-flex align-items-center gap-2 mb-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
-                                <span>Anda tidak memiliki izin untuk mengonfigurasi VLAN. Silakan lanjutkan ke langkah berikutnya.</span>
-                            </div>
-                            @endcan
-                        </div>
-
-                        {{-- STEP 2: Info & Dukungan Layanan --}}
-                        <div class="wizard-step-content d-none" id="wz-step-2">
                             <div class="row g-3">
                                 @can('input halaman judul')
                                 <div class="col-md-6">
@@ -963,7 +836,30 @@
                                 </div>
                                 @endcan
 
-                                {{-- Row 2: Dukungan Layanan & Tipe Pelanggan --}}
+                                {{-- Inputan Nama VLAN, Nama Server, IP Address --}}
+                                @can('input halaman nama vlan')
+                                <div class="col-md-4">
+                                    <label class="form-label-premium">Nama VLAN</label>
+                                    <input type="text" name="vlan_name" id="wz_vlan_name" class="form-control form-control-premium" placeholder="Contoh: VLAN-UTAMA-01">
+                                    <span class="invalid-feedback error_vlan_name"></span>
+                                </div>
+                                @endcan
+                                @can('input halaman server')
+                                <div class="col-md-4">
+                                    <label class="form-label-premium">Nama Server</label>
+                                    <input type="text" name="server_name" id="wz_server_name" class="form-control form-control-premium" placeholder="Contoh: MIKROTIK-CORE-01">
+                                    <span class="invalid-feedback error_server_name"></span>
+                                </div>
+                                @endcan
+                                @can('input halaman ip address')
+                                <div class="col-md-4">
+                                    <label class="form-label-premium">IP Address</label>
+                                    <input type="text" name="ip_address" id="wz_ip_address" class="form-control form-control-premium" placeholder="Contoh: 192.168.10.1/24">
+                                    <span class="invalid-feedback error_ip_address"></span>
+                                </div>
+                                @endcan
+
+                                {{-- Dukungan Layanan & Tipe Pelanggan --}}
                                 @can('input halaman support')
                                 <div class="col-md-6">
                                     <div class="premium-card p-3 h-100 d-flex flex-column justify-content-between" id="card_support_layanan">
@@ -1087,18 +983,81 @@
                                     <span class="invalid-feedback error_is_verification"></span>
                                 </div>
                                 @endcan
+
+                                @can('input halaman opsi persetujuan')
+                                {{-- Card Khusus Pilihan Dokumen Persetujuan (Checkbox) --}}
+                                <div class="col-12" id="wz_container_persetujuan_id">
+                                    <div class="checklist-group-card p-3 bg-light border rounded" id="card_wz_persetujuan_id">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <label class="form-label-premium mb-0 d-flex align-items-center text-dark fw-bold">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2 flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 2H6a2 2 0 0 0 -2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+                                                <span>Pilih Dokumen Persetujuan <span class="text-danger">*</span></span>
+                                            </label>
+                                            <span class="counter-badge" id="badge-wz_persetujuan_id">0 dipilih</span>
+                                        </div>
+                                        <div class="row g-2 pt-1" id="checklist-box-wz_persetujuan_id">
+                                            @forelse ($persetujuans as $doc)
+                                                <div class="col-md-6 col-12">
+                                                    <label class="checklist-item d-flex align-items-center justify-content-between p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0" data-doc-id="{{ $doc->id }}">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <input type="checkbox" name="wz_persetujuan_doc" class="form-check-input m-0 flex-shrink-0 wz-persetujuan-checkbox" value="{{ $doc->id }}" data-title="{{ $doc->judul }}" {{ $doc->is_active ? 'data-default="1"' : '' }}>
+                                                            <span class="checklist-text fw-bold text-dark" style="font-size: 0.86rem;">{{ $doc->judul }}</span>
+                                                        </div>
+                                                        @if($doc->is_active)
+                                                            <span class="badge bg-success-lt text-success border border-success-subtle ms-2 flex-shrink-0" style="font-size:0.72rem;">Aktif Publik</span>
+                                                        @endif
+                                                    </label>
+                                                </div>
+                                            @empty
+                                                <div class="col-12 text-muted small p-2">Belum ada dokumen persetujuan. Silakan buat di menu Atur Dokumen Persetujuan.</div>
+                                            @endforelse
+                                        </div>
+                                        <input type="hidden" name="persetujuan_id" id="wz_persetujuan_id" value="">
+                                        <span class="invalid-feedback error_persetujuan_id"></span>
+                                    </div>
+                                </div>
+                                @endcan
                             </div>
                         </div>
 
-                        {{-- STEP 3: Jaringan & Layanan + User Ditugaskan --}}
-                        <div class="wizard-step-content d-none" id="wz-step-3">
+                        {{-- STEP 2: Jaringan & Layanan + Pilihan VLAN (Dropdown Select) --}}
+                        <div class="wizard-step-content d-none" id="wz-step-2">
                             <div class="row g-3">
-                                {{-- ODC --}}
+                                {{-- Pilihan VLAN (Checkbox Checklist) --}}
+                                @can('input halaman vlan')
+                                <div class="col-12">
+                                    <div class="checklist-group-card" id="card_wz_vlans_id">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <label class="form-label-premium mb-0 d-flex align-items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="15" width="6" height="6" rx="2" /><rect x="15" y="15" width="6" height="6" rx="2" /><rect x="9" y="3" width="6" height="6" rx="2" /><path d="M6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1" /><line x1="12" y1="9" x2="12" y2="12" /></svg>
+                                                Pilihan Data VLAN <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="counter-badge" id="badge-wz_vlans_id">0 dipilih</span>
+                                                <button type="button" class="btn-checklist-action btn-checklist-all" data-target="wz_vlans_id">Semua</button>
+                                                <button type="button" class="btn-checklist-action btn-checklist-clear" data-target="wz_vlans_id">Batal</button>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari VLAN..." data-target="wz_vlans_id">
+                                        <div class="checklist-scrollbox" id="checklist-box-wz_vlans_id">
+                                            @foreach ($vlans as $vln)
+                                                <label class="checklist-item" data-search="{{ strtolower($vln->name . ' ' . ($vln->vlan_name ?? '') . ' ' . ($vln->server_name ?? '')) }}">
+                                                    <input type="checkbox" name="vlans_id[]" class="form-check-input" value="{{ $vln->id }}" data-group="wz_vlans_id">
+                                                    <span class="checklist-text">VLAN {{ $vln->name }}{{ $vln->vlan_name ? ' - ' . $vln->vlan_name : '' }}{{ $vln->server_name ? ' (' . $vln->server_name . ')' : '' }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <span class="invalid-feedback error_vlans_id"></span>
+                                </div>
+                                @endcan
+
+                                {{-- ODC (Opsional) --}}
                                 @can('input halaman odc')
                                 <div class="col-md-6">
                                     <div class="checklist-group-card" id="card_wz_odcs_id">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <label class="form-label-premium mb-0">ODC Network <span class="text-danger">*</span></label>
+                                            <label class="form-label-premium mb-0">ODC Network <small class="text-muted fw-normal">(Opsional)</small></label>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="counter-badge" id="badge-wz_odcs_id">0 dipilih</span>
                                                 <button type="button" class="btn-checklist-action btn-checklist-all" data-target="wz_odcs_id">Semua</button>
@@ -1119,12 +1078,12 @@
                                 </div>
                                 @endcan
 
-                                {{-- ODP --}}
+                                {{-- ODP (Opsional) --}}
                                 @can('input halaman odp')
                                 <div class="col-md-6">
                                     <div class="checklist-group-card" id="card_wz_odps_id">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <label class="form-label-premium mb-0">ODP Network <span class="text-danger">*</span></label>
+                                            <label class="form-label-premium mb-0">ODP Network <small class="text-muted fw-normal">(Opsional)</small></label>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="counter-badge" id="badge-wz_odps_id">0 dipilih</span>
                                                 <button type="button" class="btn-checklist-action btn-checklist-all" data-target="wz_odps_id">Semua</button>
@@ -1279,8 +1238,8 @@
                             </div>
                         </div>
 
-                        {{-- STEP 4: PREVIEW RINGKASAN KONFIGURASI --}}
-                        <div class="wizard-step-content d-none" id="wz-step-4">
+                        {{-- STEP 3: PREVIEW RINGKASAN KONFIGURASI --}}
+                        <div class="wizard-step-content d-none" id="wz-step-3">
                             <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
                                 <div>
@@ -1302,6 +1261,18 @@
                                         <div class="preview-item">
                                             <span class="preview-label">Deskripsi:</span>
                                             <span class="preview-val" id="prev_desc">-</span>
+                                        </div>
+                                        <div class="preview-item">
+                                            <span class="preview-label">Nama VLAN:</span>
+                                            <span class="preview-val" id="prev_vlan_name_val">-</span>
+                                        </div>
+                                        <div class="preview-item">
+                                            <span class="preview-label">Nama Server:</span>
+                                            <span class="preview-val" id="prev_server_name_val">-</span>
+                                        </div>
+                                        <div class="preview-item">
+                                            <span class="preview-label">IP Address:</span>
+                                            <span class="preview-val" id="prev_ip_address_val">-</span>
                                         </div>
                                         <div class="preview-item">
                                             <span class="preview-label">Wilayah Area:</span>
@@ -1329,11 +1300,7 @@
                                             Konfigurasi VLAN & Layanan
                                         </h6>
                                         <div class="preview-item">
-                                            <span class="preview-label">Metode VLAN:</span>
-                                            <span class="preview-val" id="prev_vlan_mode">-</span>
-                                        </div>
-                                        <div class="preview-item">
-                                            <span class="preview-label">VLAN Terpilih / Baru:</span>
+                                            <span class="preview-label">VLAN Terpilih:</span>
                                             <span class="preview-val" id="prev_vlan_name">-</span>
                                         </div>
                                         <div class="preview-item">
@@ -1396,187 +1363,7 @@
         </div>
     </div>
 
-    {{-- ======================================================== --}}
-    {{-- MODAL UBAH VLAN LANGSUNG DARI WIZARD                      --}}
-    {{-- ======================================================== --}}
-    <div class="modal modal-blur fade" id="modal-wizard-edit-vlan" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" style="z-index: 1070;">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content shadow-lg border-0" style="border-radius: 14px; overflow: hidden;">
-                <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(99, 102, 241, 0.2); display:flex; align-items:center; justify-content:center;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="#818cf8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -2 -2l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
-                        </div>
-                        <div>
-                            <h5 class="modal-title fw-bold mb-0 text-white">Ubah Konfigurasi Data VLAN</h5>
-                            <small class="text-white-50" style="font-size: 0.78rem;">Perbarui data segmen VLAN dan perangkat yang terhubung secara realtime</small>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4" style="background-color: #f8fafc; max-height: calc(85vh - 160px); overflow-y: auto;">
-                    <form id="form-wizard-edit-vlan" autocomplete="off">
-                        @csrf
-                        <input type="hidden" id="edit_wz_vlan_id" name="id">
 
-                        <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 10px;">
-                            <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect x="3" y="15" width="6" height="6" rx="2" /><rect x="15" y="15" width="6" height="6" rx="2" /><rect x="9" y="3" width="6" height="6" rx="2" /><path d="M6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1" /><line x1="12" y1="9" x2="12" y2="12" /></svg>
-                                Identitas & Konfigurasi Server
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label-premium">Nomor VLAN <span class="text-danger">*</span></label>
-                                    <input type="text" name="name" id="edit_wz_vlan_number" class="form-control form-control-premium" placeholder="Contoh: 100" required>
-                                    <span class="invalid-feedback error_edit_vlan_name"></span>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-premium">Nama VLAN</label>
-                                    <input type="text" name="vlan_name" id="edit_wz_vlan_name" class="form-control form-control-premium" placeholder="Contoh: VLAN-UTAMA-01">
-                                    <span class="invalid-feedback error_edit_vlan_vlan_name"></span>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-premium">Nama Server</label>
-                                    <input type="text" name="server_name" id="edit_wz_vlan_server" class="form-control form-control-premium" placeholder="Contoh: MIKROTIK-CORE-01">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-premium">IP Address</label>
-                                    <input type="text" name="ip_address" id="edit_wz_vlan_ip" class="form-control form-control-premium" placeholder="Contoh: 192.168.10.1/24">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label-premium mb-2">Dukungan Layanan</label>
-                                    <div class="d-flex align-items-center gap-4 p-2.5 rounded bg-light border">
-                                        <label class="form-check form-check-inline mb-0 cursor-pointer">
-                                            <input class="form-check-input" type="checkbox" name="support_pppoe" id="edit_wz_vlan_support_pppoe" value="1">
-                                            <span class="form-check-label fw-semibold text-dark">Support PPPoE</span>
-                                        </label>
-                                        <label class="form-check form-check-inline mb-0 cursor-pointer">
-                                            <input class="form-check-input" type="checkbox" name="support_voucher" id="edit_wz_vlan_support_voucher" value="1">
-                                            <span class="form-check-label fw-semibold text-dark">Support Voucher</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 10px;">
-                            <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><circle cx="12" cy="11" r="3" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                                Lokasi Wilayah Regional
-                            </div>
-                            <div class="row g-2">
-                                <div class="col-md-3">
-                                    <label class="form-label-premium">Kabupaten/Kota</label>
-                                    <select name="regencie_id" id="edit_wz_vlan_regencie_id" class="form-select form-control-premium">
-                                        <option value="">-- Pilih Kabupaten --</option>
-                                        @foreach ($regencies as $reg)
-                                            <option value="{{ $reg->id }}">{{ $reg->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label-premium">Kecamatan</label>
-                                    <select name="district_id" id="edit_wz_vlan_district_id" class="form-select form-control-premium">
-                                        <option value="">-- Pilih Kecamatan --</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label-premium">Desa</label>
-                                    <select name="village_id" id="edit_wz_vlan_village_id" class="form-select form-control-premium">
-                                        <option value="">-- Pilih Desa --</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label-premium">Kampung</label>
-                                    <select name="hometown_id" id="edit_wz_vlan_hometown_id" class="form-select form-control-premium">
-                                        <option value="">-- Pilih Kampung --</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card p-3 border-0 shadow-sm" style="border-radius: 10px;">
-                            <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-success"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /></svg>
-                                Perangkat Jaringan & Profil Paket Terhubung
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <label class="form-label-premium mb-0">OLT Network</label>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none btn-edit-vlan-check-all" data-target="olts">Pilih Semua</button>
-                                    </div>
-                                    <div class="bg-white p-2 rounded border" style="max-height: 120px; overflow-y: auto;">
-                                        @foreach ($olts as $ol)
-                                            <label class="form-check mb-1 cursor-pointer">
-                                                <input type="checkbox" name="olts[]" class="form-check-input edit-wz-olt-cb" value="{{ $ol->id }}">
-                                                <span class="form-check-label text-dark small">{{ $ol->name }} ({{ $ol->code ?? '-' }})</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <label class="form-label-premium mb-0">Mic Radius</label>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none btn-edit-vlan-check-all" data-target="radiuses">Pilih Semua</button>
-                                    </div>
-                                    <div class="bg-white p-2 rounded border" style="max-height: 120px; overflow-y: auto;">
-                                        @foreach ($micRadius as $mr)
-                                            <label class="form-check mb-1 cursor-pointer">
-                                                <input type="checkbox" name="mix_radiuses[]" class="form-check-input edit-wz-radius-cb" value="{{ $mr->id }}">
-                                                <span class="form-check-label text-dark small">{{ $mr->name }} ({{ $mr->code ?? '-' }})</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <label class="form-label-premium mb-0">Tipe Paket</label>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none btn-edit-vlan-check-all" data-target="pakets">Pilih Semua</button>
-                                    </div>
-                                    <div class="bg-white p-2 rounded border" style="max-height: 120px; overflow-y: auto;">
-                                        @foreach ($paket as $pk)
-                                            <label class="form-check mb-1 cursor-pointer">
-                                                <input type="checkbox" name="pakets[]" class="form-check-input edit-wz-paket-cb" value="{{ $pk->id }}">
-                                                <span class="form-check-label text-dark small">{{ $pk->name }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <label class="form-label-premium mb-0">Tipe Pembayaran</label>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none btn-edit-vlan-check-all" data-target="prices">Pilih Semua</button>
-                                    </div>
-                                    <div class="bg-white p-2 rounded border" style="max-height: 120px; overflow-y: auto;">
-                                        @foreach ($price as $pr)
-                                            <label class="form-check mb-1 cursor-pointer">
-                                                <input type="checkbox" name="prices[]" class="form-check-input edit-wz-price-cb" value="{{ $pr->id }}">
-                                                <span class="form-check-label text-dark small">{{ $pr->name }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer bg-white d-flex justify-content-between p-3 border-top">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" id="btn-save-wizard-edit-vlan">
-                        <span id="btnSaveWzEditVlanText" class="d-flex align-items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-                            Simpan Perubahan VLAN
-                        </span>
-                        <span id="btnSaveWzEditVlanLoading" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- ======================================================== --}}
     {{-- ======================================================== --}}
@@ -1699,17 +1486,108 @@
                                     </div>
                                     @endcan
 
-                                    {{-- Row 2: Dukungan Layanan & Tipe Pelanggan --}}
+                                    {{-- Row 2: Info VLAN, Server, IP Address (Tersimpan langsung di Halaman) --}}
+                                    @can('input halaman nama vlan')
+                                    <div class="col-md-4">
+                                        <label for="vlan_name" class="form-label-premium">Nama VLAN <small class="text-muted fw-normal">(Opsional)</small></label>
+                                        <input type="text" name="vlan_name" id="vlan_name" class="form-control form-control-premium" placeholder="Contoh: VLAN-WARGA-01">
+                                        <span class="invalid-feedback error_vlan_name"></span>
+                                    </div>
+                                    @endcan
+                                    @can('input halaman server')
+                                    <div class="col-md-4">
+                                        <label for="server_name" class="form-label-premium">Nama Server <small class="text-muted fw-normal">(Opsional)</small></label>
+                                        <input type="text" name="server_name" id="server_name" class="form-control form-control-premium" placeholder="Contoh: MIKROTIK-CORE-01">
+                                        <span class="invalid-feedback error_server_name"></span>
+                                    </div>
+                                    @endcan
+                                    @can('input halaman ip address')
+                                    <div class="col-md-4">
+                                        <label for="ip_address" class="form-label-premium">IP Address <small class="text-muted fw-normal">(Opsional)</small></label>
+                                        <input type="text" name="ip_address" id="ip_address" class="form-control form-control-premium" placeholder="Contoh: 192.168.10.1/24">
+                                        <span class="invalid-feedback error_ip_address"></span>
+                                    </div>
+                                    @endcan
+
+                                    {{-- Row 3: Opsi Validasi & Kebijakan Halaman --}}
+                                    @can('input halaman opsi ktp')
+                                    <div class="col-md-4">
+                                        <label for="is_ktp" class="form-label-premium">Apakah Menggunakan KTP <span class="text-danger">*</span></label>
+                                        <select name="is_ktp" id="is_ktp" class="form-select form-control-premium">
+                                            <option value="aktif">Aktif</option>
+                                            <option value="tidak">Tidak</option>
+                                        </select>
+                                        <span class="invalid-feedback error_is_ktp"></span>
+                                    </div>
+                                    @endcan
+                                    @can('input halaman opsi persetujuan')
+                                    <div class="col-md-4">
+                                        <label for="is_persetujuan" class="form-label-premium">Apakah Menggunakan Persetujuan <span class="text-danger">*</span></label>
+                                        <select name="is_persetujuan" id="is_persetujuan" class="form-select form-control-premium">
+                                            <option value="aktif">Aktif</option>
+                                            <option value="tidak">Tidak</option>
+                                        </select>
+                                        <span class="invalid-feedback error_is_persetujuan"></span>
+                                    </div>
+                                    @endcan
+                                    @can('input halaman opsi cek kontak')
+                                    <div class="col-md-4">
+                                        <label for="is_verification" class="form-label-premium">Cek Email & No HP <span class="text-danger">*</span></label>
+                                        <select name="is_verification" id="is_verification" class="form-select form-control-premium">
+                                            <option value="aktif">Aktif (Wajib Cek)</option>
+                                            <option value="tidak">Tidak Aktif (Tanpa Cek)</option>
+                                        </select>
+                                        <span class="invalid-feedback error_is_verification"></span>
+                                    </div>
+                                    @endcan
+
+                                    @can('input halaman opsi persetujuan')
+                                    {{-- Card Khusus Pilihan Dokumen Persetujuan (Checkbox) --}}
+                                    <div class="col-12" id="edit_container_persetujuan_id">
+                                        <div class="checklist-group-card p-3 bg-light border rounded" id="card_edit_persetujuan_id">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <label class="form-label-premium mb-0 d-flex align-items-center text-dark fw-bold">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2 flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 2H6a2 2 0 0 0 -2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+                                                    <span>Pilih Dokumen Persetujuan <span class="text-danger">*</span></span>
+                                                </label>
+                                                <span class="counter-badge" id="badge-edit_persetujuan_id">0 dipilih</span>
+                                            </div>
+                                            <div class="row g-2 pt-1" id="checklist-box-edit_persetujuan_id">
+                                                @forelse ($persetujuans as $doc)
+                                                    <div class="col-md-6 col-12">
+                                                        <label class="checklist-item d-flex align-items-center justify-content-between p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0" data-doc-id="{{ $doc->id }}">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <input type="checkbox" name="edit_persetujuan_doc" class="form-check-input m-0 flex-shrink-0 edit-persetujuan-checkbox" value="{{ $doc->id }}" data-title="{{ $doc->judul }}" {{ $doc->is_active ? 'data-default="1"' : '' }}>
+                                                                <span class="checklist-text fw-bold text-dark" style="font-size: 0.86rem;">{{ $doc->judul }}</span>
+                                                            </div>
+                                                            @if($doc->is_active)
+                                                                <span class="badge bg-success-lt text-success border border-success-subtle ms-2 flex-shrink-0" style="font-size:0.72rem;">Aktif Publik</span>
+                                                            @endif
+                                                        </label>
+                                                    </div>
+                                                @empty
+                                                    <div class="col-12 text-muted small p-2">Belum ada dokumen persetujuan. Silakan buat di menu Atur Dokumen Persetujuan.</div>
+                                                @endforelse
+                                            </div>
+                                            <input type="hidden" name="persetujuan_id" id="persetujuan_id" value="">
+                                            <span class="invalid-feedback error_persetujuan_id"></span>
+                                        </div>
+                                    </div>
+                                    @endcan
+
+                                    {{-- Row 4: Dukungan Layanan & Tipe Pelanggan --}}
                                     @can('input halaman support')
                                     <div class="col-md-6" id="edit-support-section">
-                                        <div class="p-3 bg-light border rounded h-100 d-flex flex-column justify-content-between">
-                                            <label class="form-label-premium fw-bold mb-2 d-flex align-items-center text-dark">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2 flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>
-                                                <span>Dukungan Layanan Halaman <span class="text-danger">*</span></span>
-                                            </label>
+                                        <div class="checklist-group-card p-3 bg-light border rounded h-100 d-flex flex-column justify-content-between" id="card_edit_support_layanan">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <label class="form-label-premium mb-0 d-flex align-items-center text-dark fw-bold">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2 flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>
+                                                    <span>Dukungan Layanan Halaman <span class="text-danger">*</span></span>
+                                                </label>
+                                            </div>
                                             <div class="row g-2 pt-1">
                                                 <div class="col-6">
-                                                    <label class="checklist-item d-flex align-items-center gap-2 p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0">
+                                                    <label class="checklist-item d-flex align-items-center gap-2 p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0" id="card_edit_chk_pppoe">
                                                         <input type="checkbox" name="support_pppoe" id="edit_support_pppoe" value="1" class="form-check-input m-0 flex-shrink-0">
                                                         <span class="fw-bold d-inline-flex align-items-center gap-1.5 text-dark" style="font-size:0.86rem;">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-primary flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3" /></svg>
@@ -1718,7 +1596,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="col-6">
-                                                    <label class="checklist-item d-flex align-items-center gap-2 p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0">
+                                                    <label class="checklist-item d-flex align-items-center gap-2 p-2 px-3 bg-white border rounded cursor-pointer w-100 mb-0" id="card_edit_chk_voucher">
                                                         <input type="checkbox" name="support_voucher" id="edit_support_voucher" value="1" class="form-check-input m-0 flex-shrink-0">
                                                         <span class="fw-bold d-inline-flex align-items-center gap-1.5 text-dark" style="font-size:0.86rem;">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-warning flex-shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="15" y1="5" x2="15" y2="7" /><line x1="15" y1="11" x2="15" y2="13" /><line x1="15" y1="17" x2="15" y2="19" /><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" /></svg>
@@ -1728,10 +1606,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <span class="invalid-feedback error_support_layanan"></span>
                                     </div>
                                     @endcan
 
-                                    @can('input halaman tipe pelanggan')
+                                    @if(Auth::user()->can('input halaman tipe pelanggan') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card p-3 bg-light border rounded h-100 d-flex flex-column justify-content-between" id="card_tipe_pelanggan_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1754,36 +1633,7 @@
                                         </div>
                                         <span class="invalid-feedback error_tipe_pelanggan_id"></span>
                                     </div>
-                                    @endcan
-
-                                    {{-- Row 3: Opsi Validasi & Kebijakan Halaman --}}
-                                    @can('input halaman opsi ktp')
-                                    <div class="col-md-4">
-                                        <label for="is_ktp" class="form-label-premium">Apakah Menggunakan KTP <span class="text-danger">*</span></label>
-                                        <select name="is_ktp" id="is_ktp" class="form-select form-control-premium">
-                                            <option value="aktif">Aktif</option>
-                                            <option value="tidak">Tidak</option>
-                                        </select>
-                                    </div>
-                                    @endcan
-                                    @can('input halaman opsi persetujuan')
-                                    <div class="col-md-4">
-                                        <label for="is_persetujuan" class="form-label-premium">Apakah Menggunakan Persetujuan <span class="text-danger">*</span></label>
-                                        <select name="is_persetujuan" id="is_persetujuan" class="form-select form-control-premium">
-                                            <option value="aktif">Aktif</option>
-                                            <option value="tidak">Tidak</option>
-                                        </select>
-                                    </div>
-                                    @endcan
-                                    @can('input halaman opsi cek kontak')
-                                    <div class="col-md-4">
-                                        <label for="is_verification" class="form-label-premium">Cek Email & No HP <span class="text-danger">*</span></label>
-                                        <select name="is_verification" id="is_verification" class="form-select form-control-premium">
-                                            <option value="aktif">Aktif (Wajib Cek)</option>
-                                            <option value="tidak">Tidak Aktif (Tanpa Cek)</option>
-                                        </select>
-                                    </div>
-                                    @endcan
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -1850,9 +1700,9 @@
                                     Perangkat Jaringan & Layanan
                                 </h6>
                                 <div class="row g-3">
-                                    {{-- VLAN --}}
-                                    @can('input halaman vlan')
-                                    <div class="col-md-6">
+                                    {{-- VLAN (Checkbox Checklist) --}}
+                                    @if(Auth::user()->can('input halaman vlan') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    <div class="col-12">
                                         <div class="checklist-group-card" id="card_vlans_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
                                                 <label class="form-label-premium mb-0 d-flex align-items-center gap-1">
@@ -1868,42 +1718,23 @@
                                             <input type="text" class="form-control checklist-search-input mb-2" placeholder="Cari VLAN..." data-target="vlans_id">
                                             <div class="checklist-scrollbox" id="checklist-box-vlans_id">
                                                 @foreach ($vlans as $vln)
-                                                    <label class="checklist-item" id="edit-vlan-item-{{ $vln->id }}" data-search="{{ strtolower($vln->name . ' ' . ($vln->vlan_name ?? '') . ' ' . ($vln->server_name ?? '')) }}">
+                                                    <label class="checklist-item" data-search="{{ strtolower($vln->name . ' ' . ($vln->vlan_name ?? '') . ' ' . ($vln->server_name ?? '')) }}">
                                                         <input type="checkbox" name="vlans_id[]" class="form-check-input" value="{{ $vln->id }}" data-group="vlans_id">
-                                                        <div class="d-flex align-items-center justify-content-between w-100 ms-1 flex-wrap gap-1">
-                                                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                                <span class="vlan-tag-pill" style="font-size:0.72rem; padding: 0.15rem 0.45rem;">VLAN {{ $vln->name }}</span>
-                                                                @if($vln->vlan_name)
-                                                                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-edit-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">{{ $vln->vlan_name }}</span>
-                                                                @endif
-                                                                <span class="checklist-text fw-bold text-dark vlan-edit-card-server-text" style="font-size:0.83rem;">{{ $vln->server_name ?? ('Segment #' . $vln->name) }}</span>
-                                                            </div>
-                                                            <div class="d-flex align-items-center gap-1.5 ms-auto">
-                                                                @if($vln->support_pppoe)
-                                                                    <span class="feature-pill pill-pppoe" style="font-size: 0.65rem;">PPPoE</span>
-                                                                @endif
-                                                                @if($vln->support_voucher)
-                                                                    <span class="feature-pill pill-voucher" style="font-size: 0.65rem;">Voucher</span>
-                                                                @endif
-                                                                <button type="button" class="btn btn-xs btn-outline-primary btn-edit-wizard-vlan py-0 px-1.5 ms-1" data-id="{{ $vln->id }}" title="Ubah Data VLAN ini" style="font-size: 0.72rem; border-radius: 4px;">
-                                                                    <i class="ti ti-edit"></i> Ubah
-                                                                </button>
-                                                            </div>
-                                                        </div>
+                                                        <span class="checklist-text">VLAN {{ $vln->name }}{{ $vln->vlan_name ? ' - ' . $vln->vlan_name : '' }}{{ $vln->server_name ? ' (' . $vln->server_name . ')' : '' }}</span>
                                                     </label>
                                                 @endforeach
                                             </div>
                                         </div>
                                         <span class="invalid-feedback error_vlans_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
-                                    {{-- ODC --}}
-                                    @can('input halaman odc')
+                                    {{-- ODC (Opsional) --}}
+                                    @if(Auth::user()->can('input halaman odc') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_odcs_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <label class="form-label-premium mb-0">ODC Network <span class="text-danger">*</span></label>
+                                                <label class="form-label-premium mb-0">ODC Network <small class="text-muted fw-normal">(Opsional)</small></label>
                                                 <span class="counter-badge" id="badge-odcs_id">0 dipilih</span>
                                             </div>
                                             <div class="checklist-scrollbox" id="checklist-box-odcs_id">
@@ -1917,14 +1748,14 @@
                                         </div>
                                         <span class="invalid-feedback error_odcs_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
-                                    {{-- ODP --}}
-                                    @can('input halaman odp')
+                                    {{-- ODP (Opsional) --}}
+                                    @if(Auth::user()->can('input halaman odp') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_odps_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <label class="form-label-premium mb-0">ODP Network <span class="text-danger">*</span></label>
+                                                <label class="form-label-premium mb-0">ODP Network <small class="text-muted fw-normal">(Opsional)</small></label>
                                                 <span class="counter-badge" id="badge-odps_id">0 dipilih</span>
                                             </div>
                                             <div class="checklist-scrollbox" id="checklist-box-odps_id">
@@ -1938,10 +1769,10 @@
                                         </div>
                                         <span class="invalid-feedback error_odps_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
                                     {{-- OLT --}}
-                                    @can('input halaman olt')
+                                    @if(Auth::user()->can('input halaman olt') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_olts_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1959,10 +1790,10 @@
                                         </div>
                                         <span class="invalid-feedback error_olts_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
                                     {{-- Paket --}}
-                                    @can('input halaman paket')
+                                    @if(Auth::user()->can('input halaman paket') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_paket_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1980,10 +1811,10 @@
                                         </div>
                                         <span class="invalid-feedback error_paket_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
                                     {{-- Radius --}}
-                                    @can('input halaman mic radius')
+                                    @if(Auth::user()->can('input halaman mic radius') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_mic_radius_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -2001,10 +1832,10 @@
                                         </div>
                                         <span class="invalid-feedback error_mic_radius_id"></span>
                                     </div>
-                                    @endcan
+                                    @endif
 
                                     {{-- Price --}}
-                                    @can('input halaman pembayaran')
+                                    @if(Auth::user()->can('input halaman pembayaran') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_price">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -2022,7 +1853,7 @@
                                         </div>
                                         <span class="invalid-feedback error_price"></span>
                                     </div>
-                                    @endcan
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -2181,19 +2012,13 @@
         }
 
         // ============================================================
-        // 2. STEP WIZARD 4-STEP LOGIC (TAMBAH HALAMAN LENGKAP)
+        // 2. STEP WIZARD 3-STEP LOGIC (TAMBAH HALAMAN LENGKAP)
         // ============================================================
         let currentStep = 1;
 
         function initializeWizard() {
             $('#btnAddWizard').on('click', function() {
                 openWizardModal();
-            });
-
-            // Auto sync & detail saat VLAN di step 1 dipilih/berubah
-            $(document).on('change', '.wz-vlan-cb', function() {
-                syncWizardWithSelectedVlans();
-                renderSelectedVlanDetails();
             });
 
             // Wizard Navigation Buttons
@@ -2226,481 +2051,103 @@
                 submitWizardForm();
             });
 
-            // Cascading dropdowns for Inline VLAN Edit Modal
-            $(document).on('change', '#edit_wz_vlan_regencie_id', function() {
-                loadCascadingWilayah('edit_wz_vlan', $(this).val());
-            });
-
-            $(document).on('change', '#edit_wz_vlan_district_id', function() {
-                const districtId = $(this).val();
-                const villageSelect = $('#edit_wz_vlan_village_id');
-                const hometownSelect = $('#edit_wz_vlan_hometown_id');
-
-                villageSelect.empty().append('<option value="">-- Pilih Desa --</option>');
-                hometownSelect.empty().append('<option value="">-- Pilih Kampung --</option>');
-
-                if (!districtId) return;
-
-                $.get("{{ url('master-network/vlan/villages') }}/" + districtId, function(res) {
-                    if (res.data) {
-                        (res.data.villages || []).forEach(v => {
-                            villageSelect.append(`<option value="${v.id}">${v.name}</option>`);
-                        });
-                        (res.data.hometowns || []).forEach(h => {
-                            hometownSelect.append(`<option value="${h.id}">${h.name}</option>`);
-                        });
-                    }
-                });
-            });
-
-            // Buka Modal Edit VLAN dari Wizard / Tab Edit Halaman
-            $(document).on('click', '.btn-edit-wizard-vlan', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const vlanId = parseInt($(this).data('id'));
-                const data = (typeof VLAN_DATA_MAP !== 'undefined') ? VLAN_DATA_MAP[vlanId] : null;
-
-                $('#form-wizard-edit-vlan')[0].reset();
-                $('#edit_wz_vlan_id').val(vlanId);
-                $('#form-wizard-edit-vlan .form-control, #form-wizard-edit-vlan .form-select').removeClass('is-invalid');
-                $('#form-wizard-edit-vlan .invalid-feedback').text('').hide();
-
-                if (data) {
-                    $('#edit_wz_vlan_number').val(data.name || '');
-                    $('#edit_wz_vlan_name').val(data.vlan_name || '');
-                    $('#edit_wz_vlan_server').val(data.server_name || '');
-                    $('#edit_wz_vlan_ip').val(data.ip_address || '');
-                    $('#edit_wz_vlan_support_pppoe').prop('checked', !!data.support_pppoe);
-                    $('#edit_wz_vlan_support_voucher').prop('checked', !!data.support_voucher);
-
-                    if (data.regencie_id) {
-                        $('#edit_wz_vlan_regencie_id').val(data.regencie_id);
-                        loadCascadingWilayah('edit_wz_vlan', data.regencie_id, data.district_id, data.village_id, data.hometown_id);
-                    } else {
-                        $('#edit_wz_vlan_regencie_id').val('');
-                        $('#edit_wz_vlan_district_id').empty().append('<option value="">-- Pilih Kecamatan --</option>');
-                        $('#edit_wz_vlan_village_id').empty().append('<option value="">-- Pilih Desa --</option>');
-                        $('#edit_wz_vlan_hometown_id').empty().append('<option value="">-- Pilih Kampung --</option>');
-                    }
-
-                    const checkArr = (cls, arr) => {
-                        const ids = (arr || []).map(Number);
-                        $(`.${cls}`).each(function() {
-                            $(this).prop('checked', ids.includes(parseInt(this.value)));
-                        });
-                    };
-
-                    checkArr('edit-wz-olt-cb', data.olts_id);
-                    checkArr('edit-wz-radius-cb', data.mic_radius_id);
-                    checkArr('edit-wz-paket-cb', data.paket_id);
-                    checkArr('edit-wz-price-cb', data.price);
-                }
-
-                // AJAX fetch to guarantee latest server state
-                $.get("{{ url('master-network/vlan') }}/" + vlanId + "/show", function(res) {
-                    if (res && res.data) {
-                        const d = res.data;
-                        $('#edit_wz_vlan_number').val(d.name || '');
-                        $('#edit_wz_vlan_name').val(d.vlan_name || '');
-                        $('#edit_wz_vlan_server').val(d.server_name || '');
-                        $('#edit_wz_vlan_ip').val(d.ip_address || '');
-                        $('#edit_wz_vlan_support_pppoe').prop('checked', !!d.support_pppoe);
-                        $('#edit_wz_vlan_support_voucher').prop('checked', !!d.support_voucher);
-
-                        if (d.regencie_id) {
-                            $('#edit_wz_vlan_regencie_id').val(d.regencie_id);
-                            loadCascadingWilayah('edit_wz_vlan', d.regencie_id, d.district_id, d.village_id, d.hometown_id);
-                        }
-
-                        const checkArr = (cls, arr) => {
-                            const ids = (arr || []).map(Number);
-                            $(`.${cls}`).each(function() {
-                                $(this).prop('checked', ids.includes(parseInt(this.value)));
-                            });
-                        };
-
-                        checkArr('edit-wz-olt-cb', d.olt_ids);
-                        checkArr('edit-wz-radius-cb', d.mix_radius_ids);
-                        checkArr('edit-wz-paket-cb', d.paket_ids);
-                        checkArr('edit-wz-price-cb', d.price_ids);
-                    }
-                });
-
-                $('#modal-wizard-edit-vlan').modal('show');
-            });
-
-            // Quick check all toggle in edit VLAN modal
-            $(document).on('click', '.btn-edit-vlan-check-all', function(e) {
-                e.preventDefault();
-                const target = $(this).data('target');
-                let cls = '';
-                if (target === 'olts') cls = 'edit-wz-olt-cb';
-                else if (target === 'radiuses') cls = 'edit-wz-radius-cb';
-                else if (target === 'pakets') cls = 'edit-wz-paket-cb';
-                else if (target === 'prices') cls = 'edit-wz-price-cb';
-
-                const checkboxes = $(`.${cls}`);
-                const allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-                checkboxes.prop('checked', !allChecked);
-                $(this).text(!allChecked ? 'Batal Semua' : 'Pilih Semua');
-            });
-
-            // Simpan Perubahan VLAN dari Modal Edit Wizard
-            $('#btn-save-wizard-edit-vlan').on('click', function(e) {
-                e.preventDefault();
-                const vlanId = $('#edit_wz_vlan_id').val();
-                if (!vlanId) return;
-
-                const btn = $(this);
-                btn.prop('disabled', true);
-                $('#btnSaveWzEditVlanText').addClass('d-none');
-                $('#btnSaveWzEditVlanLoading').removeClass('d-none');
-
-                const formData = new FormData($('#form-wizard-edit-vlan')[0]);
-                formData.append('_method', 'PUT');
-                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
-                $.ajax({
-                    url: "{{ url('master-network/vlan') }}/" + vlanId + "/update",
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false
-                })
-                .done(function(response) {
-                    btn.prop('disabled', false);
-                    $('#btnSaveWzEditVlanText').removeClass('d-none');
-                    $('#btnSaveWzEditVlanLoading').addClass('d-none');
-
-                    if (response.errors) {
-                        showValidationErrors(response.errors);
-                        return;
-                    }
-
-                    // Update local VLAN_DATA_MAP
-                    const num = $('#edit_wz_vlan_number').val();
-                    const vname = $('#edit_wz_vlan_name').val();
-                    const sname = $('#edit_wz_vlan_server').val();
-                    const ip = $('#edit_wz_vlan_ip').val();
-                    const pppoe = $('#edit_wz_vlan_support_pppoe').is(':checked');
-                    const voucher = $('#edit_wz_vlan_support_voucher').is(':checked');
-                    const regId = $('#edit_wz_vlan_regencie_id').val();
-                    const distId = $('#edit_wz_vlan_district_id').val();
-                    const vilId = $('#edit_wz_vlan_village_id').val();
-                    const homeId = $('#edit_wz_vlan_hometown_id').val();
-                    const regName = $('#edit_wz_vlan_regencie_id option:selected').val() ? $('#edit_wz_vlan_regencie_id option:selected').text() : '';
-                    const distName = $('#edit_wz_vlan_district_id option:selected').val() ? $('#edit_wz_vlan_district_id option:selected').text() : '';
-                    const vilName = $('#edit_wz_vlan_village_id option:selected').val() ? $('#edit_wz_vlan_village_id option:selected').text() : '';
-                    const homeName = $('#edit_wz_vlan_hometown_id option:selected').val() ? $('#edit_wz_vlan_hometown_id option:selected').text() : '';
-
-                    const getCheckedVals = cls => $(`.${cls}:checked`).map(function() { return parseInt(this.value); }).get();
-                    const getCheckedLabels = cls => $(`.${cls}:checked`).map(function() { return $(this).closest('label').text().trim(); }).get();
-
-                    VLAN_DATA_MAP[vlanId] = {
-                        ...(VLAN_DATA_MAP[vlanId] || {}),
-                        id: parseInt(vlanId),
-                        name: num,
-                        vlan_name: vname,
-                        server_name: sname,
-                        ip_address: ip,
-                        support_pppoe: pppoe,
-                        support_voucher: voucher,
-                        regencie_id: regId ? parseInt(regId) : null,
-                        regencie_name: regName,
-                        district_id: distId ? parseInt(distId) : null,
-                        district_name: distName,
-                        village_id: vilId ? parseInt(vilId) : null,
-                        village_name: vilName,
-                        hometown_id: homeId ? parseInt(homeId) : null,
-                        hometown_name: homeName,
-                        olts_id: getCheckedVals('edit-wz-olt-cb'),
-                        olts_names: getCheckedLabels('edit-wz-olt-cb'),
-                        mic_radius_id: getCheckedVals('edit-wz-radius-cb'),
-                        mic_radius_names: getCheckedLabels('edit-wz-radius-cb'),
-                        paket_id: getCheckedVals('edit-wz-paket-cb'),
-                        paket_names: getCheckedLabels('edit-wz-paket-cb'),
-                        price: getCheckedVals('edit-wz-price-cb'),
-                        price_names: getCheckedLabels('edit-wz-price-cb'),
-                    };
-
-                    // Update card element in Step 1 checklist
-                    const card = $(`#wz-vlan-card-${vlanId}`);
-                    if (card.length) {
-                        card.find('.vlan-card-num-text').text('VLAN ' + num);
-                        card.find('.checklist-text').text(num);
-                        card.find('.vlan-card-server-text').html(`
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="4" width="18" height="8" rx="2" /><rect x="3" y="12" width="18" height="8" rx="2" /><line x1="7" y1="8" x2="7" y2="8.01" /><line x1="7" y1="16" x2="7" y2="16.01" /></svg>
-                            ${sname || ('#' + num)}
-                        `);
-                        let vnameEl = card.find('.vlan-card-vname-text');
-                        if (vname) {
-                            if (vnameEl.length) {
-                                vnameEl.text(vname);
-                            } else {
-                                card.find('.vlan-tag-pill').after(`<span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">${vname}</span>`);
-                            }
-                        } else if (vnameEl.length) {
-                            vnameEl.remove();
-                        }
-                        card.attr('data-search', `${num} ${vname} ${sname} ${ip} ${distName} ${regName}`.toLowerCase());
-                    }
-
-                    $('#modal-wizard-edit-vlan').modal('hide');
-                    showSuccessMessage('Data VLAN berhasil diperbarui.');
-
-                    // Sync card in Tab Edit Halaman (Offcanvas Kelola)
-                    const editItem = $(`#edit-vlan-item-${vlanId}`);
-                    if (editItem.length) {
-                        editItem.find('.vlan-tag-pill').text('VLAN ' + num);
-                        editItem.find('.vlan-edit-card-server-text').text(sname || ('Segment #' + num));
-                        let editVnameEl = editItem.find('.vlan-edit-card-vname-text');
-                        if (vname) {
-                            if (editVnameEl.length) {
-                                editVnameEl.text(vname);
-                            } else {
-                                editItem.find('.vlan-tag-pill').after(`<span class="badge bg-purple-subtle text-purple border border-purple-subtle vlan-edit-card-vname-text" style="font-size: 0.72rem; padding: 2px 6px;">${vname}</span>`);
-                            }
-                        } else if (editVnameEl.length) {
-                            editVnameEl.remove();
-                        }
-                        editItem.attr('data-search', `${num} ${vname} ${sname}`.toLowerCase());
-                    }
-
-                    // Reload table if exists
-                    if (typeof table !== 'undefined' && table) {
-                        table.ajax.reload(null, false);
-                    }
-
-                    // Refresh detail preview and sync with wizard steps
-                    renderSelectedVlanDetails();
-                    syncWizardWithSelectedVlans();
-                })
-                .fail(function(xhr) {
-                    btn.prop('disabled', false);
-                    $('#btnSaveWzEditVlanText').removeClass('d-none');
-                    $('#btnSaveWzEditVlanLoading').addClass('d-none');
-                    const res = xhr.responseJSON;
-                    if (res && res.errors) {
-                        showValidationErrors(res.errors);
-                    } else {
-                        showErrorMessage(res?.message || 'Gagal menyimpan perubahan VLAN.');
-                    }
-                });
-            });
-        }
-
-        /**
-         * Render Card Detail VLAN Terpilih di Step 1
-         */
-        function renderSelectedVlanDetails() {
-            const container = $('#wz-vlan-details-container');
-            const checkedBoxes = $('#checklist-box-wz_vlans_id input[type="checkbox"]:checked');
-
-            if (checkedBoxes.length === 0) {
-                container.empty().addClass('d-none');
-                return;
-            }
-
-            container.removeClass('d-none');
-
-            let html = `
-                <div class="card border border-primary-subtle shadow-sm mb-0" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
-                    <div class="card-header py-2.5 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(241, 245, 249, 0.6) 100%);">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
-                                Detail Konfigurasi VLAN Terpilih
-                            </span>
-                            <span class="text-secondary small fw-medium">(${checkedBoxes.length} VLAN aktif dipilih)</span>
-                        </div>
-                        <small class="text-muted" style="font-size: 0.74rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-info me-0.5"><polyline points="20 6 9 17 4 12" /></svg>
-                            Otomatis sinkron ke langkah wilayah & perangkat
-                        </small>
-                    </div>
-                    <div class="card-body p-3">
-            `;
-
-            checkedBoxes.each(function(idx) {
-                const vlanId = parseInt(this.value);
-                const data = (typeof VLAN_DATA_MAP !== 'undefined') ? VLAN_DATA_MAP[vlanId] : null;
-                if (!data) return;
-
-                const pppoeBadge = data.support_pppoe 
-                    ? '<span class="badge bg-blue-subtle text-primary border border-blue-subtle d-inline-flex align-items-center gap-1" style="font-size: 0.73rem;"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3" /></svg>PPPoE</span>' 
-                    : '<span class="badge bg-light text-muted border" style="font-size: 0.73rem;">Tanpa PPPoE</span>';
-
-                const voucherBadge = data.support_voucher 
-                    ? '<span class="badge bg-amber-subtle text-warning border border-amber-subtle d-inline-flex align-items-center gap-1" style="font-size: 0.73rem;"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="15" y1="5" x2="15" y2="7" /><line x1="15" y1="11" x2="15" y2="13" /><line x1="15" y1="17" x2="15" y2="19" /><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" /></svg>Voucher</span>' 
-                    : '<span class="badge bg-light text-muted border" style="font-size: 0.73rem;">Tanpa Voucher</span>';
-
-                const wilayahParts = [data.regencie_name, data.district_name, data.village_name, data.hometown_name].filter(Boolean);
-                const wilayahText = wilayahParts.length ? wilayahParts.join(' / ') : '<span class="text-muted fst-italic">Belum ditentukan</span>';
-
-                const oltsList = (Array.isArray(data.olts_names) && data.olts_names.length) 
-                    ? data.olts_names.map(n => `<span class="badge bg-azure-lt border me-1 mb-1">${n}</span>`).join('') 
-                    : '<span class="text-muted small">-</span>';
-
-                const radiusList = (Array.isArray(data.mic_radius_names) && data.mic_radius_names.length) 
-                    ? data.mic_radius_names.map(n => `<span class="badge bg-indigo-lt border me-1 mb-1">${n}</span>`).join('') 
-                    : '<span class="text-muted small">-</span>';
-
-                const paketList = (Array.isArray(data.paket_names) && data.paket_names.length) 
-                    ? data.paket_names.map(n => `<span class="badge bg-green-lt border me-1 mb-1">${n}</span>`).join('') 
-                    : '<span class="text-muted small">-</span>';
-
-                const priceList = (Array.isArray(data.price_names) && data.price_names.length) 
-                    ? data.price_names.map(n => `<span class="badge bg-teal-lt border me-1 mb-1">${n}</span>`).join('') 
-                    : '<span class="text-muted small">-</span>';
-
-                html += `
-                    <div class="vlan-detail-block p-3 ${idx > 0 ? 'mt-3 pt-3 border-top' : ''}" style="background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <span class="badge bg-primary text-white px-2.5 py-1 fw-bold" style="font-size: 0.85rem;">VLAN ${data.name}</span>
-                                ${data.vlan_name ? `<span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 fw-semibold" style="font-size: 0.8rem;">${data.vlan_name}</span>` : ''}
-                                <span class="text-dark fw-bold" style="font-size: 0.88rem;">${data.server_name || '-'}</span>
-                                ${pppoeBadge}
-                                ${voucherBadge}
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-edit-wizard-vlan d-inline-flex align-items-center gap-1.5 px-3 py-1 shadow-sm" data-id="${data.id}" style="border-radius: 8px; font-size: 0.8rem; font-weight: 600;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -2 -2l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
-                                Ubah VLAN Ini
-                            </button>
-                        </div>
-
-                        <div class="row g-2 mt-1">
-                            <div class="col-md-4">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block" style="font-size: 0.72rem;">IP Address / Gateway</small>
-                                    <div class="fw-semibold text-dark text-truncate" style="font-size: 0.82rem;">${data.ip_address || '<span class="text-muted fst-italic">Belum diisi</span>'}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block" style="font-size: 0.72rem;">Area Wilayah</small>
-                                    <div class="fw-semibold text-dark text-truncate" style="font-size: 0.82rem;">${wilayahText}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">OLT Terhubung</small>
-                                    <div>${oltsList}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Mic Radius Terhubung</small>
-                                    <div>${radiusList}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Tipe Paket Terhubung</small>
-                                    <div>${paketList}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-2 bg-white rounded border h-100">
-                                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;">Tipe Pembayaran Terhubung</small>
-                                    <div>${priceList}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `</div></div>`;
-            container.html(html);
-        }
-
-        /**
-         * Auto-fill / Append data dari VLAN terpilih ke Step 2 (Wilayah, Dukungan)
-         * dan Step 3 (Jaringan OLT, Mic Radius, Paket, Tipe Pembayaran)
-         */
-        function syncWizardWithSelectedVlans() {
-            const checkedBoxes = $('#checklist-box-wz_vlans_id input[type="checkbox"]:checked');
-            if (checkedBoxes.length === 0) return;
-
-            let oltIds = [];
-            let micRadiusIds = [];
-            let paketIds = [];
-            let priceIds = [];
-            let hasPppoe = false;
-            let hasVoucher = false;
-            let anySupportFound = false;
-            let targetWilayah = null;
-
-            checkedBoxes.each(function() {
-                const vlanId = parseInt(this.value);
-                const data = (typeof VLAN_DATA_MAP !== 'undefined') ? VLAN_DATA_MAP[vlanId] : null;
-                if (!data) return;
-
-                if (Array.isArray(data.olts_id)) oltIds.push(...data.olts_id);
-                if (Array.isArray(data.mic_radius_id)) micRadiusIds.push(...data.mic_radius_id);
-                if (Array.isArray(data.paket_id)) paketIds.push(...data.paket_id);
-                if (Array.isArray(data.price)) priceIds.push(...data.price);
-
-                if (data.support_pppoe) { hasPppoe = true; anySupportFound = true; }
-                if (data.support_voucher) { hasVoucher = true; anySupportFound = true; }
-
-                if (!targetWilayah && (data.regencie_id || data.district_id || data.village_id || data.hometown_id)) {
-                    targetWilayah = data;
+            // Checkbox Dokumen Persetujuan (Single Select)
+            $(document).on('change', '.wz-persetujuan-checkbox', function() {
+                if (this.checked) {
+                    setWzPersetujuanDoc(this.value);
+                } else {
+                    setWzPersetujuanDoc('');
                 }
             });
 
-            // 1. Dukungan Layanan (PPPoE / Voucher)
-            if (anySupportFound) {
-                $('#wz_support_pppoe').prop('checked', hasPppoe);
-                $('#wz_support_voucher').prop('checked', hasVoucher);
+            // Toggle Dokumen Persetujuan
+            $('#wz_is_persetujuan').on('change', function() {
+                toggleWzPersetujuanDropdown();
+            });
+        }
+
+        function setWzPersetujuanDoc(docId) {
+            $('.wz-persetujuan-checkbox').prop('checked', false).closest('.checklist-item').removeClass('item-checked');
+            if (docId) {
+                const $chk = $(`.wz-persetujuan-checkbox[value="${docId}"]`);
+                if ($chk.length) {
+                    $chk.prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                    $('#wz_persetujuan_id').val(docId);
+                    $('#badge-wz_persetujuan_id').text('1 dipilih');
+                    $('#card_wz_persetujuan_id').removeClass('border-danger');
+                    $('.error_persetujuan_id').hide();
+                    return;
+                }
             }
+            $('#wz_persetujuan_id').val('');
+            $('#badge-wz_persetujuan_id').text('0 dipilih');
+        }
 
-            // 2. Checklist Jaringan & Layanan (Step 3) - OLT, Mic Radius, Paket, Price
-            const checkBoxesInGroup = (groupId, ids) => {
-                const uniqueIds = [...new Set(ids.map(Number))];
-                if (uniqueIds.length === 0) return;
+        function setEditPersetujuanDoc(docId) {
+            $('.edit-persetujuan-checkbox').prop('checked', false).closest('.checklist-item').removeClass('item-checked');
+            if (docId) {
+                const $chk = $(`.edit-persetujuan-checkbox[value="${docId}"]`);
+                if ($chk.length) {
+                    $chk.prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                    $('#persetujuan_id').val(docId);
+                    $('#badge-edit_persetujuan_id').text('1 dipilih');
+                    $('#card_edit_persetujuan_id').removeClass('border-danger');
+                    $('.error_persetujuan_id').hide();
+                    return;
+                }
+            }
+            $('#persetujuan_id').val('');
+            $('#badge-edit_persetujuan_id').text('0 dipilih');
+        }
 
-                $(`#checklist-box-${groupId} input[type="checkbox"]`).each(function() {
-                    if (uniqueIds.includes(parseInt(this.value))) {
-                        $(this).prop('checked', true);
-                        $(this).closest('.checklist-item').addClass('item-checked');
+        function toggleWzPersetujuanDropdown() {
+            if ($('#wz_is_persetujuan').val() === 'aktif') {
+                $('#wz_container_persetujuan_id').removeClass('d-none');
+                if (!$('#wz_persetujuan_id').val()) {
+                    const defaultVal = $('.wz-persetujuan-checkbox[data-default="1"]').val() || $('.wz-persetujuan-checkbox').first().val();
+                    if (defaultVal) {
+                        setWzPersetujuanDoc(defaultVal);
                     }
-                });
-                updateChecklistBadge(groupId);
-            };
+                }
+            } else {
+                $('#wz_container_persetujuan_id').addClass('d-none');
+                setWzPersetujuanDoc('');
+                $('#card_wz_persetujuan_id').removeClass('border-danger');
+                $('.error_persetujuan_id').hide();
+            }
+        }
 
-            checkBoxesInGroup('wz_olts_id', oltIds);
-            checkBoxesInGroup('wz_mic_radius_id', micRadiusIds);
-            checkBoxesInGroup('wz_paket_id', paketIds);
-            checkBoxesInGroup('wz_price', priceIds);
-
-            // 3. Wilayah (Step 2) - Kabupaten, Kecamatan, Desa, Kampung
-            if (targetWilayah && targetWilayah.regencie_id) {
-                const regId = targetWilayah.regencie_id;
-                const distId = targetWilayah.district_id;
-                const vilId = targetWilayah.village_id;
-                const homeId = targetWilayah.hometown_id;
-
-                $('#wz_regencies_id').val(regId);
-                loadCascadingWilayah('wz', regId, distId, vilId, homeId);
+        function toggleEditPersetujuanDropdown() {
+            if ($('#is_persetujuan').val() === 'aktif') {
+                $('#edit_container_persetujuan_id').removeClass('d-none');
+                if (!$('#persetujuan_id').val()) {
+                    const defaultVal = $('.edit-persetujuan-checkbox[data-default="1"]').val() || $('.edit-persetujuan-checkbox').first().val();
+                    if (defaultVal) {
+                        setEditPersetujuanDoc(defaultVal);
+                    }
+                }
+            } else {
+                $('#edit_container_persetujuan_id').addClass('d-none');
+                setEditPersetujuanDoc('');
+                $('#card_edit_persetujuan_id').removeClass('border-danger');
+                $('.error_persetujuan_id').hide();
             }
         }
 
         function loadCascadingWilayah(prefix, regencyId, selectedDistrictId, selectedVillageId, selectedHometownId) {
             let districtSelect, villageSelect, hometownSelect;
-            if (prefix === 'edit_wz_vlan') {
-                districtSelect = $('#edit_wz_vlan_district_id');
-                villageSelect = $('#edit_wz_vlan_village_id');
-                hometownSelect = $('#edit_wz_vlan_hometown_id');
-            } else if (prefix === 'new_vlan') {
+            if (prefix === 'new_vlan') {
                 districtSelect = $('#new_vlan_district_id');
                 villageSelect = $('#new_vlan_village_id');
                 hometownSelect = $('#new_vlan_hometown_id');
-            } else {
+            } else if (prefix === 'wz') {
                 districtSelect = $('#wz_districts_id');
                 villageSelect = $('#wz_villages_id');
                 hometownSelect = $('#wz_hometowns_id');
+            } else {
+                districtSelect = $('#districts_id');
+                villageSelect = $('#villages_id');
+                hometownSelect = $('#hometowns_id');
             }
 
             districtSelect.empty().append('<option value="">-- Pilih Kecamatan --</option>');
@@ -2745,9 +2192,11 @@
 
         function resetWizardForm() {
             $('#form-wizard')[0].reset();
-            $('#wz_vlan_mode').val('existing');
-            $('#section-vlan-existing').removeClass('d-none');
-            $('#wz-vlan-details-container').empty().addClass('d-none');
+            $('#wz_vlan_name').val('');
+            $('#wz_server_name').val('');
+            $('#wz_ip_address').val('');
+            $('#wz_is_persetujuan').val('aktif');
+            toggleWzPersetujuanDropdown();
 
             // Reset custom checklist items
             $('.checklist-scrollbox input[type="checkbox"]').prop('checked', false);
@@ -2756,8 +2205,8 @@
             wzMultiFields.forEach(f => updateChecklistBadge(f));
 
             // Default support options
-            $('#wz_support_pppoe').prop('checked', true);
-            $('#wz_support_voucher').prop('checked', true);
+            $('#wz_support_pppoe').prop('checked', true).closest('.checklist-item').addClass('item-checked');
+            $('#wz_support_voucher').prop('checked', true).closest('.checklist-item').addClass('item-checked');
 
             clearValidationErrors();
         }
@@ -2767,8 +2216,8 @@
             $('.wizard-step-content').addClass('d-none');
             $('#wz-step-' + step).removeClass('d-none');
 
-            // Update Stepper indicators
-            for (let i = 1; i <= 4; i++) {
+            // Update Stepper indicators (1 sampai 3)
+            for (let i = 1; i <= 3; i++) {
                 const node = $('#wz-nav-' + i);
                 node.removeClass('active completed');
                 if (i === step) {
@@ -2780,17 +2229,16 @@
 
             // Subtitle
             const subtitles = [
-                'Step 1 dari 4: Konfigurasi VLAN',
-                'Step 2 dari 4: Informasi Halaman & Dukungan Layanan',
-                'Step 3 dari 4: Perangkat Jaringan & Penugasan User',
-                'Step 4 dari 4: Preview Ringkasan Konfigurasi'
+                'Step 1 dari 3: Informasi Halaman & Dukungan Layanan',
+                'Step 2 dari 3: Perangkat Jaringan & Profil Paket',
+                'Step 3 dari 3: Preview Ringkasan Konfigurasi'
             ];
             $('#wizard-step-subtitle').text(subtitles[step - 1] || '');
 
             // Button visibility
             $('#wz-btn-prev').prop('disabled', step === 1);
 
-            if (step === 4) {
+            if (step === 3) {
                 $('#wz-btn-next').addClass('d-none');
                 $('#wz-btn-submit').removeClass('d-none');
                 buildPreview();
@@ -2806,18 +2254,6 @@
             let firstErrorMessage = null;
 
             if (step === 1) {
-                const checkedVlan = $('input[name="vlans_id[]"]:checked').length;
-                if (checkedVlan === 0) {
-                    $('#card_wz_vlans_id').addClass('border-danger');
-                    $('.error_vlans_id').text('Silakan pilih minimal satu VLAN yang ada.').show();
-                    if (!firstErrorMessage) firstErrorMessage = 'Silakan pilih minimal satu VLAN.';
-                    isValid = false;
-                }
-
-                if (isValid) {
-                    syncWizardWithSelectedVlans();
-                }
-            } else if (step === 2) {
                 // Judul
                 if ($('#wz_name').length && !($('#wz_name').val() || '').trim()) {
                     $('#wz_name').addClass('is-invalid');
@@ -2872,6 +2308,14 @@
                     isValid = false;
                 }
 
+                // Dokumen Persetujuan jika is_persetujuan === 'aktif'
+                if ($('#wz_is_persetujuan').val() === 'aktif' && !$('#wz_persetujuan_id').val()) {
+                    $('#card_wz_persetujuan_id').addClass('border-danger');
+                    $('.error_persetujuan_id').text('Silakan pilih salah satu dokumen persetujuan.').show();
+                    if (!firstErrorMessage) firstErrorMessage = 'Silakan pilih salah satu dokumen persetujuan.';
+                    isValid = false;
+                }
+
                 // Tipe Pelanggan
                 if ($('input[name="tipe_pelanggan_id[]"]').length > 0 && $('input[name="tipe_pelanggan_id[]"]:checked').length === 0) {
                     $('#card_wz_tipe_pelanggan_id').addClass('border-danger');
@@ -2879,16 +2323,23 @@
                     if (!firstErrorMessage) firstErrorMessage = 'Pilih minimal satu tipe pelanggan.';
                     isValid = false;
                 }
-            } else if (step === 3) {
-                const checks = [
-                    { name: 'odcs_id', label: 'ODC Network' },
-                    { name: 'odps_id', label: 'ODP Network' },
+            } else if (step === 2) {
+                // VLAN (Checkbox Checklist)
+                if ($('#card_wz_vlans_id').length && $('#card_wz_vlans_id input[name="vlans_id[]"]:checked').length === 0) {
+                    $('#card_wz_vlans_id').addClass('border-danger');
+                    $('.error_vlans_id').text('Silakan pilih minimal satu VLAN.').show();
+                    if (!firstErrorMessage) firstErrorMessage = 'Silakan pilih minimal satu VLAN.';
+                    isValid = false;
+                }
+
+                // Catatan: ODC dan ODP adalah OPSIONAL, tidak divalidasi required!
+                const requiredDeviceChecks = [
                     { name: 'olts_id', label: 'OLT Network' },
                     { name: 'mic_radius_id', label: 'Mic Radius' },
                     { name: 'paket_id', label: 'Tipe Paket' },
                     { name: 'price', label: 'Tipe Pembayaran' },
                 ];
-                checks.forEach(c => {
+                requiredDeviceChecks.forEach(c => {
                     if ($(`input[name="${c.name}[]"]`).length > 0 && $(`input[name="${c.name}[]"]:checked`).length === 0) {
                         $(`#card_wz_${c.name}`).addClass('border-danger');
                         $(`.error_${c.name}`).text(`Silakan pilih minimal satu ${c.label}.`).show();
@@ -2917,28 +2368,33 @@
         function buildPreview() {
             $('#prev_name').text($('#wz_name').val() || '-');
             $('#prev_desc').text($('#wz_desc').val() || '-');
-            const regText = $('#wz_regencies_id option:selected').text();
-            const disText = $('#wz_districts_id option:selected').text();
-            const vlgText = $('#wz_villages_id option:selected').text();
-            const htText = $('#wz_hometowns_id option:selected').text();
-            $('#prev_wilayah').text(`${regText} / ${disText} / ${vlgText} / ${htText}`);
+
+            $('#prev_vlan_name_val').text($('#wz_vlan_name').val() || '-');
+            $('#prev_server_name_val').text($('#wz_server_name').val() || '-');
+            $('#prev_ip_address_val').text($('#wz_ip_address').val() || '-');
+
+            const regText = $('#wz_regencies_id option:selected').val() ? $('#wz_regencies_id option:selected').text() : '';
+            const disText = $('#wz_districts_id option:selected').val() ? $('#wz_districts_id option:selected').text() : '';
+            const vlgText = $('#wz_villages_id option:selected').val() ? $('#wz_villages_id option:selected').text() : '';
+            const htText = $('#wz_hometowns_id option:selected').val() ? $('#wz_hometowns_id option:selected').text() : '';
+            const wilArr = [regText, disText, vlgText, htText].filter(Boolean);
+            $('#prev_wilayah').text(wilArr.length ? wilArr.join(' / ') : '-');
+
             $('#prev_ktp').html($('#wz_is_ktp').val() === 'aktif' ? '<span class="badge bg-success text-white">Aktif</span>' : '<span class="badge bg-warning text-white">Tidak</span>');
-            $('#prev_persetujuan').html($('#wz_is_persetujuan').val() === 'aktif' ? '<span class="badge bg-success text-white">Aktif</span>' : '<span class="badge bg-warning text-white">Tidak</span>');
+            if ($('#wz_is_persetujuan').val() === 'aktif') {
+                const checkedDoc = $('.wz-persetujuan-checkbox:checked');
+                const docText = checkedDoc.length ? checkedDoc.data('title') : 'Belum dipilih';
+                $('#prev_persetujuan').html('<span class="badge bg-success text-white">Aktif</span><div class="small text-muted mt-1">' + e(docText) + '</div>');
+            } else {
+                $('#prev_persetujuan').html('<span class="badge bg-warning text-white">Tidak</span>');
+            }
             $('#prev_verification').html($('#wz_is_verification').val() === 'aktif' ? '<span class="badge bg-success text-white">Aktif</span>' : '<span class="badge bg-warning text-white">Tidak</span>');
 
-            $('#prev_vlan_mode').text('Pilih VLAN yang Ada');
-
             const vlanNames = [];
-            $('input[name="vlans_id[]"]:checked').each(function() {
-                const vid = $(this).val();
-                const d = (typeof VLAN_DATA_MAP !== 'undefined') ? VLAN_DATA_MAP[vid] : null;
-                if (d) {
-                    vlanNames.push('VLAN ' + d.name + (d.vlan_name ? ' (' + d.vlan_name + ')' : ''));
-                } else {
-                    vlanNames.push($(this).closest('.checklist-item').find('.checklist-text').text());
-                }
+            $('#card_wz_vlans_id input[name="vlans_id[]"]:checked').each(function() {
+                vlanNames.push($(this).closest('.checklist-item').find('.checklist-text').text().trim());
             });
-            $('#prev_vlan_name').text(vlanNames.join(', ') || '-');
+            $('#prev_vlan_name').text(vlanNames.length > 0 ? vlanNames.join(', ') : '-');
 
             const badges = [];
             if ($('#wz_support_pppoe').is(':checked')) badges.push('<span class="badge bg-blue-lt d-inline-flex align-items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3" /></svg>PPPoE</span>');
@@ -2954,8 +2410,12 @@
             const userCount = $('input[name="user_ids[]"]:checked').length;
             $('#prev_users').text(userCount > 0 ? userCount + ' User Dipilih' : 'Hanya Pembuat Halaman (Default)');
 
-            $('#prev_odc').text($('input[name="odcs_id[]"]:checked').length + ' dipilih');
-            $('#prev_odp').text($('input[name="odps_id[]"]:checked').length + ' dipilih');
+            const odcCount = $('input[name="odcs_id[]"]:checked').length;
+            $('#prev_odc').text(odcCount > 0 ? odcCount + ' dipilih' : 'Tidak dipilih (Opsional)');
+
+            const odpCount = $('input[name="odps_id[]"]:checked').length;
+            $('#prev_odp').text(odpCount > 0 ? odpCount + ' dipilih' : 'Tidak dipilih (Opsional)');
+
             $('#prev_olt').text($('input[name="olts_id[]"]:checked').length + ' dipilih');
             $('#prev_radius').text($('input[name="mic_radius_id[]"]:checked').length + ' dipilih');
             $('#prev_paket').text($('input[name="paket_id[]"]:checked').length + ' dipilih');
@@ -3230,6 +2690,16 @@
             $('#storeBtn').on('click', function() {
                 handleEditSave();
             });
+            $('#is_persetujuan').on('change', function() {
+                toggleEditPersetujuanDropdown();
+            });
+            $(document).on('change', '.edit-persetujuan-checkbox', function() {
+                if (this.checked) {
+                    setEditPersetujuanDoc(this.value);
+                } else {
+                    setEditPersetujuanDoc('');
+                }
+            });
         }
 
         function editModal(id) {
@@ -3254,12 +2724,17 @@
                     $('#page_version').val(data.version || 'complete');
                     $('#name').val(data.name || '');
                     $('#desc').val(data.desc || '');
+                    $('#vlan_name').val(data.vlan_name || '');
+                    $('#server_name').val(data.server_name || '');
+                    $('#ip_address').val(data.ip_address || '');
                     $('#is_ktp').val(data.is_ktp || 'aktif');
                     $('#is_persetujuan').val(data.is_persetujuan || 'tidak');
+                    setEditPersetujuanDoc(data.persetujuan_id || '');
+                    toggleEditPersetujuanDropdown();
                     $('#is_verification').val(data.is_verification || 'aktif');
 
-                    $('#edit_support_pppoe').prop('checked', !!data.support_pppoe);
-                    $('#edit_support_voucher').prop('checked', !!data.support_voucher);
+                    $('#edit_support_pppoe').prop('checked', !!data.support_pppoe).closest('.checklist-item').toggleClass('item-checked', !!data.support_pppoe);
+                    $('#edit_support_voucher').prop('checked', !!data.support_voucher).closest('.checklist-item').toggleClass('item-checked', !!data.support_voucher);
 
                     $('#regencies_id').val(data.regencies_id || '');
                     $('#districts_id').val(data.districts_id || '');
@@ -3279,6 +2754,16 @@
                     };
 
                     checkItems('vlans_id', data.vlan, 'vlans_id');
+                    if ((!data.vlan || data.vlan.length === 0) && data.vlans_id) {
+                        const vIds = Array.isArray(data.vlans_id) ? data.vlans_id.map(String) : [String(data.vlans_id)];
+                        $('#tab-pane-edit input[name="vlans_id[]"]').each(function() {
+                            if (vIds.includes(String(this.value))) {
+                                $(this).prop('checked', true).closest('.checklist-item').addClass('item-checked');
+                            }
+                        });
+                        updateChecklistBadge('vlans_id');
+                    }
+
                     checkItems('odcs_id', data.odc, 'odcs_id');
                     checkItems('odps_id', data.odp, 'odps_id');
                     checkItems('olts_id', data.olt, 'olts_id');
@@ -3310,20 +2795,33 @@
             $('#btnText').addClass('d-none');
             $('#btnLoading').removeClass('d-none');
 
+            if ($('#is_persetujuan').val() === 'aktif' && !$('#persetujuan_id').val()) {
+                $('#card_edit_persetujuan_id').addClass('border-danger');
+                $('.error_persetujuan_id').text('Silakan pilih salah satu dokumen persetujuan.').show();
+                resetButton(btn);
+                showErrorMessage('Silakan pilih salah satu dokumen persetujuan.');
+                return;
+            }
+
             let formData = new FormData();
             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
             formData.append('_method', 'PUT');
             formData.append('name', $('#name').val() || '');
             formData.append('desc', $('#desc').val() || '');
+            formData.append('vlan_name', $('#vlan_name').val() || '');
+            formData.append('server_name', $('#server_name').val() || '');
+            formData.append('ip_address', $('#ip_address').val() || '');
             formData.append('regencies_id', $('#regencies_id').val() || '');
             formData.append('districts_id', $('#districts_id').val() || '');
             formData.append('hometowns_id', $('#hometowns_id').val() || '');
             formData.append('villages_id', $('#villages_id').val() || '');
             formData.append('is_ktp', $('#is_ktp').val() || '');
             formData.append('is_persetujuan', $('#is_persetujuan').val() || '');
+            formData.append('persetujuan_id', $('#persetujuan_id').val() || '');
             formData.append('is_verification', $('#is_verification').val() || 'aktif');
             formData.append('support_pppoe', $('#edit_support_pppoe').is(':checked') ? 1 : 0);
             formData.append('support_voucher', $('#edit_support_voucher').is(':checked') ? 1 : 0);
+
 
             multiFields.forEach(field => {
                 $('#tab-pane-edit input[name="' + field + '[]"]:checked').each(function() {
@@ -3373,8 +2871,12 @@
             $('#id').val('');
             $('#name').val('');
             $('#desc').val('');
+            $('#vlan_name').val('');
+            $('#server_name').val('');
+            $('#ip_address').val('');
             $('#is_ktp').val('aktif');
             $('#is_persetujuan').val('aktif');
+            toggleEditPersetujuanDropdown();
             $('#is_verification').val('aktif');
             $('#regencies_id').val('');
 
@@ -3394,8 +2896,8 @@
                 $('#hometowns_id').val('');
             }
 
-            $('#edit_support_pppoe').prop('checked', true);
-            $('#edit_support_voucher').prop('checked', true);
+            $('#edit_support_pppoe').prop('checked', true).closest('.checklist-item').addClass('item-checked');
+            $('#edit_support_voucher').prop('checked', true).closest('.checklist-item').addClass('item-checked');
 
             $('#tab-pane-edit .checklist-scrollbox input[type="checkbox"]').prop('checked', false);
             $('#tab-pane-edit .checklist-item').removeClass('item-checked d-none');
@@ -3436,7 +2938,7 @@
         // 6. CHECKLIST INTERACTION HELPERS
         // ============================================================
         function initializeChecklistInteractions() {
-            $(document).on('change', '.checklist-scrollbox input[type="checkbox"]', function() {
+            $(document).on('change', '.checklist-scrollbox input[type="checkbox"], .checklist-item input[type="checkbox"]', function() {
                 const item = $(this).closest('.checklist-item');
                 if (this.checked) {
                     item.addClass('item-checked');
@@ -3446,9 +2948,6 @@
                 const group = $(this).data('group');
                 if (group) {
                     updateChecklistBadge(group);
-                    if (group === 'wz_vlans_id') {
-                        syncWizardWithSelectedVlans();
-                    }
                 }
             });
 
@@ -3472,10 +2971,6 @@
                     $(this).closest('.checklist-item').addClass('item-checked');
                 });
                 updateChecklistBadge(group);
-                if (group === 'wz_vlans_id') {
-                    syncWizardWithSelectedVlans();
-                    renderSelectedVlanDetails();
-                }
             });
 
             $(document).on('click', '.btn-checklist-clear', function(e) {
@@ -3485,10 +2980,6 @@
                     $(this).closest('.checklist-item').removeClass('item-checked');
                 });
                 updateChecklistBadge(group);
-                if (group === 'wz_vlans_id') {
-                    syncWizardWithSelectedVlans();
-                    renderSelectedVlanDetails();
-                }
             });
         }
 
@@ -3522,7 +3013,7 @@
                     firstErrorMsg = text;
                 }
                 $('#' + clean + ', #wz_' + clean).addClass('is-invalid');
-                $('#card_' + clean + ', #card_wz_' + clean).addClass('border-danger');
+                $('#card_' + clean + ', #card_wz_' + clean + ', #card_edit_' + clean).addClass('border-danger');
                 $('.error_' + clean).text(text).show();
             });
             if (firstErrorMsg) {

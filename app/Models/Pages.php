@@ -108,4 +108,9 @@ class Pages extends Model
         return $this->belongsToMany(User::class, 'user_pages', 'pages_id', 'user_id')
             ->withTimestamps();
     }
+
+    public function persetujuan()
+    {
+        return $this->belongsTo(Persetujuan::class, 'persetujuan_id', 'id');
+    }
 }

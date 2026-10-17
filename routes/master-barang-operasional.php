@@ -54,4 +54,10 @@ Route::prefix('barang-operasional')->group(function () {
     Route::get('/riwayat', [BarangOperasionalController::class, 'riwayat'])
         ->middleware('can:lihat riwayat transfer barang')
         ->name('barang-operasional.riwayat');
+
+    // Konfirmasi Penerimaan (ACC) & Tolak Transfer
+    Route::post('/transfer/{id}/acc', [BarangOperasionalController::class, 'accTransfer'])
+        ->name('barang-operasional.transfer.acc');
+    Route::post('/transfer/{id}/reject', [BarangOperasionalController::class, 'rejectTransfer'])
+        ->name('barang-operasional.transfer.reject');
 });

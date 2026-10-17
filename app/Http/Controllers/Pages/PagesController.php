@@ -125,6 +125,11 @@ class PagesController extends Controller
             ->when($authUser->organization?->type === 'mitra', fn($q) => $q->where('organization_id', $authUser->organization_id))
             ->count();
 
+        $persetujuans = Persetujuan::where('organization_id', $authUser->organization_id)
+            ->orderBy('is_active', 'desc')
+            ->orderBy('judul', 'asc')
+            ->get();
+
         return view("pages.pages.index", compact(
             "hometown",
             "regencies",
@@ -143,7 +148,8 @@ class PagesController extends Controller
             "allUsers",
             "quickAccessCategories",
             "quickAccessItems",
-            "totalPages"
+            "totalPages",
+            "persetujuans"
         ));
     }
 
@@ -160,8 +166,8 @@ class PagesController extends Controller
             "districts_id" => "required",
             "villages_id" => "required",
             "vlans_id" => "required",
-            "odcs_id" => "required",
-            "odps_id" => "required",
+            "odcs_id" => "nullable",
+            "odps_id" => "nullable",
             "olts_id" => "required",
             "paket_id" => "required",
             "mic_radius_id" => "required",
@@ -322,39 +328,79 @@ class PagesController extends Controller
         $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
         $selectedVlanIds = [];
 
+        if ($user->can('input halaman nama vlan')) {
+            $rules['vlan_name'] = 'nullable|string|max:255';
+        }
+        if ($user->can('input halaman server')) {
+            $rules['server_name'] = 'nullable|string|max:255';
+        }
+        if ($user->can('input halaman ip address')) {
+            $rules['ip_address'] = 'nullable|string|max:255';
+        }
         if ($user->can('input halaman vlan')) {
-            if ($vlanMode === 'new') {
-                $vlanService = app(\App\Services\VlanService::class);
-                $newVlan = $vlanService->createVlan([
-                    'name'            => $request->new_vlan_name,
-                    'server_name'     => $request->new_vlan_server_name,
-                    'ip_address'      => $request->new_vlan_ip_address,
-                    'support_pppoe'   => $supportPppoe,
-                    'support_voucher' => $supportVoucher,
-                    'regencie_id'     => $request->new_vlan_regencie_id ?: $request->regencies_id,
-                    'district_id'     => $request->new_vlan_district_id ?: $request->districts_id,
-                    'village_id'      => $request->new_vlan_village_id ?: $request->villages_id,
-                    'hometown_id'     => $request->new_vlan_hometown_id ?: $request->hometowns_id,
-                    'olts'            => $parseIds($request->input('new_vlan_olts', $request->input('olts_id', []))),
-                    'mix_radiuses'    => $parseIds($request->input('new_vlan_mix_radiuses', $request->input('mic_radius_id', []))),
-                    'pakets'          => $parseIds($request->input('new_vlan_pakets', $request->input('paket_id', []))),
-                    'prices'          => $parseIds($request->input('new_vlan_prices', $request->input('price', []))),
-                ]);
-                $selectedVlanIds[] = $newVlan->id;
-            } else {
-                $selectedVlanIds = $parseIds($request->vlans_id);
+            $rules['vlans_id'] = 'required';
+            $messages['vlans_id.required'] = 'Minimal satu Data VLAN wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi ktp')) {
+            $rules['is_ktp'] = 'required|in:aktif,tidak';
+            $messages['is_ktp.required'] = 'Opsi KTP wajib dipilih.';
+        }
+        if ($user->can('input halaman opsi persetujuan')) {
+            $rules['is_persetujuan'] = 'required|in:aktif,tidak';
+            $messages['is_persetujuan.required'] = 'Opsi persetujuan wajib dipilih.';
+            if ($request->input('is_persetujuan') === 'aktif') {
+                $rules['persetujuan_id'] = 'required|exists:persetujuan,id';
+                $messages['persetujuan_id.required'] = 'Dokumen persetujuan wajib dipilih jika status persetujuan aktif.';
+                $messages['persetujuan_id.exists'] = 'Dokumen persetujuan yang dipilih tidak valid.';
             }
+        }
+        if ($user->can('input halaman opsi cek kontak')) {
+            $rules['is_verification'] = 'nullable|in:aktif,tidak';
+        }
+        if ($user->can('input halaman tipe pelanggan')) {
+            $rules['tipe_pelanggan_id'] = 'nullable';
+        }
+
+        $supportPppoe = $request->boolean('support_pppoe');
+        $supportVoucher = $request->boolean('support_voucher');
+
+        if ($user->can('input halaman support')) {
+            if (!$supportPppoe && !$supportVoucher) {
+                return response()->json([
+                    'code' => 400,
+                    'errors' => ['support_layanan' => ['Silakan pilih setidaknya salah satu dukungan layanan (PPPoE atau Voucher).']]
+                ]);
+            }
+        } else {
+            $supportPppoe = true;
+        }
+
+        $validation = Validator::make($request->all(), $rules, $messages);
+
+        if ($validation->fails()) {
+            return response()->json(['code' => 400, 'errors' => $validation->errors()]);
+        }
+
+        $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
+        $selectedVlanIds = [];
+
+        if ($user->can('input halaman vlan')) {
+            $selectedVlanIds = $parseIds($request->vlans_id);
         }
 
         $post = [
             'name'            => $user->can('input halaman judul') ? $request->name : 'Halaman Layanan ' . time(),
             'desc'            => $user->can('input halaman deskripsi') ? $request->desc : '-',
+            'vlan_name'       => $user->can('input halaman nama vlan') ? ($request->vlan_name ?? $request->wz_vlan_name) : null,
+            'server_name'     => $user->can('input halaman server') ? ($request->server_name ?? $request->wz_server_name) : null,
+            'ip_address'      => $user->can('input halaman ip address') ? ($request->ip_address ?? $request->wz_ip_address) : null,
             'regencies_id'    => $user->can('input halaman wilayah') ? $request->regencies_id : null,
             'districts_id'    => $user->can('input halaman wilayah') ? $request->districts_id : null,
             'villages_id'     => $user->can('input halaman wilayah') ? $request->villages_id : null,
             'hometowns_id'    => $user->can('input halaman wilayah') ? $request->hometowns_id : null,
             'is_ktp'          => $user->can('input halaman opsi ktp') ? $request->input('is_ktp', 'tidak') : 'tidak',
             'is_persetujuan'   => $user->can('input halaman opsi persetujuan') ? $request->input('is_persetujuan', 'tidak') : 'tidak',
+            'persetujuan_id'   => ($user->can('input halaman opsi persetujuan') && $request->input('is_persetujuan') === 'aktif') ? $request->input('persetujuan_id') : null,
             'is_verification'  => $user->can('input halaman opsi cek kontak') ? $request->input('is_verification', 'aktif') : 'aktif',
             'telp'            => $request->telp ?? '-',
             'slug'            => Str::slug($user->can('input halaman judul') ? $request->name : 'halaman-' . time()),
@@ -384,7 +430,7 @@ class PagesController extends Controller
             }
         }
 
-        if ($user->can('input halaman odc')) {
+        if ($user->can('input halaman odc') && $request->filled('odcs_id')) {
             foreach ($parseIds($request->odcs_id) as $odc) {
                 DB::table('pages_odcs')->insert([
                     "pages_id" => $pages->id,
@@ -393,7 +439,7 @@ class PagesController extends Controller
             }
         }
 
-        if ($user->can('input halaman odp')) {
+        if ($user->can('input halaman odp') && $request->filled('odps_id')) {
             foreach ($parseIds($request->odps_id) as $odp) {
                 DB::table('pages_odps')->insert([
                     "pages_id" => $pages->id,
@@ -459,7 +505,7 @@ class PagesController extends Controller
      */
     public function show(string $id)
     {
-        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius', 'price', 'tipePelanggan', 'users'])->find($id);
+        $pages = Pages::with(['router', 'vlan', 'odc', 'odp', 'olt', 'paket', 'mic_radius', 'price', 'tipePelanggan', 'users', 'persetujuan'])->find($id);
 
         if (!$pages) {
             return response()->json(['code' => 400, 'status' => 'errors', 'message' => 'Data Not Found.']);
@@ -481,8 +527,8 @@ class PagesController extends Controller
             "districts_id" => "required",
             "villages_id" => "required",
             "vlans_id" => "required",
-            "odcs_id" => "required",
-            "odps_id" => "required",
+            "odcs_id" => "nullable",
+            "odps_id" => "nullable",
             "olts_id" => "required",
             "paket_id" => "required",
             "mic_radius_id" => "required",
@@ -594,6 +640,15 @@ class PagesController extends Controller
             $messages['villages_id.required']  = 'Desa wajib dipilih.';
             $messages['hometowns_id.required'] = 'Kampung wajib dipilih.';
         }
+        if ($user->can('input halaman nama vlan')) {
+            $rules['vlan_name'] = 'nullable|string|max:255';
+        }
+        if ($user->can('input halaman server')) {
+            $rules['server_name'] = 'nullable|string|max:255';
+        }
+        if ($user->can('input halaman ip address')) {
+            $rules['ip_address'] = 'nullable|string|max:255';
+        }
         if ($user->can('input halaman vlan')) {
             $rules['vlans_id'] = 'required';
             $messages['vlans_id.required'] = 'Minimal satu Data VLAN wajib dipilih.';
@@ -605,6 +660,11 @@ class PagesController extends Controller
         if ($user->can('input halaman opsi persetujuan')) {
             $rules['is_persetujuan'] = 'required|in:aktif,tidak';
             $messages['is_persetujuan.required'] = 'Opsi persetujuan wajib dipilih.';
+            if ($request->input('is_persetujuan') === 'aktif') {
+                $rules['persetujuan_id'] = 'required|exists:persetujuan,id';
+                $messages['persetujuan_id.required'] = 'Dokumen persetujuan wajib dipilih jika status persetujuan aktif.';
+                $messages['persetujuan_id.exists'] = 'Dokumen persetujuan yang dipilih tidak valid.';
+            }
         }
         if ($user->can('input halaman opsi cek kontak')) {
             $rules['is_verification'] = 'nullable|in:aktif,tidak';
@@ -640,6 +700,15 @@ class PagesController extends Controller
         if ($user->can('input halaman deskripsi')) {
             $updateData['desc'] = $request->desc;
         }
+        if ($user->can('input halaman nama vlan') && $request->has('vlan_name')) {
+            $updateData['vlan_name'] = $request->vlan_name;
+        }
+        if ($user->can('input halaman server') && $request->has('server_name')) {
+            $updateData['server_name'] = $request->server_name;
+        }
+        if ($user->can('input halaman ip address') && $request->has('ip_address')) {
+            $updateData['ip_address'] = $request->ip_address;
+        }
         if ($user->can('input halaman wilayah')) {
             $updateData['regencies_id'] = $request->regencies_id;
             $updateData['districts_id'] = $request->districts_id;
@@ -655,6 +724,7 @@ class PagesController extends Controller
         }
         if ($user->can('input halaman opsi persetujuan')) {
             $updateData['is_persetujuan'] = $request->is_persetujuan;
+            $updateData['persetujuan_id'] = $request->is_persetujuan === 'aktif' ? $request->persetujuan_id : null;
         }
         if ($user->can('input halaman opsi cek kontak')) {
             $updateData['is_verification'] = $request->input('is_verification', 'aktif');
@@ -674,56 +744,58 @@ class PagesController extends Controller
 
         $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
 
-        if ($user->can('input halaman vlan') && $request->has('vlans_id')) {
+        $canEditPage = $user->can('edit halaman lengkap') || $user->can('edit halaman');
+
+        if (($user->can('input halaman vlan') || $canEditPage) && $request->has('vlans_id')) {
             $pages->vlan()->delete();
             foreach ($parseIds($request->vlans_id) as $vln) {
                 $pages->vlan()->create(["vlans_id" => $vln]);
             }
         }
 
-        if ($user->can('input halaman odc') && $request->has('odcs_id')) {
+        if (($user->can('input halaman odc') || $canEditPage) && $request->has('odcs_id')) {
             $pages->odc()->delete();
             foreach ($parseIds($request->odcs_id) as $odc) {
                 $pages->odc()->create(["odcs_id" => $odc]);
             }
         }
 
-        if ($user->can('input halaman odp') && $request->has('odps_id')) {
+        if (($user->can('input halaman odp') || $canEditPage) && $request->has('odps_id')) {
             $pages->odp()->delete();
             foreach ($parseIds($request->odps_id) as $odp) {
                 $pages->odp()->create(["odps_id" => $odp]);
             }
         }
 
-        if ($user->can('input halaman olt') && $request->has('olts_id')) {
+        if (($user->can('input halaman olt') || $canEditPage) && $request->has('olts_id')) {
             $pages->olt()->delete();
             foreach ($parseIds($request->olts_id) as $olt) {
                 $pages->olt()->create(["olts_id" => $olt]);
             }
         }
 
-        if ($user->can('input halaman paket') && $request->has('paket_id')) {
+        if (($user->can('input halaman paket') || $canEditPage) && $request->has('paket_id')) {
             $pages->paket()->delete();
             foreach ($parseIds($request->paket_id) as $pkt) {
                 $pages->paket()->create(["paket_id" => $pkt]);
             }
         }
 
-        if ($user->can('input halaman mic radius') && $request->has('mic_radius_id')) {
+        if (($user->can('input halaman mic radius') || $canEditPage) && $request->has('mic_radius_id')) {
             $pages->mic_radius()->delete();
             foreach ($parseIds($request->mic_radius_id) as $mc) {
                 $pages->mic_radius()->create(["mic_radius_id" => $mc]);
             }
         }
 
-        if ($user->can('input halaman pembayaran') && $request->has('price')) {
+        if (($user->can('input halaman pembayaran') || $canEditPage) && $request->has('price')) {
             $pages->price()->delete();
             foreach ($parseIds($request->price) as $pc) {
                 $pages->price()->create(["price_id" => $pc]);
             }
         }
 
-        if ($user->can('input halaman tipe pelanggan') && $request->has('tipe_pelanggan_id')) {
+        if (($user->can('input halaman tipe pelanggan') || $canEditPage) && $request->has('tipe_pelanggan_id')) {
             $pages->tipePelanggan()->delete();
             foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
                 $pages->tipePelanggan()->create(["tipe_pelanggan_id" => $tp]);
@@ -1057,18 +1129,20 @@ class PagesController extends Controller
 
         $pathCore = Cache::remember("pages_pathcore_{$userId}", 1800, fn() => Auth::user()->patchCore);
 
-        // Ambil persetujuan aktif dari organisasi halaman (1 query tunggal)
-        $persetujuan = Cache::remember(
-            "persetujuan_org_{$pages->organization_id}",
-            1800,
-            fn() =>
-            Persetujuan::where('organization_id', $pages->organization_id)
-                ->orWhere('organization_id', auth()->user()->organization_id ?? 0)
-                ->where(fn($q) => $q->where('is_active', true)->orWhereNotNull('id'))
-                ->orderByRaw("CASE WHEN organization_id = {$pages->organization_id} THEN 0 ELSE 1 END")
-                ->orderBy('is_active', 'desc')
-                ->first()
-        );
+        // Ambil dokumen persetujuan yang dipilih oleh halaman, atau fallback ke persetujuan aktif organisasi
+        $persetujuan = null;
+        if ($pages->is_persetujuan === 'aktif') {
+            $persetujuan = $pages->persetujuan;
+            if (!$persetujuan && $pages->persetujuan_id) {
+                $persetujuan = Persetujuan::find($pages->persetujuan_id);
+            }
+            if (!$persetujuan) {
+                $persetujuan = Persetujuan::where('organization_id', $pages->organization_id)
+                    ->where('is_active', true)
+                    ->first()
+                    ?? Persetujuan::where('organization_id', $pages->organization_id)->latest()->first();
+            }
+        }
 
         return view('pages.pages.show', compact(
             'pages',
@@ -1520,7 +1594,8 @@ class PagesController extends Controller
             ->where('uuid', $uuid)
             ->firstOrFail();
 
-        $persetujuan = Persetujuan::where('organization_id', $customer->organization_id)->first()
+        $persetujuan = Persetujuan::where('organization_id', $customer->organization_id)->where('is_active', true)->first()
+            ?? Persetujuan::where('organization_id', $customer->organization_id)->first()
             ?? Persetujuan::where('is_active', true)->first()
             ?? Persetujuan::latest()->first();
 
