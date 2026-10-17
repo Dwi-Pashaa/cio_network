@@ -279,7 +279,7 @@
     });
 
     $(document).ready(function() {
-        const BASE_URL = "{{ url('master-pages/persetujuan') }}";
+        const BASE_URL = "{{ route('persetujuan.index') }}";
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
         // Buka Modal Tambah

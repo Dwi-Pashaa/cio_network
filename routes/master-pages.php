@@ -152,5 +152,21 @@ Route::prefix('persetujuan')->group(function () {
         ->middleware('permission:lihat persetujuan');
 });
 
+// Alias master-pages/persetujuan agar request URL lama tidak 404
+Route::prefix('master-pages/persetujuan')->group(function () {
+    Route::get('/', [\App\Http\Controllers\PersetujuanController::class, 'index'])
+        ->middleware('permission:lihat persetujuan');
+    Route::post('/store', [\App\Http\Controllers\PersetujuanController::class, 'store'])
+        ->middleware('permission:lihat persetujuan');
+    Route::get('/{id}/edit', [\App\Http\Controllers\PersetujuanController::class, 'edit'])
+        ->middleware('permission:lihat persetujuan');
+    Route::put('/{id}/update', [\App\Http\Controllers\PersetujuanController::class, 'update'])
+        ->middleware('permission:lihat persetujuan');
+    Route::delete('/{id}/destroy', [\App\Http\Controllers\PersetujuanController::class, 'destroy'])
+        ->middleware('permission:lihat persetujuan');
+    Route::post('/{id}/toggle-active', [\App\Http\Controllers\PersetujuanController::class, 'toggleActive'])
+        ->middleware('permission:lihat persetujuan');
+});
+
 
 
