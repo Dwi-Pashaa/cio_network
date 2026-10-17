@@ -672,6 +672,22 @@ class PagesController extends Controller
         if ($user->can('input halaman tipe pelanggan')) {
             $rules['tipe_pelanggan_id'] = 'nullable';
         }
+        if ($user->can('input halaman olt')) {
+            $rules['olts_id'] = 'required';
+            $messages['olts_id.required'] = 'Minimal satu OLT Network wajib dipilih.';
+        }
+        if ($user->can('input halaman paket')) {
+            $rules['paket_id'] = 'required';
+            $messages['paket_id.required'] = 'Minimal satu Tipe Paket wajib dipilih.';
+        }
+        if ($user->can('input halaman mic radius')) {
+            $rules['mic_radius_id'] = 'required';
+            $messages['mic_radius_id.required'] = 'Minimal satu Mic Radius wajib dipilih.';
+        }
+        if ($user->can('input halaman pembayaran')) {
+            $rules['price'] = 'required';
+            $messages['price.required'] = 'Minimal satu Tipe Pembayaran wajib dipilih.';
+        }
 
         $supportPppoe = $request->boolean('support_pppoe');
         $supportVoucher = $request->boolean('support_voucher');
@@ -744,58 +760,56 @@ class PagesController extends Controller
 
         $parseIds = fn($val) => array_values(array_filter(array_unique(is_array($val) ? $val : (is_string($val) && strlen($val) > 0 ? explode(',', $val) : []))));
 
-        $canEditPage = $user->can('edit halaman lengkap') || $user->can('edit halaman');
-
-        if (($user->can('input halaman vlan') || $canEditPage) && $request->has('vlans_id')) {
+        if ($user->can('input halaman vlan') && $request->has('vlans_id')) {
             $pages->vlan()->delete();
             foreach ($parseIds($request->vlans_id) as $vln) {
                 $pages->vlan()->create(["vlans_id" => $vln]);
             }
         }
 
-        if (($user->can('input halaman odc') || $canEditPage) && $request->has('odcs_id')) {
+        if ($user->can('input halaman odc') && $request->has('odcs_id')) {
             $pages->odc()->delete();
             foreach ($parseIds($request->odcs_id) as $odc) {
                 $pages->odc()->create(["odcs_id" => $odc]);
             }
         }
 
-        if (($user->can('input halaman odp') || $canEditPage) && $request->has('odps_id')) {
+        if ($user->can('input halaman odp') && $request->has('odps_id')) {
             $pages->odp()->delete();
             foreach ($parseIds($request->odps_id) as $odp) {
                 $pages->odp()->create(["odps_id" => $odp]);
             }
         }
 
-        if (($user->can('input halaman olt') || $canEditPage) && $request->has('olts_id')) {
+        if ($user->can('input halaman olt') && $request->has('olts_id')) {
             $pages->olt()->delete();
             foreach ($parseIds($request->olts_id) as $olt) {
                 $pages->olt()->create(["olts_id" => $olt]);
             }
         }
 
-        if (($user->can('input halaman paket') || $canEditPage) && $request->has('paket_id')) {
+        if ($user->can('input halaman paket') && $request->has('paket_id')) {
             $pages->paket()->delete();
             foreach ($parseIds($request->paket_id) as $pkt) {
                 $pages->paket()->create(["paket_id" => $pkt]);
             }
         }
 
-        if (($user->can('input halaman mic radius') || $canEditPage) && $request->has('mic_radius_id')) {
+        if ($user->can('input halaman mic radius') && $request->has('mic_radius_id')) {
             $pages->mic_radius()->delete();
             foreach ($parseIds($request->mic_radius_id) as $mc) {
                 $pages->mic_radius()->create(["mic_radius_id" => $mc]);
             }
         }
 
-        if (($user->can('input halaman pembayaran') || $canEditPage) && $request->has('price')) {
+        if ($user->can('input halaman pembayaran') && $request->has('price')) {
             $pages->price()->delete();
             foreach ($parseIds($request->price) as $pc) {
                 $pages->price()->create(["price_id" => $pc]);
             }
         }
 
-        if (($user->can('input halaman tipe pelanggan') || $canEditPage) && $request->has('tipe_pelanggan_id')) {
+        if ($user->can('input halaman tipe pelanggan') && $request->has('tipe_pelanggan_id')) {
             $pages->tipePelanggan()->delete();
             foreach ($parseIds($request->tipe_pelanggan_id) as $tp) {
                 $pages->tipePelanggan()->create(["tipe_pelanggan_id" => $tp]);

@@ -1406,6 +1406,7 @@
                     </button>
                 </li>
                 @endcan
+                @if(Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                 <li class="nav-item" role="presentation">
                     <button class="nav-link @cannot('input halaman user ditugaskan') active @endcannot fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-2" id="tab-edit-btn" data-bs-toggle="tab" data-bs-target="#tab-pane-edit" type="button" role="tab" aria-controls="tab-pane-edit" aria-selected="{{ Auth::user()->can('input halaman user ditugaskan') ? 'false' : 'true' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -1416,6 +1417,7 @@
                         <span>Edit Halaman</span>
                     </button>
                 </li>
+                @endif
             </ul>
         </div>
 
@@ -1457,6 +1459,7 @@
                 </div>
                 @endcan
 
+                @if(Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
                 <!-- TAB 2: EDIT -->
                 <div class="tab-pane fade @cannot('input halaman user ditugaskan') show active @endcannot p-4" id="tab-pane-edit" role="tabpanel" aria-labelledby="tab-edit-btn">
                     <input type="hidden" name="type" id="type" value="update">
@@ -1464,6 +1467,7 @@
                     <input type="hidden" name="page_version" id="page_version" value="complete">
                     
                     <div class="row g-4">
+                        @canany(['input halaman judul', 'input halaman deskripsi', 'input halaman nama vlan', 'input halaman server', 'input halaman ip address', 'input halaman opsi ktp', 'input halaman opsi persetujuan', 'input halaman opsi cek kontak', 'input halaman support', 'input halaman tipe pelanggan'])
                         <div class="col-12">
                             <div class="premium-card p-3">
                                 <h6 class="fw-bold text-dark mb-3">
@@ -1610,7 +1614,7 @@
                                     </div>
                                     @endcan
 
-                                    @if(Auth::user()->can('input halaman tipe pelanggan') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman tipe pelanggan')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card p-3 bg-light border rounded h-100 d-flex flex-column justify-content-between" id="card_tipe_pelanggan_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1633,10 +1637,11 @@
                                         </div>
                                         <span class="invalid-feedback error_tipe_pelanggan_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
                                 </div>
                             </div>
                         </div>
+                        @endcanany
 
                         @can('input halaman wilayah')
                         {{-- Area Regional --}}
@@ -1692,6 +1697,7 @@
                         </div>
                         @endcan
 
+                        @canany(['input halaman vlan', 'input halaman odc', 'input halaman odp', 'input halaman olt', 'input halaman paket', 'input halaman mic radius', 'input halaman pembayaran'])
                         {{-- Perangkat Jaringan & Paket --}}
                         <div class="col-12">
                             <div class="premium-card p-3">
@@ -1701,7 +1707,7 @@
                                 </h6>
                                 <div class="row g-3">
                                     {{-- VLAN (Checkbox Checklist) --}}
-                                    @if(Auth::user()->can('input halaman vlan') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman vlan')
                                     <div class="col-12">
                                         <div class="checklist-group-card" id="card_vlans_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1727,10 +1733,10 @@
                                         </div>
                                         <span class="invalid-feedback error_vlans_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- ODC (Opsional) --}}
-                                    @if(Auth::user()->can('input halaman odc') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman odc')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_odcs_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1748,10 +1754,10 @@
                                         </div>
                                         <span class="invalid-feedback error_odcs_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- ODP (Opsional) --}}
-                                    @if(Auth::user()->can('input halaman odp') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman odp')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_odps_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1769,10 +1775,10 @@
                                         </div>
                                         <span class="invalid-feedback error_odps_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- OLT --}}
-                                    @if(Auth::user()->can('input halaman olt') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman olt')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_olts_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1790,10 +1796,10 @@
                                         </div>
                                         <span class="invalid-feedback error_olts_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- Paket --}}
-                                    @if(Auth::user()->can('input halaman paket') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman paket')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_paket_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1811,10 +1817,10 @@
                                         </div>
                                         <span class="invalid-feedback error_paket_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- Radius --}}
-                                    @if(Auth::user()->can('input halaman mic radius') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman mic radius')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_mic_radius_id">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1832,10 +1838,10 @@
                                         </div>
                                         <span class="invalid-feedback error_mic_radius_id"></span>
                                     </div>
-                                    @endif
+                                    @endcan
 
                                     {{-- Price --}}
-                                    @if(Auth::user()->can('input halaman pembayaran') || Auth::user()->can('edit halaman lengkap') || Auth::user()->can('edit halaman'))
+                                    @can('input halaman pembayaran')
                                     <div class="col-md-6">
                                         <div class="checklist-group-card" id="card_price">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1853,10 +1859,11 @@
                                         </div>
                                         <span class="invalid-feedback error_price"></span>
                                     </div>
-                                    @endif
+                                    @endcan
                                 </div>
                             </div>
                         </div>
+                        @endcanany
                     </div>
                     <div class="p-3 bg-white border rounded shadow-sm d-flex justify-content-between align-items-center mt-4">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Batal</button>
@@ -1869,6 +1876,7 @@
                         </button>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
