@@ -97,7 +97,7 @@ Route::prefix('chatting')->group(function () {
 
 // data hostory
 Route::prefix('history')->group(function () {
-    Route::get('/', [HistoryController::class, 'index'])->name('history.index');
+    Route::match(['get', 'post'], '/', [HistoryController::class, 'index'])->name('history.index');
 });
 
 // report wablass

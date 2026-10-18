@@ -822,8 +822,12 @@
                 serverSide: true,
                 ajax: {
                     url: BASE,
-                    type: 'GET',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: function(d) {
+                        d._token = $('meta[name="csrf-token"]').attr('content');
                         d.filter_start = $('#filter_start').val();
                         d.filter_end = $('#filter_end').val();
                         d.filter_user = $('#filter_user').val();
