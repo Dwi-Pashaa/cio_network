@@ -2,135 +2,87 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class MyEmailVerifierService
 {
-    protected string $apiKey;
-    protected string $apiUrl = 'https://api.myemailverifier.com/api/validate_single.php';
-
-    public function __construct()
-    {
-        $this->apiKey = config('services.myemailverifier.key');
-    }
+    /**
+     * Daftar domain email sementara (disposable) yang dilarang.
+     */
+    protected array $disposableDomains = [
+        'mailinator.com',
+        'tempmail.com',
+        '10minutemail.com',
+        'guerrillamail.com',
+        'trashmail.com',
+        'sharklasers.com',
+        'dispostable.com',
+        'yopmail.com',
+        'fakeinbox.com',
+        'getairmail.com',
+        'throwawaymail.com',
+    ];
 
     /**
-     * Verifikasi email menggunakan MyEmailVerifier API.
+     * Verifikasi email menggunakan validasi format dan DNS MX record native PHP.
+     * Cepat, gratis selamanya, tanpa kuota/API key pihak ketiga.
      *
      * @param  string  $email
      * @return array{is_valid: bool, status: string, message: string, raw_response: array|null}
      */
     public function verify(string $email): array
     {
+        $email = trim($email);
+
+        // 1. Validasi format email dasar
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->reject('Format email tidak valid.');
+        }
+
+        // Regex ekstra untuk memastikan karakter dan struktur email standar
+        if (!preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email)) {
+            return $this->reject('Format email tidak valid.');
+        }
+
+        // 2. Ambil domain dari email
+        $domain = substr(strrchr($email, "@"), 1);
+        if (!$domain) {
+            return $this->reject('Domain email tidak valid.');
+        }
+
+        $domain = strtolower(trim($domain));
+
+        // 3. Tolak jika menggunakan email disposable / temporary
+        if (in_array($domain, $this->disposableDomains, true)) {
+            return $this->reject('Email sementara (disposable) tidak diperbolehkan.');
+        }
+
+        // 4. Verifikasi Mail Server aktif melalui DNS MX Record (atau fallback A record)
         try {
-            $response = Http::timeout(10)->get($this->apiUrl, [
-                'apikey' => $this->apiKey,
-                'email'  => $email,
-            ]);
+            $hasMx = checkdnsrr($domain, 'MX');
+            $hasA  = $hasMx ? true : checkdnsrr($domain, 'A');
 
-            if (!$response->successful()) {
-                Log::warning('MyEmailVerifier: HTTP error', [
-                    'http_status' => $response->status(),
-                    'email'       => $email,
-                ]);
-
-                return $this->fail('Gagal mengecek email. Silakan coba beberapa saat lagi.');
+            if (!$hasMx && !$hasA) {
+                return $this->reject("Domain email '{$domain}' tidak aktif atau tidak dapat menerima email.");
             }
-
-            $data = $response->json();
-
-            // Pastikan response memiliki key minimum yang dibutuhkan
-            if (!isset($data['Status'])) {
-                Log::warning('MyEmailVerifier: Response tidak lengkap', [
-                    'email'    => $email,
-                    'response' => $data,
-                ]);
-
-                return $this->fail('Gagal mengecek email. Silakan coba beberapa saat lagi.');
-            }
-
-            return $this->evaluate($data);
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('MyEmailVerifier: Connection timeout/error', [
-                'email'   => $email,
-                'message' => $e->getMessage(),
-            ]);
-
-            return $this->fail('Gagal mengecek email. Silakan coba beberapa saat lagi.');
         } catch (\Throwable $e) {
-            Log::error('MyEmailVerifier: Unexpected error', [
-                'email'   => $email,
-                'message' => $e->getMessage(),
-            ]);
-
-            return $this->fail('Gagal mengecek email. Silakan coba beberapa saat lagi.');
-        }
-    }
-
-    /**
-     * Evaluasi response dari MyEmailVerifier berdasarkan aturan validasi.
-     * Response kadang mengembalikan boolean sebagai string "true"/"false",
-     * helper parseBool() menangani keduanya secara aman.
-     */
-    private function evaluate(array $data): array
-    {
-        $status     = $data['Status'] ?? '';
-        $disposable = $this->parseBool($data['Disposable_Domain'] ?? false);
-        $roleBased  = $this->parseBool($data['Role_Based'] ?? false);
-        $diagnosis  = $data['Diagnosis'] ?? '';
-
-        // 1. Tolak email disposable / temporary
-        if ($disposable) {
-            return $this->reject('Email sementara tidak diperbolehkan.', $data);
+            Log::warning('Native DNS MX check error: ' . $e->getMessage(), ['domain' => $domain]);
+            // Jika terjadi error pada fungsi DNS (misal DNS server timeout), tetap loloskan jika format valid
         }
 
-        // 2. Tolak email role-based (admin@, info@, support@, dll)
-        if ($roleBased) {
-            return $this->reject(
-                'Email role seperti admin, info, atau support tidak diperbolehkan. Gunakan email pribadi pelanggan.',
-                $data
-            );
-        }
-
-        // 3. Cek Status harus "Valid"
-        if (strtolower($status) !== 'valid') {
-            return $this->reject('Email tidak valid atau tidak aktif.', $data);
-        }
-
-        // 4. Semua kondisi terpenuhi — email valid
         return [
             'is_valid'     => true,
             'status'       => 'register',
-            'message'      => 'Email valid dan terdaftar.',
-            'raw_response' => $data,
+            'message'      => 'Email valid dan siap digunakan.',
+            'raw_response' => [
+                'email'  => $email,
+                'domain' => $domain,
+                'method' => 'native_dns_mx',
+            ],
         ];
     }
 
-    /**
-     * Parse nilai boolean dari string "true"/"false" maupun boolean asli.
-     */
-    private function parseBool(mixed $value): bool
-    {
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        return strtolower((string) $value) === 'true';
-    }
-
-    private function reject(string $message, array $data): array
-    {
-        return [
-            'is_valid'     => false,
-            'status'       => 'not_register',
-            'message'      => $message,
-            'raw_response' => $data,
-        ];
-    }
-
-    private function fail(string $message): array
+    private function reject(string $message): array
     {
         return [
             'is_valid'     => false,
@@ -140,3 +92,4 @@ class MyEmailVerifierService
         ];
     }
 }
+

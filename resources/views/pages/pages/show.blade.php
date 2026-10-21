@@ -1801,7 +1801,15 @@
                     },
                     body: JSON.stringify({ email: email }),
                 })
-                .then(function (res) { return res.json(); })
+                .then(function (res) {
+                    if (!res.ok) {
+                        return res.json().then(
+                            function(errData) { throw new Error(errData.message || 'Gagal mengecek email.'); },
+                            function() { throw new Error('Sesi telah berakhir (Status ' + res.status + '). Silakan refresh halaman.'); }
+                        );
+                    }
+                    return res.json();
+                })
                 .then(function (data) {
                     setLoading(false);
                     if (data.is_valid) {
@@ -1816,9 +1824,10 @@
                         checkBtn.classList.add('btn-danger');
                     }
                 })
-                .catch(function () {
+                .catch(function (err) {
                     setLoading(false);
-                    setFeedback('Gagal mengecek email. Silakan coba lagi.', 'error');
+                    const msg = (err && err.message) ? err.message : 'Gagal mengecek email. Silakan coba lagi.';
+                    setFeedback(msg, 'error');
                     window.__emailChecked = false;
                     checkBtn.classList.remove('btn-success');
                     checkBtn.classList.add('btn-danger');
